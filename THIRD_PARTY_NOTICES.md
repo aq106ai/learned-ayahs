@@ -32,8 +32,8 @@ corrected promptly.
 
 The Android app is built with open-source libraries resolved by Gradle, including AndroidX,
 Jetpack Compose, Media3 (ExoPlayer), Kotlin coroutines, and for tests JUnit, Robolectric and
-Espresso. These are mostly under the Apache License 2.0 (JUnit is under the Eclipse Public
-License 1.0). See `android-app-quran-player/app/build.gradle.kts` for the exact list and
+Espresso. These are mostly under the Apache License 2.0; JUnit 4 is under the Eclipse Public
+License 1.0 and Robolectric under the MIT License. See `android-app-quran-player/app/build.gradle.kts` for the exact list and
 versions.
 
 The Gradle wrapper (`gradlew`, `gradle/wrapper/`) is part of [Gradle](https://gradle.org/) and

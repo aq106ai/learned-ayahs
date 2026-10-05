@@ -23,6 +23,8 @@ import androidx.media3.session.MediaSessionService
 import com.quran.learnedplayer.MainActivity
 import com.quran.learnedplayer.R
 import com.quran.learnedplayer.data.AyahTrack
+import com.quran.learnedplayer.data.LearnedAyahsStore
+import com.quran.learnedplayer.data.LibraryRepository
 import com.quran.learnedplayer.data.PlaylistStore
 import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.QuranDataRepository
@@ -34,6 +36,7 @@ import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.RepeatMode
 import com.quran.learnedplayer.player.playbackModeLabel
 import java.io.File
+import kotlinx.coroutines.runBlocking
 
 @UnstableApi
 class PlaybackService : MediaSessionService() {
@@ -315,7 +318,16 @@ class PlaybackService : MediaSessionService() {
     private fun parkForRevisionGap() {
         val p = player ?: return
         handler.removeCallbacks(revisionGapResume)
-        p.pause()
+        val gapMs = PlayerSettings.revisionDelaySeconds * 1000L
+        if (gapMs > 0) {
+            // Set before pausing: the pause's own callbacks must already see the gap, so the
+            // session counts as still going (no notification flip, no leaving the foreground).
+            revisionGapPending = true
+            revisionGapParked = true
+            p.pause()
+        }
+        // With no gap the repeat simply seeks back while playing — pausing for zero seconds only
+        // made the player flicker paused/playing (and re-post the notification) on every repeat.
         if (ayahSeekActive()) {
             val start = ayahSeekSegments.getOrNull(ayahSeekWordIndex)?.first ?: 0L
             p.seekTo(start)
@@ -332,13 +344,11 @@ class PlaybackService : MediaSessionService() {
             0L,
             if (duration > 0 && duration != C.TIME_UNSET) duration else 0L,
         )
-        val gapMs = PlayerSettings.revisionDelaySeconds * 1000L
         if (gapMs > 0) {
-            revisionGapPending = true
-            revisionGapParked = true
             handler.postDelayed(revisionGapResume, gapMs)
         } else {
             revisionGapPending = false
+            revisionGapParked = false
             p.play()
         }
         updateNotification()
@@ -507,6 +517,7 @@ class PlaybackService : MediaSessionService() {
 
     /** Carries out one command from the app (see [PlayerStateHolder.deliverCommand]). */
     fun handleCommand(intent: Intent) {
+        ensureMasterList()
         when (intent.action) {
             ACTION_LOAD_PLAYLIST -> {
                 val autoPlay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false)
@@ -536,7 +547,8 @@ class PlaybackService : MediaSessionService() {
             ACTION_NOTIF_PREV -> skipPrevious()
             ACTION_NOTIF_NEXT -> skipNext()
             ACTION_NOTIF_PLAY_PAUSE -> {
-                if (player?.isPlaying == true) pause() else play()
+                // "Going on", like the button's label: during a revision gap it reads Pause.
+                if (playbackOngoing()) pause() else play()
             }
             ACTION_NOTIF_DISMISSED -> notificationActive = false
         }
@@ -617,6 +629,18 @@ class PlaybackService : MediaSessionService() {
 
         PlayerStateHolder.updateMode(mode, repeatMode)
         PlayerStateHolder.updateQueue(queue, startIndex)
+    }
+
+    /**
+     * The learned list normally arrives from the app's UI. A notification button pressed after the
+     * process was gone starts the service on its own, with nothing loaded; build the list the
+     * same way the app does rather than playing an empty queue.
+     */
+    private fun ensureMasterList() {
+        if (PlaylistStore.latest != null) return
+        PlaylistStore.latest = runBlocking {
+            LibraryRepository(this@PlaybackService).buildLocalSnapshot(LearnedAyahsStore.learnedIds.value)
+        }
     }
 
     /** Prefers cached local files over streaming for a synthesised (non-learned-list) queue. */
@@ -997,21 +1021,49 @@ class PlaybackService : MediaSessionService() {
         }
     }
 
+    /**
+     * Ends a word cut from the ayah MP3 at the *next* word's onset. QUL reports onsets accurately
+     * and ends often not at all (see CLAUDE.md) — cutting on the reported end clipped words, and
+     * for the ~800 words per reciter whose end is within [WORD_END_LEAD_MS] of their start it
+     * fired the moment the word began: under repeat it looped without a sound as fast as the
+     * player could seek, and otherwise the word was skipped unheard. The last word plays to the
+     * end of the file, where STATE_ENDED takes over.
+     */
     private fun maybeParkAtWordEnd(p: Player) {
         if (!ayahSeekActive() || !p.isPlaying) return
         val seg = ayahSeekSegments.getOrNull(ayahSeekWordIndex) ?: return
-        val endMs = seg.last + 1
-        if (endMs <= 0L) return
-        if (p.currentPosition >= (endMs - WORD_END_LEAD_MS).coerceAtLeast(seg.first)) {
-            p.pause()
+        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return
+        val endAt = maxOf(nextOnset - WORD_END_LEAD_MS, seg.first + MIN_WORD_PLAY_MS)
+        if (p.currentPosition >= endAt) {
             onAyahSeekWordEnded()
         }
     }
 
     private fun onAyahSeekWordEnded() {
+        if (ayahSeekSegments.isEmpty()) {
+            // No timings: the ayah played whole, as a single unit. Repeat it, or move on —
+            // stepping "words" here would replay the whole ayah once per word.
+            when (repeatMode) {
+                RepeatMode.AYAH -> parkForRevisionGap()
+                RepeatMode.SURAH, RepeatMode.OFF ->
+                    if (!advanceWordAyah(forward = true)) scheduleForegroundCheck()
+            }
+            return
+        }
         when (repeatMode) {
             RepeatMode.AYAH -> parkForRevisionGap()
-            RepeatMode.SURAH, RepeatMode.OFF -> skipAyahSeekWord(forward = true)
+            RepeatMode.SURAH, RepeatMode.OFF -> {
+                val last = (ayahSeekWordCount - 1).coerceAtLeast(0)
+                val ended = player?.playbackState == Player.STATE_ENDED
+                if (!ended && ayahSeekWordIndex < last) {
+                    // The recitation is already at the next word's onset: carry on through it
+                    // rather than pausing and seeking to where it already is.
+                    ayahSeekWordIndex++
+                    PlayerStateHolder.updateWordIndex(ayahSeekWordIndex, ayahSeekWordCount)
+                } else {
+                    skipAyahSeekWord(forward = true)
+                }
+            }
         }
     }
 
@@ -1356,6 +1408,9 @@ class PlaybackService : MediaSessionService() {
          */
         private const val REVISION_GAP_LEAD_MS = 350L
         private const val WORD_END_LEAD_MS = 60L
+
+        /** A word cut from the ayah audio plays at least this long before it can be ended. */
+        private const val MIN_WORD_PLAY_MS = 150L
 
         const val ACTION_LOAD_PLAYLIST = "com.quran.learnedplayer.LOAD_PLAYLIST"
         const val ACTION_SET_MODE = "com.quran.learnedplayer.SET_MODE"

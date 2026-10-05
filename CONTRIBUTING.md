@@ -67,17 +67,6 @@ the Android app (playback rules, ayah references, the export format, the recitat
 you change behaviour that both apps share, change it in both, and keep their tests in step.
 [`web-app/README.md`](web-app/README.md) describes the layout and the API.
 
-### Legacy desktop player
-
-Requirements: **Python 3.9+**. It uses only the standard library.
-
-```bash
-cd web-app-quran-player
-python play_learned_ayahs.py --help
-```
-
-`player_template.html` is the source; `player.html` is generated from it and is not committed.
-
 ## Tests
 
 | Command (from `android-app-quran-player/`) | What it covers | Needs |
@@ -123,8 +112,8 @@ Commit the regenerated output together with the change that required it, and mak
 | `main` | Stable. Releases are cut from here, and it only changes by merging `dev` |
 | `dev` | Integration branch. **Open pull requests against `dev`** |
 
-Every push and pull request runs CI (Android unit tests and debug build, the web app's unit,
-server and browser tests, and the legacy player check). Merging into
+Every push and pull request runs CI (Android unit tests and debug build, and the web app's unit,
+server and browser tests). Merging into
 `main` also runs the slower **Android extended checks**: instrumented tests on an emulator, plus
 an Android Lint report. You can start those by hand from the Actions tab on any branch.
 

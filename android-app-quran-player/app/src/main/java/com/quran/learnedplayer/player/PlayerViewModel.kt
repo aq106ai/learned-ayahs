@@ -335,7 +335,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                         if (failed > 0) " ($failed failed)" else "",
                 )
             }
-            PlaylistStore.latest = snapshot.copy(tracks = updated)
+            mergeLocalPaths(updated)
             rebuildPreview()
             PlayerStateHolder.updateIntroCache(repository.isAudhuCached(), repository.isBismillahCached())
             PlayerStateHolder.setDownloadProgress(
@@ -425,6 +425,27 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
+    /**
+     * Records newly saved files on the *current* master list. Replacing it with the snapshot a long
+     * download started from would quietly undo every ayah marked or unmarked while it ran. A file
+     * only counts for the same recording: after a reciter change the old reciter's file is not it.
+     */
+    private fun mergeLocalPaths(saved: List<AyahTrack>) {
+        val byId = saved.filter { it.localPath != null }.associateBy { it.globalId }
+        if (byId.isEmpty()) return
+        val latest = PlaylistStore.latest ?: return
+        PlaylistStore.latest = latest.copy(
+            tracks = latest.tracks.map { track ->
+                val file = byId[track.globalId]
+                if (file != null && file.remoteUrl == track.remoteUrl) {
+                    track.withLocalPath(file.localPath!!)
+                } else {
+                    track
+                }
+            },
+        )
+    }
+
     private fun preparePlaybackService() {
         // A user who has marked nothing has an empty playlist. Starting the service anyway would
         // put a foreground media notification on screen for an empty queue.
@@ -438,20 +459,20 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun playWithService() {
-        val snapshot = PlaylistStore.latest ?: return
+        if (PlaylistStore.latest == null) return
         val current = uiState.value.currentTrack
+        // Reach the service now, while the app is in the foreground: the downloads below can take
+        // a while, the user may leave the app meanwhile, and Android 8+ refuses to start a
+        // service from the background.
+        if (!PlayerStateHolder.isServiceReady()) {
+            startPlaybackService(autoPlay = false, startGlobal = current?.globalId ?: 0)
+        }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.cacheIntroClips()
                 current?.let { track ->
                     val cached = repository.cacheTrack(track)
-                    if (cached.localPath != null) {
-                        PlaylistStore.latest = snapshot.copy(
-                            tracks = snapshot.tracks.map {
-                                if (it.globalId == cached.globalId) cached else it
-                            },
-                        )
-                    }
+                    if (cached.localPath != null) mergeLocalPaths(listOf(cached))
                 }
             }
             PlayerStateHolder.updateIntroCache(

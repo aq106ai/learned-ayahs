@@ -20,7 +20,14 @@ internal object AtomicDownload {
     fun toFile(url: String, dest: File): Boolean {
         val dir = dest.parentFile ?: return false
         dir.mkdirs()
-        val part = File(dir, "${dest.name}.part")
+        // A unique temporary name: the same clip can be fetched by two jobs at once (play and
+        // "save offline", or Recite's prefetch and its bulk fill), and with a shared name one
+        // job's cleanup would delete or truncate the other's file mid-download.
+        val part = try {
+            File.createTempFile("${dest.name}.", ".part", dir)
+        } catch (e: IOException) {
+            return false
+        }
         return try {
             val connection = (URL(url).openConnection() as HttpURLConnection).apply {
                 connectTimeout = 30_000

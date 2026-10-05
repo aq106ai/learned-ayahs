@@ -31,7 +31,8 @@ class WordAudioDownloader(context: Context) {
     }
 
     fun cachedCount(reciter: WordReciter = PlayerSettings.wordReciter): Int =
-        audioRoot(reciter).listFiles()?.count { it.length() > 0L } ?: 0
+        // A ".part" file is a download that never finished (see AtomicDownload), not a clip.
+        audioRoot(reciter).listFiles()?.count { it.length() > 0L && !it.name.endsWith(".part") } ?: 0
 
     /**
      * True when every content word of one ayah is already on disk.

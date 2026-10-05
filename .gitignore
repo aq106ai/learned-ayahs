@@ -10,17 +10,8 @@ captures/
 # ===== Large media assets =====
 *.mp3
 
-# ===== Web player: generated output and personal data =====
-# Everything below is produced by play_learned_ayahs.py from *your* library export, or is
-# the export itself. It is personal (your learned ayahs, notes, local paths) and is
-# regenerated on the next run, so it never belongs in the repository.
-/web-app-quran-player/audio/
-/web-app-quran-player/player.html
-/web-app-quran-player/learned_ayahs_playlist.json
-/web-app-quran-player/learned_ayahs.m3u
-/web-app-quran-player/quran_text.json
-/web-app-quran-player/word_timings.json
-/web-app-quran-player/launcher.log
+# ===== Qur'an-app library exports =====
+# Personal (your learned ayahs). The web app can import them; they never belong in the repository.
 quran_library*.json
 
 # ===== Web app: runtime data and tooling =====

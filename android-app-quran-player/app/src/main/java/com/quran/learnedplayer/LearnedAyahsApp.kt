@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import com.quran.learnedplayer.data.BookmarksStore
 import com.quran.learnedplayer.data.LearnedAyahsStore
+import com.quran.learnedplayer.data.QuranDataRepository
 import com.quran.learnedplayer.player.PlayerSettings
 import java.io.File
 import java.io.PrintWriter
@@ -15,6 +16,10 @@ class LearnedAyahsApp : Application() {
         PlayerSettings.init(this)
         LearnedAyahsStore.init(this)
         BookmarksStore.init(this)
+        // Parse the bundled Qur'an text now, off the main thread: the first screen needs it, and
+        // the playback service would otherwise parse ~5 MB of JSON on the main thread at a cold
+        // start in Word-by-word mode.
+        Thread({ QuranDataRepository(this).warmUp() }, "quran-text-warmup").start()
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             runCatching {

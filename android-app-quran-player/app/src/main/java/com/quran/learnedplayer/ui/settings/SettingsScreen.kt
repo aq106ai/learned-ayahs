@@ -62,6 +62,10 @@ import com.quran.learnedplayer.ui.theme.Border
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 const val TAG_SETTINGS_SCREEN = "settings_screen"
 const val TAG_WORD_TRANSLATIONS_TOGGLE = "word_translations_toggle"
@@ -132,8 +136,11 @@ fun SettingsScreen(
             }
         }
     }
-    val wordClipsCached = remember(state.downloadProgress, state.tracks) {
-        WordAudioDownloader(context).cachedCount()
+    // Counting the cache lists the directory and stats every clip, so it runs off the main thread,
+    // and only once the download progress has settled for a moment (it ticks once per file).
+    val wordClipsCached by produceState(initialValue = 0, state.downloadProgress, state.tracks) {
+        delay(300)
+        value = withContext(Dispatchers.IO) { WordAudioDownloader(context).cachedCount() }
     }
 
     Column(

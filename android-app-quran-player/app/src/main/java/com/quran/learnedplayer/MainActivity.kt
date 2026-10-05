@@ -1,6 +1,7 @@
 package com.quran.learnedplayer
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -93,11 +94,21 @@ class MainActivity : ComponentActivity() {
 
     private fun importLearnedAyahs() {
         pendingImport = viewModel::importExportedFile
-        openDocumentLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+        launchPicker { openDocumentLauncher.launch(arrayOf("application/json", "text/plain", "*/*")) }
     }
 
     private fun exportLearnedAyahs() {
-        createDocumentLauncher.launch(LearnedAyahsExport.suggestedFileName())
+        launchPicker { createDocumentLauncher.launch(LearnedAyahsExport.suggestedFileName()) }
+    }
+
+    /** Some devices (and work profiles) have no system file picker; say so instead of crashing. */
+    private fun launchPicker(launch: () -> Unit) {
+        try {
+            launch()
+        } catch (e: ActivityNotFoundException) {
+            pendingImport = null
+            Toast.makeText(this, "No file picker is available on this device.", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun runWithNotificationPermission(action: () -> Unit) {

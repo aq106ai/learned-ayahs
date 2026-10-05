@@ -47,7 +47,8 @@ data class WordAudio(
 
     companion object {
         fun filename(surah: Int, ayah: Int, wordIndex: Int): String =
-            "%03d_%03d_%03d.mp3".format(surah, ayah, wordIndex + 1)
+            // Locale.ROOT: see AyahMapping.ayahFilename — locale digits would break every URL.
+            String.format(java.util.Locale.ROOT, "%03d_%03d_%03d.mp3", surah, ayah, wordIndex + 1)
 
         fun remoteUrl(reciter: WordReciter, surah: Int, ayah: Int, wordIndex: Int): String =
             "${reciter.baseUrl}/${filename(surah, ayah, wordIndex)}"

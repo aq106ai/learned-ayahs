@@ -54,7 +54,9 @@ object AyahMapping {
     }
 
     fun ayahFilename(surah: Int, ayah: Int): String =
-        "%03d%03d.mp3".format(surah, ayah)
+        // Locale.ROOT: in an Arabic, Persian or Bengali locale the default would write its own
+        // digits ("٠٠٢٢٥٥.mp3") and every audio URL would 404.
+        String.format(java.util.Locale.ROOT, "%03d%03d.mp3", surah, ayah)
 
     fun remoteUrl(surah: Int, ayah: Int): String =
         "${QuranConstants.BASE_URL}/${ayahFilename(surah, ayah)}"

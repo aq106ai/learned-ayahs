@@ -59,7 +59,11 @@ jobs:
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           working-directory: android-app-quran-player
+          # hide_error_dialogs: a busy emulator can ANR its own launcher, and the "isn't
+          # responding" dialog then holds window focus, so every Espresso call (pressBack,
+          # closeSoftKeyboard) in the tests after it times out waiting for the app's window.
           script: |
+            adb shell settings put global hide_error_dialogs 1
             adb shell settings put system screen_off_timeout 2147483647
             adb shell svc power stayon true
             ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest || touch "$RUNNER_TEMP/instrumented-failed"

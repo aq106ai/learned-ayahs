@@ -1,0 +1,151 @@
+[
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 1,
+    "file": "001001.wav",
+    "seconds": 3.5
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 2,
+    "file": "001002.wav",
+    "seconds": 3.37
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 3,
+    "file": "001003.wav",
+    "seconds": 2.64
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 4,
+    "file": "001004.wav",
+    "seconds": 2.98
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 5,
+    "file": "001005.wav",
+    "seconds": 3.76
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 6,
+    "file": "001006.wav",
+    "seconds": 2.3
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 7,
+    "file": "001007.wav",
+    "seconds": 10.24
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 112,
+    "ayah": 1,
+    "file": "112001.wav",
+    "seconds": 1.91
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 112,
+    "ayah": 2,
+    "file": "112002.wav",
+    "seconds": 1.57
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 112,
+    "ayah": 3,
+    "file": "112003.wav",
+    "seconds": 2.09
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 112,
+    "ayah": 4,
+    "file": "112004.wav",
+    "seconds": 2.9
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 2,
+    "ayah": 255,
+    "file": "002255.wav",
+    "seconds": 41.87
+  },
+  {
+    "reciter": "AS_SUDAIS",
+    "surah": 112,
+    "ayah": 1,
+    "file": "as_sudais_112001.wav",
+    "seconds": 2.95
+  },
+  {
+    "reciter": "AS_SUDAIS",
+    "surah": 112,
+    "ayah": 2,
+    "file": "as_sudais_112002.wav",
+    "seconds": 2.56
+  },
+  {
+    "reciter": "AS_SUDAIS",
+    "surah": 112,
+    "ayah": 3,
+    "file": "as_sudais_112003.wav",
+    "seconds": 2.77
+  },
+  {
+    "reciter": "AS_SUDAIS",
+    "surah": 112,
+    "ayah": 4,
+    "file": "as_sudais_112004.wav",
+    "seconds": 4.57
+  },
+  {
+    "reciter": "ASH_SHURAYM",
+    "surah": 112,
+    "ayah": 1,
+    "file": "ash_shuraym_112001.wav",
+    "seconds": 2.01
+  },
+  {
+    "reciter": "ASH_SHURAYM",
+    "surah": 112,
+    "ayah": 2,
+    "file": "ash_shuraym_112002.wav",
+    "seconds": 1.72
+  },
+  {
+    "reciter": "ASH_SHURAYM",
+    "surah": 112,
+    "ayah": 3,
+    "file": "ash_shuraym_112003.wav",
+    "seconds": 2.22
+  },
+  {
+    "reciter": "ASH_SHURAYM",
+    "surah": 112,
+    "ayah": 4,
+    "file": "ash_shuraym_112004.wav",
+    "seconds": 3.27
+  },
+  {
+    "reciter": "MAHER_AL_MUAIQLY",
+    "surah": 1,
+    "ayah": 2,
+    "file": "001002_wrong_word2.wav",
+    "seconds": 3.74,
+    "mistakeWordIndex": 2,
+    "saidInstead": "مَـٰلِكِ"
+  }
+]

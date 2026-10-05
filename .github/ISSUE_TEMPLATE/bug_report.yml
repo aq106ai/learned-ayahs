@@ -1,0 +1,70 @@
+name: Bug report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this! Please don't include personal data (for example your full library export).
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which part?
+      options:
+        - Android app
+        - Web player
+        - Docs / other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Mark 2:255 as learned
+        2. Switch to Word by word
+        3. Press Next on a Bluetooth headset
+        4. ...
+    validations:
+      required: true
+  - type: input
+    id: ayah
+    attributes:
+      label: Surah:ayah involved (if any)
+      placeholder: "e.g. 2:21"
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Settings → About on Android; commit or date for the web player.
+      placeholder: "e.g. 1.9.1"
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version / browser
+      placeholder: "e.g. Samsung A34, Android 16 / Chrome 140 on Windows 11"
+  - type: input
+    id: playback
+    attributes:
+      label: Reciter, mode and repeat setting
+      placeholder: "e.g. Maher Al Muaiqly · Learned ayahs · Repeat ayah"
+  - type: dropdown
+    id: network
+    attributes:
+      label: Online or offline?
+      options:
+        - Online
+        - Offline (saved audio)
+        - Not sure
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots, recordings or logs
+      description: Screen recordings are especially helpful for playback and highlighting bugs.

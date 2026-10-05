@@ -1,0 +1,19 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+*.apk
+*.ap_
+*.aab
+
+# Scratch left by the dev-time generators in .setup/. Everything they *produce* is committed —
+# the timing assets and the test recitation corpus are build inputs — but what they download on
+# the way there is not: QUL's raw segment responses and everyayah's MP3s.
+/.setup/out/
+/.setup/.corpus-cache/
+/.setup/raw_*.json

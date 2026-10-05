@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an idea to help people memorise and revise the Qur'an
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe how you memorise or revise, and where the app gets in the way.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which part?
+      options:
+        - Android app
+        - Web player
+        - Both / not sure
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd be willing to help build this

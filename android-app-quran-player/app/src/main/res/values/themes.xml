@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.LearnedAyahsPlayer" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#0A1710</item>
+        <item name="android:navigationBarColor">#0A1710</item>
+        <item name="android:windowBackground">#0A1710</item>
+    </style>
+</resources>

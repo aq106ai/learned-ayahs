@@ -1,0 +1,21 @@
+# Normalise line endings in the repository; check out with the platform's native endings.
+* text=auto
+
+# Shell scripts must keep LF or they will not run on Linux/macOS (including CI).
+*.sh       text eol=lf
+gradlew    text eol=lf
+
+# Windows-only launchers expect CRLF.
+*.bat      text eol=crlf
+*.vbs      text eol=crlf
+*.ps1      text eol=crlf
+
+# Binary assets.
+*.jar      binary
+*.ttf      binary
+*.wav      binary
+*.mp3      binary
+*.png      binary
+
+# Large generated data assets: keep them out of diffs and language statistics.
+android-app-quran-player/app/src/main/assets/*.json   -diff linguist-generated

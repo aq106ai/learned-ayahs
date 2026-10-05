@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Debug/e2e only: instrumentation must be able to show MainActivity over a lock screen.
+         Release builds keep the default (no lock-screen overlay). -->
+    <application>
+        <activity
+            android:name=".MainActivity"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+    </application>
+</manifest>

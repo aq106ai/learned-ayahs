@@ -53,13 +53,46 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          disable-animations: true
+          # Animations stay on: the app's own on-device test runs keep them, and the word
+          # reader's pager is exercised with them enabled.
+          disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           working-directory: android-app-quran-player
           script: |
             adb shell settings put system screen_off_timeout 2147483647
             adb shell svc power stayon true
-            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest
+            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest || touch "$RUNNER_TEMP/instrumented-failed"
+            adb logcat -d -b main,system,crash > "$RUNNER_TEMP/logcat.txt" || true
+
+      # The HTML report is uploaded below, but failures are also printed here so they can be
+      # read straight from the job log.
+      - name: Report instrumented test results
+        if: always()
+        run: |
+          python3 - <<'EOF'
+          import glob, os, xml.etree.ElementTree as ET
+          total = failed = 0
+          for path in glob.glob("app/build/outputs/androidTest-results/connected/**/*.xml", recursive=True):
+              for case in ET.parse(path).getroot().iter("testcase"):
+                  total += 1
+                  for failure in case.findall("failure"):
+                      failed += 1
+                      trace = (failure.text or "").strip().splitlines()
+                      print(f"::group::FAILED {case.get('classname')}.{case.get('name')}")
+                      print("\n".join(trace[:40]))
+                      print("::endgroup::")
+          print(f"{total - failed}/{total} instrumented tests passed")
+          log = os.path.join(os.environ["RUNNER_TEMP"], "logcat.txt")
+          if os.path.exists(log):
+              lines = open(log, errors="replace").read().splitlines()
+              hits = [i for i, l in enumerate(lines) if "FATAL EXCEPTION" in l or "ANR in" in l]
+              print(f"::group::logcat: {len(hits)} crash/ANR markers")
+              for i in hits[:5]:
+                  print("\n".join(lines[i:i + 30]))
+                  print("-----")
+              print("::endgroup::")
+          EOF
+          test ! -f "$RUNNER_TEMP/instrumented-failed"
 
       - name: Upload instrumented test reports
         if: always()

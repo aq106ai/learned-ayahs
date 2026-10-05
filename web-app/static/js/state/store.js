@@ -113,19 +113,42 @@ export class Store extends EventTarget {
     this.server = server;
     if (server.available) {
       try {
+        if (!server.reachable) throw new ApiError(0, 'offline', 'offline');
         const me = await api('GET', 'auth/me');
         this.server.registrationOpen = me.registrationOpen;
+        this.rememberSession(me.user);
         if (me.user) {
           this.user = me.user;
           this.loadLocal(); // instant start from the local copy...
           await this.pull(); // ...then the account's data
           return;
         }
-      } catch {
-        // Server unreachable right now: fall through to the local guest profile.
+      } catch (err) {
+        // Offline: carry on as whoever was signed in here, from their local copy; changes are
+        // saved to the account once the server answers again.
+        const saved = err.status === 0 ? readLocal('session') : null;
+        if (saved?.id) {
+          this.user = saved;
+          this.loadLocal();
+          this.setSync('offline');
+          return;
+        }
       }
     }
     this.loadLocal();
+  }
+
+  /** Who is signed in on this device, so an offline start opens their profile. */
+  rememberSession(user) {
+    if (user) writeLocal('session', user);
+    else removeLocal('session');
+  }
+
+  /** Back online: save what changed meanwhile, then pick up changes from other devices. */
+  async reconnect() {
+    if (!this.user) return;
+    await this.flush();
+    await this.pull();
   }
 
   loadLocal() {
@@ -307,6 +330,7 @@ export class Store extends EventTarget {
     const data = await api('GET', 'data');
     const accountIsNew = data.revision === 0 && !data.updatedAt;
     this.user = res.user;
+    this.rememberSession(res.user);
     if (accountIsNew) {
       // A new account starts from what this browser had as a guest: its ayahs, bookmarks and
       // settings (so, for one, the welcome is not shown again).
@@ -341,6 +365,7 @@ export class Store extends EventTarget {
     clearTimeout(this.saveTimer);
     this.dirty.clear();
     removeLocal(this.profileKey);
+    this.rememberSession(null);
     this.user = null;
     this.loadLocal();
     this.emit('session');

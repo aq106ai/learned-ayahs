@@ -115,6 +115,7 @@ export function accountView({ store, server, go }) {
             try {
               const res = await api('PATCH', 'account', { displayName: displayInput.value.trim() });
               store.user = res.user;
+              store.rememberSession(res.user);
               store.emit('session');
               toast('Saved.');
             } catch (err) {

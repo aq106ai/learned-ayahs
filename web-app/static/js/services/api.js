@@ -34,12 +34,32 @@ export async function api(method, path, body) {
   return data;
 }
 
-/** Whether this page is served by server.py (accounts, sync, audio cache) or a static host. */
+const SERVER_KEY = 'la:v1:server';
+
+/**
+ * Whether this page is served by server.py (accounts, sync, audio cache) or a static host.
+ * A server that answered before is remembered, so starting offline still uses the account's
+ * local copy and the audio saved for offline (reachable: false until it answers again).
+ */
 export async function probeServer() {
   try {
     const health = await api('GET', 'health');
-    return { available: true, ...health };
-  } catch {
-    return { available: false };
+    try {
+      localStorage.setItem(SERVER_KEY, JSON.stringify(health));
+    } catch {
+      // storage unavailable: nothing to remember
+    }
+    return { available: true, reachable: true, ...health };
+  } catch (err) {
+    if (err.status === 0) {
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem(SERVER_KEY) ?? 'null');
+      } catch {
+        saved = null;
+      }
+      if (saved) return { ...saved, available: true, reachable: false };
+    }
+    return { available: false, reachable: false };
   }
 }

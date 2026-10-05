@@ -197,6 +197,7 @@ async function boot() {
     if (document.visibilityState === 'visible') store.pull();
     else store.flush();
   });
+  window.addEventListener('online', () => store.reconnect());
 
   window.addEventListener('hashchange', () => route());
   route({ focus: false });

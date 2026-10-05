@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Learned Ayahs</string>
-    <string name="reciter">Maher Al Muaiqly</string>
     <string name="playback_channel">Playback</string>
     <string name="playback_channel_desc">Quran learned ayahs playback controls</string>
-    <string name="notification_playing">Playing learned ayah</string>
 </resources>

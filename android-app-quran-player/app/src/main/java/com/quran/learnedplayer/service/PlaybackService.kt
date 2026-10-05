@@ -526,7 +526,9 @@ class PlaybackService : MediaSessionService() {
                 val requestedRepeat = readRepeat(intent)
                 val requestedSurah = intent.getIntExtra(EXTRA_SURAH, 0)
                 val startGlobal = intent.getIntExtra(EXTRA_START_GLOBAL, 0)
-                if (master.isNotEmpty()) {
+                // Full surah builds its queue from the surah, not the learned list, so it plays
+                // for someone who has marked nothing yet — tapping an ayah to hear its surah.
+                if (master.isNotEmpty() || requestedMode == PlaybackMode.FULL_SURAH) {
                     loadForMode(requestedMode, requestedRepeat, requestedSurah, startGlobal)
                     if (autoPlay) play()
                 }
@@ -757,6 +759,9 @@ class PlaybackService : MediaSessionService() {
             val startGlobal = currentGlobalId().takeIf { it > 0 } ?: PlayerSettings.lastGlobalId
             loadForMode(mode, repeatMode, currentSurah, startGlobal)
         }
+        // Nothing to play (nothing marked, in a mode that plays the learned list): don't put a
+        // playback notification up for an empty queue.
+        if (p.mediaItemCount == 0) return
         if (mode == PlaybackMode.WORD_BY_WORD && p.playbackState == Player.STATE_ENDED) {
             loadCurrentWordAyah(wordAyahIndex, startWord = 0, autoPlay = true)
             promoteToForeground()

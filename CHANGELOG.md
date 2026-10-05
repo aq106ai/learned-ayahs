@@ -53,6 +53,10 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
   highlighting is aligned. 8:6 and 13:37 had misaligned highlighting and are unhighlighted until
   their timings are regenerated.
 - The notification and lock screen named Maher Al Muaiqly whatever the chosen reciter.
+- With nothing marked yet, tapping an ayah in a surah did not play the surah; the player went
+  back to "No ayahs marked yet". Full surah now plays without a learned list.
+- With swiping turned off, a swipe across the reader still stepped it like a tap (tap to
+  advance). A swipe is no longer a tap.
 
 ### Added
 - Audio focus (pauses for calls and other apps), pausing when headphones are unplugged, and a

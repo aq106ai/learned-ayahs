@@ -1,5 +1,6 @@
 package com.quran.learnedplayer
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -8,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -64,11 +66,29 @@ class WordByWordTest : BaseAppTest() {
     }
 
     /**
-     * The focused reader's own translation for [meaning]. Scoped by tag because the player
-     * screen beneath the overlay also renders word meanings, so the text alone matches twice.
+     * Waits for the word reader to show [meaning] under its Arabic word. Waits rather than
+     * asserting at once: the ayah's words load off the compose-idle clock and the pager settles
+     * a frame later. The pager also keeps neighbouring pages composed but unplaced, so a match
+     * only counts once it is actually on screen. On failure the reader's own tree is printed —
+     * which page is showing, and where — since "not displayed" alone says nothing.
      */
-    private fun focusedWord(meaning: String) =
-        composeRule.onNode(hasTestTag(TAG_WORD_TRANSLATION) and hasText(meaning))
+    private fun assertMeaningShown(meaning: String) {
+        val matcher = hasTestTag(TAG_WORD_TRANSLATION) and hasText(meaning)
+        try {
+            composeRule.waitUntil(10_000) {
+                val nodes = composeRule.onAllNodes(matcher)
+                nodes.fetchSemanticsNodes().indices.any { i ->
+                    runCatching { nodes[i].assertIsDisplayed() }.isSuccess
+                }
+            }
+        } catch (e: ComposeTimeoutException) {
+            throw AssertionError(
+                "\"$meaning\" is not on screen. Word reader:\n" +
+                    composeRule.onNodeWithTag(TAG_WORD_PAGER, useUnmergedTree = true).printToString(),
+                e,
+            )
+        }
+    }
 
     @Test
     fun word_view_shows_an_english_translation_under_the_arabic() {
@@ -76,7 +96,7 @@ class WordByWordTest : BaseAppTest() {
         composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
         awaitTag(TAG_WORD_PAGER)
         // 36:1 is the single word "يسٓ" — "Ya Seen".
-        focusedWord("Ya Seen").assertIsDisplayed()
+        assertMeaningShown("Ya Seen")
     }
 
     /**
@@ -169,10 +189,10 @@ class WordByWordTest : BaseAppTest() {
         assertWord("1 / 3")
 
         // 36:3 word-by-word: "Indeed, you" / "(are) among" / "the Messengers".
-        focusedWord("Indeed, you").assertIsDisplayed()
+        assertMeaningShown("Indeed, you")
         swipeForward()
         composeRule.waitForIdle()
-        focusedWord("(are) among").assertIsDisplayed()
+        assertMeaningShown("(are) among")
     }
 
     /**
@@ -324,6 +344,26 @@ class WordByWordTest : BaseAppTest() {
             composeRule.onAllNodesWithText("Ayah 2", substring = true)
                 .fetchSemanticsNodes().isNotEmpty()
         }
+    }
+
+    /**
+     * With swiping turned off a swipe must do nothing. It used to finish as a tap — tap-to-advance
+     * is on — and step to the next ayah, so turning swiping off did not stop swipes moving on.
+     */
+    @Test
+    fun a_swipe_is_not_a_tap_when_swipe_to_navigate_is_off() {
+        PlayerSettings.playbackMode = PlaybackMode.REVISE
+        PlayerSettings.repeatMode = RepeatMode.OFF
+        PlayerSettings.swipeToNavigate = false
+        openFullscreenReader()
+        composeRule.onNodeWithTag(TAG_FULLSCREEN_WHOLE_AYAH).performTouchInput { swipeRight() }
+        // A step would show within a frame or two (see the tap test above); allow it ample time.
+        Thread.sleep(1_000)
+        composeRule.waitForIdle()
+        assertTrue(
+            "the swipe stepped to the next ayah",
+            composeRule.onAllNodesWithText("Ayah 2", substring = true).fetchSemanticsNodes().isEmpty(),
+        )
     }
 
     @Test

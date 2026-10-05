@@ -3,7 +3,6 @@ package com.quran.learnedplayer.ui
 import android.os.SystemClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +39,7 @@ import com.quran.learnedplayer.data.WordSync
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerUiState
 import com.quran.learnedplayer.service.PlayerStateHolder
+import com.quran.learnedplayer.ui.common.advanceOnTap
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
@@ -246,25 +246,14 @@ fun WordByWordView(
         // direction of travel flips, which also puts the "previous" edge page on the right
         // where it belongs.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            // The tag sits on this container, not the pager: tap-to-advance makes the container
-            // clickable, a clickable merges its children's semantics, and a child's test tag does
-            // not survive the merge — the reader was on screen but invisible to every test.
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .testTag(TAG_WORD_PAGER)
-                    .then(
-                        if (tapToAdvance) {
-                            Modifier.clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = { stepPage.value?.invoke(1) },
-                            )
-                        } else {
-                            Modifier
-                        },
-                    ),
+                    .advanceOnTap(enabled = tapToAdvance, label = "Next word") {
+                        stepPage.value?.invoke(1)
+                    },
             ) {
                 HorizontalPager(
                     state = pagerState,

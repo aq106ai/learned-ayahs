@@ -80,7 +80,7 @@ After installing, check **Settings → About** for the version.
 
 ## Build
 
-Requirements: **JDK 17+** and the **Android SDK** with platform 34. Installing
+Requirements: **JDK 17+** and the **Android SDK** with platform 36. Installing
 [Android Studio](https://developer.android.com/studio) gives you both. Open this folder in
 Android Studio, or build from the command line:
 

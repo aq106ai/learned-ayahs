@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 // There is no native build any more. Recite used to bundle a Quran-tuned Whisper model and run it
@@ -10,12 +11,14 @@ plugins {
 
 android {
     namespace = "com.quran.learnedplayer"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.quran.learnedplayer"
         minSdk = 26
-        targetSdk = 34
+        // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
+        // every screen inside the safe area.
+        targetSdk = 36
         versionCode = 40
         versionName = "1.9.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -54,10 +57,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     packaging {

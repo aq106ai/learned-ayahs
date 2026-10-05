@@ -12,10 +12,10 @@ CMDLINE_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-lin
 echo "==> Project: $ROOT"
 echo "==> Android SDK dir: $SDK_DIR"
 
-# --- 1. Gradle 8.2 cannot run on Java 21; bump the wrapper to 8.5 (AGP 8.2.2 supports it).
-if grep -q 'gradle-8.2-bin.zip' "$ROOT/gradle/wrapper/gradle-wrapper.properties"; then
-    echo "==> Updating Gradle wrapper 8.2 -> 8.5 (required for Java 21)"
-    sed -i 's/gradle-8.2-bin.zip/gradle-8.5-bin.zip/' "$ROOT/gradle/wrapper/gradle-wrapper.properties"
+# --- 1. Old checkouts pinned Gradle 8.2/8.5, which AGP 8.10 cannot use; bring them to 8.11.1.
+if grep -qE 'gradle-8\.(2|5)-bin.zip' "$ROOT/gradle/wrapper/gradle-wrapper.properties"; then
+    echo "==> Updating the Gradle wrapper to 8.11.1 (required by AGP 8.10)"
+    sed -i -E 's/gradle-8\.(2|5)-bin.zip/gradle-8.11.1-bin.zip/' "$ROOT/gradle/wrapper/gradle-wrapper.properties"
 fi
 chmod +x "$ROOT/gradlew"
 
@@ -33,10 +33,10 @@ if [ ! -x "$SDKMANAGER" ]; then
     rm -f "$TMP_ZIP"
 fi
 
-# --- 3. SDK packages required by compileSdk 34
-echo "==> Accepting licenses and installing SDK packages (platform 34, build-tools 34.0.0)..."
+# --- 3. SDK packages required by compileSdk 36
+echo "==> Accepting licenses and installing SDK packages (platform 36, build-tools 35.0.0)..."
 yes | "$SDKMANAGER" --sdk_root="$SDK_DIR" --licenses > /dev/null || true
-"$SDKMANAGER" --sdk_root="$SDK_DIR" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+"$SDKMANAGER" --sdk_root="$SDK_DIR" "platform-tools" "platforms;android-36" "build-tools;35.0.0"
 
 # --- 4. Point the project at the SDK
 # (There is no native build any more. Recite used to bundle a Quran-tuned Whisper model behind

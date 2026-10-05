@@ -39,7 +39,7 @@ These rules come from real bugs in this project's history. The reasoning behind 
 
 ### Android app
 
-Requirements: **JDK 17+**, the **Android SDK** (platform 34) and, ideally, Android Studio.
+Requirements: **JDK 17+**, the **Android SDK** (platform 36) and, ideally, Android Studio.
 
 ```bash
 cd android-app-quran-player
@@ -48,7 +48,7 @@ echo "sdk.dir=/path/to/Android/Sdk" > local.properties   # Android Studio writes
 ```
 
 Stack: Kotlin, Jetpack Compose (Material 3), Media3 ExoPlayer + MediaSession, coroutines/Flow.
-`minSdk 26`, `targetSdk 34`.
+`minSdk 26`, `targetSdk 36`.
 
 Start with **`android-app-quran-player/CLAUDE.md`**. It is the architecture guide and it records
 decisions that are easy to undo by accident.

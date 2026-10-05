@@ -42,7 +42,11 @@ moves through the word overlay in REVISE/FULL_SURAH is a Settings toggle (`seekI
 simply doesn't highlight — `WordSync` has no fallback.
 
 Single-module Gradle project. Kotlin + Jetpack Compose UI, Media3 (ExoPlayer + MediaSession)
-for playback. `minSdk 26`, `targetSdk`/`compileSdk 34`, Java/Kotlin 17.
+for playback. `minSdk 26`, `targetSdk`/`compileSdk 36`, Java/Kotlin 17, AGP 8.10 on Gradle 8.11,
+Kotlin 2.0 (the Compose compiler is the `org.jetbrains.kotlin.plugin.compose` Gradle plugin).
+**Targeting 35+ means edge to edge on Android 15+**: `LearnedAyahsTheme` keeps every screen inside
+`WindowInsets.safeDrawing`, so a new screen needs no inset handling of its own. Robolectric is pinned
+to SDK 34 (`src/test/resources/robolectric.properties`) — it can only emulate levels it ships.
 
 ## Build & run
 
@@ -52,8 +56,8 @@ echo "sdk.dir=C\:\\Users\\YOUR_USER\\AppData\\Local\\Android\\Sdk" > local.prope
 .\gradlew.bat assembleDebug        # -> app\build\outputs\apk\debug\LearnedAyahsPlayer-v<ver>-debug.apk
 ```
 
-- `bash .setup/build.sh` is a one-shot Linux/CI setup: installs the SDK, bumps the Gradle
-  wrapper 8.2→8.5 (8.2 can't run on Java 21), and builds the debug APK. There is no native build —
+- `bash .setup/build.sh` is a one-shot Linux/CI setup: installs the SDK (platform 36), brings an
+  old checkout's Gradle wrapper to 8.11.1, and builds the debug APK. There is no native build —
   see **Recite & review** for why whisper.cpp and the NDK dependency were removed in 1.8.0.
 - APKs are renamed to `LearnedAyahsPlayer-v<versionName>-<buildType>.apk` (see `app/build.gradle.kts`).
 - Bump `versionCode` **and** `versionName` in `app/build.gradle.kts` for each release; the

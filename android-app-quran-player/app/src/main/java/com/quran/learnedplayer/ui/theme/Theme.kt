@@ -3,7 +3,11 @@ package com.quran.learnedplayer.ui.theme
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
@@ -60,7 +64,7 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
     if (!view.isInEditMode) {
         SideEffect {
             view.context.findActivity()?.window?.let { window ->
-                @Suppress("DEPRECATION") // Still the effective API below 35; fine for targetSdk 34.
+                @Suppress("DEPRECATION") // The effective API below 35; ignored (harmlessly) from 35 on.
                 window.statusBarColor = palette.bg.toArgb()
                 @Suppress("DEPRECATION")
                 window.navigationBarColor = palette.bg.toArgb()
@@ -79,7 +83,15 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             color = Bg,
             contentColor = TextPrimary,
-            content = content,
-        )
+        ) {
+            // Android 15+ draws apps targeting 35+ edge to edge, under the status and navigation
+            // bars. The Surface fills the whole window — so the bars sit on the app's background —
+            // and the screens stay inside the safe area, as they did before. Below 35 the insets
+            // are already applied by the system and this pads nothing. Screens that apply
+            // safeDrawing themselves (the player) see it consumed here and don't pad twice.
+            Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+                content()
+            }
+        }
     }
 }

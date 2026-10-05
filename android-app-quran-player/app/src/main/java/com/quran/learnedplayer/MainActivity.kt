@@ -210,6 +210,8 @@ class MainActivity : ComponentActivity() {
         setContentView(
             ScrollView(this).apply {
                 setBackgroundColor(Color.parseColor("#0A1710"))
+                // Keep the report clear of the status and navigation bars (edge to edge on 15+).
+                fitsSystemWindows = true
                 addView(container)
             },
         )

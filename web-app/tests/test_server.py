@@ -38,6 +38,15 @@ class FakeUpstream(BaseHTTPRequestHandler):
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
+        if self.path.endswith("/114006.mp3"):
+            # A captive portal or error page that answers 200 with HTML.
+            page = b"<html><body>Please sign in to the Wi-Fi</body></html>"
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", str(len(page)))
+            self.end_headers()
+            self.wfile.write(page)
+            return
         self.send_response(200)
         self.send_header("Content-Type", "audio/mpeg")
         self.send_header("Content-Length", str(len(FAKE_MP3)))
@@ -351,6 +360,13 @@ class ServerTest(unittest.TestCase):
             self.assertEqual(c.request("GET", bad)[0], 404, bad)
         self.assertEqual(c.request("GET", "/audio/everyayah/MaherAlMuaiqly128kbps/999999.mp3")[0], 404)
 
+    def test_a_non_audio_answer_is_not_cached(self):
+        c = Client(self.base)
+        path = "/audio/everyayah/MaherAlMuaiqly128kbps/114006.mp3"
+        self.assertEqual(c.request("GET", path)[0], 502)
+        cache = Path(self.config.audio_cache)
+        self.assertEqual(list(cache.rglob("114006*")), [], "nothing cached, not even a partial file")
+
     def test_wav_files_get_a_matching_content_type(self):
         target = Path(self.config.audio_cache) / "everyayah" / "Husary_128kbps" / "001002.mp3"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -366,6 +382,22 @@ class PasswordTest(unittest.TestCase):
         self.assertFalse(server.verify_password("s3cret-Pass", stored))
         self.assertFalse(server.verify_password("x", "garbage"))
         self.assertNotEqual(stored, server.hash_password("s3cret-pass", 1000), "salted")
+
+
+class ExportStaticTest(unittest.TestCase):
+    def test_writes_app_shell_data_and_font(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "site"
+            self.assertEqual(server.main(["--export-static", str(out)]), 0)
+            self.assertTrue((out / "index.html").is_file())
+            self.assertTrue((out / "js" / "main.js").is_file())
+            self.assertTrue((out / "sw.js").is_file())
+            self.assertTrue((out / "data" / "quran_text.json").is_file())
+            self.assertTrue((out / "data" / "word_translations.json").is_file())
+            self.assertTrue(list((out / "data").glob("word_timings_*.json")))
+            self.assertTrue((out / "fonts" / "scheherazade_new.ttf").is_file())
+            # Refuses to write into a folder that already has files in it.
+            self.assertEqual(server.main(["--export-static", str(out)]), 1)
 
 
 if __name__ == "__main__":

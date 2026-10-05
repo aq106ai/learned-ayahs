@@ -48,11 +48,33 @@ follow word by word, and recite back, so what you have learned stays with you.
   file picker. The app needs **no storage permissions**.
 - Dark and light themes, swipe/tap gestures, and resuming where you left off.
 
-**Desktop web player** (`web-app-quran-player/`)
+**Web app** (`web-app/`)
 
-A lightweight Python + HTML player for a PC. It reads a Qur'an-app library export, downloads the
-ayah audio, and serves a local gapless player. It supports continuous, revision, surah-loop and
-surah-learned modes, plus ayah text with word highlighting. See its
+The same revision app in the browser, on any computer or phone, with every feature of the
+Android app listed above:
+
+- marking, add by description, and the three playback modes with every repeat option;
+- the five reciters and validated word highlighting;
+- the word-by-word reader, offline audio, and Recite & review;
+- lock-screen and headset controls.
+
+It adds:
+
+- **Accounts and user management.** Run `server.py` and the first account becomes the
+  administrator. Each user's learned ayahs, bookmarks and settings sync across their devices.
+  Administrators create, disable, promote, reset and delete users, and open or close sign-ups.
+  It suits a family, a class or a masjid sharing one server.
+- **The Android app's backup file, both ways.** Export on the phone and import on the web, or
+  the other way round.
+- **A static build** for any web host, with no accounts: `python3 server.py --export-static site/`.
+
+Plain HTML, CSS and JavaScript, plus one standard-library Python file: nothing to install and
+no build step. See the [web app README](web-app/README.md).
+
+**Legacy desktop player** (`web-app-quran-player/`)
+
+The original single-user PC player. It reads a Qur'an-app library export and serves a local
+gapless player. It is kept for existing users; new users should use the web app above. See its
 [README](web-app-quran-player/README.md).
 
 ---
@@ -68,7 +90,11 @@ learned-ayahs/
 │   ├── .setup/                 Scripts that (re)generate the bundled assets
 │   ├── tools/                  Device test runner
 │   └── CLAUDE.md               In-depth architecture & design notes, read before big changes
-├── web-app-quran-player/       Desktop web player (Python + single-page HTML)
+├── web-app/                    Web app: browser SPA + accounts server (stdlib Python)
+│   ├── server.py               HTTP server, accounts & admin API, audio cache
+│   ├── static/                 The app (HTML, CSS, JS modules; logic ported from Android)
+│   └── tests/                  Unit (node), server (unittest) and browser (Playwright) tests
+├── web-app-quran-player/       Legacy desktop player (Python + single-page HTML)
 ├── docs/                       Project history and background
 └── .github/                    CI, issue & PR templates
 ```
@@ -101,15 +127,18 @@ tools if they are missing and builds the debug APK in one step.
 See the [Android README](android-app-quran-player/README.md) for usage, tests and
 troubleshooting.
 
-### Desktop web player
+### Web app
+
+Requirements: **Python 3.9+**.
 
 ```bash
-cd learned-ayahs/web-app-quran-player
-python play_learned_ayahs.py          # uses the bundled sample library if you have no export
+cd learned-ayahs/web-app
+python3 server.py                     # then open http://localhost:8080
 ```
 
-Then open <http://127.0.0.1:8765/player.html>. See the
-[web player README](web-app-quran-player/README.md).
+Create the first account (it becomes the administrator), or just start marking ayahs without
+one. Add `--host 0.0.0.0` to reach it from other devices on your network. For deploying behind
+HTTPS, static hosting and the API, see the [web app README](web-app/README.md).
 
 ---
 
@@ -148,7 +177,7 @@ security issue, see [SECURITY.md](SECURITY.md).
 - More reciters, once QUL has validated word timings for their exact recordings.
 - More word-by-word translation languages.
 - Publish signed releases on GitHub (and possibly F-Droid).
-- Let the web player read the Android app's export format.
+- Sync the Android app with a web-app server account.
 
 Have an idea? [Open a feature request](https://github.com/aq106ai/learned-ayahs/issues/new/choose).
 

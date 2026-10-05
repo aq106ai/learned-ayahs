@@ -53,7 +53,21 @@ Stack: Kotlin, Jetpack Compose (Material 3), Media3 ExoPlayer + MediaSession, co
 Start with **`android-app-quran-player/CLAUDE.md`**. It is the architecture guide and it records
 decisions that are easy to undo by accident.
 
-### Web player
+### Web app
+
+Requirements: **Python 3.9+** (standard library only) and **Node.js 18+** for the tests.
+
+```bash
+cd web-app
+python3 server.py          # http://localhost:8080, reload the page to see your changes
+```
+
+There is no build step: edit `static/` and reload. The logic in `static/js/core/` is ported from
+the Android app (playback rules, ayah references, the export format, the recitation coach). When
+you change behaviour that both apps share, change it in both, and keep their tests in step.
+[`web-app/README.md`](web-app/README.md) describes the layout and the API.
+
+### Legacy desktop player
 
 Requirements: **Python 3.9+**. It uses only the standard library.
 
@@ -74,6 +88,14 @@ python play_learned_ayahs.py --help
 
 Please run `./gradlew testDebugUnitTest` before opening a pull request. CI runs it on every push
 and pull request, along with a debug build.
+
+| Command (from `web-app/`) | What it covers | Needs |
+|---|---|---|
+| `npm test` | The ported logic: queues and modes, references, export format, word sync, recitation coach | Node.js 18+ |
+| `npm run test:server` | `server.py`: accounts, sessions, admin, data sync, audio cache, static export | Python 3.9+ |
+| `npm install && npx playwright install chromium && npm run test:e2e` | The app in Chromium: guest use, player rules, accounts and admin, Recite & review, static build | Node.js, Python; no network |
+
+CI runs all three on every push and pull request.
 
 If you change UI flows, also run the instrumented tests on a real device if you can. Some of
 them (`FullSurahRecitationTest`) play recitation audio aloud into the microphone, so run those
@@ -101,7 +123,8 @@ Commit the regenerated output together with the change that required it, and mak
 | `main` | Stable. Releases are cut from here, and it only changes by merging `dev` |
 | `dev` | Integration branch. **Open pull requests against `dev`** |
 
-Every push and pull request runs CI (unit tests, debug build, web player check). Merging into
+Every push and pull request runs CI (Android unit tests and debug build, the web app's unit,
+server and browser tests, and the legacy player check). Merging into
 `main` also runs the slower **Android extended checks**: instrumented tests on an emulator, plus
 an Android Lint report. You can start those by hand from the Actions tab on any branch.
 

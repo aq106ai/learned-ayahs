@@ -23,6 +23,12 @@ captures/
 /web-app-quran-player/launcher.log
 quran_library*.json
 
+# ===== Web app: runtime data and tooling =====
+# data/ holds the accounts database and the audio cache of a running server.py.
+/web-app/data/
+/web-app/node_modules/
+/web-app/test-results/
+
 # ===== Python =====
 __pycache__/
 *.py[cod]

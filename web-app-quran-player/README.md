@@ -5,8 +5,10 @@ It reads a Qur'an-app **library export**, builds a playlist of the ayahs in your
 "Every Learned Ayah" folders, downloads the recitation (Maher Al Muaiqly, from everyayah.com),
 and serves a local, gapless player in your browser.
 
-This was the project's first player. The [Android app](../android-app-quran-player/) has since
-grown well beyond it, but the web player is handy at a desk.
+This was the project's first player. It is now **legacy**: the [web app](../web-app/) does
+everything it does and much more. The web app runs in any browser, has accounts, and reads the
+Android app's backup files. This player stays for people who already use it with a library
+export.
 
 ## Requirements
 

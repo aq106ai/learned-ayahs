@@ -1,0 +1,14 @@
+{
+  "name": "Learned Ayahs",
+  "short_name": "Learned Ayahs",
+  "description": "Revise the ayahs of the Qur'an you have memorised.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0A1710",
+  "theme_color": "#0A1710",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

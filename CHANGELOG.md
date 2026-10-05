@@ -1,12 +1,21 @@
 # Changelog
 
-Notable changes to the Learned Ayahs Android app and web player. The format follows
+Notable changes to the Learned Ayahs Android app, web app and legacy desktop player. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the Android app uses
 `versionName` from `android-app-quran-player/app/build.gradle.kts`.
 
 ## [Unreleased]
 
 ### Added
+- **Web app** (`web-app/`): the Android app's features in the browser.
+  - Revision, Full surah and Word by word, with every repeat mode and the pause before repeat.
+  - The intro rules, the five reciters and validated word highlighting.
+  - The word-by-word reader, the surah and playlist panels, and gestures.
+  - Media Session controls, Wake Lock and offline audio.
+  - Recite & review (beta).
+  - It adds accounts with sync across devices, user management for administrators, and
+    import/export in the Android app's file format.
+  - Runs from one standard-library Python file, or as a static build without accounts.
 - Open-source release: MIT license, contributor docs, code of conduct, security policy,
   third-party notices, issue/PR templates and GitHub Actions CI.
 - Web player: `sample_library.json`, so the player can be tried without a library export.

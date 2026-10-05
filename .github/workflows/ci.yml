@@ -53,8 +53,42 @@ jobs:
           path: android-app-quran-player/app/build/outputs/apk/debug/*.apk
           retention-days: 14
 
+  web-app:
+    name: Web app · unit, server & browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web-app/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Unit tests (ported logic)
+        run: npm test
+
+      - name: Server tests
+        run: npm run test:server
+
+      - name: Browser tests (Playwright)
+        run: npm run test:e2e
+
   web:
-    name: Web player · generate from sample library
+    name: Legacy web player · generate from sample library
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:

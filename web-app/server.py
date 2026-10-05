@@ -23,6 +23,7 @@ import mimetypes
 import os
 import re
 import secrets
+import shutil
 import sqlite3
 import sys
 import threading
@@ -89,6 +90,7 @@ class Config:
     fetch_audio: bool = True
     quiet: bool = False
     upstream: Dict[str, str] = field(default_factory=lambda: {"everyayah": EVERYAYAH, "wbw": WORD_CLIPS})
+    export_static: Optional[Path] = None
 
 
 # --------------------------------------------------------------------------------------------
@@ -358,6 +360,15 @@ class FileCache:
         return etag, raw, gz
 
 
+def looks_like_audio(head: bytes) -> bool:
+    """MP3 (ID3 tag or MPEG frame sync), WAV or Ogg — not an HTML error page served as 200."""
+    return (
+        head[:3] == b"ID3"
+        or head[:4] in (b"RIFF", b"OggS")
+        or (len(head) >= 2 and head[0] == 0xFF and (head[1] & 0xE0) == 0xE0)
+    )
+
+
 def sniff_audio_type(head: bytes) -> str:
     if head[:4] == b"RIFF":
         return "audio/wav"
@@ -419,6 +430,9 @@ class AudioCache:
                         written += len(chunk)
                 if written == 0 or (expected and int(expected) != written):
                     raise OSError("incomplete download")
+                with open(tmp, "rb") as fh:
+                    if not looks_like_audio(fh.read(4)):
+                        raise ApiError(502, "upstream_not_audio", "The audio source returned something that is not audio.")
                 os.replace(tmp, path)
             except HTTPError as exc:
                 raise ApiError(404 if exc.code == 404 else 502, "upstream_error", f"Upstream returned {exc.code}.")
@@ -1013,6 +1027,26 @@ def make_server(config: Config) -> ThreadingHTTPServer:
     return server
 
 
+def export_static(config: Config, out: Path) -> int:
+    """Writes a self-contained copy of the app for a static web host (GitHub Pages, any web
+    server): the app shell, the Qur'an data and the Arabic font. Without server.py there are no
+    accounts — each browser keeps its own list — and audio streams straight from its sources."""
+    if out.exists() and any(out.iterdir()):
+        print(f"{out} is not empty; choose a new folder.", file=sys.stderr)
+        return 1
+    shutil.copytree(config.static_dir, out, dirs_exist_ok=True)
+    (out / "data").mkdir(exist_ok=True)
+    copied = 0
+    for f in sorted(config.assets_dir.iterdir()):
+        if DATA_FILES.match(f.name):
+            shutil.copy2(f, out / "data" / f.name)
+            copied += 1
+    (out / "fonts").mkdir(exist_ok=True)
+    shutil.copy2(config.font_path, out / "fonts" / config.font_path.name)
+    print(f"Static app written to {out} ({copied} data files). Serve the folder over HTTPS (or http://localhost).")
+    return 0
+
+
 def parse_args(argv: Optional[List[str]] = None) -> Config:
     env = os.environ.get
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1030,6 +1064,7 @@ def parse_args(argv: Optional[List[str]] = None) -> Config:
     p.add_argument("--no-fetch-audio", action="store_true", help="serve only audio already in the cache")
     p.add_argument("--secure-cookies", action="store_true", help="mark cookies Secure (use behind HTTPS)")
     p.add_argument("--quiet", action="store_true", help="don't log requests")
+    p.add_argument("--export-static", metavar="DIR", help="write a static copy of the app (no accounts) to DIR and exit")
     a = p.parse_args(argv)
     cfg = Config(host=a.host, port=a.port, registration_default=a.registration == "open")
     if a.db:
@@ -1041,6 +1076,7 @@ def parse_args(argv: Optional[List[str]] = None) -> Config:
     cfg.fetch_audio = not a.no_fetch_audio
     cfg.secure_cookies = a.secure_cookies
     cfg.quiet = a.quiet
+    cfg.export_static = Path(a.export_static) if a.export_static else None
     if env("LA_PBKDF2_ITERATIONS"):
         cfg.pbkdf2_iterations = int(env("LA_PBKDF2_ITERATIONS"))
     return cfg
@@ -1051,6 +1087,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not (config.assets_dir / "quran_text.json").is_file():
         print(f"Qur'an data not found in {config.assets_dir}. Pass --assets.", file=sys.stderr)
         return 1
+    if config.export_static:
+        return export_static(config, config.export_static)
     server = make_server(config)
     shown = "localhost" if config.host in ("127.0.0.1", "0.0.0.0") else config.host
     print(f"Learned Ayahs web app: http://{shown}:{server.server_address[1]}/  (Ctrl+C to stop)")

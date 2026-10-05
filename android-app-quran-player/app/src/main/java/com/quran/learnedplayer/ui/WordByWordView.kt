@@ -246,10 +246,14 @@ fun WordByWordView(
         // direction of travel flips, which also puts the "previous" edge page on the right
         // where it belongs.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            // The tag sits on this container, not the pager: tap-to-advance makes the container
+            // clickable, a clickable merges its children's semantics, and a child's test tag does
+            // not survive the merge — the reader was on screen but invisible to every test.
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
+                    .testTag(TAG_WORD_PAGER)
                     .then(
                         if (tapToAdvance) {
                             Modifier.clickable(
@@ -265,9 +269,7 @@ fun WordByWordView(
                 HorizontalPager(
                     state = pagerState,
                     userScrollEnabled = swipeToNavigate,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag(TAG_WORD_PAGER),
+                    modifier = Modifier.fillMaxSize(),
                 ) { page ->
                     when (page) {
                         0 -> EdgePage("Previous ayah →")

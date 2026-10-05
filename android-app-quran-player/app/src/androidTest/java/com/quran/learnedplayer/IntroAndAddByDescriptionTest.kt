@@ -70,7 +70,13 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
         awaitTag(TAG_SURAH_LIST)
         composeRule.onNodeWithTag(TAG_SURAH_LIST)
             .performScrollToNode(androidx.compose.ui.test.hasTestTag(surahRowTag(112)))
-        composeRule.onNodeWithText("4 learned").assertIsDisplayed()
+        // The keyboard raised by typing is still animating away when the list returns, and
+        // until it has gone the row can be laid out but not yet on screen.
+        val badge = androidx.compose.ui.test.hasTestTag(surahRowTag(112)) and
+            androidx.compose.ui.test.hasText("4 learned", substring = true)
+        composeRule.waitUntil(10_000) {
+            runCatching { composeRule.onNode(badge).assertIsDisplayed() }.isSuccess
+        }
 
         composeRule.onNodeWithTag(surahRowTag(112)).performClick()
         composeRule.waitForIdle()

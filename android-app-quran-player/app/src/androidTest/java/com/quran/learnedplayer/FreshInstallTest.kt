@@ -12,6 +12,7 @@ import com.quran.learnedplayer.ui.TAG_FULLSCREEN_WHOLE_AYAH
 import com.quran.learnedplayer.ui.home.TAG_SURAH_LIST
 import com.quran.learnedplayer.ui.home.surahRowTag
 import com.quran.learnedplayer.ui.surah.TAG_BACK_TO_MAIN
+import com.quran.learnedplayer.ui.home.TAG_BACK_TO_MAIN as TAG_HOME_BACK_TO_MAIN
 import com.quran.learnedplayer.ui.surah.TAG_SURAH_DETAIL
 import com.quran.learnedplayer.ui.surah.ayahRowTag
 import com.quran.learnedplayer.ui.surah.markLearnedTag
@@ -62,9 +63,9 @@ class FreshInstallTest : BaseAppTest() {
     @Test
     fun a_surah_can_still_be_played_with_nothing_marked() {
         // Surah-loop builds its queue from the surah itself, not from the learned list, so an
-        // empty selection must not disable it — tapping any ayah row starts full-surah playback
-        // (the detail screen has no play button of its own any more; "back to main" is how you
-        // reach the player to see it).
+        // empty selection must not disable it — tapping any ayah row starts full-surah playback.
+        // Once onboarding is done the detail screen's top-left button is a plain Back (to the
+        // surah list), and the list's own button returns to the player.
         reachHome()
         composeRule.onNodeWithTag(surahRowTag(1)).performClick()
         // The detail screen parses the ayah text before it can render the mark buttons.
@@ -72,6 +73,8 @@ class FreshInstallTest : BaseAppTest() {
         composeRule.onNodeWithTag(ayahRowTag(1)).performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithTag(TAG_BACK_TO_MAIN).performClick()
+        awaitTag(TAG_SURAH_LIST)
+        composeRule.onNodeWithTag(TAG_HOME_BACK_TO_MAIN).performClick()
         awaitTag(TAG_FULLSCREEN_WHOLE_AYAH)
     }
 

@@ -21,13 +21,18 @@ before(async () => {
   const out = join(dir, 'site');
   const res = spawnSync('python3', ['server.py', '--export-static', out], { cwd: WEB_APP, encoding: 'utf8' });
   assert.equal(res.status, 0, res.stderr);
-  proc = spawn('python3', ['-m', 'http.server', '0', '--bind', '127.0.0.1', '--directory', out], { stdio: ['ignore', 'pipe', 'pipe'] });
+  // -u: unbuffered, or the "Serving HTTP on … port N" line never reaches the pipe.
+  proc = spawn('python3', ['-u', '-m', 'http.server', '0', '--bind', '127.0.0.1', '--directory', out], { stdio: ['ignore', 'pipe', 'pipe'] });
   const port = await new Promise((resolve, reject) => {
     let text = '';
+    const timer = setTimeout(() => reject(new Error(`http.server did not start: ${text}`)), 15000);
     const onData = (d) => {
       text += d;
       const m = text.match(/port (\d+)/);
-      if (m) resolve(m[1]);
+      if (m) {
+        clearTimeout(timer);
+        resolve(m[1]);
+      }
     };
     proc.stdout.on('data', onData);
     proc.stderr.on('data', onData);

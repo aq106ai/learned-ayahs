@@ -85,7 +85,8 @@ jobs:
         run: npm run test:server
 
       - name: Browser tests (Playwright)
-        run: npm run test:e2e
+        timeout-minutes: 10
+        run: npm run test:e2e -- --test-reporter=spec
 
   web:
     name: Legacy web player · generate from sample library

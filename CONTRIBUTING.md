@@ -94,11 +94,22 @@ python .setup/make_icon.py                    # launcher icon vector drawables
 Commit the regenerated output together with the change that required it, and make sure
 `TimingDataIntegrityTest` still passes.
 
+## Branches
+
+| Branch | Purpose |
+|---|---|
+| `main` | Stable. Releases are cut from here, and it only changes by merging `dev` |
+| `dev` | Integration branch. **Open pull requests against `dev`** |
+
+Every push and pull request runs CI (unit tests, debug build, web player check). Merging into
+`main` also runs the slower **Android extended checks**: instrumented tests on an emulator, plus
+an Android Lint report. You can start those by hand from the Actions tab on any branch.
+
 ## Making a change
 
 1. **Open an issue first** for anything bigger than a small fix, so we can agree on the approach.
-2. Fork the repo and create a branch from `main`, for example `fix/word-highlight-2-255` or
-   `feat/spaced-repetition`.
+2. Fork the repo and create a branch from `dev`, for example `fix/word-highlight-2-255` or
+   `feat/spaced-repetition`, and open your pull request against `dev`.
 3. Keep pull requests focused. One logical change per PR is much easier to review.
 4. Add or update tests for behaviour changes. The JVM tests in `app/src/test` are the cheapest
    place to pin down logic.

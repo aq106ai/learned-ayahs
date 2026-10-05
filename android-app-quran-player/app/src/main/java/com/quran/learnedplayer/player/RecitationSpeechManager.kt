@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.player
 
+import android.os.Build
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
@@ -354,10 +355,11 @@ class RecitationSpeechManager(private val context: Context) {
      */
     private fun ensureRecognizer() {
         val wantOnDevice = useOnDeviceRecognizer &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
             SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
         if (recognizer != null && wantOnDevice == recognizerIsOnDevice) return
         runCatching { recognizer?.destroy() }
-        recognizer = if (wantOnDevice) {
+        recognizer = if (wantOnDevice && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
         } else {
             SpeechRecognizer.createSpeechRecognizer(context)
@@ -466,6 +468,7 @@ class RecitationSpeechManager(private val context: Context) {
                 error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT ||
                 error == SpeechRecognizer.ERROR_SERVER
             if (networkFailure && !useOnDeviceRecognizer &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                 SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
             ) {
                 useOnDeviceRecognizer = true

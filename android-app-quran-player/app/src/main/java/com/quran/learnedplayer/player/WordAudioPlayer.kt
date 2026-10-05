@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.quran.learnedplayer.data.WordAudio
@@ -20,7 +21,7 @@ import java.io.File
  * One-shot player for a single word MP3. Recite/review and "tap this word" use this so they
  * never mutate the main ayah queue, mode, or last position.
  */
-@UnstableApi
+@OptIn(UnstableApi::class)
 class WordAudioPlayer(context: Context) {
     private val appContext = context.applicationContext
     private val downloader = WordAudioDownloader(appContext)

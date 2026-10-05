@@ -3,6 +3,7 @@ package com.quran.learnedplayer.data
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.annotation.RequiresApi
 import android.speech.ModelDownloadListener
 import android.speech.RecognitionSupport
 import android.speech.RecognitionSupportCallback
@@ -87,6 +88,7 @@ object DeviceRecognition {
         queryFrom(context, executor, ARABIC_LOCALES, onResult)
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun queryFrom(
         context: Context,
         executor: Executor,

@@ -1,6 +1,9 @@
 package com.quran.learnedplayer
 
 import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
@@ -12,6 +15,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -110,14 +114,22 @@ class MainActivity : ComponentActivity() {
         notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
+    /**
+     * Shown in place of the app after a crash (see LearnedAyahsApp): the report, with buttons to
+     * copy or share it, since that is what a bug report needs and a screenshot of a long stack
+     * trace rarely captures it. Plain Views, so it works even if Compose itself was the problem.
+     */
     private fun showCrashScreen(crashFile: File) {
         val crashText = runCatching { crashFile.readText() }
             .getOrDefault("(could not read crash log)")
 
+        val dp = resources.displayMetrics.density
+        fun px(v: Int) = (v * dp).toInt()
+
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#0F1419"))
-            setPadding(40, 60, 40, 40)
+            setBackgroundColor(Color.parseColor("#0A1710"))
+            setPadding(px(20), px(32), px(20), px(24))
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -125,38 +137,70 @@ class MainActivity : ComponentActivity() {
         }
 
         val heading = TextView(this).apply {
-            text = "App crashed — here is the error\n(screenshot this and send it)"
-            setTextColor(Color.parseColor("#FF6B6B"))
-            textSize = 18f
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 24)
+            text = "Learned Ayahs stopped unexpectedly"
+            setTextColor(Color.parseColor("#E6F4EB"))
+            textSize = 20f
+            setPadding(0, 0, 0, px(8))
         }
 
-        val body = TextView(this).apply {
-            text = crashText
-            setTextColor(Color.parseColor("#E8EEF7"))
-            textSize = 12f
-            setTextIsSelectable(true)
+        val explanation = TextView(this).apply {
+            text = "Your learned ayahs and settings are safe. Please copy or share this report " +
+                "and send it to the developers (a GitHub issue is best) so it can be fixed."
+            setTextColor(Color.parseColor("#8DB29B"))
+            textSize = 14f
+            setPadding(0, 0, 0, px(16))
         }
 
-        val retry = Button(this).apply {
-            text = "Clear & try again"
+        val copy = Button(this).apply {
+            text = "Copy report"
+            setOnClickListener {
+                val clipboard = getSystemService(ClipboardManager::class.java)
+                clipboard?.setPrimaryClip(ClipData.newPlainText("Learned Ayahs crash report", crashText))
+                Toast.makeText(this@MainActivity, "Report copied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        val share = Button(this).apply {
+            text = "Share report"
+            setOnClickListener {
+                val send = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, "Learned Ayahs crash report")
+                    putExtra(Intent.EXTRA_TEXT, crashText)
+                }
+                runCatching { startActivity(Intent.createChooser(send, "Share crash report")) }
+            }
+        }
+
+        val dismiss = Button(this).apply {
+            text = "Continue to the app"
             setOnClickListener {
                 crashFile.delete()
                 recreate()
             }
         }
 
+        val body = TextView(this).apply {
+            text = crashText
+            setTextColor(Color.parseColor("#E6F4EB"))
+            textSize = 11f
+            typeface = android.graphics.Typeface.MONOSPACE
+            setTextIsSelectable(true)
+            setPadding(0, px(16), 0, 0)
+        }
+
         container.addView(heading)
-        container.addView(retry)
+        container.addView(explanation)
+        container.addView(copy)
+        container.addView(share)
+        container.addView(dismiss)
         container.addView(body)
 
         setContentView(
             ScrollView(this).apply {
-                setBackgroundColor(Color.parseColor("#0F1419"))
+                setBackgroundColor(Color.parseColor("#0A1710"))
                 addView(container)
             },
         )
     }
-
 }

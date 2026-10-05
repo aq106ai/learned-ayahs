@@ -17,9 +17,10 @@ import org.robolectric.RobolectricTestRunner
  * [ArabicWordAligner] and [ArabicTextNormalizer.isLongVowelSpellingVariant] existed: the student
  * recites correctly and is told they are wrong, usually on the first word, after which every
  * later word is misaligned too. Checked across the whole Qur'an the same way, 434 ayahs behaved
- * like this and 17 still do — sixteen of them spellings like رَءَا against "رأى" or ٱلَّـٰٓـِٔى against
- * "اللائي", neither of which can be folded without also folding words that really are different,
- * and 2:181, whose ayah-number glyph is mistyped as a word in the text asset.
+ * like this and 16 still do — spellings like رَءَا against "رأى" or ٱلَّـٰٓـِٔى against "اللائي",
+ * neither of which can be folded without also folding words that really are different. (A
+ * seventeenth, 2:181, was a data error — its ayah-number glyph was typed as a word — and is fixed;
+ * see [ayah2181_canBeRecitedToTheEnd].)
  *
  * [UNCHANGED] are ayahs that always worked, kept so a future relaxation of the matcher cannot
  * quietly buy its recall by breaking the ordinary case.
@@ -152,6 +153,32 @@ class UthmaniTranscriptMatchTest {
             ArabicTextNormalizer.levenshteinDistance(expected, heard) <=
                 RecitationTuning.NEAR_MISS_TOLERANCE,
         )
+    }
+
+    /**
+     * 2:181's ayah-number glyph used to be typed `"word"` in the text asset, so the coach waited
+     * for the student to recite "١٨١" — it normalizes to nothing and could never match, and the
+     * ayah could never finish. It is the end marker now; the ayah completes whether the recognizer
+     * writes بعدما as one word or two.
+     */
+    @Test
+    fun ayah2181_canBeRecitedToTheEnd() = runBlocking {
+        val words = repo.wordsFor(2, 181)
+        assertEquals("13 words, then the end marker", 13, words.count { !it.isEnd })
+        assertTrue("the ayah number is the end marker", words.last().isEnd)
+        for (transcript in listOf(
+            "فمن بدله بعدما سمعه فإنما إثمه على الذين يبدلونه إن الله سميع عليم",
+            "فمن بدله بعد ما سمعه فإنما إثمه على الذين يبدلونه إن الله سميع عليم",
+        )) {
+            val result = RecitationEvaluator.evaluateContinuing(
+                referenceWords = words,
+                spokenTranscript = transcript,
+                lastTokenStable = true,
+                lockedCorrectCount = 0,
+            )
+            assertEquals(transcript, 13, result.correctCount)
+            assertEquals(transcript, 0, result.mistakeCount)
+        }
     }
 
     /** A dropped word is a skip, and the skip has to name the word that went missing. */

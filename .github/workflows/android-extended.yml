@@ -80,7 +80,7 @@ jobs:
                       failed += 1
                       trace = (failure.text or "").strip().splitlines()
                       print(f"::group::FAILED {case.get('classname')}.{case.get('name')}")
-                      print("\n".join(trace[:40]))
+                      print("\n".join(trace[:250]))
                       print("::endgroup::")
           print(f"{total - failed}/{total} instrumented tests passed")
           log = os.path.join(os.environ["RUNNER_TEMP"], "logcat.txt")

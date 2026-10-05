@@ -16,8 +16,8 @@ android {
         applicationId = "com.quran.learnedplayer"
         minSdk = 26
         targetSdk = 34
-        versionCode = 39
-        versionName = "1.9.1"
+        versionCode = 40
+        versionName = "1.9.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

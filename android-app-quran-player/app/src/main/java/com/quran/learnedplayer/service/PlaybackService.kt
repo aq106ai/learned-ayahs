@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
@@ -107,7 +108,7 @@ class PlaybackService : MediaSessionService() {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setTitle(title)
-                    .setArtist("Maher Al Muaiqly")
+                    .setArtist(PlayerSettings.reciter.displayName)
                     .build(),
             )
             .build()
@@ -190,6 +191,21 @@ class PlaybackService : MediaSessionService() {
                 startProgressTicker()
             } else {
                 stopProgressTicker()
+                scheduleForegroundCheck()
+            }
+        }
+
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+            // Headphones unplugged, or another app took the audio for good: ExoPlayer pauses
+            // itself. That pause is the user's, so a queued revision-gap resume must not restart
+            // playback behind their back (or over the other app).
+            if (!playWhenReady && (
+                    reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY ||
+                        reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
+                    )
+            ) {
+                cancelRevisionGap()
+                scheduleForegroundCheck()
             }
         }
 
@@ -352,9 +368,22 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        val exoPlayer = ExoPlayer.Builder(this).build().apply {
-            addListener(playerListener)
-        }
+        val exoPlayer = ExoPlayer.Builder(this)
+            // Ask for audio focus like any media app: pause for a call or another player, and
+            // let navigation prompts duck us.
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
+                    .build(),
+                /* handleAudioFocus = */ true,
+            )
+            // Pause when headphones are unplugged instead of carrying on through the speaker.
+            .setHandleAudioBecomingNoisy(true)
+            // Keep the CPU and Wi-Fi awake while streaming with the screen off.
+            .setWakeMode(C.WAKE_MODE_NETWORK)
+            .build()
+            .apply { addListener(playerListener) }
         player = exoPlayer
         mediaSession = MediaSession.Builder(this, SessionPlayer(exoPlayer)).build()
         PlayerStateHolder.attachService(this)
@@ -435,6 +464,7 @@ class PlaybackService : MediaSessionService() {
     override fun onDestroy() {
         cancelRevisionGap()
         stopProgressTicker()
+        handler.removeCallbacks(demoteIfIdle)
         PlayerStateHolder.detachService()
         mediaSession?.release()
         mediaSession = null
@@ -443,10 +473,41 @@ class PlaybackService : MediaSessionService() {
         super.onDestroy()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        promoteToForeground()
+    /**
+     * Media3 would post its own media notification — under the same id as ours, overwriting it on
+     * every player event — and start and stop the foreground service behind our back. This
+     * service owns both instead (see [updateNotification] and [promoteToForeground]), so the
+     * default is switched off here.
+     */
+    override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) = Unit
 
-        when (intent?.action) {
+    /** Swiping the app away while nothing is playing ends the service and its notification. */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        if (!playbackOngoing()) {
+            notificationActive = false
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+        if (intent == null) {
+            // Restarted by the system after the process died. There is nothing to resume, and
+            // promoting to the foreground from here is refused on Android 12+ — the crash loop
+            // this used to cause. Leave quietly.
+            if (!playbackOngoing()) stopSelf()
+            return START_NOT_STICKY
+        }
+        handleCommand(intent)
+        // Commands come from the app's own UI and notification; a restart without one (see
+        // above) has nothing to do, so the system must not restart this service on its own.
+        return START_NOT_STICKY
+    }
+
+    /** Carries out one command from the app (see [PlayerStateHolder.deliverCommand]). */
+    fun handleCommand(intent: Intent) {
+        when (intent.action) {
             ACTION_LOAD_PLAYLIST -> {
                 val autoPlay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false)
                 val requestedMode = readMode(intent)
@@ -477,9 +538,9 @@ class PlaybackService : MediaSessionService() {
             ACTION_NOTIF_PLAY_PAUSE -> {
                 if (player?.isPlaying == true) pause() else play()
             }
+            ACTION_NOTIF_DISMISSED -> notificationActive = false
         }
         updateNotification()
-        return super.onStartCommand(intent, flags, startId)
     }
 
     /**
@@ -738,6 +799,7 @@ class PlaybackService : MediaSessionService() {
         // A user pause during the revision gap must stick — drop the queued resume.
         cancelRevisionGap()
         player?.pause()
+        scheduleForegroundCheck()
     }
 
     fun seekTo(index: Int) {
@@ -1099,7 +1161,7 @@ class PlaybackService : MediaSessionService() {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setTitle(label)
-                    .setArtist("Maher Al Muaiqly")
+                    .setArtist(PlayerSettings.reciter.displayName)
                     .setAlbumTitle("Learned Ayahs")
                     .build(),
             )
@@ -1128,35 +1190,32 @@ class PlaybackService : MediaSessionService() {
         )
     }
 
-    private fun buildNotification(): android.app.Notification {
-        val isPlaying = player?.isPlaying == true
+    /** What the notification shows; posting is skipped when this has not changed. */
+    private data class NotificationContent(val title: String, val text: String, val playing: Boolean)
+
+    private fun notificationContent(): NotificationContent {
+        val reciterName = if (usingWordClips()) {
+            PlayerSettings.wordReciter.displayName
+        } else {
+            PlayerSettings.reciter.displayName
+        }
+        return NotificationContent(
+            title = PlayerStateHolder.uiState.value.introLabel
+                ?: currentTrack()?.label
+                ?: getString(R.string.app_name),
+            // No per-word counter: it would re-post the notification several times a second in
+            // word-by-word mode, and the system counts (and rate-limits) every one of them.
+            text = "${playbackModeLabel(mode, repeatMode)} · $reciterName",
+            // "Going on" rather than isPlaying, which flickers off at every clip change.
+            playing = playbackOngoing(),
+        )
+    }
+
+    private fun buildNotification(content: NotificationContent): android.app.Notification {
+        val isPlaying = content.playing
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(
-                PlayerStateHolder.uiState.value.introLabel
-                    ?: currentTrack()?.label
-                    ?: getString(R.string.app_name),
-            )
-            .setContentText(
-                buildString {
-                    append(playbackModeLabel(mode, repeatMode))
-                    append(" · ")
-                    if (mode == PlaybackMode.WORD_BY_WORD) {
-                        if (usingWordClips()) {
-                            append(PlayerSettings.wordReciter.displayName)
-                            if (wordItems.isNotEmpty()) {
-                                append(" · word ${(player?.currentMediaItemIndex ?: 0) + 1}/${wordItems.size}")
-                            }
-                        } else {
-                            append(PlayerSettings.reciter.displayName)
-                            if (ayahSeekWordCount > 0) {
-                                append(" · word ${ayahSeekWordIndex + 1}/$ayahSeekWordCount")
-                            }
-                        }
-                    } else {
-                        append(PlayerSettings.reciter.displayName)
-                    }
-                },
-            )
+            .setContentTitle(content.title)
+            .setContentText(content.text)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(
                 PendingIntent.getActivity(
@@ -1166,8 +1225,11 @@ class PlaybackService : MediaSessionService() {
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                 ),
             )
+            .setDeleteIntent(servicePendingIntent(ACTION_NOTIF_DISMISSED))
             .setOngoing(isPlaying)
             .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .setShowWhen(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(
                 android.R.drawable.ic_media_previous,
@@ -1194,30 +1256,94 @@ class PlaybackService : MediaSessionService() {
         return builder.build()
     }
 
-    private fun updateNotification() {
+    /** Set when playback first starts; cleared when the user dismisses the notification. */
+    private var notificationActive = false
+    private var isForeground = false
+    private var lastPostedContent: NotificationContent? = null
+
+    /**
+     * Posts the notification if what it shows has changed. Many paths call this on every player
+     * event; re-posting identical content is what used to flood the system with thousands of
+     * notification updates, so unchanged content is never posted again.
+     */
+    private fun updateNotification(force: Boolean = false) {
         if (mediaSession == null) return
+        if (!notificationActive && !isForeground) return
+        val content = notificationContent()
+        if (!force && content == lastPostedContent) return
+        lastPostedContent = content
         runCatching {
             getSystemService(NotificationManager::class.java)
-                .notify(NOTIFICATION_ID, buildNotification())
+                .notify(NOTIFICATION_ID, buildNotification(content))
         }
     }
 
+    /** Playback the user expects to be going on — including the pauses this service makes itself
+     *  (the revision gap, the step from A'udhu to Bismillah to the ayah, between words). */
+    private fun playbackOngoing(): Boolean {
+        val p = player ?: return false
+        if (revisionGapPending || introStep != IntroStep.NONE) return true
+        return p.playWhenReady && p.playbackState != Player.STATE_ENDED && p.playbackState != Player.STATE_IDLE
+    }
+
+    /**
+     * Runs as a foreground service for as long as playback is going on, so the system keeps it
+     * alive with the screen off.
+     *
+     * Android 12+ refuses to *start* a foreground service while the app is in the background,
+     * throwing ForegroundServiceStartNotAllowedException. That cannot happen mid-session any more
+     * — the service stays in the foreground through its own pauses — but a resume from the
+     * background after a real pause can still be refused. Playback then carries on with the
+     * notification updated; it must never take the app down.
+     */
     private fun promoteToForeground() {
-        ServiceCompat.startForeground(
-            this,
-            NOTIFICATION_ID,
-            buildNotification(),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-            } else {
-                0
-            },
-        )
+        handler.removeCallbacks(demoteIfIdle)
+        notificationActive = true
+        val content = notificationContent()
+        try {
+            ServiceCompat.startForeground(
+                this,
+                NOTIFICATION_ID,
+                buildNotification(content),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                } else {
+                    0
+                },
+            )
+            isForeground = true
+            lastPostedContent = content
+        } catch (e: IllegalStateException) {
+            android.util.Log.w(TAG, "Could not enter the foreground; continuing without it", e)
+            updateNotification(force = true)
+        } catch (e: SecurityException) {
+            android.util.Log.w(TAG, "Could not enter the foreground; continuing without it", e)
+            updateNotification(force = true)
+        }
+    }
+
+    /** Leaves the foreground once playback has really stopped, keeping a dismissible notification. */
+    private val demoteIfIdle = Runnable {
+        if (playbackOngoing() || !isForeground) return@Runnable
+        isForeground = false
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+        updateNotification(force = true)
+    }
+
+    /**
+     * Checks a moment later whether playback has stopped. The delay rides over the pauses the
+     * service makes between clips (intro to ayah, word to word), which last milliseconds.
+     */
+    private fun scheduleForegroundCheck() {
+        handler.removeCallbacks(demoteIfIdle)
+        handler.postDelayed(demoteIfIdle, DEMOTE_DELAY_MS)
     }
 
     companion object {
+        private const val TAG = "PlaybackService"
         private const val CHANNEL_ID = "playback"
         private const val NOTIFICATION_ID = 1001
+        private const val DEMOTE_DELAY_MS = 1500L
         private const val PROGRESS_INTERVAL_MS = 250L
 
         /** Below this position an ayah counts as "not started" for intro replay purposes. */
@@ -1236,6 +1362,7 @@ class PlaybackService : MediaSessionService() {
         const val ACTION_NOTIF_PREV = "com.quran.learnedplayer.NOTIF_PREV"
         const val ACTION_NOTIF_NEXT = "com.quran.learnedplayer.NOTIF_NEXT"
         const val ACTION_NOTIF_PLAY_PAUSE = "com.quran.learnedplayer.NOTIF_PLAY_PAUSE"
+        const val ACTION_NOTIF_DISMISSED = "com.quran.learnedplayer.NOTIF_DISMISSED"
         const val EXTRA_MODE = "extra_mode"
         const val EXTRA_REPEAT = "extra_repeat"
 

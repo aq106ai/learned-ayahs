@@ -20,10 +20,17 @@ class LearnedAyahsApp : Application() {
             runCatching {
                 val sw = StringWriter()
                 throwable.printStackTrace(PrintWriter(sw))
+                val version = runCatching {
+                    @Suppress("DEPRECATION")
+                    packageManager.getPackageInfo(packageName, 0).versionName
+                }.getOrNull() ?: "?"
                 File(filesDir, CRASH_LOG).writeText(
                     buildString {
+                        append("Learned Ayahs $version\n")
                         append("Device: ${Build.MANUFACTURER} ${Build.MODEL}\n")
-                        append("Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\n\n")
+                        append("Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\n")
+                        append("Time: ${java.time.Instant.now()}\n")
+                        append("Thread: ${thread.name}\n\n")
                         append(sw.toString())
                     },
                 )

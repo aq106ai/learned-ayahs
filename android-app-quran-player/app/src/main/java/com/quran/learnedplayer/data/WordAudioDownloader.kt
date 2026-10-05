@@ -5,8 +5,6 @@ import com.quran.learnedplayer.player.PlayerSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
 
 /**
  * Caches Quran.com (or other [WordReciter]) per-word MP3s under
@@ -109,28 +107,5 @@ class WordAudioDownloader(context: Context) {
         done to failed
     }
 
-    private fun downloadFile(url: String, dest: File): Boolean {
-        return runCatching {
-            val connection = (URL(url).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 30_000
-                readTimeout = 60_000
-                setRequestProperty("User-Agent", "LearnedAyahsPlayer/1.0")
-            }
-            try {
-                if (connection.responseCode !in 200..299) {
-                    if (dest.exists()) dest.delete()
-                    return@runCatching false
-                }
-                connection.inputStream.use { input ->
-                    dest.outputStream().use { output -> input.copyTo(output) }
-                }
-                dest.length() > 0L
-            } finally {
-                connection.disconnect()
-            }
-        }.getOrElse {
-            if (dest.exists()) dest.delete()
-            false
-        }
-    }
+    private fun downloadFile(url: String, dest: File): Boolean = AtomicDownload.toFile(url, dest)
 }

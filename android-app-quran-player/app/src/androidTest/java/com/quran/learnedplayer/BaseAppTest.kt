@@ -1,10 +1,13 @@
 package com.quran.learnedplayer
 
+import android.Manifest
+import android.os.Build
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import com.quran.learnedplayer.data.BookmarksStore
 import com.quran.learnedplayer.data.LearnedAyahsStore
 import com.quran.learnedplayer.data.PlaylistStore
@@ -82,10 +85,24 @@ abstract class BaseAppTest {
         }
     }
 
+    /**
+     * Starting playback asks for the notification permission on Android 13+. A phone that ran the
+     * app before has usually granted it already, but on a fresh device or emulator the system
+     * dialog covers the activity mid-test and every later lookup fails with "No compose
+     * hierarchies found". Granting it up front makes the tests independent of the device's history.
+     */
+    private val notificationPermission: TestRule =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            TestRule { base, _ -> base }
+        }
+
     val composeRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val chain: RuleChain = RuleChain.outerRule(resetRule).around(composeRule)
+    val chain: RuleChain =
+        RuleChain.outerRule(notificationPermission).around(resetRule).around(composeRule)
 
     private fun wakeAndUnlock() {
         val pfd = InstrumentationRegistry.getInstrumentation().uiAutomation

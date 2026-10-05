@@ -1,0 +1,126 @@
+name: Android extended checks
+
+# Slower checks that need an emulator or a full lint pass. They run before anything lands on
+# main, and can be started by hand from the Actions tab ("Run workflow") on any branch.
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  instrumented:
+    name: Instrumented tests (emulator, API 34)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: android-app-quran-player
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Build app and test APKs
+        run: ./gradlew assembleDebug assembleDebugAndroidTest
+
+      # FullSurahRecitationTest is excluded: it plays recitation aloud into a physical
+      # microphone and needs the phone's Arabic speech service, neither of which an emulator
+      # has. Run it on a real device with tools/device-test.ps1.
+      - name: Run instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          working-directory: android-app-quran-player
+          script: |
+            adb shell settings put system screen_off_timeout 2147483647
+            adb shell svc power stayon true
+            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest
+
+      - name: Upload instrumented test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-test-reports
+          path: android-app-quran-player/app/build/reports/androidTests/
+          retention-days: 14
+
+  lint:
+    name: Android Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android-app-quran-player
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Lint stops the build on its first error-severity issue; let it finish so the summary
+      # below can list everything, then fail the job only if errors were found.
+      - name: Run lint
+        run: ./gradlew lintDebug || true
+
+      - name: Summarise lint results
+        run: |
+          python3 - <<'EOF'
+          import os, sys, xml.etree.ElementTree as ET
+          path = "app/build/reports/lint-results-debug.xml"
+          issues = ET.parse(path).getroot().findall("issue")
+          counts = {}
+          lines = ["| Severity | Id | Location | Message |", "|---|---|---|---|"]
+          for i in issues:
+              sev = i.get("severity")
+              counts[sev] = counts.get(sev, 0) + 1
+              loc = i.find("location")
+              where = ""
+              if loc is not None:
+                  where = loc.get("file", "").split("android-app-quran-player/")[-1]
+                  if loc.get("line"):
+                      where += ":" + loc.get("line")
+              msg = i.get("message", "").replace("|", "\\|")
+              lines.append(f"| {sev} | {i.get('id')} | {where} | {msg} |")
+          summary = "## Android Lint\n\n" + (", ".join(f"{k}: {v}" for k, v in sorted(counts.items())) or "No issues") + "\n\n" + "\n".join(lines) + "\n"
+          print(summary)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write(summary)
+          sys.exit(1 if counts.get("Error", 0) + counts.get("Fatal", 0) else 0)
+          EOF
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: android-app-quran-player/app/build/reports/lint-results-debug.*
+          retention-days: 14

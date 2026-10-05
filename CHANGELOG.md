@@ -39,6 +39,10 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
   example after a "pause before repeat" gap with the screen off, crashed the app on Android 12+.
   The app now owns its one notification and its foreground state, posts only when the content
   changes, never crashes entering the foreground, and no longer restarts itself in a crash loop.
+- **On phones set to Arabic, Persian or Bengali, no audio could play.** File names were written with
+  the phone's own digits ("٠٠٢٢٥٥.mp3"), so every recitation URL failed.
+- Word by word: words are cut at the next word's start, so very short words are no longer skipped
+  or looped silently under Repeat: Word; an ayah without timings plays once, not once per word.
 - Ayah text in the word reader could stay on "Loading ayah text…". Changing reciter now reloads
   the word timings.
 - An interrupted download could leave a truncated MP3 that was treated as saved. Downloads now
@@ -54,6 +58,10 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 - Audio focus (pauses for calls and other apps), pausing when headphones are unplugged, and a
   wake lock for streaming with the screen off.
 - The crash screen explains what happened and has Copy and Share buttons for the report.
+
+### Changed
+- Targets Android 16 (API 36), built with AGP 8.10, Gradle 8.11 and Kotlin 2.0. Screens stay inside
+  the safe area under Android 15+'s edge-to-edge drawing.
 
 ### Removed
 - Cleartext (HTTP) traffic permission; every source is HTTPS.

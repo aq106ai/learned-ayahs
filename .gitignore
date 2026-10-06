@@ -5,6 +5,7 @@ local.properties
 *.apk
 *.aab
 *.keystore
+keystore.properties
 captures/
 
 # ===== Large media assets =====

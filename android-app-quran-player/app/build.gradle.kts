@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,12 +11,19 @@ plugins {
 // even on current hardware, and it carried ~58MB of model plus an NDK dependency for the privilege.
 // Recognition now goes through the platform speech service — see RecitationSpeechManager.
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(keystorePropertiesFile.inputStream())
+}
+
 android {
+    // Code package stays com.quran.learnedplayer. Play Store id is applicationId below.
     namespace = "com.quran.learnedplayer"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.quran.learnedplayer"
+        applicationId = "com.quran.learnedayahs"
         minSdk = 26
         // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
         // every screen inside the safe area.
@@ -24,8 +33,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

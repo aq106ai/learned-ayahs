@@ -142,6 +142,28 @@ def clean(raw, want):
     return segs
 
 
+# Words the shipped text holds as one but QUL times as two, by ayah and 1-based word position.
+# بَعْدَ مَا is a single word in the Quran.com text this app uses, while QUL — keyed by spoken
+# words — gives each half its own segment. Unhandled, the extra segment shifted every later
+# highlight one word early, and `clean` then threw away the *last* real segment as if it were the
+# end-of-ayah glyph. The halves are timed separately here and merged back into their one word.
+QUL_SPLIT_WORDS = {"2:181": [3], "8:6": [4], "13:37": [8]}
+
+
+def merge_split_words(key, segs):
+    split = set(QUL_SPLIT_WORDS.get(key, ()))
+    out, i, word = [], 0, 1
+    while i < len(segs):
+        if word in split and i + 1 < len(segs):
+            out.append([segs[i][0], segs[i + 1][1]])
+            i += 2
+        else:
+            out.append(segs[i])
+            i += 1
+        word += 1
+    return out
+
+
 # Optional CLI filter: `python make_timings.py sudais shuraym` regenerates only those assets.
 # Without it every reciter is rebuilt, which costs ~570 QUL requests each.
 SELECTED = sys.argv[1:] or list(RECITERS)
@@ -175,11 +197,12 @@ for name in SELECTED:
         if not raw:
             dropped.append((key, "missing"))
             continue
-        segs = clean(raw, want)
+        spoken = want + len(QUL_SPLIT_WORDS.get(key, ()))
+        segs = clean(raw, spoken)
         if segs is None:
-            dropped.append((key, f"{len(raw)} segs vs {want} words"))
+            dropped.append((key, f"{len(raw)} segs vs {spoken} spoken words"))
             continue
-        out[key] = {"segments": segs}
+        out[key] = {"segments": merge_split_words(key, segs)}
 
     dest = os.path.join(ASSETS, f"word_timings_{name}.json")
     with open(dest, "w", encoding="utf-8") as fh:

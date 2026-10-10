@@ -13,32 +13,55 @@ data class AyahWord(
     val translation: String? = null,
 )
 
+/**
+ * The bundled Qur'an text, word meanings and per-reciter word timings.
+ *
+ * The caches are process-wide and guarded by one lock. The text alone is ~5 MB of JSON; the
+ * player, the playback service and Recite each hold a repository, and with per-instance caches it
+ * was parsed up to three times (memory the app can't spare on a small phone). Unsynchronized,
+ * the "loaded" flag was also set before parsing finished, so a second caller during the parse saw
+ * an empty cache and fell through to the network — or reported zero words.
+ */
 class QuranDataRepository(context: Context) {
     private val appContext = context.applicationContext
-    private val textCache = mutableMapOf<String, List<AyahWord>>()
-    /** Timings per reciter — each recording has its own, so they can never be shared. */
-    private val timingCache = mutableMapOf<Reciter, Map<String, List<LongRange>>>()
-    /** English word translations per verse key, aligned to content words ("end" excluded). */
-    private val translationCache = mutableMapOf<String, List<String>>()
-    private var bundledTextLoaded = false
-    private var bundledTranslationsLoaded = false
+
+    private companion object {
+        val lock = Any()
+        val textCache = HashMap<String, List<AyahWord>>()
+        /** Timings per reciter — each recording has its own, so they can never be shared. */
+        val timingCache = HashMap<Reciter, Map<String, List<LongRange>>>()
+        /** English word translations per verse key, aligned to content words ("end" excluded). */
+        val translationCache = HashMap<String, List<String>>()
+        var bundledTextLoaded = false
+        var bundledTranslationsLoaded = false
+    }
+
+    /** Parses the bundled text and meanings now, off the main thread, so later lookups are instant. */
+    fun warmUp() {
+        synchronized(lock) { loadBundledTextIfNeeded() }
+    }
 
     suspend fun wordsFor(surah: Int, ayah: Int): List<AyahWord> {
         val key = verseKey(surah, ayah)
-        textCache[key]?.let { return it }
-        loadBundledTextIfNeeded()
-        textCache[key]?.let { return it }
+        synchronized(lock) {
+            textCache[key]?.let { return it }
+            loadBundledTextIfNeeded()
+            textCache[key]?.let { return it }
+        }
         // The bundle covers all 6236 ayahs, so this is a last-resort path only.
-        return withTranslations(key, fetchWordsFromNetwork(surah, ayah))
-            .also { textCache[key] = it }
+        val fetched = fetchWordsFromNetwork(surah, ayah)
+        return synchronized(lock) {
+            withTranslations(key, fetched).also { if (it.isNotEmpty()) textCache[key] = it }
+        }
     }
 
     /** Same as [wordsFor] but never hits the network — empty if the bundle has no row. */
-    fun wordsForSync(surah: Int, ayah: Int): List<AyahWord> {
+    fun wordsForSync(surah: Int, ayah: Int): List<AyahWord> = synchronized(lock) {
         val key = verseKey(surah, ayah)
-        textCache[key]?.let { return it }
-        loadBundledTextIfNeeded()
-        return textCache[key] ?: emptyList()
+        textCache[key] ?: run {
+            loadBundledTextIfNeeded()
+            textCache[key] ?: emptyList()
+        }
     }
 
     fun contentWordCount(surah: Int, ayah: Int): Int =
@@ -59,13 +82,15 @@ class QuranDataRepository(context: Context) {
         loadTimingsIfNeeded(reciter)[verseKey(surah, ayah)]
 
     private fun loadTimingsIfNeeded(reciter: Reciter): Map<String, List<LongRange>> =
-        timingCache.getOrPut(reciter) {
-            buildMap {
-                runCatching {
-                    appContext.assets.open(reciter.timingsAsset).use { stream ->
-                        val json = JSONObject(stream.bufferedReader().readText())
-                        json.keys().forEach { key ->
-                            put(key, parseTimingSegments(json.getJSONObject(key).getJSONArray("segments")))
+        synchronized(lock) {
+            timingCache.getOrPut(reciter) {
+                buildMap {
+                    runCatching {
+                        appContext.assets.open(reciter.timingsAsset).use { stream ->
+                            val json = JSONObject(stream.bufferedReader().readText())
+                            json.keys().forEach { key ->
+                                put(key, parseTimingSegments(json.getJSONObject(key).getJSONArray("segments")))
+                            }
                         }
                     }
                 }
@@ -74,9 +99,9 @@ class QuranDataRepository(context: Context) {
 
     private fun verseKey(surah: Int, ayah: Int) = "$surah:$ayah"
 
+    /** Call with [lock] held. Marks the text loaded only once it is. */
     private fun loadBundledTextIfNeeded() {
         if (bundledTextLoaded) return
-        bundledTextLoaded = true
         // Translations must be in memory first so every bundled ayah is cached with its
         // meanings attached — the cache is read directly on later lookups.
         loadBundledTranslationsIfNeeded()
@@ -88,12 +113,12 @@ class QuranDataRepository(context: Context) {
                     textCache[key] = withTranslations(key, parseWordsArray(wordsArray))
                 }
             }
-        }
+        }.onSuccess { bundledTextLoaded = true } // a failed parse is retried by the next caller
     }
 
+    /** Call with [lock] held. */
     private fun loadBundledTranslationsIfNeeded() {
         if (bundledTranslationsLoaded) return
-        bundledTranslationsLoaded = true
         runCatching {
             appContext.assets.open("word_translations.json").use { stream ->
                 val json = JSONObject(stream.bufferedReader().readText())
@@ -102,7 +127,7 @@ class QuranDataRepository(context: Context) {
                     translationCache[key] = (0 until arr.length()).map { arr.optString(it, "") }
                 }
             }
-        }
+        }.onSuccess { bundledTranslationsLoaded = true }
     }
 
     /** Attaches each content word's English meaning; the end-of-ayah glyph keeps none. */

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Auto Backup on Android 6–11 (android:fullBackupContent). Back up only what the user made — the
+  learned ayahs, bookmarks and settings, all SharedPreferences — not the offline audio. Cloud backup
+  holds at most 25 MB per app, and saved recitations pass that quickly; once over, Android stops
+  backing the app up altogether, so the learned list silently went unprotected. Audio can always
+  be downloaded again.
+-->
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+</full-backup-content>

@@ -3,7 +3,6 @@ package com.quran.learnedplayer.ui
 import android.os.SystemClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +39,7 @@ import com.quran.learnedplayer.data.WordSync
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerUiState
 import com.quran.learnedplayer.service.PlayerStateHolder
+import com.quran.learnedplayer.ui.common.advanceOnTap
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
@@ -250,24 +250,15 @@ fun WordByWordView(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .then(
-                        if (tapToAdvance) {
-                            Modifier.clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = { stepPage.value?.invoke(1) },
-                            )
-                        } else {
-                            Modifier
-                        },
-                    ),
+                    .testTag(TAG_WORD_PAGER)
+                    .advanceOnTap(enabled = tapToAdvance, label = "Next word") {
+                        stepPage.value?.invoke(1)
+                    },
             ) {
                 HorizontalPager(
                     state = pagerState,
                     userScrollEnabled = swipeToNavigate,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag(TAG_WORD_PAGER),
+                    modifier = Modifier.fillMaxSize(),
                 ) { page ->
                     when (page) {
                         0 -> EdgePage("Previous ayah →")

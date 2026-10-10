@@ -86,7 +86,7 @@ export function parseLearned(text) {
 }
 
 /**
- * Learned ayahs from the Qur'an-app library export that the original desktop player read
+ * Learned ayahs from the Qur'an-app library export that the project's original (since removed) desktop player read
  * (`quran_library … .json`): every non-deleted folder titled "… Every Learned Ayah …".
  */
 function parseQuranLibrary(doc) {

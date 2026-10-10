@@ -18,7 +18,7 @@ follow word by word, and recite back, so what you have learned stays with you.
 
 ## Features
 
-**Android app** (`android-app-quran-player/`, v1.9.1)
+**Android app** (`android-app-quran-player/`, v1.9.2)
 
 - **Mark what you know.** Browse all 114 surahs and tap the ayahs you have memorised. You can
   also add many at once by typing references such as `2:255`, `36:1-83`, `112` or
@@ -71,12 +71,6 @@ It adds:
 Plain HTML, CSS and JavaScript, plus one standard-library Python file: nothing to install and
 no build step. See the [web app README](web-app/README.md).
 
-**Legacy desktop player** (`web-app-quran-player/`)
-
-The original single-user PC player. It reads a Qur'an-app library export and serves a local
-gapless player. It is kept for existing users; new users should use the web app above. See its
-[README](web-app-quran-player/README.md).
-
 ---
 
 ## Repository layout
@@ -94,7 +88,6 @@ learned-ayahs/
 │   ├── server.py               HTTP server, accounts & admin API, audio cache
 │   ├── static/                 The app (HTML, CSS, JS modules; logic ported from Android)
 │   └── tests/                  Unit (node), server (unittest) and browser (Playwright) tests
-├── web-app-quran-player/       Legacy desktop player (Python + single-page HTML)
 ├── docs/                       Project history and background
 └── .github/                    CI, issue & PR templates
 ```

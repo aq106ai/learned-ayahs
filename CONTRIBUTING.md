@@ -39,7 +39,7 @@ These rules come from real bugs in this project's history. The reasoning behind 
 
 ### Android app
 
-Requirements: **JDK 17+**, the **Android SDK** (platform 34) and, ideally, Android Studio.
+Requirements: **JDK 17+**, the **Android SDK** (platform 36) and, ideally, Android Studio.
 
 ```bash
 cd android-app-quran-player
@@ -48,7 +48,7 @@ echo "sdk.dir=/path/to/Android/Sdk" > local.properties   # Android Studio writes
 ```
 
 Stack: Kotlin, Jetpack Compose (Material 3), Media3 ExoPlayer + MediaSession, coroutines/Flow.
-`minSdk 26`, `targetSdk 34`.
+`minSdk 26`, `targetSdk 36`.
 
 Start with **`android-app-quran-player/CLAUDE.md`**. It is the architecture guide and it records
 decisions that are easy to undo by accident.
@@ -66,17 +66,6 @@ There is no build step: edit `static/` and reload. The logic in `static/js/core/
 the Android app (playback rules, ayah references, the export format, the recitation coach). When
 you change behaviour that both apps share, change it in both, and keep their tests in step.
 [`web-app/README.md`](web-app/README.md) describes the layout and the API.
-
-### Legacy desktop player
-
-Requirements: **Python 3.9+**. It uses only the standard library.
-
-```bash
-cd web-app-quran-player
-python play_learned_ayahs.py --help
-```
-
-`player_template.html` is the source; `player.html` is generated from it and is not committed.
 
 ## Tests
 
@@ -123,8 +112,8 @@ Commit the regenerated output together with the change that required it, and mak
 | `main` | Stable. Releases are cut from here, and it only changes by merging `dev` |
 | `dev` | Integration branch. **Open pull requests against `dev`** |
 
-Every push and pull request runs CI (Android unit tests and debug build, the web app's unit,
-server and browser tests, and the legacy player check). Merging into
+Every push and pull request runs CI (Android unit tests and debug build, and the web app's unit,
+server and browser tests). Merging into
 `main` also runs the slower **Android extended checks**: instrumented tests on an emulator, plus
 an Android Lint report. You can start those by hand from the Actions tab on any branch.
 

@@ -10,11 +10,13 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
@@ -22,6 +24,8 @@ import androidx.media3.session.MediaSessionService
 import com.quran.learnedplayer.MainActivity
 import com.quran.learnedplayer.R
 import com.quran.learnedplayer.data.AyahTrack
+import com.quran.learnedplayer.data.LearnedAyahsStore
+import com.quran.learnedplayer.data.LibraryRepository
 import com.quran.learnedplayer.data.PlaylistStore
 import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.QuranDataRepository
@@ -33,8 +37,9 @@ import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.RepeatMode
 import com.quran.learnedplayer.player.playbackModeLabel
 import java.io.File
+import kotlinx.coroutines.runBlocking
 
-@UnstableApi
+@OptIn(UnstableApi::class)
 class PlaybackService : MediaSessionService() {
     private var player: ExoPlayer? = null
     private var mediaSession: MediaSession? = null
@@ -107,7 +112,7 @@ class PlaybackService : MediaSessionService() {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setTitle(title)
-                    .setArtist("Maher Al Muaiqly")
+                    .setArtist(PlayerSettings.reciter.displayName)
                     .build(),
             )
             .build()
@@ -190,6 +195,21 @@ class PlaybackService : MediaSessionService() {
                 startProgressTicker()
             } else {
                 stopProgressTicker()
+                scheduleForegroundCheck()
+            }
+        }
+
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+            // Headphones unplugged, or another app took the audio for good: ExoPlayer pauses
+            // itself. That pause is the user's, so a queued revision-gap resume must not restart
+            // playback behind their back (or over the other app).
+            if (!playWhenReady && (
+                    reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY ||
+                        reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
+                    )
+            ) {
+                cancelRevisionGap()
+                scheduleForegroundCheck()
             }
         }
 
@@ -299,7 +319,16 @@ class PlaybackService : MediaSessionService() {
     private fun parkForRevisionGap() {
         val p = player ?: return
         handler.removeCallbacks(revisionGapResume)
-        p.pause()
+        val gapMs = PlayerSettings.revisionDelaySeconds * 1000L
+        if (gapMs > 0) {
+            // Set before pausing: the pause's own callbacks must already see the gap, so the
+            // session counts as still going (no notification flip, no leaving the foreground).
+            revisionGapPending = true
+            revisionGapParked = true
+            p.pause()
+        }
+        // With no gap the repeat simply seeks back while playing — pausing for zero seconds only
+        // made the player flicker paused/playing (and re-post the notification) on every repeat.
         if (ayahSeekActive()) {
             val start = ayahSeekSegments.getOrNull(ayahSeekWordIndex)?.first ?: 0L
             p.seekTo(start)
@@ -316,13 +345,11 @@ class PlaybackService : MediaSessionService() {
             0L,
             if (duration > 0 && duration != C.TIME_UNSET) duration else 0L,
         )
-        val gapMs = PlayerSettings.revisionDelaySeconds * 1000L
         if (gapMs > 0) {
-            revisionGapPending = true
-            revisionGapParked = true
             handler.postDelayed(revisionGapResume, gapMs)
         } else {
             revisionGapPending = false
+            revisionGapParked = false
             p.play()
         }
         updateNotification()
@@ -352,9 +379,22 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        val exoPlayer = ExoPlayer.Builder(this).build().apply {
-            addListener(playerListener)
-        }
+        val exoPlayer = ExoPlayer.Builder(this)
+            // Ask for audio focus like any media app: pause for a call or another player, and
+            // let navigation prompts duck us.
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
+                    .build(),
+                /* handleAudioFocus = */ true,
+            )
+            // Pause when headphones are unplugged instead of carrying on through the speaker.
+            .setHandleAudioBecomingNoisy(true)
+            // Keep the CPU and Wi-Fi awake while streaming with the screen off.
+            .setWakeMode(C.WAKE_MODE_NETWORK)
+            .build()
+            .apply { addListener(playerListener) }
         player = exoPlayer
         mediaSession = MediaSession.Builder(this, SessionPlayer(exoPlayer)).build()
         PlayerStateHolder.attachService(this)
@@ -435,6 +475,7 @@ class PlaybackService : MediaSessionService() {
     override fun onDestroy() {
         cancelRevisionGap()
         stopProgressTicker()
+        handler.removeCallbacks(demoteIfIdle)
         PlayerStateHolder.detachService()
         mediaSession?.release()
         mediaSession = null
@@ -443,17 +484,51 @@ class PlaybackService : MediaSessionService() {
         super.onDestroy()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        promoteToForeground()
+    /**
+     * Media3 would post its own media notification — under the same id as ours, overwriting it on
+     * every player event — and start and stop the foreground service behind our back. This
+     * service owns both instead (see [updateNotification] and [promoteToForeground]), so the
+     * default is switched off here.
+     */
+    override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) = Unit
 
-        when (intent?.action) {
+    /** Swiping the app away while nothing is playing ends the service and its notification. */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        if (!playbackOngoing()) {
+            notificationActive = false
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+        if (intent == null) {
+            // Restarted by the system after the process died. There is nothing to resume, and
+            // promoting to the foreground from here is refused on Android 12+ — the crash loop
+            // this used to cause. Leave quietly.
+            if (!playbackOngoing()) stopSelf()
+            return START_NOT_STICKY
+        }
+        handleCommand(intent)
+        // Commands come from the app's own UI and notification; a restart without one (see
+        // above) has nothing to do, so the system must not restart this service on its own.
+        return START_NOT_STICKY
+    }
+
+    /** Carries out one command from the app (see [PlayerStateHolder.deliverCommand]). */
+    fun handleCommand(intent: Intent) {
+        ensureMasterList()
+        when (intent.action) {
             ACTION_LOAD_PLAYLIST -> {
                 val autoPlay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false)
                 val requestedMode = readMode(intent)
                 val requestedRepeat = readRepeat(intent)
                 val requestedSurah = intent.getIntExtra(EXTRA_SURAH, 0)
                 val startGlobal = intent.getIntExtra(EXTRA_START_GLOBAL, 0)
-                if (master.isNotEmpty()) {
+                // Full surah builds its queue from the surah, not the learned list, so it plays
+                // for someone who has marked nothing yet — tapping an ayah to hear its surah.
+                if (master.isNotEmpty() || requestedMode == PlaybackMode.FULL_SURAH) {
                     loadForMode(requestedMode, requestedRepeat, requestedSurah, startGlobal)
                     if (autoPlay) play()
                 }
@@ -475,11 +550,12 @@ class PlaybackService : MediaSessionService() {
             ACTION_NOTIF_PREV -> skipPrevious()
             ACTION_NOTIF_NEXT -> skipNext()
             ACTION_NOTIF_PLAY_PAUSE -> {
-                if (player?.isPlaying == true) pause() else play()
+                // "Going on", like the button's label: during a revision gap it reads Pause.
+                if (playbackOngoing()) pause() else play()
             }
+            ACTION_NOTIF_DISMISSED -> notificationActive = false
         }
         updateNotification()
-        return super.onStartCommand(intent, flags, startId)
     }
 
     /**
@@ -556,6 +632,18 @@ class PlaybackService : MediaSessionService() {
 
         PlayerStateHolder.updateMode(mode, repeatMode)
         PlayerStateHolder.updateQueue(queue, startIndex)
+    }
+
+    /**
+     * The learned list normally arrives from the app's UI. A notification button pressed after the
+     * process was gone starts the service on its own, with nothing loaded; build the list the
+     * same way the app does rather than playing an empty queue.
+     */
+    private fun ensureMasterList() {
+        if (PlaylistStore.latest != null) return
+        PlaylistStore.latest = runBlocking {
+            LibraryRepository(this@PlaybackService).buildLocalSnapshot(LearnedAyahsStore.learnedIds.value)
+        }
     }
 
     /** Prefers cached local files over streaming for a synthesised (non-learned-list) queue. */
@@ -671,6 +759,9 @@ class PlaybackService : MediaSessionService() {
             val startGlobal = currentGlobalId().takeIf { it > 0 } ?: PlayerSettings.lastGlobalId
             loadForMode(mode, repeatMode, currentSurah, startGlobal)
         }
+        // Nothing to play (nothing marked, in a mode that plays the learned list): don't put a
+        // playback notification up for an empty queue.
+        if (p.mediaItemCount == 0) return
         if (mode == PlaybackMode.WORD_BY_WORD && p.playbackState == Player.STATE_ENDED) {
             loadCurrentWordAyah(wordAyahIndex, startWord = 0, autoPlay = true)
             promoteToForeground()
@@ -738,6 +829,7 @@ class PlaybackService : MediaSessionService() {
         // A user pause during the revision gap must stick — drop the queued resume.
         cancelRevisionGap()
         player?.pause()
+        scheduleForegroundCheck()
     }
 
     fun seekTo(index: Int) {
@@ -935,21 +1027,49 @@ class PlaybackService : MediaSessionService() {
         }
     }
 
+    /**
+     * Ends a word cut from the ayah MP3 at the *next* word's onset. QUL reports onsets accurately
+     * and ends often not at all (see CLAUDE.md) — cutting on the reported end clipped words, and
+     * for the ~800 words per reciter whose end is within [WORD_END_LEAD_MS] of their start it
+     * fired the moment the word began: under repeat it looped without a sound as fast as the
+     * player could seek, and otherwise the word was skipped unheard. The last word plays to the
+     * end of the file, where STATE_ENDED takes over.
+     */
     private fun maybeParkAtWordEnd(p: Player) {
         if (!ayahSeekActive() || !p.isPlaying) return
         val seg = ayahSeekSegments.getOrNull(ayahSeekWordIndex) ?: return
-        val endMs = seg.last + 1
-        if (endMs <= 0L) return
-        if (p.currentPosition >= (endMs - WORD_END_LEAD_MS).coerceAtLeast(seg.first)) {
-            p.pause()
+        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return
+        val endAt = maxOf(nextOnset - WORD_END_LEAD_MS, seg.first + MIN_WORD_PLAY_MS)
+        if (p.currentPosition >= endAt) {
             onAyahSeekWordEnded()
         }
     }
 
     private fun onAyahSeekWordEnded() {
+        if (ayahSeekSegments.isEmpty()) {
+            // No timings: the ayah played whole, as a single unit. Repeat it, or move on —
+            // stepping "words" here would replay the whole ayah once per word.
+            when (repeatMode) {
+                RepeatMode.AYAH -> parkForRevisionGap()
+                RepeatMode.SURAH, RepeatMode.OFF ->
+                    if (!advanceWordAyah(forward = true)) scheduleForegroundCheck()
+            }
+            return
+        }
         when (repeatMode) {
             RepeatMode.AYAH -> parkForRevisionGap()
-            RepeatMode.SURAH, RepeatMode.OFF -> skipAyahSeekWord(forward = true)
+            RepeatMode.SURAH, RepeatMode.OFF -> {
+                val last = (ayahSeekWordCount - 1).coerceAtLeast(0)
+                val ended = player?.playbackState == Player.STATE_ENDED
+                if (!ended && ayahSeekWordIndex < last) {
+                    // The recitation is already at the next word's onset: carry on through it
+                    // rather than pausing and seeking to where it already is.
+                    ayahSeekWordIndex++
+                    PlayerStateHolder.updateWordIndex(ayahSeekWordIndex, ayahSeekWordCount)
+                } else {
+                    skipAyahSeekWord(forward = true)
+                }
+            }
         }
     }
 
@@ -1099,7 +1219,7 @@ class PlaybackService : MediaSessionService() {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setTitle(label)
-                    .setArtist("Maher Al Muaiqly")
+                    .setArtist(PlayerSettings.reciter.displayName)
                     .setAlbumTitle("Learned Ayahs")
                     .build(),
             )
@@ -1128,35 +1248,32 @@ class PlaybackService : MediaSessionService() {
         )
     }
 
-    private fun buildNotification(): android.app.Notification {
-        val isPlaying = player?.isPlaying == true
+    /** What the notification shows; posting is skipped when this has not changed. */
+    private data class NotificationContent(val title: String, val text: String, val playing: Boolean)
+
+    private fun notificationContent(): NotificationContent {
+        val reciterName = if (usingWordClips()) {
+            PlayerSettings.wordReciter.displayName
+        } else {
+            PlayerSettings.reciter.displayName
+        }
+        return NotificationContent(
+            title = PlayerStateHolder.uiState.value.introLabel
+                ?: currentTrack()?.label
+                ?: getString(R.string.app_name),
+            // No per-word counter: it would re-post the notification several times a second in
+            // word-by-word mode, and the system counts (and rate-limits) every one of them.
+            text = "${playbackModeLabel(mode, repeatMode)} · $reciterName",
+            // "Going on" rather than isPlaying, which flickers off at every clip change.
+            playing = playbackOngoing(),
+        )
+    }
+
+    private fun buildNotification(content: NotificationContent): android.app.Notification {
+        val isPlaying = content.playing
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(
-                PlayerStateHolder.uiState.value.introLabel
-                    ?: currentTrack()?.label
-                    ?: getString(R.string.app_name),
-            )
-            .setContentText(
-                buildString {
-                    append(playbackModeLabel(mode, repeatMode))
-                    append(" · ")
-                    if (mode == PlaybackMode.WORD_BY_WORD) {
-                        if (usingWordClips()) {
-                            append(PlayerSettings.wordReciter.displayName)
-                            if (wordItems.isNotEmpty()) {
-                                append(" · word ${(player?.currentMediaItemIndex ?: 0) + 1}/${wordItems.size}")
-                            }
-                        } else {
-                            append(PlayerSettings.reciter.displayName)
-                            if (ayahSeekWordCount > 0) {
-                                append(" · word ${ayahSeekWordIndex + 1}/$ayahSeekWordCount")
-                            }
-                        }
-                    } else {
-                        append(PlayerSettings.reciter.displayName)
-                    }
-                },
-            )
+            .setContentTitle(content.title)
+            .setContentText(content.text)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(
                 PendingIntent.getActivity(
@@ -1166,8 +1283,11 @@ class PlaybackService : MediaSessionService() {
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                 ),
             )
+            .setDeleteIntent(servicePendingIntent(ACTION_NOTIF_DISMISSED))
             .setOngoing(isPlaying)
             .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .setShowWhen(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(
                 android.R.drawable.ic_media_previous,
@@ -1194,30 +1314,94 @@ class PlaybackService : MediaSessionService() {
         return builder.build()
     }
 
-    private fun updateNotification() {
+    /** Set when playback first starts; cleared when the user dismisses the notification. */
+    private var notificationActive = false
+    private var isForeground = false
+    private var lastPostedContent: NotificationContent? = null
+
+    /**
+     * Posts the notification if what it shows has changed. Many paths call this on every player
+     * event; re-posting identical content is what used to flood the system with thousands of
+     * notification updates, so unchanged content is never posted again.
+     */
+    private fun updateNotification(force: Boolean = false) {
         if (mediaSession == null) return
+        if (!notificationActive && !isForeground) return
+        val content = notificationContent()
+        if (!force && content == lastPostedContent) return
+        lastPostedContent = content
         runCatching {
             getSystemService(NotificationManager::class.java)
-                .notify(NOTIFICATION_ID, buildNotification())
+                .notify(NOTIFICATION_ID, buildNotification(content))
         }
     }
 
+    /** Playback the user expects to be going on — including the pauses this service makes itself
+     *  (the revision gap, the step from A'udhu to Bismillah to the ayah, between words). */
+    private fun playbackOngoing(): Boolean {
+        val p = player ?: return false
+        if (revisionGapPending || introStep != IntroStep.NONE) return true
+        return p.playWhenReady && p.playbackState != Player.STATE_ENDED && p.playbackState != Player.STATE_IDLE
+    }
+
+    /**
+     * Runs as a foreground service for as long as playback is going on, so the system keeps it
+     * alive with the screen off.
+     *
+     * Android 12+ refuses to *start* a foreground service while the app is in the background,
+     * throwing ForegroundServiceStartNotAllowedException. That cannot happen mid-session any more
+     * — the service stays in the foreground through its own pauses — but a resume from the
+     * background after a real pause can still be refused. Playback then carries on with the
+     * notification updated; it must never take the app down.
+     */
     private fun promoteToForeground() {
-        ServiceCompat.startForeground(
-            this,
-            NOTIFICATION_ID,
-            buildNotification(),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-            } else {
-                0
-            },
-        )
+        handler.removeCallbacks(demoteIfIdle)
+        notificationActive = true
+        val content = notificationContent()
+        try {
+            ServiceCompat.startForeground(
+                this,
+                NOTIFICATION_ID,
+                buildNotification(content),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                } else {
+                    0
+                },
+            )
+            isForeground = true
+            lastPostedContent = content
+        } catch (e: IllegalStateException) {
+            android.util.Log.w(TAG, "Could not enter the foreground; continuing without it", e)
+            updateNotification(force = true)
+        } catch (e: SecurityException) {
+            android.util.Log.w(TAG, "Could not enter the foreground; continuing without it", e)
+            updateNotification(force = true)
+        }
+    }
+
+    /** Leaves the foreground once playback has really stopped, keeping a dismissible notification. */
+    private val demoteIfIdle = Runnable {
+        if (playbackOngoing() || !isForeground) return@Runnable
+        isForeground = false
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+        updateNotification(force = true)
+    }
+
+    /**
+     * Checks a moment later whether playback has stopped. The delay rides over the pauses the
+     * service makes between clips (intro to ayah, word to word), which last milliseconds.
+     */
+    private fun scheduleForegroundCheck() {
+        handler.removeCallbacks(demoteIfIdle)
+        handler.postDelayed(demoteIfIdle, DEMOTE_DELAY_MS)
     }
 
     companion object {
+        private const val TAG = "PlaybackService"
         private const val CHANNEL_ID = "playback"
         private const val NOTIFICATION_ID = 1001
+        private const val DEMOTE_DELAY_MS = 1500L
         private const val PROGRESS_INTERVAL_MS = 250L
 
         /** Below this position an ayah counts as "not started" for intro replay purposes. */
@@ -1231,11 +1415,15 @@ class PlaybackService : MediaSessionService() {
         private const val REVISION_GAP_LEAD_MS = 350L
         private const val WORD_END_LEAD_MS = 60L
 
+        /** A word cut from the ayah audio plays at least this long before it can be ended. */
+        private const val MIN_WORD_PLAY_MS = 150L
+
         const val ACTION_LOAD_PLAYLIST = "com.quran.learnedplayer.LOAD_PLAYLIST"
         const val ACTION_SET_MODE = "com.quran.learnedplayer.SET_MODE"
         const val ACTION_NOTIF_PREV = "com.quran.learnedplayer.NOTIF_PREV"
         const val ACTION_NOTIF_NEXT = "com.quran.learnedplayer.NOTIF_NEXT"
         const val ACTION_NOTIF_PLAY_PAUSE = "com.quran.learnedplayer.NOTIF_PLAY_PAUSE"
+        const val ACTION_NOTIF_DISMISSED = "com.quran.learnedplayer.NOTIF_DISMISSED"
         const val EXTRA_MODE = "extra_mode"
         const val EXTRA_REPEAT = "extra_repeat"
 

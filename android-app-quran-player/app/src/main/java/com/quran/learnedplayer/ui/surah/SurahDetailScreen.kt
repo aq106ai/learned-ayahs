@@ -33,7 +33,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -82,9 +85,8 @@ fun SurahDetailScreen(
     val learnedIds by viewModel.learnedIds.collectAsState()
     val showTranslations by viewModel.showWordTranslations.collectAsState()
 
-    val ayahs by produceState(initialValue = emptyList<SurahAyah>(), surah) {
-        value = viewModel.loadSurahWords(surah)
-    }
+    var ayahs by remember(surah) { mutableStateOf(emptyList<SurahAyah>()) }
+    LaunchedEffect(surah) { ayahs = viewModel.loadSurahWords(surah) }
     val learnedHere = ayahs.count { it.globalId in learnedIds }
 
     Column(modifier = Modifier.fillMaxSize().background(Bg)) {

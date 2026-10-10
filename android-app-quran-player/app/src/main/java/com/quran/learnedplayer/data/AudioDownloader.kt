@@ -4,8 +4,6 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
 
 class AudioDownloader(private val context: Context) {
     private val audioRoot: File
@@ -72,21 +70,5 @@ class AudioDownloader(private val context: Context) {
         downloadFile(track.remoteUrl, dest)
     }
 
-    private fun downloadFile(url: String, dest: File): Boolean {
-        return runCatching {
-            val connection = (URL(url).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 30_000
-                readTimeout = 60_000
-                setRequestProperty("User-Agent", "LearnedAyahsPlayer/1.0")
-            }
-            connection.inputStream.use { input ->
-                dest.outputStream().use { output -> input.copyTo(output) }
-            }
-            connection.disconnect()
-            dest.length() > 0L
-        }.getOrElse {
-            if (dest.exists()) dest.delete()
-            false
-        }
-    }
+    private fun downloadFile(url: String, dest: File): Boolean = AtomicDownload.toFile(url, dest)
 }

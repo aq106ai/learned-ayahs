@@ -2,7 +2,10 @@ package com.quran.learnedplayer
 
 import android.Manifest
 import android.os.Build
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -120,10 +123,20 @@ abstract class BaseAppTest {
      */
     protected open fun seedLearnedAyahs(): Set<Int> = emptySet()
 
-    /** Waits for a node with [tag] to exist, tolerating async library/asset loading. */
+    /**
+     * Waits for a node with [tag] to exist, tolerating async library/asset loading. On a timeout
+     * the failure carries what *is* on screen, so a CI log says why rather than just "timed out".
+     */
     protected fun awaitTag(tag: String, timeoutMs: Long = 20_000) {
-        composeRule.waitUntil(timeoutMs) {
-            composeRule.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+        try {
+            composeRule.waitUntil(timeoutMs) {
+                composeRule.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+            }
+        } catch (e: ComposeTimeoutException) {
+            val screen = runCatching {
+                composeRule.onAllNodes(isRoot()).printToString(maxDepth = Int.MAX_VALUE)
+            }.getOrElse { "(could not read the screen: $it)" }
+            throw AssertionError("No node tagged '$tag' after ${timeoutMs}ms. On screen:\n$screen", e)
         }
     }
 

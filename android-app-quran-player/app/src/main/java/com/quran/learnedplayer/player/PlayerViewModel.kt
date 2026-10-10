@@ -3,7 +3,6 @@ package com.quran.learnedplayer.player
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.quran.learnedplayer.data.AyahMapping
@@ -26,6 +25,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -43,7 +44,11 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     private val repository = LibraryRepository(application)
     private val quranData = QuranDataRepository(application)
     private var downloadJob: Job? = null
-    private var loadedTextGlobalId: Int? = null
+    /** The ayah whose words are currently in the UI state (null: none loaded). */
+    private var textGlobalId: Int? = null
+
+    /** Bumped to reload the current ayah's text and timings: a new playlist, a new reciter. */
+    private val textReload = MutableStateFlow(0)
 
     val uiState: StateFlow<PlayerUiState> = PlayerStateHolder.uiState.stateIn(
         scope = viewModelScope,
@@ -92,7 +97,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         if (PlayerSettings.reciter == reciter) return
         if (uiState.value.isPlaying) pause()
         PlayerSettings.reciter = reciter
-        loadedTextGlobalId = null // force word timings to be re-resolved for the new recitation
+        textReload.value++ // word timings belong to the recitation: resolve them again
         refreshPlaylist()
     }
 
@@ -131,11 +136,15 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     init {
         viewModelScope.launch {
-            uiState
-                .map { it.currentTrack?.globalId }
-                .distinctUntilChanged()
-                .collect {
-                    val track = uiState.value.currentTrack ?: return@collect
+            // collectLatest: a newer ayah (or a reload) cancels a load still in flight, so a
+            // stale load can neither overwrite the current ayah's words nor be thrown away
+            // without a replacement — which left the reader stuck on "Loading ayah text…".
+            combine(
+                uiState.map { it.currentTrack?.globalId }.distinctUntilChanged(),
+                textReload,
+            ) { globalId, _ -> globalId }
+                .collectLatest {
+                    val track = uiState.value.currentTrack ?: return@collectLatest
                     PlayerSettings.lastGlobalId = track.globalId
                     loadAyahText(track)
                 }
@@ -326,7 +335,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                         if (failed > 0) " ($failed failed)" else "",
                 )
             }
-            PlaylistStore.latest = snapshot.copy(tracks = updated)
+            mergeLocalPaths(updated)
             rebuildPreview()
             PlayerStateHolder.updateIntroCache(repository.isAudhuCached(), repository.isBismillahCached())
             PlayerStateHolder.setDownloadProgress(
@@ -370,7 +379,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun onPlaylistLoaded(snapshot: PlaylistSnapshot, autoPlay: Boolean) {
         PlaylistStore.latest = snapshot
-        loadedTextGlobalId = null
+        textReload.value++
         // Best-effort cosmetic restore for the brief window before the service responds with the
         // authoritative queue (see preparePlaybackService): only exact when the last ayah is in
         // this REVISE-scoped snapshot, which is the common case.
@@ -389,29 +398,51 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private suspend fun loadAyahText(track: AyahTrack) {
-        if (loadedTextGlobalId == track.globalId && uiState.value.ayahWords.isNotEmpty()) return
-        loadedTextGlobalId = track.globalId
-        PlayerStateHolder.updateAyahText(emptyList(), loading = true)
-        val words = withContext(Dispatchers.IO) {
-            quranData.wordsFor(track.surah, track.ayah)
-        }
-        if (loadedTextGlobalId != track.globalId) return
-        PlayerStateHolder.updateAyahText(words = words, loading = false)
-        if (PlayerSettings.playbackMode == PlaybackMode.WORD_BY_WORD) {
-            val count = words.count { !it.isEnd }
-            val idx = PlayerStateHolder.uiState.value.currentWordIndex
-            PlayerStateHolder.updateWordIndex(if (count == 0) 0 else idx.coerceIn(0, count - 1), count)
+        // A reload for the ayah already on screen keeps its words (re-blanking them would reset
+        // the word reader) and only resolves the timings again.
+        val haveWords = textGlobalId == track.globalId && PlayerStateHolder.uiState.value.ayahWords.isNotEmpty()
+        if (!haveWords) {
+            textGlobalId = null
+            PlayerStateHolder.updateAyahText(emptyList(), loading = true)
+            val words = withContext(Dispatchers.IO) {
+                quranData.wordsFor(track.surah, track.ayah)
+            }
+            textGlobalId = track.globalId
+            PlayerStateHolder.updateAyahText(words = words, loading = false)
+            if (PlayerSettings.playbackMode == PlaybackMode.WORD_BY_WORD) {
+                val count = words.count { !it.isEnd }
+                val idx = PlayerStateHolder.uiState.value.currentWordIndex
+                PlayerStateHolder.updateWordIndex(if (count == 0) 0 else idx.coerceIn(0, count - 1), count)
+            }
         }
 
         val segments = withContext(Dispatchers.IO) {
             quranData.timingsFor(track.surah, track.ayah)
         }
-        // The track may have advanced while timings were loading — don't apply
-        // the old ayah's segments to the new ayah's words.
-        if (loadedTextGlobalId != track.globalId) return
         PlayerStateHolder.updateWordTimings(
             segments = segments.orEmpty(),
             exact = !segments.isNullOrEmpty(),
+        )
+    }
+
+    /**
+     * Records newly saved files on the *current* master list. Replacing it with the snapshot a long
+     * download started from would quietly undo every ayah marked or unmarked while it ran. A file
+     * only counts for the same recording: after a reciter change the old reciter's file is not it.
+     */
+    private fun mergeLocalPaths(saved: List<AyahTrack>) {
+        val byId = saved.filter { it.localPath != null }.associateBy { it.globalId }
+        if (byId.isEmpty()) return
+        val latest = PlaylistStore.latest ?: return
+        PlaylistStore.latest = latest.copy(
+            tracks = latest.tracks.map { track ->
+                val file = byId[track.globalId]
+                if (file != null && file.remoteUrl == track.remoteUrl) {
+                    track.withLocalPath(file.localPath!!)
+                } else {
+                    track
+                }
+            },
         )
     }
 
@@ -428,20 +459,20 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun playWithService() {
-        val snapshot = PlaylistStore.latest ?: return
+        if (PlaylistStore.latest == null) return
         val current = uiState.value.currentTrack
+        // Reach the service now, while the app is in the foreground: the downloads below can take
+        // a while, the user may leave the app meanwhile, and Android 8+ refuses to start a
+        // service from the background.
+        if (!PlayerStateHolder.isServiceReady()) {
+            startPlaybackService(autoPlay = false, startGlobal = current?.globalId ?: 0)
+        }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.cacheIntroClips()
                 current?.let { track ->
                     val cached = repository.cacheTrack(track)
-                    if (cached.localPath != null) {
-                        PlaylistStore.latest = snapshot.copy(
-                            tracks = snapshot.tracks.map {
-                                if (it.globalId == cached.globalId) cached else it
-                            },
-                        )
-                    }
+                    if (cached.localPath != null) mergeLocalPaths(listOf(cached))
                 }
             }
             PlayerStateHolder.updateIntroCache(
@@ -748,11 +779,21 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         startServiceCompat(context, intent)
     }
 
+    /**
+     * Sends a command to the playback service.
+     *
+     * A plain start, not startForegroundService: the service enters the foreground itself when
+     * playback actually starts, and startForegroundService would oblige it to do so within
+     * seconds even for a command that plays nothing — a crash when it doesn't. Commands come from
+     * the UI, so the app is in the foreground; should one arrive after it has gone to the
+     * background (where Android 8+ refuses to start services), a running service takes it
+     * directly, and otherwise it is dropped rather than crashing the app.
+     */
     private fun startServiceCompat(context: Application, intent: Intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
-        } else {
+        try {
             context.startService(intent)
+        } catch (e: IllegalStateException) {
+            PlayerStateHolder.deliverCommand(intent)
         }
     }
 }

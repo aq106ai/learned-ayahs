@@ -2,12 +2,13 @@
 
 > **Historical document.** This is the original development log, covering the web player and
 > Android app up to roughly v1.0.26 (June–July 2026). Much of it has since changed: the app is now
-> at v1.9.1, the learned list is marked in-app instead of read from a library export, the
+> at v1.9.2, the learned list is marked in-app instead of read from a library export, the
 > Downloads scan and the personal "default supplement" were removed in v1.4.0, and word-by-word
 > highlighting is back. For the current design see
 > [`android-app-quran-player/CLAUDE.md`](../android-app-quran-player/CLAUDE.md) and the
-> [CHANGELOG](../CHANGELOG.md). Paths below that start with `quran-player/` now live in
-> `web-app-quran-player/`.
+> [CHANGELOG](../CHANGELOG.md). The original desktop web player described below
+> (`quran-player/`, later `web-app-quran-player/`) has been removed; the [web app](../web-app/)
+> replaces it and can still import its library exports.
 
 Complete log of features requested, implemented, fixed, and abandoned across the web player and Android app.  
 Compiled from development chat sessions (Jun 28 – Jul 6, 2026).

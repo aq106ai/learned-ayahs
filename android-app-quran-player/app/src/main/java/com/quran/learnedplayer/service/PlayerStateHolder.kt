@@ -5,6 +5,7 @@ import com.quran.learnedplayer.player.PlayerSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 object PlayerStateHolder {
     private val _uiState = MutableStateFlow(com.quran.learnedplayer.player.PlayerUiState())
@@ -21,6 +22,13 @@ object PlayerStateHolder {
     }
 
     fun isServiceReady(): Boolean = service != null
+
+    /** Hands [intent] straight to a running service; false when there is none. */
+    fun deliverCommand(intent: android.content.Intent): Boolean {
+        val running = service ?: return false
+        running.handleCommand(intent)
+        return true
+    }
 
     /**
      * Set by the word-by-word reader while it is on screen. When present, Next/Previous move one
@@ -65,22 +73,24 @@ object PlayerStateHolder {
 
     fun updatePlaylist(snapshot: PlaylistSnapshot, index: Int) {
         val safeIndex = index.coerceIn(0, (snapshot.tracks.size - 1).coerceAtLeast(0))
-        _uiState.value = _uiState.value.copy(
-            isLoading = false,
-            error = null,
-            sourceFileName = snapshot.sourceFileName,
-            tracks = snapshot.tracks,
-            currentIndex = safeIndex,
-            downloadProgress = null,
-            loadingMessage = "Ready",
-        )
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                error = null,
+                sourceFileName = snapshot.sourceFileName,
+                tracks = snapshot.tracks,
+                currentIndex = safeIndex,
+                downloadProgress = null,
+                loadingMessage = "Ready",
+            )
+        }
         snapshot.tracks.getOrNull(safeIndex)?.let { PlayerSettings.lastGlobalId = it.globalId }
     }
 
     fun updateIndex(index: Int) {
         val tracks = _uiState.value.tracks
         val safeIndex = index.coerceIn(0, (tracks.size - 1).coerceAtLeast(0))
-        _uiState.value = _uiState.value.copy(currentIndex = safeIndex)
+        _uiState.update { it.copy(currentIndex = safeIndex) }
         // Persist here, not only in the ViewModel collector: Next/Previous from the UI or
         // lock-screen happen on this path, and SharedPreferences.apply() from a collector can
         // lose the write if the process is killed (or a test re-reads prefs) immediately after.
@@ -89,89 +99,103 @@ object PlayerStateHolder {
 
     fun updateWordIndex(index: Int, wordCount: Int) {
         val safe = if (wordCount <= 0) 0 else index.coerceIn(0, wordCount - 1)
-        _uiState.value = _uiState.value.copy(currentWordIndex = safe, wordCount = wordCount)
+        _uiState.update { it.copy(currentWordIndex = safe, wordCount = wordCount) }
     }
 
     fun updatePlaying(isPlaying: Boolean) {
-        _uiState.value = _uiState.value.copy(isPlaying = isPlaying)
+        _uiState.update { it.copy(isPlaying = isPlaying) }
     }
 
     fun updateProgress(positionMs: Long, durationMs: Long) {
-        _uiState.value = _uiState.value.copy(positionMs = positionMs, durationMs = durationMs)
+        _uiState.update { it.copy(positionMs = positionMs, durationMs = durationMs) }
     }
 
     fun updateMode(
         mode: com.quran.learnedplayer.player.PlaybackMode,
         repeatMode: com.quran.learnedplayer.player.RepeatMode,
     ) {
-        _uiState.value = _uiState.value.copy(mode = mode, repeatMode = repeatMode)
+        _uiState.update { it.copy(mode = mode, repeatMode = repeatMode) }
     }
 
     /** Replaces the active queue (e.g. when switching to/within a surah mode) keeping the source. */
     fun updateQueue(tracks: List<com.quran.learnedplayer.data.AyahTrack>, index: Int) {
         val safeIndex = index.coerceIn(0, (tracks.size - 1).coerceAtLeast(0))
-        _uiState.value = _uiState.value.copy(
-            isLoading = false,
-            error = null,
-            tracks = tracks,
-            currentIndex = safeIndex,
-        )
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                error = null,
+                tracks = tracks,
+                currentIndex = safeIndex,
+            )
+        }
         tracks.getOrNull(safeIndex)?.let { PlayerSettings.lastGlobalId = it.globalId }
     }
 
     fun setLoading(message: String) {
-        _uiState.value = _uiState.value.copy(
-            isLoading = true,
-            loadingMessage = message,
-            error = null,
-        )
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                loadingMessage = message,
+                error = null,
+            )
+        }
     }
 
     fun setDownloadProgress(text: String) {
-        _uiState.value = _uiState.value.copy(downloadProgress = text)
+        _uiState.update { it.copy(downloadProgress = text) }
     }
 
     fun setError(message: String) {
-        _uiState.value = _uiState.value.copy(
-            isLoading = false,
-            error = message,
-            downloadProgress = null,
-        )
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                error = message,
+                downloadProgress = null,
+            )
+        }
     }
 
     fun updateAyahText(
         words: List<com.quran.learnedplayer.data.AyahWord>,
         loading: Boolean,
     ) {
-        _uiState.value = _uiState.value.copy(
-            ayahWords = words,
-            ayahTextLoading = loading,
-            // Segments belong to the previous ayah — clear until the new ones load.
-            wordSegments = emptyList(),
-            wordSyncExact = false,
-        )
+        _uiState.update {
+            it.copy(
+                ayahWords = words,
+                ayahTextLoading = loading,
+                // Segments belong to the previous ayah — clear until the new ones load.
+                wordSegments = emptyList(),
+                wordSyncExact = false,
+            )
+        }
     }
 
     fun updateWordTimings(segments: List<LongRange>, exact: Boolean) {
-        _uiState.value = _uiState.value.copy(
-            wordSegments = segments,
-            wordSyncExact = exact,
-        )
+        _uiState.update {
+            it.copy(
+                wordSegments = segments,
+                wordSyncExact = exact,
+            )
+        }
     }
 
     fun updateIntroLabel(label: String?) {
-        _uiState.value = _uiState.value.copy(
-            introLabel = label,
-            positionMs = if (label != null) 0L else _uiState.value.positionMs,
-            durationMs = if (label != null) 0L else _uiState.value.durationMs,
-        )
+        _uiState.update {
+            it.copy(
+                introLabel = label,
+                positionMs = if (label != null) 0L else it.positionMs,
+                durationMs = if (label != null) 0L else it.durationMs,
+            )
+        }
     }
 
     fun updateIntroCache(audhuCached: Boolean, bismillahCached: Boolean) {
-        _uiState.value = _uiState.value.copy(
-            audhuCached = audhuCached,
-            bismillahCached = bismillahCached,
-        )
+        _uiState.update {
+            it.copy(
+                audhuCached = audhuCached,
+                bismillahCached = bismillahCached,
+            )
+        }
     }
 
     fun play() = service?.play()

@@ -4,7 +4,7 @@ A standalone Android app for revising the ayahs **you** have memorised. Browse t
 mark the ayahs you know, and the app plays them back so you can listen, repeat, follow word by
 word, and recite from memory.
 
-- **Package:** `com.quran.learnedplayer` · **Current version:** 1.9.1
+- **Package:** `com.quran.learnedplayer` · **Current version:** 1.9.2
 - **Requires:** Android 8.0 (API 26) or newer. Recite & review needs Android 13 (API 33).
 - **Built with:** Kotlin, Jetpack Compose (Material 3), Media3 ExoPlayer + MediaSession
 
@@ -80,7 +80,7 @@ After installing, check **Settings → About** for the version.
 
 ## Build
 
-Requirements: **JDK 17+** and the **Android SDK** with platform 34. Installing
+Requirements: **JDK 17+** and the **Android SDK** with platform 36. Installing
 [Android Studio](https://developer.android.com/studio) gives you both. Open this folder in
 Android Studio, or build from the command line:
 

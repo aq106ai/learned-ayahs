@@ -10,7 +10,9 @@ and plays them back with lock-screen / Bluetooth / Android Auto controls.
 
 **The learned list is per-user and is the only source.** Nothing is marked on a user's behalf —
 a fresh install starts with an empty playlist, and browsing plus Surah-loop playback still work
-with nothing marked (`QueueBuilder.surahAllAyahs` doesn't read the master). Until v1.4.0 the app
+with nothing marked (`QueueBuilder.surahAllAyahs` doesn't read the master — and
+`PlaybackService.handleCommand` must accept a full-surah load with an empty master; until 1.9.2 it
+didn't, and tapping an ayah with nothing marked played nothing). Until v1.4.0 the app
 merged `DefaultSupplement` — the repo owner's 1,216 personal ayahs — into everyone's list; that
 class is gone. Don't reintroduce anything that marks ayahs the user did not choose.
 
@@ -20,10 +22,11 @@ class is gone. Don't reintroduce anything that marks ayahs the user did not choo
 rebuild the playlist (`PlayerViewModel.setReciter`), or existing tracks keep the old URLs.
 
 **Word reciter** is a separate list (`data/WordReciter.kt`), defaulting to Quran.com isolated
-word MP3s (`https://audio.qurancdn.com/wbw/sss_aaa_www.mp3`). Word-by-word playback mode and
-Recite & review play those files (stream or `filesDir/audio/wbw/<folder>/`). Do not mix them
-with ayah reciters — they are different recordings. Only add a WordReciter that has a complete
-word-file set.
+word MP3s (`https://audio.qurancdn.com/wbw/sss_aaa_www.mp3`). Recite & review always plays
+those files (stream or `filesDir/audio/wbw/<folder>/`); Word-by-word playback plays them only when
+*Word clips* (`PlayerSettings.useWordClips`, **off by default**) is on — otherwise it cuts each word
+out of the ayah reciter's MP3 (see Playback modes). Do not mix word files with ayah reciters —
+they are different recordings. Only add a WordReciter that has a complete word-file set.
 
 **The ayah reciter list is short on purpose, and there is no estimated word timing.** Highlighting
 inside an ayah MP3 is only honest with real per-word segments for that exact recording, so an
@@ -35,14 +38,17 @@ and Shuraym.
 `ayah_segments/{id}` returns segments and nothing else; the check is that the last segment of an
 ayah ends where everyayah's MP3 for that reciter ends. Across 1:1, 1:7, 2:255, 112:1 and 112:2
 every shipped id leaves 0–50ms of trailing silence and no other id comes close, which is how
-Sudais was pinned to QUL 16 and Shuraym to QUL 25. Timestamp-seek inside the ayah file is an
-optional Settings toggle (`seekInsideAyahAudio`, **off by default**) used only by the word
-overlay in REVISE/FULL_SURAH. `PlaybackMode.WORD_BY_WORD` always plays word files and ignores
-that toggle. An ayah with no validated timings simply doesn't highlight — `WordSync` has no
-fallback.
+Sudais was pinned to QUL 16 and Shuraym to QUL 25. Seeking the ayah audio to a word as the user
+moves through the word overlay in REVISE/FULL_SURAH is a Settings toggle (`seekInsideAyahAudio`,
+**off by default**); `PlaybackMode.WORD_BY_WORD` ignores it. An ayah with no validated timings
+simply doesn't highlight — `WordSync` has no fallback.
 
 Single-module Gradle project. Kotlin + Jetpack Compose UI, Media3 (ExoPlayer + MediaSession)
-for playback. `minSdk 26`, `targetSdk`/`compileSdk 34`, Java/Kotlin 17.
+for playback. `minSdk 26`, `targetSdk`/`compileSdk 36`, Java/Kotlin 17, AGP 8.10 on Gradle 8.11,
+Kotlin 2.0 (the Compose compiler is the `org.jetbrains.kotlin.plugin.compose` Gradle plugin).
+**Targeting 35+ means edge to edge on Android 15+**: `LearnedAyahsTheme` keeps every screen inside
+`WindowInsets.safeDrawing`, so a new screen needs no inset handling of its own. Robolectric is pinned
+to SDK 34 (`src/test/resources/robolectric.properties`) — it can only emulate levels it ships.
 
 ## Build & run
 
@@ -52,8 +58,8 @@ echo "sdk.dir=C\:\\Users\\YOUR_USER\\AppData\\Local\\Android\\Sdk" > local.prope
 .\gradlew.bat assembleDebug        # -> app\build\outputs\apk\debug\LearnedAyahsPlayer-v<ver>-debug.apk
 ```
 
-- `bash .setup/build.sh` is a one-shot Linux/CI setup: installs the SDK, bumps the Gradle
-  wrapper 8.2→8.5 (8.2 can't run on Java 21), and builds the debug APK. There is no native build —
+- `bash .setup/build.sh` is a one-shot Linux/CI setup: installs the SDK (platform 36), brings an
+  old checkout's Gradle wrapper to 8.11.1, and builds the debug APK. There is no native build —
   see **Recite & review** for why whisper.cpp and the NDK dependency were removed in 1.8.0.
 - APKs are renamed to `LearnedAyahsPlayer-v<versionName>-<buildType>.apk` (see `app/build.gradle.kts`).
 - Bump `versionCode` **and** `versionName` in `app/build.gradle.kts` for each release; the
@@ -268,14 +274,18 @@ matches — they are consulted after the existing rules, never instead of them.
   indices address the correction clip, the highlight and the recap, so the reference list has to
   keep the shape the rest of the app uses.
 
-The residue is 17 ayahs. Sixteen are spellings that cannot be folded without also folding words
+The residue is 16 ayahs, all spellings that cannot be folded without also folding words
 that really are different — رَءَا against "رأى", ٱلَّـٰٓـِٔى against "اللائي", يَا۟يْـَٔسُ against "ييأس".
 **None of them interrupts anyone**: every one is within `RecitationTuning.NEAR_MISS_TOLERANCE`, so
 `isConfidentMistake` passes it over — the ayah just doesn't complete by itself and the student
 presses Next. `UthmaniTranscriptMatchTest` holds both halves of that, the fixes and the residue.
-The seventeenth is not an orthography problem at all: **2:181's ayah-number glyph is typed
-`"char_type": "word"` in `quran_text.json`**, so it is scored as a word to be recited, normalizes
-to nothing, and can never be matched. It is the one ayah Recite cannot finish.
+There used to be a seventeenth that was not orthography at all: **2:181's ayah-number glyph was
+typed `"char_type": "word"` in `quran_text.json`**, so it was scored as a word to be recited and
+the ayah could never finish. It is the end marker now (and its stray "(181)" translation is gone).
+The same ayah exposed a timing bug — see `QUL_SPLIT_WORDS` in `.setup/make_timings.py`: QUL times
+بَعْدَ مَا as two words where the text has one, which shifted every later highlight in 2:181, 8:6 and
+13:37. 2:181 is merged back exactly; 8:6 and 13:37 lost a segment to the old generator and ship
+without timings until the generator is re-run against QUL.
 
 **Read every hypothesis the recogniser offers, not just the first.** The session asks for
 `EXTRA_MAX_RESULTS` readings and `appendResult` used to keep `firstOrNull()`. That is how
@@ -440,10 +450,14 @@ Two independent axes:
 
 - `PlaybackMode.REVISE` — play through your learned ayahs (whole-ayah MP3s).
   `FULL_SURAH` — stream every ayah of the current surah, learned or not.
-  `WORD_BY_WORD` — same learned-ayahs queue as REVISE, but ExoPlayer holds that ayah's **word
-  files**. The reader is `WordByWordView` only (no whole-ayah toggle). Next/Previous step words;
-  running off either end of the ayah loads the next/previous ayah's words. Surah intros are
-  skipped. Recite & review also plays word files via `WordAudioPlayer`.
+  `WORD_BY_WORD` — same learned-ayahs queue as REVISE, one word at a time. By default the
+  service plays the ayah reciter's MP3 and cuts each word at the *next* word's onset
+  (`loadAyahWordSeek` / `maybeParkAtWordEnd` — QUL's segment ends are too early to cut on); with
+  *Word clips* on, ExoPlayer instead holds that ayah's **word files** (`loadWordPlaylist`). An
+  ayah without validated timings has nothing to cut on and plays whole. The reader is
+  `WordByWordView` only (no whole-ayah toggle). Next/Previous step words; running off either end
+  of the ayah loads the next/previous ayah's words. Surah intros are skipped. Recite & review
+  plays word files via `WordAudioPlayer` regardless.
 - `RepeatMode.OFF` / `SURAH` / `AYAH`. Under WORD_BY_WORD, `AYAH` loops that ayah's words
   (with `revisionDelaySeconds` after the last word); `SURAH` wraps the learned-ayahs-of-surah
   queue. ExoPlayer itself stays `REPEAT_MODE_OFF` in word mode — wrapping is done in the service.
@@ -473,6 +487,36 @@ ordinals.
 
 When editing `PlaybackService`, respect the extensive `//` comments — they document non-obvious
 ExoPlayer timing races that were fixed deliberately. Don't "simplify" them away.
+
+### Notification and foreground service
+
+**The service owns its one notification and its foreground state; Media3's are switched off**
+(`onUpdateNotification` is overridden to do nothing). Until 1.9.1 both ran: Media3's
+`DefaultMediaNotificationProvider` posts under id 1001 — the same id as ours — and on every player
+event it re-started the service with `startForegroundService`, which ran our `onStartCommand`,
+which posted ours twice more. Word-by-word mode makes several player events per word, so a session
+posted thousands of notifications and hit the system's rate limit. The rules that keep it fixed:
+
+- **`updateNotification` posts only when what the notification shows has changed**
+  (`NotificationContent`). Don't put anything in it that changes per word or per tick.
+- **The service stays in the foreground for as long as playback is going on, including its own
+  pauses** — the revision gap, A'udhu → Bismillah → ayah, word to word (`playbackOngoing`). Android
+  12+ refuses to *start* a foreground service from the background
+  (`ForegroundServiceStartNotAllowedException`), and Media3 used to drop the foreground on every
+  pause, so the next intro with the screen off called `startForeground` from the background and
+  took the app down. It leaves the foreground only after a real pause or the end of the queue
+  (`scheduleForegroundCheck`), keeping a dismissible notification.
+- **`promoteToForeground` never throws.** A resume from the background after a real pause can still
+  be refused; playback carries on with the notification updated.
+- **The app starts the service with `startService`, never `startForegroundService`**
+  (`PlayerViewModel.startServiceCompat`). The latter obliges `startForeground` within seconds even
+  for a command that plays nothing. The service enters the foreground itself when playback starts.
+- **`START_NOT_STICKY`.** A sticky restart after the process died arrived with a null intent and
+  promoted from the background — a crash loop. There is nothing to resume, so it doesn't restart.
+
+ExoPlayer handles audio focus and "becoming noisy" (headphones unplugged) itself; a pause for
+either reason cancels a pending revision-gap resume (`onPlayWhenReadyChanged`), or the gap would
+restart playback over another app.
 
 ## The learned list
 

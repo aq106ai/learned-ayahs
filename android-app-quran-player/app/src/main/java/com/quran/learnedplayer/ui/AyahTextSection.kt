@@ -2,9 +2,7 @@ package com.quran.learnedplayer.ui
 
 import android.os.SystemClock
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,6 +47,7 @@ import com.quran.learnedplayer.player.AyahOverflowMode
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerUiState
 import com.quran.learnedplayer.ui.common.WordByWordFlow
+import com.quran.learnedplayer.ui.common.advanceOnTap
 import com.quran.learnedplayer.ui.common.swipeToAdvance
 import com.quran.learnedplayer.ui.theme.ARABIC_BASE_SIZE
 import com.quran.learnedplayer.ui.theme.AccentGreen
@@ -104,17 +103,7 @@ fun AyahReaderContent(
                 onAdvance = onNext,
                 onGoBack = onPrevious,
             )
-            .then(
-                if (tapAdvances) {
-                    Modifier.clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = onNext,
-                    )
-                } else {
-                    Modifier
-                },
-            ),
+            .advanceOnTap(enabled = tapAdvances, label = "Next ayah", onTap = onNext),
     ) {
         if (wordByWord) {
             WordByWordView(

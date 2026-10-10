@@ -1,6 +1,9 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 // There is no native build any more. Recite used to bundle a Quran-tuned Whisper model and run it
@@ -8,21 +11,42 @@ plugins {
 // even on current hardware, and it carried ~58MB of model plus an NDK dependency for the privilege.
 // Recognition now goes through the platform speech service — see RecitationSpeechManager.
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(keystorePropertiesFile.inputStream())
+}
+
 android {
+    // Code package stays com.quran.learnedplayer. Play Store id is applicationId below.
     namespace = "com.quran.learnedplayer"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.quran.learnedplayer"
+        applicationId = "com.quran.learnedayahs"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 39
-        versionName = "1.9.1"
+        // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
+        // every screen inside the safe area.
+        targetSdk = 36
+        versionCode = 40
+        versionName = "1.9.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -54,10 +78,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     packaging {

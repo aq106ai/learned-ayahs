@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 /*
  * The promo video for the store listing and social media: a short tour of the app made from the
- * phone screenshots, over a recitation of the opening of Al-Mulk.
+ * phone screenshots. It opens on Al-Qamar 54:17, "And We have certainly made the Qur'an easy for
+ * remembrance", and the soundtrack is that refrain each time the surah recites it (54:17, 22, 32
+ * and 40), recited by Maher Al-Muaiqly.
  *
  *   node store/render/render-promo.cjs            (from android-app-quran-player/)
  *
  * Needs Node 18+, Playwright and ffmpeg (with libx264). Writes
- * store/video/learned-ayahs-promo.mp4 — 1920×1080, H.264/AAC, about 37 seconds.
+ * store/video/learned-ayahs-promo.mp4 — 1920×1080, H.264/AAC, about 47 seconds. The Promo video
+ * workflow (promo-video.yml) runs it too and keeps the result as a build artifact.
  *
  * Inputs: the raw phone screenshots in store/raw/phone/ (store-screenshots.yml), their captions
- * in captions.json, and the clips the store video recorded in store/raw/video/audio/.
+ * in captions.json, the app's own text and word-by-word meaning of 54:17, and the four clips in
+ * store/raw/promo/, downloaded from everyayah.com the first time and committed.
  * Unlike render-video.cjs this is not the foreground-service declaration video: that one has to
  * show only the service, so Play reviewers can see it.
  */
@@ -20,18 +24,22 @@ const { chromium } = require('playwright');
 const { ROOT, C, url, iconSvg, FONTS, starPattern, render } = require('./common.cjs');
 
 const SHOTS = path.join(ROOT, 'store/raw/phone');
-const AUDIO = path.join(ROOT, 'store/raw/video/audio');
+const AUDIO = path.join(ROOT, 'store/raw/promo');
+const ASSETS = path.join(ROOT, 'app/src/main/assets');
 const OUT = path.join(ROOT, 'store/video');
 const WORK = path.join(OUT, '.promo-work');
 const FINAL = path.join(OUT, 'learned-ayahs-promo.mp4');
 const CAPTIONS = JSON.parse(fs.readFileSync(path.join(__dirname, 'captions.json'), 'utf8'));
 
 const W = 1920, H = 1080, FPS = 30;
-const TITLE_S = 4, SCENE_S = 4.5, END_S = 6, FADE_S = 0.6;
+const AYAH_S = 9, TITLE_S = 4, SCENE_S = 4.5, END_S = 7, FADE_S = 0.6;
 const SCENES = ['01_reader', '02_word_by_word', '03_playback_options', '05_mark_ayahs', '06_add_by_description', '07_reciters'];
-// Whole ayahs only, never cut off: Bismillah and Al-Mulk 1–3 fit the scenes, ending on the end card.
-const RECITATION = ['bismillah.mp3', '067001.mp3', '067002.mp3', '067003.mp3'];
-const RECITATION_AT_S = 1;
+// The refrain, every time Al-Qamar recites it: the same words, four recordings. Whole ayahs only,
+// spread evenly from the opening card to the end card with a pause between them.
+const AYAH = '54:17';
+const RECITATION = ['054017.mp3', '054022.mp3', '054032.mp3', '054040.mp3'];
+const RECITER_URL = 'https://everyayah.com/data/MaherAlMuaiqly128kbps';
+const RECITATION_AT_S = 1, MIN_GAP_S = 1.5;
 
 const ffmpeg = (args) => execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { stdio: 'inherit' });
 const probeDuration = (file) => parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file]).toString());
@@ -43,6 +51,21 @@ const page = (body, extraCss = '') => `<!doctype html><html><head><meta charset=
              background-size: 120px 120px; -webkit-mask-image: linear-gradient(90deg, transparent 35%, #000 100%); }
   em { font-style: normal; color: ${C.green}; }
   ${extraCss}</style></head><body><div class="pattern"></div>${body}</body></html>`;
+
+/** The opening card: the ayah in the app's Uthmani text, with the app's word-by-word meaning. */
+function ayahHtml() {
+  const words = JSON.parse(fs.readFileSync(path.join(ASSETS, 'quran_text.json'), 'utf8'))[AYAH].words
+    .filter((w) => w.char_type === 'word').map((w) => w.text);
+  // Word by word, so the clause break ("…for remembrance, so is there…") is added here.
+  const meaning = JSON.parse(fs.readFileSync(path.join(ASSETS, 'word_translations.json'), 'utf8'))[AYAH]
+    .map((w, i) => (i === 3 ? `${w},` : w)).join(' ');
+  return page(`<div class="a"><div class="ar" dir="rtl" lang="ar">${words.join(' ')}</div>
+      <p>“${meaning}?”</p><span>Al-Qamar ${AYAH}</span></div>`, `
+    .a { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 160px; }
+    .ar { font-family: Quran; font-size: 104px; line-height: 1.9; color: ${C.text}; }
+    p { margin-top: 30px; font-size: 42px; line-height: 1.4; color: ${C.muted}; max-width: 1400px; }
+    span { margin-top: 36px; font-size: 30px; font-weight: 700; letter-spacing: 1px; color: ${C.green}; }`);
+}
 
 function titleHtml() {
   return page(`<div class="t">${iconSvg(160, { radius: 18 })}<h1>Learned Ayahs</h1>
@@ -92,12 +115,28 @@ function endHtml() {
     .where span + span::before { content: '·'; margin-right: 40px; color: ${C.muted}; }`);
 }
 
+/** The clip, from store/raw/promo/, downloading it from everyayah.com if it isn't there yet. */
+async function clip(name) {
+  const file = path.join(AUDIO, name);
+  if (!fs.existsSync(file)) {
+    const response = await fetch(`${RECITER_URL}/${name}`);
+    if (!response.ok || !(response.headers.get('content-type') || '').startsWith('audio/')) {
+      throw new Error(`Could not download ${name}: HTTP ${response.status}`);
+    }
+    fs.mkdirSync(AUDIO, { recursive: true });
+    fs.writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+    console.log(`  downloaded ${path.relative(ROOT, file)}`);
+  }
+  return file;
+}
+
 (async () => {
   fs.mkdirSync(WORK, { recursive: true });
   console.log('Rendering the frames:');
   const browser = await chromium.launch();
-  const frames = [path.join(WORK, 'title.png')];
-  await render(browser, titleHtml(), frames[0], W, H);
+  const frames = [path.join(WORK, 'ayah.png'), path.join(WORK, 'title.png')];
+  await render(browser, ayahHtml(), frames[0], W, H);
+  await render(browser, titleHtml(), frames[1], W, H);
   for (let i = 0; i < SCENES.length; i++) {
     const out = path.join(WORK, `scene${i}.png`);
     await render(browser, sceneHtml(SCENES[i], i), out, W, H);
@@ -108,7 +147,7 @@ function endHtml() {
   await browser.close();
 
   // Each frame is held for its length plus the crossfade that overlaps the next one.
-  const lengths = [TITLE_S, ...SCENES.map(() => SCENE_S), END_S];
+  const lengths = [AYAH_S, TITLE_S, ...SCENES.map(() => SCENE_S), END_S];
   const total = lengths.reduce((a, b) => a + b, 0);
   const inputs = [], filters = [];
   frames.forEach((f, i) => {
@@ -126,16 +165,23 @@ function endHtml() {
   filters.push(`[xf]fade=t=in:d=0.5,fade=t=out:st=${(total - 0.8).toFixed(3)}:d=0.8[v]`);
 
   console.log('Building the soundtrack:');
-  const clips = RECITATION.map((f) => path.join(AUDIO, f));
-  const recited = clips.reduce((s, f) => s + probeDuration(f), 0);
-  if (RECITATION_AT_S + recited > total - 1) throw new Error(`The recitation (${recited.toFixed(1)}s) outruns the video (${total}s)`);
+  const clips = await Promise.all(RECITATION.map(clip));
+  const durations = clips.map(probeDuration);
+  // The first starts on the opening card and the last ends a little before the video does.
+  const recited = durations.reduce((a, b) => a + b, 0);
+  const gap = (total - 1.5 - RECITATION_AT_S - recited) / (clips.length - 1);
+  if (gap < MIN_GAP_S) throw new Error(`The recitation (${recited.toFixed(1)}s) does not fit the video (${total}s)`);
   const a = frames.length;
-  clips.forEach((f) => inputs.push('-i', f));
-  filters.push(clips.map((_, i) => `[${a + i}:a]aresample=48000,aformat=channel_layouts=stereo[c${i}]`).join(';'));
-  const delay = RECITATION_AT_S * 1000;
-  filters.push(`${clips.map((_, i) => `[c${i}]`).join('')}concat=n=${clips.length}:v=0:a=1,` +
-    `adelay=${delay}|${delay},apad,atrim=0:${total.toFixed(3)}[a]`);
-  console.log(`  ${RECITATION.join(', ')}: ${recited.toFixed(1)}s from ${RECITATION_AT_S}s`);
+  let at = RECITATION_AT_S;
+  clips.forEach((f, i) => {
+    inputs.push('-i', f);
+    const delay = Math.round(at * 1000);
+    filters.push(`[${a + i}:a]aresample=48000,aformat=channel_layouts=stereo,adelay=${delay}|${delay}[c${i}]`);
+    console.log(`  ${RECITATION[i]}  ${at.toFixed(1)}s–${(at + durations[i]).toFixed(1)}s`);
+    at += durations[i] + gap;
+  });
+  filters.push(`${clips.map((_, i) => `[c${i}]`).join('')}amix=inputs=${clips.length}:normalize=0:dropout_transition=0,` +
+    `apad,atrim=0:${total.toFixed(3)}[a]`);
 
   console.log('Encoding:');
   ffmpeg([

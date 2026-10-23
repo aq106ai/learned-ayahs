@@ -109,8 +109,11 @@ The Console asks for a link to a short video showing the feature. It is made fro
 The foreground-service video above is for Play reviewers and must show only that feature. For the
 listing's **Promo video** field, YouTube and social media there is a separate short tour of the app:
 `node store/render/render-promo.cjs` writes `store/video/learned-ayahs-promo.mp4` (1920×1080,
-about 37 s) from the phone screenshots in `store/raw/phone/` and their captions, over a recitation
-of Bismillah and Al-Mulk 1–3 from `store/raw/video/audio/`. Upload it to YouTube as **Public** or
+about 47 s) from the phone screenshots in `store/raw/phone/` and their captions. It opens on
+Al-Qamar 54:17, *“And We have certainly made the Qur'an easy for remembrance…”*, and the
+soundtrack is that refrain each time the surah recites it (54:17, 22, 32, 40). The clips are
+downloaded into `store/raw/promo/` on the first run; the **Promo video** workflow does that,
+commits them and keeps the video as a build artifact. Upload it to YouTube as **Public** or
 **Unlisted**, with ads turned off, and paste the link into **Main store listing → Video**.
 
 ### Other declarations

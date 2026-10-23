@@ -1,0 +1,66 @@
+name: Promo video
+
+# Renders the promo video (android-app-quran-player/store/render/render-promo.cjs) and keeps it as
+# a build artifact. The first run downloads the recitation it plays and commits it to
+# store/raw/promo/, so later renders, here or locally, need no network.
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [main, dev]
+    paths:
+      - .github/workflows/promo-video.yml
+      - android-app-quran-player/store/render/render-promo.cjs
+      - android-app-quran-player/store/render/captions.json
+      - android-app-quran-player/store/raw/phone/**
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    name: Render the promo video
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web-app/package-lock.json
+
+      - name: Install Playwright and ffmpeg
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          npm ci --prefix web-app
+          npx --prefix web-app playwright install --with-deps chromium
+
+      - name: Render
+        working-directory: android-app-quran-player
+        env:
+          NODE_PATH: ${{ github.workspace }}/web-app/node_modules
+        run: node store/render/render-promo.cjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: learned-ayahs-promo
+          path: android-app-quran-player/store/video/learned-ayahs-promo.mp4
+          retention-days: 30
+
+      - name: Commit the recitation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android-app-quran-player/store/raw/promo
+          if git diff --cached --quiet; then echo "Recitation unchanged"; exit 0; fi
+          git commit -m "Promo video: recitation downloaded at ${GITHUB_SHA::7}"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep 5
+          done
+          exit 1

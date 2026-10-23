@@ -22,3 +22,5 @@
 /store/video/
 # …except the few clips store-screenshots.yml records the store video with.
 !/store/raw/video/audio/*.mp3
+# …and the recitation the promo video plays (render-promo.cjs).
+!/store/raw/promo/*.mp3

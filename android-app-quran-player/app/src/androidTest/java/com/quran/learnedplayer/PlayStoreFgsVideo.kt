@@ -94,8 +94,15 @@ class PlayStoreFgsVideo {
         }
 
         ActivityScenario.launch(MainActivity::class.java).use {
-            check(waitFor(app, "in Whose Hand", 30_000)) { "The reader never showed Al-Mulk 67:1" }
-            Thread.sleep(1_500)
+            // Ready when the app's own state has 67:1 with its words — not judged by what
+            // accessibility can see, which is only how the taps are made.
+            val ready = waitUntil(30_000) {
+                PlayerStateHolder.uiState.value.let {
+                    it.currentTrack?.globalId == AyahMapping.surahAyahToGlobal(67, 1) && it.ayahWords.isNotEmpty()
+                }
+            }
+            check(ready) { "The reader never showed Al-Mulk 67:1. Accessibility saw: ${visibleText(app)}" }
+            Thread.sleep(2_000)
 
             val recorder = automation.executeShellCommand(
                 "screenrecord --size 720x1600 --bit-rate 3000000 --time-limit 170 $VIDEO",
@@ -104,7 +111,11 @@ class PlayStoreFgsVideo {
             hold(2_500)
 
             event("play")
-            tap(app, "Play")
+            if (!tap(app, "Play")) {
+                // A headset's play button reaches the same service; the tap is what reads best.
+                event("play_by_media_key: ${visibleText(app)}")
+                shell("input keyevent KEYCODE_MEDIA_PLAY")
+            }
             hold(17_000)
 
             event("home")
@@ -165,20 +176,33 @@ class PlayStoreFgsVideo {
     private fun labelled(label: String): (AccessibilityNodeInfo) -> Boolean =
         { it.text?.toString() == label || it.contentDescription?.toString() == label }
 
-    private fun waitFor(packageName: String, text: String, timeoutMs: Long): Boolean {
+    private fun waitUntil(timeoutMs: Long, condition: () -> Boolean): Boolean {
         val until = SystemClock.elapsedRealtime() + timeoutMs
         while (SystemClock.elapsedRealtime() < until) {
-            if (find(packageName) { it.text?.contains(text) == true } != null) return true
+            if (condition()) return true
             Thread.sleep(200)
         }
         return false
     }
 
+    /** What accessibility can read in [packageName]'s windows, for a failure to report. */
+    private fun visibleText(packageName: String): String {
+        val seen = mutableListOf<String>()
+        find(packageName) { node ->
+            (node.text ?: node.contentDescription)?.toString()?.takeIf { it.isNotBlank() }?.let(seen::add)
+            false
+        }
+        val windows = automation.windows.joinToString { "${it.root?.packageName}" }
+        return "windows [$windows], text ${seen.take(40)}"
+    }
+
     /** Taps the control labelled [label] in [packageName]'s windows, as a person would. */
-    private fun tap(packageName: String, label: String) {
+    private fun tap(packageName: String, label: String): Boolean {
         var node = find(packageName, labelled(label))
         while (node != null && !node.isClickable) node = node.parent
-        if (node?.performAction(AccessibilityNodeInfo.ACTION_CLICK) != true) event("missed_$label")
+        val tapped = node?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true
+        if (!tapped) event("missed_$label")
+        return tapped
     }
 
     /** The log, plus the clips it names, downloaded the way the app downloads them. */

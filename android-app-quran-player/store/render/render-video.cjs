@@ -138,48 +138,58 @@ function endHtml() {
 
 /**
  * The stretches of playback in the timeline: which clip, from where in it, when, for how long.
- * A stretch ends when the clip changes, playback stops, or the position jumps (a pause or seek
- * the samples happened to straddle) — not merely because two samples were far apart.
+ *
+ * Each clip plays at its natural speed from where it really started. The emulator's audio device
+ * stalls under load (screen recording, animations), so in the background the reported position
+ * falls behind real time; following it would stretch and stutter the recitation in a way no phone
+ * does. So a clip's start is measured once, early on, while the position is still trustworthy,
+ * and only a pause or a change of clip ends a stretch. A clip resumed after a pause carries on
+ * from where it paused.
  */
 function playbackRuns(samples) {
   const runs = [];
+  const played = new Set();
   let run = null;
-  const close = () => { if (run) runs.push(run); run = null; };
   let previous = null;
   for (const s of samples) {
     const key = s.playing ? (s.intro || (s.globalId ? String(s.globalId) : null)) : null;
-    if (!key || (run && key !== run.key)) close();
+    if (run && key !== run.key) { runs.push(run); run = null; }
     if (key && !run) {
-      // Fresh: it followed another clip without a pause, so it started from the beginning.
-      run = { key, first: s.t, last: s.t, clock: Infinity, fresh: previous !== null && previous !== key };
+      run = { key, first: s.t, last: s.t, samples: [],
+        // Fresh: it followed another clip without a pause, so it started from the beginning.
+        fresh: previous !== null && previous !== key,
+        resumed: previous === null && played.has(key) };
+      played.add(key);
     }
     previous = key;
-    if (!key) continue;
-    // The reported position trails the true one by up to a progress tick, so the smallest
-    // (time − position) is the clip's true start on the test's clock. For a while after a clip
-    // changes, the player still reports how far the previous one had got; a fresh clip cannot
-    // be further in than the time since it started, which gives those readings away.
-    const stale = run.fresh && s.positionMs > s.t - run.first + 600;
-    if (s.positionMs > 0 && !stale) {
-      const clock = s.t - s.positionMs;
-      if (Number.isFinite(run.clock) && Math.abs(clock - run.clock) > 1000) {
-        run.last = s.t - 100; // seamless: the earlier stretch plays right up to this sample
-        close();
-        run = { key, first: s.t, last: s.t, clock };
-      }
-      run.clock = Math.min(run.clock, clock);
-    }
+    if (!run) continue;
     run.last = s.t;
+    run.samples.push(s);
   }
-  close();
+  if (run) runs.push(run);
+
+  const median = (xs) => xs.slice().sort((a, b) => a - b)[Math.floor(xs.length / 2)];
   return runs.map((r) => {
-    const clock = Number.isFinite(r.clock) ? r.clock : r.first;
-    return { key: r.key, start: r.first, end: r.last + 100, offset: Math.max(0, r.first - clock) };
-  });
+    // For a while after a clip changes the player still reports how far the previous one had
+    // got; a fresh clip cannot be further in than the time since it started.
+    const reliable = r.samples.filter((s) => s.positionMs > 0 && !(r.fresh && s.positionMs > s.t - r.first + 600));
+    let start = r.first, offset = 0;
+    if (r.resumed) {
+      offset = reliable.length ? reliable[0].positionMs - (reliable[0].t - r.first) : 0;
+    } else {
+      const early = reliable.filter((s) => s.positionMs <= 2500);
+      const clipStart = early.length ? median(early.map((s) => s.t - s.positionMs)) : r.first;
+      start = Math.max(r.first, clipStart);
+      offset = start - clipStart;
+    }
+    return { key: r.key, start, end: r.last + 100, offset: Math.max(0, offset) };
+  }).filter((r) => r.end > r.start);
 }
 
 function buildSoundtrack(timeline, lagMs, duration, out) {
-  const runs = playbackRuns(timeline.samples).filter((r) => timeline.clips[r.key]);
+  // A clip that only just starts as the recording ends would be a blip under the fade-out.
+  const runs = playbackRuns(timeline.samples)
+    .filter((r) => timeline.clips[r.key] && (r.start - lagMs) / 1000 < duration - 1.5);
   for (const r of runs) {
     const file = path.join(RAW, 'audio', path.basename(timeline.clips[r.key]));
     if (!fs.existsSync(file)) throw new Error(`${file} is missing: the recording is incomplete, so re-run store-video.yml`);
@@ -198,7 +208,7 @@ function buildSoundtrack(timeline, lagMs, duration, out) {
       `afade=t=in:d=0.02,afade=t=out:st=${Math.max(0, dur - 0.04).toFixed(3)}:d=0.04,adelay=${delay}|${delay}[a${i}]`);
   });
   filters.push(`${runs.map((_, i) => `[a${i}]`).join('')}amix=inputs=${runs.length}:normalize=0:dropout_transition=0,` +
-    `apad,atrim=0:${duration.toFixed(3)}[out]`);
+    `apad,atrim=0:${duration.toFixed(3)},afade=t=out:st=${Math.max(0, duration - 1.5).toFixed(3)}:d=1.5[out]`);
   ffmpeg([...inputs, '-filter_complex', filters.join(';'), '-map', '[out]', out]);
   return runs;
 }

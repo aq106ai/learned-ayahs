@@ -1,0 +1,54 @@
+name: Web app on GitHub Pages
+
+# Publishes the web app's static build (`server.py --export-static`) to GitHub Pages:
+# https://<owner>.github.io/learned-ayahs/. No accounts there: each browser keeps its own list
+# and audio streams straight from its sources (see web-app/README.md, "Static hosting").
+# One-time setup: Settings → Pages → Build and deployment → Source: GitHub Actions.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/pages.yml
+      - web-app/server.py
+      - web-app/static/**
+      - android-app-quran-player/app/src/main/assets/**
+      - android-app-quran-player/app/src/main/res/font/**
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Export the static app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Export
+        run: python3 web-app/server.py --export-static _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

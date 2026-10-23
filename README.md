@@ -122,7 +122,10 @@ troubleshooting.
 
 ### Web app
 
-Requirements: **Python 3.9+**.
+**Try it without installing anything:** <https://aq106ai.github.io/learned-ayahs/> (no accounts;
+your list stays in your browser).
+
+To run your own server with accounts, you need **Python 3.9+**.
 
 ```bash
 cd learned-ayahs/web-app

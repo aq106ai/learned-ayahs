@@ -124,7 +124,10 @@ has no internet access, each browser falls back to the original source. You can 
 python3 server.py --export-static ../site    # app + Qur'an data + font, ready to upload
 ```
 
-Upload the folder to GitHub Pages, Netlify or any web server. The app detects that there is no
+Upload the folder to GitHub Pages, Netlify or any web server. This repo publishes it to
+<https://aq106ai.github.io/learned-ayahs/> with the **Web app on GitHub Pages** workflow
+(`.github/workflows/pages.yml`) on every push to `main` that touches the app; it needs
+**Settings → Pages → Source: GitHub Actions** once. The app detects that there is no
 server behind it. It then hides accounts, keeps each browser's list locally, and streams audio
 straight from its sources. **Export** and **Import** still move lists between devices.
 

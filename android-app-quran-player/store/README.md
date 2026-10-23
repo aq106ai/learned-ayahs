@@ -105,6 +105,14 @@ The Console asks for a link to a short video showing the feature. It is made fro
 3. **Upload** it to YouTube from your account as **Unlisted** (not Private, which reviewers
    cannot open), and paste its `youtube.com/watch?v=…` link into the declaration.
 
+### Promo video (marketing)
+The foreground-service video above is for Play reviewers and must show only that feature. For the
+listing's **Promo video** field, YouTube and social media there is a separate short tour of the app:
+`node store/render/render-promo.cjs` writes `store/video/learned-ayahs-promo.mp4` (1920×1080,
+about 37 s) from the phone screenshots in `store/raw/phone/` and their captions, over a recitation
+of Bismillah and Al-Mulk 1–3 from `store/raw/video/audio/`. Upload it to YouTube as **Public** or
+**Unlisted**, with ads turned off, and paste the link into **Main store listing → Video**.
+
 ### Other declarations
 News app: no. Health: no. Financial features: none. Government app: no. COVID-19: no.
 

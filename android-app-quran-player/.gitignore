@@ -18,3 +18,7 @@
 /.setup/out/
 /.setup/.corpus-cache/
 /.setup/raw_*.json
+# Rendered by store/render/render-video.cjs; reproducible from store/raw/video.
+/store/video/
+# …except the few clips store-screenshots.yml records the store video with.
+!/store/raw/video/audio/*.mp3

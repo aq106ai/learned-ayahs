@@ -14,6 +14,8 @@ import com.quran.learnedplayer.data.AyahMapping
 import com.quran.learnedplayer.data.LearnedAyahsStore
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.ui.TAG_EMPTY_BROWSE
+import com.quran.learnedplayer.ui.common.TAG_TERMS_ACCEPT
+import com.quran.learnedplayer.ui.common.TAG_TERMS_DIALOG
 import com.quran.learnedplayer.ui.home.TAG_ADD_BY_DESCRIPTION
 import com.quran.learnedplayer.ui.home.TAG_INTRO_DIALOG
 import com.quran.learnedplayer.ui.home.TAG_INTRO_DISMISS
@@ -132,6 +134,28 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
         awaitTag(TAG_EMPTY_BROWSE)
         composeRule.onNodeWithTag(TAG_SURAH_LIST).assertDoesNotExist()
         composeRule.onNodeWithTag(TAG_INTRO_DIALOG).assertDoesNotExist()
+    }
+
+    @Test
+    fun the_sources_and_disclaimer_are_agreed_to_before_the_guide_and_only_once() {
+        PlayerSettings.acceptedTermsVersion = 0
+        PlayerSettings.seenIntro = false
+        composeRule.activityRule.scenario.recreate()
+
+        awaitTag(TAG_TERMS_DIALOG)
+        composeRule.onNodeWithText("everyayah.com", substring = true).assertIsDisplayed()
+        composeRule.onNodeWithTag(TAG_INTRO_DIALOG).assertDoesNotExist()
+
+        composeRule.onNodeWithTag(TAG_TERMS_ACCEPT).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(TAG_TERMS_DIALOG).assertDoesNotExist()
+        assertEquals(PlayerSettings.TERMS_VERSION, PlayerSettings.acceptedTermsVersion)
+        awaitTag(TAG_INTRO_DIALOG)
+
+        composeRule.onNodeWithText("Skip").performClick()
+        composeRule.activityRule.scenario.recreate()
+        awaitTag(TAG_EMPTY_BROWSE)
+        composeRule.onNodeWithTag(TAG_TERMS_DIALOG).assertDoesNotExist()
     }
 
     @Test

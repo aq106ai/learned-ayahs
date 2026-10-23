@@ -103,12 +103,32 @@ On Linux, `bash .setup/build.sh` installs the Android SDK command-line tools (in
 
 ### Release build
 
-```bash
-./gradlew assembleRelease
+Release builds are signed from `keystore.properties` next to `settings.gradle.kts` (git-ignored):
+
+```properties
+storeFile=../upload-key.keystore
+storePassword=…
+keyAlias=upload
+keyPassword=…
 ```
 
-Sign it with your own keystore. Never commit keystores or signing passwords. `*.keystore` is
+`storeFile` is relative to `app/`. Then:
+
+```bash
+./gradlew bundleRelease     # app/build/outputs/bundle/release/app-release.aab, for Google Play
+./gradlew assembleRelease   # a signed APK, for sideloading
+```
+
+Never commit keystores or signing passwords: `*.keystore` and `keystore.properties` are
 git-ignored.
+
+### Google Play listing
+
+[`store/README.md`](store/README.md) lists everything the Play Console asks for and where it is:
+the listing text and graphics in `fastlane/metadata/android/en-US/`, the privacy policy
+([`PRIVACY.md`](../PRIVACY.md)), and the answers for Data safety, content rating and the
+foreground-service declaration. The screenshots are captured from the real app by the **Store
+screenshots** workflow.
 
 ## Tests
 

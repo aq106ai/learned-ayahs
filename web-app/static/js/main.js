@@ -17,6 +17,7 @@ import { reciteView } from './views/recite.js';
 import { accountView } from './views/account.js';
 import { adminView } from './views/admin.js';
 import { showIntro } from './views/intro.js';
+import { showTerms, TERMS_VERSION } from './views/terms.js';
 
 const ROUTES = {
   player: playerView,
@@ -205,9 +206,16 @@ async function boot() {
   // Automated tests (?test) inspect the app's state through this handle.
   if (new URLSearchParams(location.search).has('test')) window.__app = { store, engine, server, go };
 
-  if (!store.settings.seenIntro) {
-    showIntro(() => store.setSetting('seenIntro', true));
-  }
+  // The sources and disclaimer come first, and are asked again whenever their version rises.
+  const welcome = () => {
+    if (!store.settings.seenIntro) showIntro(() => store.setSetting('seenIntro', true));
+  };
+  if (store.settings.acceptedTermsVersion < TERMS_VERSION) {
+    showTerms(() => {
+      store.setSetting('acceptedTermsVersion', TERMS_VERSION);
+      welcome();
+    });
+  } else welcome();
   registerServiceWorker();
 }
 

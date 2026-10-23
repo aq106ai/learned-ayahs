@@ -1,0 +1,6 @@
+• Fixed a crash, and a flood of notifications, during playback with the screen off
+• Audio now plays on phones set to Arabic, Persian or Bengali
+• Pauses for calls and other apps, and when headphones are unplugged
+• Tapping an ayah plays its surah even before you have marked anything
+• Word by word: short words are no longer skipped
+• Copy or share a crash report from the app

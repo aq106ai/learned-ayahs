@@ -111,7 +111,7 @@ export function launchBrowser() {
 
 /**
  * A fresh page that fails the test on uncaught page errors / console errors.
- * `seenIntro` skips the welcome dialog; `settings` and `learned` pre-seed a guest profile.
+ * `seenIntro` skips the welcome dialog (the sources and disclaimer are always pre-accepted); `settings` and `learned` pre-seed a guest profile.
  */
 export async function openApp(browser, server, { path = '', seenIntro = true, learned, settings, query = '' } = {}) {
   const context = await browser.newContext({ serviceWorkers: 'block', viewport: { width: 1280, height: 860 } });
@@ -125,7 +125,7 @@ export async function openApp(browser, server, { path = '', seenIntro = true, le
     const profile = {
       learned: learned ?? [],
       bookmarks: [],
-      settings: { seenIntro, ...(settings ?? {}) },
+      settings: { seenIntro, acceptedTermsVersion: 1, ...(settings ?? {}) },
       progress: {},
     };
     await context.addInitScript((p) => {

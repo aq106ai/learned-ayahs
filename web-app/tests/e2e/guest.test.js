@@ -21,8 +21,24 @@ after(async () => {
 
 const learnedIds = (page) => page.evaluate(() => [...window.__app.store.learned].sort((a, b) => a - b));
 
+test('first run asks to agree to the sources and disclaimer, then shows the welcome', async () => {
+  const { page, context, errors } = await openApp(browser, server, { seenIntro: false, settings: { acceptedTermsVersion: 0 }, query: '?test' });
+  await page.waitForSelector('[data-testid=terms]');
+  assert.match(await page.textContent('[data-testid=terms]'), /EveryAyah/);
+  assert.equal(await page.locator('[data-testid=intro]').count(), 0);
+  await page.click('[data-testid=terms-accept]');
+  await page.waitForSelector('[data-testid=intro]');
+  assert.equal(await page.evaluate(() => window.__app.store.settings.acceptedTermsVersion), 1);
+  await page.click('[data-testid=intro-skip]');
+  await page.reload();
+  await page.waitForSelector('#view > :not(.boot)');
+  assert.equal(await page.locator('[data-testid=terms]').count(), 0);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
 test('first run shows the welcome, then lands on the surah list; it is not shown again', async () => {
-  const { page, context, errors } = await openApp(browser, server, { seenIntro: false, query: '?test' });
+  const { page, context, errors } = await openApp(browser, server, { seenIntro: false, settings: { acceptedTermsVersion: 1 }, query: '?test' });
   await page.waitForSelector('[data-testid=intro]');
   assert.match(await page.textContent('[data-testid=intro]'), /Keep refreshing your knowledge/);
   await page.click('[data-testid=intro-next]');

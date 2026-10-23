@@ -46,8 +46,8 @@ jobs:
 
       # FullSurahRecitationTest is excluded: it plays recitation aloud into a physical
       # microphone and needs the phone's Arabic speech service, neither of which an emulator
-      # has. Run it on a real device with tools/device-test.ps1. PlayStoreScreenshots is not a
-      # test at all — it is driven by store-screenshots.yml.
+      # has. Run it on a real device with tools/device-test.ps1. PlayStoreScreenshots and
+      # PlayStoreFgsVideo are not tests at all — store-screenshots.yml drives them.
       - name: Run instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -67,7 +67,7 @@ jobs:
             adb shell settings put global hide_error_dialogs 1
             adb shell settings put system screen_off_timeout 2147483647
             adb shell svc power stayon true
-            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest,com.quran.learnedplayer.PlayStoreScreenshots || touch "$RUNNER_TEMP/instrumented-failed"
+            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest,com.quran.learnedplayer.PlayStoreScreenshots,com.quran.learnedplayer.PlayStoreFgsVideo || touch "$RUNNER_TEMP/instrumented-failed"
             adb logcat -d -b main,system,crash > "$RUNNER_TEMP/logcat.txt" || true
 
       # The HTML report is uploaded below, but failures are also printed here so they can be

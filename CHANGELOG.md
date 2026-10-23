@@ -7,6 +7,10 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 ## [Unreleased]
 
 ### Added
+- **Sources and disclaimer**, in the Android app and the web app. Before anything else, both
+  list where all the Qur'an text, meanings, recitations and timings come from, and ask the user
+  to agree to the disclaimer. Users updating from an earlier version are asked once too. The
+  same text is always available in Settings.
 - **Web app** (`web-app/`): the Android app's features in the browser.
   - Revision, Full surah and Word by word, with every repeat mode and the pause before repeat.
   - The intro rules, the five reciters and validated word highlighting.

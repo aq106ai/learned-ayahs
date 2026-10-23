@@ -149,6 +149,14 @@ single shared state flow.
   `MainActivity.kt` hosts the NavHost and owns the notification permission plus the SAF
   import/export pickers (no storage permission — see below).
 
+### Sources and disclaimer
+
+`ui/common/SourcesAndDisclaimer.kt` lists where every piece of Qur'an content comes from and
+holds the disclaimer. `AppNav` shows it as `TermsDialog` before the intro whenever
+`PlayerSettings.acceptedTermsVersion < TERMS_VERSION`, so raising `TERMS_VERSION` asks everyone
+again. The web app shows the same text (`web-app/static/js/views/terms.js`): change both together.
+`AppReset` pre-accepts it for the instrumented tests.
+
 ### Navigation
 
 `AppNav.kt` picks its start destination once, from `PlayerSettings.seenIntro`: **the player is the

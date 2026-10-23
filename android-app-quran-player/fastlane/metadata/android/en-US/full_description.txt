@@ -1,0 +1,40 @@
+Learned Ayahs is a revision companion for the Qur'an you have already memorised. Mark the ayahs you know, and the app plays exactly those, again and again, so your hifz stays strong. Nothing is marked for you and nothing is added that you did not choose.
+
+REVISE WHAT YOU KNOW
+• Mark ayahs one tap at a time, a whole surah at once, or type what you know in one line: "78-114, Al-Mulk, 2:255".
+• Your learned list plays as one playlist, from Al-Fatiha to An-Nas, or one surah at a time.
+• See at a glance how much of each of the 114 surahs you have learned.
+• Bookmark ayahs to jump back to them.
+
+LISTEN THE WAY YOU REVISE
+• Repeat an ayah or a whole surah.
+• Leave a pause before each repeat so you can recite the ayah back yourself.
+• Or play the full surah, learned or not, to fill the gaps.
+• A'udhu billah and Bismillah before each surah, as you would recite it.
+• Five renowned reciters: Maher Al-Muaiqly, Mahmoud Khalil Al-Husary, Abdul Basit (Murattal), Abdurrahman As-Sudais and Saud Ash-Shuraym.
+
+FOLLOW EVERY WORD
+• The Uthmani text of every ayah, with the word being recited highlighted.
+• Word by word mode: one word at a time, with its English meaning.
+• Swipe or tap to move between ayahs and words.
+
+MADE FOR DAILY REVISION
+• Save your learned ayahs for offline listening.
+• Keeps playing with the screen off. Control it from the notification, the lock screen and Bluetooth headphones.
+• Pauses for calls and when headphones are unplugged.
+• Light and dark themes.
+• Back up your list to a file, and restore it on another phone.
+
+RECITE & REVIEW (BETA, ANDROID 13+)
+An optional practice coach that listens while you recite a learned ayah and plays the correct word when it hears a mistake. It is off until you turn it on in Settings. Recognition of Qur'anic recitation is still imperfect, so treat it as an aid, not a judge.
+
+PRIVATE BY DESIGN
+No account, no ads, no analytics and no tracking. Your learned ayahs, bookmarks and settings stay on your phone. The app connects only to download recitation audio and Qur'an text. Recite & review passes your voice to your phone's speech recognition service (on the phone itself when an offline Arabic pack is installed) and never saves it.
+
+FREE AND OPEN SOURCE
+Learned Ayahs is free, with no in-app purchases, and its source code is public on GitHub: github.com/aq106ai/learned-ayahs
+
+SOURCES AND DISCLAIMER
+Learned Ayahs does not author any Qur'an content. It gives you easy access to public online sources: recitations from everyayah.com; word audio, text and word-by-word meanings from Quran.com; word timings from QUL by Tarteel; Arabic typeface Scheherazade New by SIL International. Please report any mistake in the text, a meaning or a recitation to its source. Always confirm your memorisation with a qualified teacher.
+
+May Allah make the Qur'an easy for you to remember.

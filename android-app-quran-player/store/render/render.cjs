@@ -70,7 +70,8 @@ const FONTS = `
   @font-face { font-family: Quran; src: url('${url(path.join(RES, 'font/scheherazade_new.ttf'))}'); }
   * { box-sizing: border-box; margin: 0; }
   html, body { width: 100%; height: 100%; }
-  body { font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }`;
+  body { font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+  h1, p { text-wrap: balance; }`;
 
 /** An eight-pointed star lattice, the common Islamic geometric motif, as a CSS background. */
 function starPattern(color, cell = 96) {

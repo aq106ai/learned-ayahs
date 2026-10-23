@@ -36,6 +36,8 @@ real app:
    `fastlane/metadata/android/en-US/images/`.
 
 Captions describe only what the app does today. Check them against the app before a release.
+A caption with `"devices": ["phone"]` is left out of the tablet set: the app is laid out for
+phones, and at tablet width the word-by-word screen is mostly empty space.
 
 ## Store settings
 

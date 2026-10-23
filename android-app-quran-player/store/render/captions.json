@@ -5,7 +5,10 @@
   },
   "02_word_by_word": {
     "title": "Learn it <em>word by word</em>",
-    "subtitle": "Every Arabic word with its English meaning"
+    "subtitle": "Every Arabic word with its English meaning",
+    "devices": [
+      "phone"
+    ]
   },
   "03_playback_options": {
     "title": "Repeat the way <em>you revise</em>",
@@ -25,7 +28,7 @@
   },
   "07_reciters": {
     "title": "Five renowned <em>reciters</em>",
-    "subtitle": "Maher Al-Muaiqly, Al-Husary, Abdul Basit, As-Sudais and Ash-Shuraym"
+    "subtitle": "Maher Al-Muaiqly, Al-Husary, Abdul Basit, As-Sudais and Ash-Shuraym"
   },
   "08_light_theme": {
     "title": "Light or dark, <em>your choice</em>",

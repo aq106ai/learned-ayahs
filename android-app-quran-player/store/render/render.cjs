@@ -168,7 +168,7 @@ function tabletFrameHtml(shot, caption) {
   </body></html>`;
 }
 
-async function render(browser, html, out, width, height, { alpha = false } = {}) {
+async function render(browser, html, out, width, height) {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   await page.setContent(html, { waitUntil: 'load' });
   const fonts = await page.evaluate(async () => {
@@ -177,9 +177,30 @@ async function render(browser, html, out, width, height, { alpha = false } = {})
   });
   if (fonts.some((f) => !f.endsWith(':loaded') && !f.endsWith(':unloaded'))) throw new Error(`fonts: ${fonts}`);
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  await page.screenshot({ path: out, omitBackground: alpha });
+  await page.screenshot({ path: out });
   await page.close();
   console.log(`  ${path.relative(ROOT, out)}  ${width}×${height}`);
+}
+
+/**
+ * The 512×512 store icon. Play asks for a 32-bit PNG, and Chromium's screenshots drop the alpha
+ * channel from an opaque page, so this one goes through a canvas, whose PNGs keep it.
+ */
+async function renderIcon(browser, out) {
+  const page = await browser.newPage();
+  const svg = `data:image/svg+xml;base64,${Buffer.from(iconSvg(512)).toString('base64')}`;
+  const png = await page.evaluate(async (src) => {
+    const img = new Image();
+    img.src = src;
+    await img.decode();
+    const canvas = Object.assign(document.createElement('canvas'), { width: 512, height: 512 });
+    canvas.getContext('2d').drawImage(img, 0, 0, 512, 512);
+    return canvas.toDataURL('image/png').split(',')[1];
+  }, svg);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, Buffer.from(png, 'base64'));
+  await page.close();
+  console.log(`  ${path.relative(ROOT, out)}  512×512`);
 }
 
 function shotsIn(device) {
@@ -196,8 +217,7 @@ function shotsIn(device) {
   const browser = await chromium.launch();
   console.log('Rendering Play Store graphics:');
 
-  await render(browser, `<!doctype html><html><head><style>*{margin:0}body{background:transparent}</style></head>
-    <body>${iconSvg(512)}</body></html>`, path.join(OUT, 'icon.png'), 512, 512, { alpha: true });
+  await renderIcon(browser, path.join(OUT, 'icon.png'));
   await render(browser, featureGraphicHtml(ayah), path.join(OUT, 'featureGraphic.png'), 1024, 500);
 
   for (const [device, dirs, w, h, frame] of [

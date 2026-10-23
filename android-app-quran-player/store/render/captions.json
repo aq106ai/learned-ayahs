@@ -1,0 +1,35 @@
+{
+  "01_reader": {
+    "title": "Revise the ayahs <em>you know</em>",
+    "subtitle": "Your own learned list, with each word highlighted as it is recited"
+  },
+  "02_word_by_word": {
+    "title": "Learn it <em>word by word</em>",
+    "subtitle": "Every Arabic word with its English meaning"
+  },
+  "03_playback_options": {
+    "title": "Repeat the way <em>you revise</em>",
+    "subtitle": "Repeat an ayah or a surah, with a pause between repeats to recite it yourself"
+  },
+  "04_surah_list": {
+    "title": "See what you <em>have learned</em>",
+    "subtitle": "All 114 surahs, with your learned ayahs counted"
+  },
+  "05_mark_ayahs": {
+    "title": "Mark ayahs <em>as you learn</em>",
+    "subtitle": "One tap per ayah, or a whole surah at once"
+  },
+  "06_add_by_description": {
+    "title": "Add it all <em>in one line</em>",
+    "subtitle": "Type “Al-Kahf, 2:285-286” or “78-114” and it is marked"
+  },
+  "07_reciters": {
+    "title": "Five renowned <em>reciters</em>",
+    "subtitle": "Maher Al-Muaiqly, Al-Husary, Abdul Basit, As-Sudais and Ash-Shuraym"
+  },
+  "08_light_theme": {
+    "title": "Light or dark, <em>your choice</em>",
+    "subtitle": "Save your ayahs for offline revision, and control playback from the lock screen",
+    "theme": "light"
+  }
+}

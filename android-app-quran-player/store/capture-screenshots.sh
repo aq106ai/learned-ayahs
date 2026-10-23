@@ -9,7 +9,11 @@
 # screenshots with it. A shot that fails to reach its screen is reported and skipped.
 set -euo pipefail
 out="${1:?usage: capture-screenshots.sh <out-dir>}"
-pkg=com.quran.learnedplayer
+# The installed app is the applicationId (the Play Store id); the test classes keep the code's
+# package, which is the namespace.
+app=$(sed -n 's/^ *applicationId = "\(.*\)"/\1/p' app/build.gradle.kts)
+code=$(sed -n 's/^ *namespace = "\(.*\)"/\1/p' app/build.gradle.kts)
+test -n "$app" && test -n "$code"
 
 ./gradlew --no-daemon installDebug installDebugAndroidTest
 
@@ -31,15 +35,15 @@ demo network -e mobile show -e datatype none -e level 4
 demo notifications -e visible false
 sleep 3
 
-adb shell run-as "$pkg" rm -rf files/screenshots || true
-adb shell am instrument -w -e class "$pkg.PlayStoreScreenshots" \
-    "$pkg.test/androidx.test.runner.AndroidJUnitRunner" | tee instrument.log
+adb shell run-as "$app" rm -rf files/screenshots || true
+adb shell am instrument -w -e class "$code.PlayStoreScreenshots" \
+    "$app.test/androidx.test.runner.AndroidJUnitRunner" | tee instrument.log
 grep -E "^(OK|FAILURES|Tests run)" instrument.log || true
 
 mkdir -p "$out"
-shots=$(adb shell run-as "$pkg" ls files/screenshots 2> /dev/null | tr -d '\r' || true)
+shots=$(adb shell run-as "$app" ls files/screenshots 2> /dev/null | tr -d '\r' || true)
 for shot in $shots; do
-    adb exec-out run-as "$pkg" cat "files/screenshots/$shot" > "$out/$shot"
+    adb exec-out run-as "$app" cat "files/screenshots/$shot" > "$out/$shot"
 done
 echo "Pulled $(echo "$shots" | grep -c png || true) screenshots into $out"
 test -n "$shots"

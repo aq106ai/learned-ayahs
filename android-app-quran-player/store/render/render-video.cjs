@@ -18,7 +18,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { execFileSync, spawnSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const { chromium } = require('playwright');
 const { ROOT, C, iconSvg, FONTS, starPattern, render } = require('./common.cjs');
 
@@ -32,6 +32,8 @@ const W = 1920, H = 1080, FPS = 30;
 // The phone: its 720×1600 recording shown 432×960, in a 14px bezel.
 const SCREEN = { x: 236, y: 60, w: 432, h: 960 }, BEZEL = 14;
 const TITLE_S = 4, END_S = 5;
+// From logging the tap to the app redrawing: injecting the touch and one frame.
+const TAP_MS = 50;
 
 /** What each step shows, keyed by the test's events (PlayStoreFgsVideo). */
 const STEPS = [
@@ -76,8 +78,7 @@ function stepHtml(index) {
     .cap { position: absolute; left: 790px; top: 250px; width: 1000px; }
     h1 { font-size: 66px; font-weight: 800; letter-spacing: -1.6px; line-height: 1.08; text-wrap: balance; }
     p { margin-top: 26px; font-size: 34px; line-height: 1.4; color: ${C.muted}; text-wrap: balance; }
-    ol { position: absolute; left: 790px; bottom: 90px; list-style: none; padding: 0; display: grid;
-         grid-template-columns: repeat(2, 470px); gap: 14px 30px; }
+    ol { position: absolute; left: 790px; bottom: 70px; list-style: none; padding: 0; display: grid; gap: 12px; }
     li { display: flex; align-items: center; gap: 16px; font-size: 24px; font-weight: 600; color: #4E6B5B; }
     li i { font-style: normal; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
            font-size: 19px; border: 2px solid ${C.border}; }
@@ -146,8 +147,9 @@ function playbackRuns(samples) {
     if (!run) run = { key, first: s.t, last: s.t, clock: Infinity };
     run.last = s.t;
     // The reported position trails the true one by up to a progress tick, so the smallest
-    // (time − position) is the clip's true start on the test's clock.
-    if (s.positionMs > 0) run.clock = Math.min(run.clock, s.t - s.positionMs);
+    // (time − position) is the clip's true start on the test's clock. Skip a run's first 400ms:
+    // until the next tick, a new clip still reports where the previous one had got to.
+    if (s.positionMs > 0 && s.t - run.first >= 400) run.clock = Math.min(run.clock, s.t - s.positionMs);
   }
   if (run) runs.push(run);
   return runs.map((r) => {
@@ -158,6 +160,10 @@ function playbackRuns(samples) {
 
 function buildSoundtrack(timeline, lagMs, duration, out) {
   const runs = playbackRuns(timeline.samples).filter((r) => timeline.clips[r.key]);
+  for (const r of runs) {
+    const file = path.join(RAW, 'audio', path.basename(timeline.clips[r.key]));
+    if (!fs.existsSync(file)) throw new Error(`${file} is missing: the recording is incomplete, so re-run store-video.yml`);
+  }
   if (runs.length === 0) {
     ffmpeg(['-f', 'lavfi', '-t', String(duration), '-i', 'anullsrc=r=48000:cl=stereo', out]);
     return runs;
@@ -243,26 +249,19 @@ function buildSoundtrack(timeline, lagMs, duration, out) {
 })().catch((e) => { console.error(e); process.exit(1); });
 
 /**
- * How late the recording started relative to the test's clock, in ms. Pressing Home swaps the
- * whole screen for the launcher — the biggest change anywhere near that moment — so its frame
- * against when Home was pressed gives the offset. Zero if it cannot be found.
+ * How late the recording started relative to the test's clock, in ms. The recorder writes a frame
+ * only when the screen changes, and tapping Play changes it at once (Play becomes Pause), so the
+ * first frame after the tap pins the two clocks together — to within a frame or two. Zero if
+ * there is no such frame.
  */
 function recordingLagMs(timeline, screen) {
-  const home = timeline.events.find((e) => e.event === 'home');
-  if (!home) return 0;
-  const { stderr } = spawnSync('ffmpeg', ['-hide_banner', '-i', screen, '-vf',
-    "select='gte(scene,0)',metadata=print", '-an', '-f', 'null', '-'], { encoding: 'utf8', maxBuffer: 1 << 28 });
-  const frames = [];
-  let time = null;
-  for (const line of stderr.split('\n')) {
-    const t = line.match(/pts_time:([\d.]+)/);
-    if (t) time = parseFloat(t[1]) * 1000;
-    const score = line.match(/lavfi\.scene_score=([\d.]+)/);
-    if (score && time !== null) frames.push({ time, score: parseFloat(score[1]) });
-  }
-  const near = frames.filter((f) => f.time > home.t - 2500 && f.time < home.t + 2500);
-  if (near.length === 0) return 0;
-  const launcher = near.reduce((a, b) => (b.score > a.score ? b : a));
-  if (launcher.score < 0.2) return 0;
-  return Math.round(home.t - launcher.time);
+  const play = timeline.events.find((e) => e.event === 'play');
+  if (!play) return 0;
+  const out = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v', '-show_entries', 'frame=pts_time',
+    '-of', 'csv=p=0', screen]).toString();
+  const frames = out.split(/\s+/).filter(Boolean).map((t) => parseFloat(t) * 1000);
+  const first = frames.find((t) => t > 100 && t > play.t - 1500);
+  if (first === undefined) return 0;
+  const lag = Math.round(play.t + TAP_MS - first);
+  return Math.abs(lag) > 2000 ? 0 : lag;
 }

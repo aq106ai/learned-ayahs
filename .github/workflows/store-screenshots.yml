@@ -1,8 +1,8 @@
-name: Store screenshots and video
+name: Store screenshots
 
-# Captures the Play Store screenshots, and the foreground-service video the Play Console asks
-# for, from the real app on an emulator, and commits them to android-app-quran-player/store/raw/
-# on the branch it ran on. Start it by hand from the
+# Captures the Play Store screenshots from the real app on an emulator and commits them to
+# android-app-quran-player/store/raw/<device>/ on the branch it ran on. (store-video.yml records
+# the foreground-service video.) Start it by hand from the
 # Actions tab ("Run workflow") after a UI change; it also runs by itself when the capture code
 # changes on a working branch. `node store/render.mjs` then frames the shots for the listing (see
 # android-app-quran-player/store/README.md).
@@ -13,10 +13,8 @@ on:
     paths:
       - .github/workflows/store-screenshots.yml
       - android-app-quran-player/store/capture-screenshots.sh
-      - android-app-quran-player/store/capture-video.sh
       - android-app-quran-player/store/device.sh
       - android-app-quran-player/app/src/androidTest/java/com/quran/learnedplayer/PlayStoreScreenshots.kt
-      - android-app-quran-player/app/src/androidTest/java/com/quran/learnedplayer/PlayStoreFgsVideo.kt
 
 permissions:
   contents: write
@@ -86,52 +84,3 @@ jobs:
           done
           exit 1
 
-  video:
-    name: Record the foreground-service video
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Build app and test APKs
-        working-directory: android-app-quran-player
-        run: ./gradlew assembleDebug assembleDebugAndroidTest
-
-      # With an audio device, unlike the screenshot runs: recitation has to really play.
-      - name: Record
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          disable-animations: false
-          emulator-options: -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none
-          working-directory: android-app-quran-player
-          script: SKIP_BUILD=1 bash store/capture-video.sh store/raw/video
-
-      - name: Commit the recording
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add android-app-quran-player/store/raw/video
-          if git diff --cached --quiet; then echo "Recording unchanged"; exit 0; fi
-          git commit -m "Store video: recorded at ${GITHUB_SHA::7}"
-          for attempt in 1 2 3; do
-            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
-            sleep 5
-          done
-          exit 1

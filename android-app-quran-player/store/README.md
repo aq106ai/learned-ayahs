@@ -93,8 +93,17 @@ The app declares `FOREGROUND_SERVICE_MEDIA_PLAYBACK`. Choose **Media playback** 
 > If the service were stopped or deferred, recitation would cut out as soon as the screen
 > turned off.
 
-The Console asks for a short video: record the phone starting playback, turning the screen off
-and using the lock-screen controls, upload it as an unlisted YouTube video and paste the link.
+The Console asks for a link to a short video showing the feature. It is made from the real app:
+
+1. **Record** — the **Store video** workflow (Actions tab) runs `PlayStoreFgsVideo` on an emulator:
+   Play on Al-Mulk, Home, pause and resume from the notification, screen off, the lock screen and
+   back to the app. It commits the screen recording, a playback log and the clips that played to
+   `store/raw/video/`.
+2. **Compose** — `node store/render/render-video.cjs` (needs ffmpeg too) writes
+   `store/video/learned-ayahs-media-playback.mp4`: 1920×1080 with a caption for each step and the
+   recitation rebuilt from the playback log, since Android's screen recorder has no sound.
+3. **Upload** it to YouTube from your account as **Unlisted** (not Private, which reviewers
+   cannot open), and paste its `youtube.com/watch?v=…` link into the declaration.
 
 ### Other declarations
 News app: no. Health: no. Financial features: none. Government app: no. COVID-19: no.

@@ -58,10 +58,20 @@ class PlayStoreFgsVideo : BaseAppTest() {
         events.put(JSONObject().put("t", now()).put("event", name))
     }
 
-    /** Waits [ms] while sampling what is playing, ten times a second. */
+    /**
+     * Waits [ms] while sampling what is playing, ten times a second. It also moves Compose's
+     * clock along with real time: under the test rule the UI only redraws when the test advances
+     * that clock, so a plain sleep would record the app frozen on whatever it showed last.
+     */
     private fun hold(ms: Long) {
         val until = now() + ms
+        var advanced = now()
         while (now() < until) {
+            val elapsed = now() - advanced
+            if (elapsed > 0) {
+                composeRule.mainClock.advanceTimeBy(elapsed, ignoreFrameDuration = true)
+                advanced += elapsed
+            }
             val s = PlayerStateHolder.uiState.value
             samples.put(
                 JSONObject()

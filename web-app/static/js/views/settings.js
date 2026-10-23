@@ -8,6 +8,7 @@ import * as quran from '../services/quranData.js';
 import { clearOfflineAudio, countCached, saveForOffline } from '../services/offline.js';
 import { speechSupported } from '../services/speech.js';
 import { exportFlow, importFlow } from './common.js';
+import { sourcesAndDisclaimer } from './terms.js';
 
 const VERSION = '1.0.0';
 
@@ -215,6 +216,7 @@ export function settingsView({ store, engine, server }) {
       h('p', { class: 'small muted' }, 'Recitation: everyayah.com · Word audio, text and meanings: Quran.com · Word timings: QUL by Tarteel · Arabic: Scheherazade New (SIL OFL).'),
       h('p', { class: 'small' }, h('a', { href: 'https://github.com/aq106ai/learned-ayahs', target: '_blank', rel: 'noopener' }, 'Source code and Android app')),
     ),
+    card('Sources and disclaimer', null, h('div', { class: 'small' }, sourcesAndDisclaimer())),
   );
 
   refreshOffline();

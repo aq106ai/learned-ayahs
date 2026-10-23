@@ -34,6 +34,7 @@ No account, no ads, no analytics and no tracking. Your learned ayahs, bookmarks 
 FREE AND OPEN SOURCE
 Learned Ayahs is free, with no in-app purchases, and its source code is public on GitHub: github.com/aq106ai/learned-ayahs
 
-Credits: recitations from everyayah.com; word audio, text and word-by-word meanings from Quran.com; word timings from QUL by Tarteel; Arabic typeface Scheherazade New by SIL International.
+SOURCES AND DISCLAIMER
+Learned Ayahs does not author any Qur'an content. It gives you easy access to public online sources: recitations from everyayah.com; word audio, text and word-by-word meanings from Quran.com; word timings from QUL by Tarteel; Arabic typeface Scheherazade New by SIL International. Please report any mistake in the text, a meaning or a recitation to its source. Always confirm your memorisation with a qualified teacher.
 
 May Allah make the Qur'an easy for you to remember.

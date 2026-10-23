@@ -47,6 +47,7 @@ internal object AppReset {
         // The first-run hadith would sit over every screen these tests drive;
         // IntroDialogTest covers it explicitly instead.
         PlayerSettings.seenIntro = true
+        PlayerSettings.acceptedTermsVersion = PlayerSettings.TERMS_VERSION
         PlayerSettings.lastGlobalId = 0
         LearnedAyahsStore.addAll(seed)
         BookmarksStore.init(context)

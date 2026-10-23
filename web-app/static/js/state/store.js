@@ -31,6 +31,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   autoAdvanceSuccess: true,
   // Onboarding
   seenIntro: false,
+  acceptedTermsVersion: 0,
   // Web only: stream from everyayah.com directly instead of the server's audio cache.
   streamDirect: false,
 });

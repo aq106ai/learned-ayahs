@@ -22,7 +22,7 @@ after(async () => {
 async function freshContext() {
   const context = await browser.newContext({ serviceWorkers: 'allow' });
   await context.addInitScript(() => {
-    if (!localStorage.getItem('la:v1:guest')) localStorage.setItem('la:v1:guest', JSON.stringify({ settings: { seenIntro: true } }));
+    if (!localStorage.getItem('la:v1:guest')) localStorage.setItem('la:v1:guest', JSON.stringify({ settings: { seenIntro: true, acceptedTermsVersion: 1 } }));
   });
   const page = await context.newPage();
   const errors = [];

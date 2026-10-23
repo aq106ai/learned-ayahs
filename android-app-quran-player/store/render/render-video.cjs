@@ -139,76 +139,67 @@ function endHtml() {
 /**
  * The stretches of playback in the timeline: which clip, from where in it, when, for how long.
  *
- * Each clip plays at its natural speed from where it really started. The emulator's audio device
- * stalls under load (screen recording, animations), so in the background the reported position
- * falls behind real time; following it would stretch and stutter the recitation in a way no phone
- * does. So a clip's start is measured once, early on, while the position is still trustworthy,
- * and only a pause or a change of clip ends a stretch. A clip resumed after a pause carries on
- * from where it paused.
+ * Every clip is played whole, from its first word, at its natural speed, starting when the app
+ * moved on to it. The positions the emulator reports are not used at all: its audio device stalls
+ * under load (screen recording, animations), so they drift and stutter in a way no phone does,
+ * and following them cut words. A clip ends only at its own end or at a pause; the next one waits
+ * for it rather than cutting its last word, and a clip resumed after a pause carries on from
+ * exactly where the soundtrack stopped it, so nothing is skipped or repeated.
  */
-function playbackRuns(samples) {
-  const runs = [];
-  const played = new Set();
+function playbackRuns(samples, clipMs) {
+  const stretches = [];
   let run = null;
-  let previous = null;
   for (const s of samples) {
     const key = s.playing ? (s.intro || (s.globalId ? String(s.globalId) : null)) : null;
-    if (run && key !== run.key) { runs.push(run); run = null; }
-    if (key && !run) {
-      run = { key, first: s.t, last: s.t, samples: [],
-        // Fresh: it followed another clip without a pause, so it started from the beginning.
-        fresh: previous !== null && previous !== key,
-        resumed: previous === null && played.has(key) };
-      played.add(key);
-    }
-    previous = key;
-    if (!run) continue;
-    run.last = s.t;
-    run.samples.push(s);
+    if (run && key !== run.key) { run.pausedAfter = key === null; stretches.push(run); run = null; }
+    if (key && !run) run = { key, start: s.t, last: s.t, pausedAfter: false };
+    if (run) run.last = s.t;
   }
-  if (run) runs.push(run);
+  if (run) stretches.push(run);
 
-  const median = (xs) => xs.slice().sort((a, b) => a - b)[Math.floor(xs.length / 2)];
-  return runs.map((r) => {
-    // For a while after a clip changes the player still reports how far the previous one had
-    // got; a fresh clip cannot be further in than the time since it started.
-    const reliable = r.samples.filter((s) => s.positionMs > 0 && !(r.fresh && s.positionMs > s.t - r.first + 600));
-    let start = r.first, offset = 0;
-    if (r.resumed) {
-      offset = reliable.length ? reliable[0].positionMs - (reliable[0].t - r.first) : 0;
-    } else {
-      const early = reliable.filter((s) => s.positionMs <= 2500);
-      const clipStart = early.length ? median(early.map((s) => s.t - s.positionMs)) : r.first;
-      start = Math.max(r.first, clipStart);
-      offset = start - clipStart;
-    }
-    return { key: r.key, start, end: r.last + 100, offset: Math.max(0, offset) };
-  }).filter((r) => r.end > r.start);
+  const heard = {};
+  const runs = [];
+  stretches.forEach((r, i) => {
+    const previous = runs[runs.length - 1];
+    const resumed = previous && previous.key === r.key && stretches[i - 1].pausedAfter;
+    const offset = resumed ? heard[r.key] ?? 0 : 0;
+    // Never over the end of the clip before: it waits for that to finish, never cuts it short.
+    const start = Math.max(r.start, previous?.end ?? 0);
+    let end = start + (clipMs(r.key) - offset);
+    if (r.pausedAfter) end = Math.min(end, r.last + 100);
+    if (end <= start) return;
+    heard[r.key] = offset + (end - start);
+    runs.push({ key: r.key, start, end, offset });
+  });
+  return runs;
 }
 
-function buildSoundtrack(timeline, lagMs, duration, out) {
-  // A clip that only just starts as the recording ends would be a blip under the fade-out.
-  const runs = playbackRuns(timeline.samples)
-    .filter((r) => timeline.clips[r.key] && (r.start - lagMs) / 1000 < duration - 1.5);
-  for (const r of runs) {
-    const file = path.join(RAW, 'audio', path.basename(timeline.clips[r.key]));
-    if (!fs.existsSync(file)) throw new Error(`${file} is missing: the recording is incomplete, so re-run store-video.yml`);
-  }
+function buildSoundtrack(timeline, lagMs, mainMs, totalMs, out) {
+  const file = (key) => path.join(RAW, 'audio', path.basename(timeline.clips[key]));
+  const lengths = {};
+  const clipMs = (key) => (lengths[key] ??= probeDuration(file(key)) * 1000);
+  // A clip that only begins as the recording ends is left out rather than cut off by the end card.
+  const runs = playbackRuns(timeline.samples.filter((s) => s.t - lagMs < mainMs - 2000), (key) => {
+    if (!timeline.clips[key] || !fs.existsSync(file(key))) {
+      throw new Error(`The clip for ${key} is missing: the recording is incomplete, so re-run store-video.yml`);
+    }
+    return clipMs(key);
+  });
+  const total = (totalMs / 1000).toFixed(3);
   if (runs.length === 0) {
-    ffmpeg(['-f', 'lavfi', '-t', String(duration), '-i', 'anullsrc=r=48000:cl=stereo', out]);
+    ffmpeg(['-f', 'lavfi', '-t', total, '-i', 'anullsrc=r=48000:cl=stereo', out]);
     return runs;
   }
   const inputs = [], filters = [];
   runs.forEach((r, i) => {
-    const file = path.join(RAW, 'audio', path.basename(timeline.clips[r.key]));
     const dur = (r.end - r.start) / 1000;
-    inputs.push('-ss', (r.offset / 1000).toFixed(3), '-t', dur.toFixed(3), '-i', file);
+    inputs.push('-ss', (r.offset / 1000).toFixed(3), '-t', dur.toFixed(3), '-i', file(r.key));
     const delay = Math.max(0, Math.round(r.start - lagMs));
     filters.push(`[${i}:a]aresample=48000,aformat=channel_layouts=stereo,` +
       `afade=t=in:d=0.02,afade=t=out:st=${Math.max(0, dur - 0.04).toFixed(3)}:d=0.04,adelay=${delay}|${delay}[a${i}]`);
   });
   filters.push(`${runs.map((_, i) => `[a${i}]`).join('')}amix=inputs=${runs.length}:normalize=0:dropout_transition=0,` +
-    `apad,atrim=0:${duration.toFixed(3)},afade=t=out:st=${Math.max(0, duration - 1.5).toFixed(3)}:d=1.5[out]`);
+    `apad,atrim=0:${total}[out]`);
   ffmpeg([...inputs, '-filter_complex', filters.join(';'), '-map', '[out]', out]);
   return runs;
 }
@@ -243,7 +234,7 @@ function buildSoundtrack(timeline, lagMs, duration, out) {
   fs.writeFileSync(path.join(WORK, 'steps.txt'), concat);
 
   console.log('Rebuilding the soundtrack from the playback log:');
-  const runs = buildSoundtrack(timeline, lagMs, mainDuration, path.join(WORK, 'main.wav'));
+  const runs = buildSoundtrack(timeline, lagMs, mainDuration * 1000, (mainDuration + END_S) * 1000, path.join(WORK, 'main.wav'));
   for (const r of runs) {
     console.log(`  ${((r.start - lagMs) / 1000).toFixed(1).padStart(5)}s  ${r.key.padEnd(14)} from ${(r.offset / 1000).toFixed(1)}s for ${((r.end - r.start) / 1000).toFixed(1)}s`);
   }
@@ -259,7 +250,6 @@ function buildSoundtrack(timeline, lagMs, duration, out) {
     '-loop', '1', '-framerate', String(FPS), '-t', String(END_S), '-i', path.join(WORK, 'end.png'),
     '-i', path.join(WORK, 'main.wav'),
     '-f', 'lavfi', '-t', String(TITLE_S), '-i', 'anullsrc=r=48000:cl=stereo',
-    '-f', 'lavfi', '-t', String(END_S), '-i', 'anullsrc=r=48000:cl=stereo',
     '-filter_complex', [
       `[0:v]fps=${FPS},format=yuv420p,setsar=1,fade=t=out:st=${TITLE_S - 0.4}:d=0.4[title]`,
       `[1:v]fps=${FPS},scale=${W}:${H},setsar=1[bg]`,
@@ -269,7 +259,9 @@ function buildSoundtrack(timeline, lagMs, duration, out) {
       `[v2][4:v]overlay=${SCREEN.x}:${SCREEN.y}:shortest=1:enable='between(t,${off[0].toFixed(2)},${off[1].toFixed(2)})',` +
         `trim=0:${mainDuration.toFixed(3)},setpts=PTS-STARTPTS,format=yuv420p,fade=t=in:d=0.4[main]`,
       `[5:v]fps=${FPS},format=yuv420p,setsar=1,fade=t=in:d=0.4[end]`,
-      `[title][7:a][main][6:a][end][8:a]concat=n=3:v=1:a=1[v][a]`,
+      `[title][main][end]concat=n=3:v=1:a=0[v]`,
+      // The last ayah finishes over the end card rather than being cut off.
+      `[7:a][6:a]concat=n=2:v=0:a=1[a]`,
     ].join(';'),
     '-map', '[v]', '-map', '[a]',
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-pix_fmt', 'yuv420p', '-r', String(FPS),

@@ -56,6 +56,7 @@ import com.quran.learnedplayer.player.PlaybackMode
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerViewModel
 import com.quran.learnedplayer.player.RepeatMode
+import com.quran.learnedplayer.ui.common.SourcesAndDisclaimerText
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.ui.theme.Bg
 import com.quran.learnedplayer.ui.theme.Border
@@ -563,6 +564,10 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
+        }
+
+        Section("Sources and disclaimer") {
+            SourcesAndDisclaimerText()
         }
     }
 

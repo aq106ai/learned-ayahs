@@ -24,7 +24,7 @@ jobs:
   render:
     name: Render the promo video
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -34,11 +34,15 @@ jobs:
           cache: npm
           cache-dependency-path: web-app/package-lock.json
 
-      - name: Install Playwright and ffmpeg
+      # A static ffmpeg build, and Chromium without --with-deps: the runner image already has the
+      # libraries it needs, and apt on the runner can stall for the whole timeout.
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+
+      - name: Install Playwright
+        timeout-minutes: 5
         run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg
           npm ci --prefix web-app
-          npx --prefix web-app playwright install --with-deps chromium
+          npx --prefix web-app playwright install chromium
 
       - name: Render
         working-directory: android-app-quran-player

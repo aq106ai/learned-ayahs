@@ -50,6 +50,12 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Built before the emulator starts: a Gradle build competing with the emulator's own boot
+      # starves its launcher, which then shows an "isn't responding" dialog over the app.
+      - name: Build app and test APKs
+        working-directory: android-app-quran-player
+        run: ./gradlew assembleDebug assembleDebugAndroidTest
+
       - name: Capture screenshots
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -60,7 +66,7 @@ jobs:
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           working-directory: android-app-quran-player
-          script: bash store/capture-screenshots.sh store/raw/${{ matrix.device }}
+          script: SKIP_BUILD=1 bash store/capture-screenshots.sh store/raw/${{ matrix.device }}
 
       - name: Commit screenshots
         run: |

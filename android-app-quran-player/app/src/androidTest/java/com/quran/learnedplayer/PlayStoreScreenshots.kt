@@ -1,12 +1,16 @@
 package com.quran.learnedplayer
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.graphics.Bitmap
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.quran.learnedplayer.data.AppTheme
@@ -103,7 +107,8 @@ class PlayStoreScreenshots : BaseAppTest() {
         composeRule.onNodeWithTag(TAG_SURAH_LIST).performScrollToNode(hasTestTag(surahRowTag(55)))
         composeRule.onNodeWithTag(surahRowTag(55)).performClick()
         awaitTag(TAG_SURAH_DETAIL)
-        awaitTag(markLearnedTag(6))
+        // Ayahs 1–4 are marked and 5 is not; the list only composes the rows on screen.
+        awaitTag(markLearnedTag(5))
         capture("05_mark_ayahs")
     }
 
@@ -115,7 +120,11 @@ class PlayStoreScreenshots : BaseAppTest() {
         awaitTag(TAG_DESCRIPTION_FIELD)
         composeRule.onNodeWithTag(TAG_DESCRIPTION_FIELD).performTextInput("Al-Kahf, Al-Waqiah, 2:285-286")
         awaitTag(TAG_DESCRIPTION_PREVIEW)
-        androidx.test.espresso.Espresso.closeSoftKeyboard()
+        // Not Espresso.closeSoftKeyboard(): that waits for window focus, which a system dialog can hold.
+        composeRule.runOnUiThread {
+            val window = composeRule.activity.window
+            WindowCompat.getInsetsController(window, window.decorView).hide(WindowInsetsCompat.Type.ime())
+        }
         capture("06_add_by_description")
     }
 
@@ -165,6 +174,7 @@ class PlayStoreScreenshots : BaseAppTest() {
     private fun capture(name: String) {
         composeRule.waitForIdle()
         Thread.sleep(1_500)
+        dismissSystemDialogs()
         composeRule.waitForIdle()
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         val bitmap = (1..3).firstNotNullOfOrNull { automation.takeScreenshot() }
@@ -172,5 +182,31 @@ class PlayStoreScreenshots : BaseAppTest() {
         val dir = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, "screenshots")
         dir.mkdirs()
         File(dir, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+    }
+
+    /**
+     * Clears what the system may have put over the app: an emulator straining at boot shows
+     * "Pixel Launcher isn't responding", and the first immersive screen shows "Viewing full
+     * screen". The capture script turns both off, but a dialog that appeared before it did stays
+     * up, so this taps it away through accessibility, as a person would.
+     */
+    private fun dismissSystemDialogs() {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        automation.serviceInfo = automation.serviceInfo.apply {
+            flags = flags or AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+        }
+        val app = InstrumentationRegistry.getInstrumentation().targetContext.packageName
+        var dismissed = false
+        for (root in automation.windows.mapNotNull { it.root }.filter { it.packageName?.toString() != app }) {
+            for (label in listOf("Wait", "Got it")) {
+                var node: AccessibilityNodeInfo? = root.findAccessibilityNodeInfosByText(label).firstOrNull()
+                while (node != null && !node.isClickable) node = node.parent
+                if (node?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true) dismissed = true
+            }
+        }
+        if (dismissed) {
+            Thread.sleep(1_000)
+            composeRule.waitForIdle()
+        }
     }
 }

@@ -150,7 +150,12 @@ function phoneFrameHtml(shot, caption) {
   </body></html>`;
 }
 
-/** A tablet screenshot on a 2560×1600 canvas, caption on the left. */
+/**
+ * A tablet screenshot on a 2560×1600 canvas, caption on the left. Outside the immersive reader the
+ * tablet shows its taskbar — a light strip of other apps' icons, 120px tall — which has no place
+ * in a store listing, so the frame crops it when it is there.
+ */
+const TASKBAR_PX = 120;
 function tabletFrameHtml(shot, caption) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>${FONTS}
     body { background: radial-gradient(120% 120% at 0% 0%, #163A26 0%, ${C.bg} 60%); color: ${C.text};
@@ -161,10 +166,24 @@ function tabletFrameHtml(shot, caption) {
     p { margin-top: 30px; font-size: 40px; font-weight: 500; line-height: 1.35; color: ${C.muted}; }
     .device { padding: 16px; border-radius: 52px; background: #050C08;
               box-shadow: 0 0 0 2px ${C.border}, 0 40px 100px rgba(0,0,0,0.55); }
-    .device img { display: block; width: 1560px; border-radius: 38px; }
+    .screen { width: 1560px; border-radius: 38px; overflow: hidden; }
+    .screen img { display: block; width: 100%; }
   </style></head><body>
     <div class="cap"><h1>${caption.title}</h1><p>${caption.subtitle}</p></div>
-    <div class="device"><img src="${url(shot)}"></div>
+    <div class="device"><div class="screen"><img src="${url(shot)}"></div></div>
+    <script>
+      window.frameReady = document.querySelector('.screen img').decode().then(() => {
+        const img = document.querySelector('.screen img');
+        const c = Object.assign(document.createElement('canvas'), { width: img.naturalWidth, height: img.naturalHeight });
+        const g = c.getContext('2d');
+        g.drawImage(img, 0, 0);
+        const [r, gr, b] = g.getImageData(20, img.naturalHeight - ${TASKBAR_PX / 2}, 1, 1).data;
+        if (r > 235 && gr > 235 && b > 235) {
+          const scale = 1560 / img.naturalWidth;
+          document.querySelector('.screen').style.height = ((img.naturalHeight - ${TASKBAR_PX}) * scale) + 'px';
+        }
+      });
+    </script>
   </body></html>`;
 }
 
@@ -176,6 +195,7 @@ async function render(browser, html, out, width, height) {
     return [...document.fonts].map((f) => `${f.family}:${f.status}`);
   });
   if (fonts.some((f) => !f.endsWith(':loaded') && !f.endsWith(':unloaded'))) throw new Error(`fonts: ${fonts}`);
+  await page.evaluate(() => window.frameReady);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   await page.screenshot({ path: out });
   await page.close();

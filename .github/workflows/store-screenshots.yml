@@ -2,10 +2,17 @@ name: Store screenshots
 
 # Captures the Play Store screenshots from the real app on an emulator and commits them to
 # android-app-quran-player/store/raw/<device>/ on the branch it ran on. Start it by hand from the
-# Actions tab ("Run workflow") after a UI change; `node store/render.mjs` then frames them for the
-# listing (see android-app-quran-player/store/README.md).
+# Actions tab ("Run workflow") after a UI change; it also runs by itself when the capture code
+# changes on a working branch. `node store/render.mjs` then frames the shots for the listing (see
+# android-app-quran-player/store/README.md).
 on:
   workflow_dispatch:
+  push:
+    branches-ignore: [main, dev]
+    paths:
+      - .github/workflows/store-screenshots.yml
+      - android-app-quran-player/store/capture-screenshots.sh
+      - android-app-quran-player/app/src/androidTest/java/com/quran/learnedplayer/PlayStoreScreenshots.kt
 
 permissions:
   contents: write

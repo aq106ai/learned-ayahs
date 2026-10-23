@@ -1,24 +1,27 @@
 package com.quran.learnedplayer
 
+import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import com.quran.learnedplayer.data.AyahMapping
 import com.quran.learnedplayer.data.AyahTrack
 import com.quran.learnedplayer.data.LibraryRepository
 import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.service.PlayerStateHolder
-import com.quran.learnedplayer.ui.TAG_FULLSCREEN_WHOLE_AYAH
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import java.io.File
 
@@ -28,22 +31,28 @@ import java.io.File
  * from the notification and the lock screen. `store/capture-video.sh` runs it; it is left out of
  * the instrumented test runs.
  *
+ * It launches the app itself and taps through accessibility, as a person would, rather than
+ * using the Compose test rule: under that rule the app only redraws when the test advances the
+ * rule's clock, and a recording made that way shows the app lagging behind its own audio.
+ *
  * Android's screen recorder has no sound, so while it records this logs, ten times a second,
  * which clip is playing and how far into it — then downloads those clips through the app's own
  * downloader. `store/render/render-video.cjs` rebuilds the soundtrack from that log.
  */
 @RunWith(AndroidJUnit4::class)
-class PlayStoreFgsVideo : BaseAppTest() {
+class PlayStoreFgsVideo {
 
-    override fun seedLearnedAyahs(): Set<Int> =
-        (1..QuranConstants.VERSE_COUNTS[67 - 1]).map { AyahMapping.surahAyahToGlobal(67, it) }.toSet()
-
-    override fun beforeLaunch() {
-        PlayerSettings.lastGlobalId = AyahMapping.surahAyahToGlobal(67, 1)
-    }
+    @get:Rule
+    val notificationPermission: TestRule =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            TestRule { base, _ -> base }
+        }
 
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val automation get() = instrumentation.uiAutomation
+    private val app get() = instrumentation.targetContext.packageName
     private val events = JSONArray()
     private val samples = JSONArray()
     private var startedAt = 0L
@@ -51,27 +60,17 @@ class PlayStoreFgsVideo : BaseAppTest() {
     private fun now() = SystemClock.elapsedRealtime() - startedAt
 
     private fun shell(command: String): String =
-        android.os.ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command))
+        ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command))
             .use { it.readBytes().decodeToString() }
 
     private fun event(name: String) {
         events.put(JSONObject().put("t", now()).put("event", name))
     }
 
-    /**
-     * Waits [ms] while sampling what is playing, ten times a second. It also moves Compose's
-     * clock along with real time: under the test rule the UI only redraws when the test advances
-     * that clock, so a plain sleep would record the app frozen on whatever it showed last.
-     */
+    /** Waits [ms] while sampling what is playing, ten times a second. */
     private fun hold(ms: Long) {
         val until = now() + ms
-        var advanced = now()
         while (now() < until) {
-            val elapsed = now() - advanced
-            if (elapsed > 0) {
-                composeRule.mainClock.advanceTimeBy(elapsed, ignoreFrameDuration = true)
-                advanced += elapsed
-            }
             val s = PlayerStateHolder.uiState.value
             samples.put(
                 JSONObject()
@@ -87,72 +86,99 @@ class PlayStoreFgsVideo : BaseAppTest() {
 
     @Test
     fun record() {
-        awaitTag(TAG_FULLSCREEN_WHOLE_AYAH)
-        composeRule.waitUntil(15_000) {
-            composeRule.onAllNodes(hasText("in Whose Hand", substring = true)).fetchSemanticsNodes().isNotEmpty()
-        }
-        val recorder = automation.executeShellCommand(
-            "screenrecord --size 720x1600 --bit-rate 3000000 --time-limit 170 $VIDEO",
-        )
-        startedAt = SystemClock.elapsedRealtime()
-        hold(2_500)
-
-        event("play")
-        composeRule.onNode(hasText("Play") and hasClickAction()).performClick()
-        hold(17_000)
-
-        event("home")
-        shell("input keyevent KEYCODE_HOME")
-        hold(3_500)
-
-        event("shade")
-        shell("cmd statusbar expand-notifications")
-        hold(3_500)
-        event("pause")
-        tapSystemUi("Pause")
-        hold(3_000)
-        event("resume")
-        tapSystemUi("Play")
-        hold(3_500)
-        shell("cmd statusbar collapse")
-        hold(1_000)
-
-        event("screen_off")
-        shell("input keyevent KEYCODE_SLEEP")
-        hold(8_000)
-        event("screen_on")
-        shell("input keyevent KEYCODE_WAKEUP")
-        hold(4_500)
-
-        event("back_to_app")
-        shell("wm dismiss-keyguard")
-        val app = instrumentation.targetContext.packageName
-        shell("am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n $app/${MainActivity::class.java.name}")
-        hold(6_000)
-        event("end")
-
-        shell("pkill -INT screenrecord")
-        Thread.sleep(3_000)
-        recorder.close()
-        saveTimeline()
-    }
-
-    /** Taps the System UI control described as [label] — the media player's play/pause. */
-    private fun tapSystemUi(label: String) {
+        AppReset.reset((1..QuranConstants.VERSE_COUNTS[67 - 1]).map { AyahMapping.surahAyahToGlobal(67, it) }.toSet())
+        PlayerSettings.lastGlobalId = AyahMapping.surahAyahToGlobal(67, 1)
+        AppReset.wakeAndUnlock()
         automation.serviceInfo = automation.serviceInfo.apply {
             flags = flags or AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
         }
-        val roots = automation.windows.mapNotNull { it.root }
-            .filter { it.packageName?.toString() == "com.android.systemui" }
-        for (root in roots) {
-            val node = root.findAccessibilityNodeInfosByText(label).firstOrNull {
-                it.contentDescription?.toString() == label || it.text?.toString() == label
-            }
-            var target = node
-            while (target != null && !target.isClickable) target = target.parent
-            if (target?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true) return
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            check(waitFor(app, "in Whose Hand", 30_000)) { "The reader never showed Al-Mulk 67:1" }
+            Thread.sleep(1_500)
+
+            val recorder = automation.executeShellCommand(
+                "screenrecord --size 720x1600 --bit-rate 3000000 --time-limit 170 $VIDEO",
+            )
+            startedAt = SystemClock.elapsedRealtime()
+            hold(2_500)
+
+            event("play")
+            tap(app, "Play")
+            hold(17_000)
+
+            event("home")
+            shell("input keyevent KEYCODE_HOME")
+            hold(3_500)
+
+            event("shade")
+            shell("cmd statusbar expand-notifications")
+            hold(3_500)
+            event("pause")
+            tap(SYSTEM_UI, "Pause")
+            hold(3_000)
+            event("resume")
+            tap(SYSTEM_UI, "Play")
+            hold(3_500)
+            shell("cmd statusbar collapse")
+            hold(1_000)
+
+            event("screen_off")
+            shell("input keyevent KEYCODE_SLEEP")
+            hold(8_000)
+            event("screen_on")
+            shell("input keyevent KEYCODE_WAKEUP")
+            hold(4_500)
+
+            event("back_to_app")
+            shell("wm dismiss-keyguard")
+            shell("am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n $app/${MainActivity::class.java.name}")
+            hold(7_000)
+            event("end")
+
+            shell("pkill -INT screenrecord")
+            Thread.sleep(3_000)
+            recorder.close()
         }
-        event("missed_$label")
+        saveTimeline()
+    }
+
+    /** The windows of [packageName] that accessibility can see. */
+    private fun roots(packageName: String): List<AccessibilityNodeInfo> =
+        automation.windows.mapNotNull { it.root }.filter { it.packageName?.toString() == packageName }
+
+    /**
+     * The first node in [packageName]'s windows that [matches], found by walking the tree:
+     * Compose exposes its UI as virtual nodes, which findAccessibilityNodeInfosByText may not search.
+     */
+    private fun find(packageName: String, matches: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo? {
+        val queue = ArrayDeque(roots(packageName))
+        var visited = 0
+        while (queue.isNotEmpty() && visited++ < 5_000) {
+            val node = queue.removeFirst()
+            if (matches(node)) return node
+            for (i in 0 until node.childCount) node.getChild(i)?.let(queue::addLast)
+        }
+        return null
+    }
+
+    private fun labelled(label: String): (AccessibilityNodeInfo) -> Boolean =
+        { it.text?.toString() == label || it.contentDescription?.toString() == label }
+
+    private fun waitFor(packageName: String, text: String, timeoutMs: Long): Boolean {
+        val until = SystemClock.elapsedRealtime() + timeoutMs
+        while (SystemClock.elapsedRealtime() < until) {
+            if (find(packageName) { it.text?.contains(text) == true } != null) return true
+            Thread.sleep(200)
+        }
+        return false
+    }
+
+    /** Taps the control labelled [label] in [packageName]'s windows, as a person would. */
+    private fun tap(packageName: String, label: String) {
+        var node = find(packageName, labelled(label))
+        while (node != null && !node.isClickable) node = node.parent
+        if (node?.performAction(AccessibilityNodeInfo.ACTION_CLICK) != true) event("missed_$label")
     }
 
     /** The log, plus the clips it names, downloaded the way the app downloads them. */
@@ -185,5 +211,6 @@ class PlayStoreFgsVideo : BaseAppTest() {
 
     private companion object {
         const val VIDEO = "/data/local/tmp/fgs.mp4"
+        const val SYSTEM_UI = "com.android.systemui"
     }
 }

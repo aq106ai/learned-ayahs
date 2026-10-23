@@ -3,8 +3,8 @@ name: Android extended checks
 # Slower checks that need an emulator or a full lint pass. They run on pull requests into main
 # and can be started by hand from the Actions tab ("Run workflow") on any branch.
 #
-# Known state: on a fresh API 34 emulator most of WordByWordTest and one FreshInstallTest case
-# fail (no crash or ANR) and need investigating on a device before this job can gate merges.
+# Every instrumented test passes on a fresh API 34 emulator (since 1.9.2), so a failure here is
+# a regression to look at, not known noise.
 on:
   workflow_dispatch:
   pull_request:
@@ -46,7 +46,8 @@ jobs:
 
       # FullSurahRecitationTest is excluded: it plays recitation aloud into a physical
       # microphone and needs the phone's Arabic speech service, neither of which an emulator
-      # has. Run it on a real device with tools/device-test.ps1.
+      # has. Run it on a real device with tools/device-test.ps1. PlayStoreScreenshots is not a
+      # test at all — it is driven by store-screenshots.yml.
       - name: Run instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -66,7 +67,7 @@ jobs:
             adb shell settings put global hide_error_dialogs 1
             adb shell settings put system screen_off_timeout 2147483647
             adb shell svc power stayon true
-            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest || touch "$RUNNER_TEMP/instrumented-failed"
+            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest,com.quran.learnedplayer.PlayStoreScreenshots || touch "$RUNNER_TEMP/instrumented-failed"
             adb logcat -d -b main,system,crash > "$RUNNER_TEMP/logcat.txt" || true
 
       # The HTML report is uploaded below, but failures are also printed here so they can be

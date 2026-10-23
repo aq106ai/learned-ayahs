@@ -81,6 +81,7 @@ abstract class BaseAppTest {
                 BookmarksStore.clear()
                 PlaylistStore.latest = null
                 PlayerStateHolder.resetState()
+                beforeLaunch()
                 // Xiaomi/MIUI often leaves the activity behind a lock screen.
                 wakeAndUnlock()
                 base.evaluate()
@@ -122,6 +123,9 @@ abstract class BaseAppTest {
      * without one) override this.
      */
     protected open fun seedLearnedAyahs(): Set<Int> = emptySet()
+
+    /** Last-minute setup after the reset and before the activity launches, e.g. a saved position. */
+    protected open fun beforeLaunch() {}
 
     /**
      * Waits for a node with [tag] to exist, tolerating async library/asset loading. On a timeout

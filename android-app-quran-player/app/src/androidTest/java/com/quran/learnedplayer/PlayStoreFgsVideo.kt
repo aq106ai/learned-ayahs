@@ -54,8 +54,9 @@ class PlayStoreFgsVideo {
     private val automation get() = instrumentation.uiAutomation
     private val app get() = instrumentation.targetContext.packageName
     private val events = JSONArray()
-    private val samples = JSONArray()
-    private var startedAt = 0L
+    private val samples = java.util.concurrent.ConcurrentLinkedQueue<JSONObject>()
+    @Volatile private var startedAt = 0L
+    @Volatile private var recording = false
 
     private fun now() = SystemClock.elapsedRealtime() - startedAt
 
@@ -67,12 +68,16 @@ class PlayStoreFgsVideo {
         events.put(JSONObject().put("t", now()).put("event", name))
     }
 
-    /** Waits [ms] while sampling what is playing, ten times a second. */
-    private fun hold(ms: Long) {
-        val until = now() + ms
-        while (now() < until) {
+    private fun hold(ms: Long) = Thread.sleep(ms)
+
+    /**
+     * Logs what is playing ten times a second, on its own thread, so that a slow step — a tap
+     * that takes a while to land — never leaves a hole in the log.
+     */
+    private fun startSampling() = Thread {
+        while (recording) {
             val s = PlayerStateHolder.uiState.value
-            samples.put(
+            samples.add(
                 JSONObject()
                     .put("t", now())
                     .put("playing", s.isPlaying)
@@ -82,7 +87,7 @@ class PlayStoreFgsVideo {
             )
             Thread.sleep(100)
         }
-    }
+    }.apply { isDaemon = true; start() }
 
     @Test
     fun record() {
@@ -108,6 +113,8 @@ class PlayStoreFgsVideo {
                 "screenrecord --size 720x1600 --bit-rate 3000000 --time-limit 170 $VIDEO",
             )
             startedAt = SystemClock.elapsedRealtime()
+            recording = true
+            val sampler = startSampling()
             hold(2_500)
 
             event("play")
@@ -146,6 +153,8 @@ class PlayStoreFgsVideo {
             shell("am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n $app/${MainActivity::class.java.name}")
             hold(7_000)
             event("end")
+            recording = false
+            sampler.join()
 
             shell("pkill -INT screenrecord")
             Thread.sleep(3_000)
@@ -161,6 +170,7 @@ class PlayStoreFgsVideo {
     /**
      * The first node in [packageName]'s windows that [matches], found by walking the tree:
      * Compose exposes its UI as virtual nodes, which findAccessibilityNodeInfosByText may not search.
+     * Slow on a big View tree such as System UI's, so [tap] tries the native search first.
      */
     private fun find(packageName: String, matches: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo? {
         val queue = ArrayDeque(roots(packageName))
@@ -198,7 +208,9 @@ class PlayStoreFgsVideo {
 
     /** Taps the control labelled [label] in [packageName]'s windows, as a person would. */
     private fun tap(packageName: String, label: String): Boolean {
-        var node = find(packageName, labelled(label))
+        var node = roots(packageName).firstNotNullOfOrNull { root ->
+            root.findAccessibilityNodeInfosByText(label).firstOrNull(labelled(label))
+        } ?: find(packageName, labelled(label))
         while (node != null && !node.isClickable) node = node.parent
         val tapped = node?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true
         if (!tapped) event("missed_$label")
@@ -210,8 +222,7 @@ class PlayStoreFgsVideo {
         val context = instrumentation.targetContext
         val repository = LibraryRepository(context)
         val clips = JSONObject()
-        val ids = (0 until samples.length()).map { samples.getJSONObject(it).getInt("globalId") }
-            .filter { it > 0 }.distinct()
+        val ids = samples.map { it.getInt("globalId") }.filter { it > 0 }.distinct()
         runBlocking {
             repository.cacheIntroClips()
             for (id in ids) {
@@ -229,7 +240,8 @@ class PlayStoreFgsVideo {
         clips.put("Bismillah", "audio/${QuranConstants.RECITER_FOLDER}/${QuranConstants.BISMILLAH_FILENAME}")
         val dir = File(context.filesDir, "video").apply { mkdirs() }
         File(dir, "timeline.json").writeText(
-            JSONObject().put("events", events).put("samples", samples).put("clips", clips).toString(1),
+            JSONObject().put("events", events).put("samples", JSONArray(samples.toList()))
+                .put("clips", clips).toString(1),
         )
     }
 

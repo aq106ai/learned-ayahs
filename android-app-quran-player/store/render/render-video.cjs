@@ -145,15 +145,22 @@ function playbackRuns(samples) {
   const runs = [];
   let run = null;
   const close = () => { if (run) runs.push(run); run = null; };
+  let previous = null;
   for (const s of samples) {
     const key = s.playing ? (s.intro || (s.globalId ? String(s.globalId) : null)) : null;
     if (!key || (run && key !== run.key)) close();
+    if (key && !run) {
+      // Fresh: it followed another clip without a pause, so it started from the beginning.
+      run = { key, first: s.t, last: s.t, clock: Infinity, fresh: previous !== null && previous !== key };
+    }
+    previous = key;
     if (!key) continue;
-    if (!run) run = { key, first: s.t, last: s.t, clock: Infinity };
     // The reported position trails the true one by up to a progress tick, so the smallest
-    // (time − position) is the clip's true start on the test's clock. Skip a run's first 400ms:
-    // until the next tick, a new clip still reports where the previous one had got to.
-    if (s.positionMs > 0 && s.t - run.first >= 400) {
+    // (time − position) is the clip's true start on the test's clock. For a while after a clip
+    // changes, the player still reports how far the previous one had got; a fresh clip cannot
+    // be further in than the time since it started, which gives those readings away.
+    const stale = run.fresh && s.positionMs > s.t - run.first + 600;
+    if (s.positionMs > 0 && !stale) {
       const clock = s.t - s.positionMs;
       if (Number.isFinite(run.clock) && Math.abs(clock - run.clock) > 1000) {
         run.last = s.t - 100; // seamless: the earlier stretch plays right up to this sample

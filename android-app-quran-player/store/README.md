@@ -11,7 +11,7 @@ also be uploaded with `fastlane supply --metadata_path fastlane/metadata/android
 | App name | 30 chars | `title.txt` |
 | Short description | 80 chars | `short_description.txt` |
 | Full description | 4000 chars | `full_description.txt` |
-| Release notes (versionCode 40) | 500 chars | `changelogs/40.txt` |
+| Release notes (versionCode 41) | 500 chars | `changelogs/41.txt` |
 | App icon | 512×512 PNG, 32-bit | `images/icon.png` |
 | Feature graphic | 1024×500 PNG, no alpha | `images/featureGraphic.png` |
 | Phone screenshots | 2–8, 9:16, ≥1080 px | `images/phoneScreenshots/` |

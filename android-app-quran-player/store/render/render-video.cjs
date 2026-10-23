@@ -29,8 +29,8 @@ const WORK = path.join(OUT, '.work');
 const FINAL = path.join(OUT, 'learned-ayahs-media-playback.mp4');
 
 const W = 1920, H = 1080, FPS = 30;
-// The phone: its 720×1600 recording shown 432×960, in a 14px bezel.
-const SCREEN = { x: 236, y: 60, w: 432, h: 960 }, BEZEL = 14;
+// The phone: its 720×1600 recording shown 450×1000, in a 14px bezel.
+const SCREEN = { x: 236, y: 40, w: 450, h: 1000 }, BEZEL = 14;
 const TITLE_S = 4, END_S = 5;
 // From logging the tap to the app redrawing: injecting the touch and one frame.
 const TAP_MS = 50;
@@ -136,22 +136,35 @@ function endHtml() {
     li::before { content: '✓'; position: absolute; left: 0; color: ${C.green}; font-weight: 800; }`);
 }
 
-/** The stretches of playback in the timeline: which clip, from where in it, when, for how long. */
+/**
+ * The stretches of playback in the timeline: which clip, from where in it, when, for how long.
+ * A stretch ends when the clip changes, playback stops, or the position jumps (a pause or seek
+ * the samples happened to straddle) — not merely because two samples were far apart.
+ */
 function playbackRuns(samples) {
   const runs = [];
   let run = null;
+  const close = () => { if (run) runs.push(run); run = null; };
   for (const s of samples) {
     const key = s.playing ? (s.intro || (s.globalId ? String(s.globalId) : null)) : null;
-    if (run && (key !== run.key || s.t - run.last > 300)) { runs.push(run); run = null; }
+    if (!key || (run && key !== run.key)) close();
     if (!key) continue;
     if (!run) run = { key, first: s.t, last: s.t, clock: Infinity };
-    run.last = s.t;
     // The reported position trails the true one by up to a progress tick, so the smallest
     // (time − position) is the clip's true start on the test's clock. Skip a run's first 400ms:
     // until the next tick, a new clip still reports where the previous one had got to.
-    if (s.positionMs > 0 && s.t - run.first >= 400) run.clock = Math.min(run.clock, s.t - s.positionMs);
+    if (s.positionMs > 0 && s.t - run.first >= 400) {
+      const clock = s.t - s.positionMs;
+      if (Number.isFinite(run.clock) && Math.abs(clock - run.clock) > 1000) {
+        run.last = s.t - 100; // seamless: the earlier stretch plays right up to this sample
+        close();
+        run = { key, first: s.t, last: s.t, clock };
+      }
+      run.clock = Math.min(run.clock, clock);
+    }
+    run.last = s.t;
   }
-  if (run) runs.push(run);
+  close();
   return runs.map((r) => {
     const clock = Number.isFinite(r.clock) ? r.clock : r.first;
     return { key: r.key, start: r.first, end: r.last + 100, offset: Math.max(0, r.first - clock) };

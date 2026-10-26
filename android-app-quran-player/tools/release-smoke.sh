@@ -9,7 +9,14 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 app=$(sed -n 's/.*applicationId = "\(.*\)".*/\1/p' app/build.gradle.kts)
 apk=$(ls app/build/outputs/apk/release/*.apk | head -1)
-fail() { echo "FAIL: $*"; adb logcat -d -b crash | tail -60; exit 1; }
+fail() {
+  echo "FAIL: $*"
+  echo "--- media sessions"; adb shell dumpsys media_session | grep -iE "package=|state=" | head -20
+  echo "--- on screen"; adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+  adb shell cat /sdcard/ui.xml 2>/dev/null | grep -oE '(text|content-desc)="[^"]+"' | head -40
+  echo "--- app log"; adb logcat -d | grep -iE "learned|exoplayer|media3|AndroidRuntime" | tail -60
+  exit 1
+}
 
 adb uninstall "$app" >/dev/null 2>&1 || true
 adb install "$apk"
@@ -41,7 +48,8 @@ tap "Skip"
 tap "Al-Fatihah"
 tap "Mark learned" 300   # the ayah row beside ayah 1's mark button plays it
 
-playing() { adb shell dumpsys media_session | grep -q "state=PlaybackState {state=3"; }
+# Android 14 prints "state=PLAYING(3)", older versions "state=3".
+playing() { adb shell dumpsys media_session | grep -qE "state=PlaybackState \{state=(3|PLAYING)"; }
 for _ in $(seq 1 45); do playing && break; sleep 1; done
 playing || fail "recitation never started"
 echo "playing"

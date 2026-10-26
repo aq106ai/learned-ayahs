@@ -21,7 +21,8 @@ adb shell monkey -p "$app" -c android.intent.category.LAUNCHER 1 >/dev/null
 tap() {
   for _ in $(seq 1 30); do
     adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 || true
-    xy=$(adb shell cat /sdcard/ui.xml | python3 -c '
+    # The first dumps can come before the window is up; an empty one just means try again.
+    xy=$( (adb shell cat /sdcard/ui.xml 2>/dev/null || true) | python3 -c '
 import re, sys
 label, shift = sys.argv[1], int(sys.argv[2])
 for node in re.findall(r"<node [^>]*>", sys.stdin.read()):

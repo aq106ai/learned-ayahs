@@ -131,8 +131,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Build release APK
-        run: ./gradlew assembleRelease
+      - name: Build release and debug APKs
+        run: ./gradlew assembleRelease assembleDebug
 
       # The instrumented tests run the debug build, which R8 leaves alone; this plays the
       # shrunk, obfuscated release build, streaming recitation, in the foreground and background.
@@ -149,7 +149,10 @@ jobs:
             adb shell settings put global hide_error_dialogs 1
             adb shell svc power stayon true
             sleep 30
+            # The debug build first, as the baseline: a failure in both is not R8's.
+            bash tools/release-smoke.sh app/build/outputs/apk/debug/*.apk || touch "$RUNNER_TEMP/debug-failed"
             bash tools/release-smoke.sh
+            test ! -f "$RUNNER_TEMP/debug-failed"
 
       - name: Upload R8 mapping
         if: always()

@@ -5,16 +5,18 @@
 # touch, so this is what catches a library class R8 removed or renamed by mistake.
 #
 #   ./gradlew assembleRelease && bash tools/release-smoke.sh
+#   bash tools/release-smoke.sh path/to/other.apk     # e.g. the debug build, to compare
 set -euo pipefail
 cd "$(dirname "$0")/.."
 app=$(sed -n 's/.*applicationId = "\(.*\)".*/\1/p' app/build.gradle.kts)
-apk=$(ls app/build/outputs/apk/release/*.apk | head -1)
+apk=${1:-$(ls app/build/outputs/apk/release/*.apk | head -1)}
+echo "== $apk"
 fail() {
   echo "FAIL: $*"
   echo "--- media sessions"; adb shell dumpsys media_session | grep -iE "package=|state=" | head -20
   echo "--- on screen"; adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
   adb shell cat /sdcard/ui.xml 2>/dev/null | grep -oE '(text|content-desc)="[^"]+"' | head -40
-  echo "--- app log"; adb logcat -d | grep -iE "learned|exoplayer|media3|AndroidRuntime" | tail -60
+  echo "--- app log"; adb logcat -d | grep -iE "learned|PlaybackService|ExoPlayer|media3|AndroidRuntime|ForegroundService|FGS" | tail -60
   exit 1
 }
 

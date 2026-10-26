@@ -38,6 +38,10 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug
 
+      # Shrunk and obfuscated by R8, signed with the debug key (there is no keystore here).
+      - name: Build release APK (R8)
+        run: ./gradlew assembleRelease
+
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4

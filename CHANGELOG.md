@@ -27,6 +27,8 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 - `.setup/make_icon.py` finds the font relative to the repository instead of an absolute path.
 
 ### Fixed
+- Android: tapping an ayah with nothing marked played A'udhu and then stopped instead of
+  going on to the ayah.
 - Android: the intro screen's last line had a stray "back to you." fragment appended.
 
 ### Removed

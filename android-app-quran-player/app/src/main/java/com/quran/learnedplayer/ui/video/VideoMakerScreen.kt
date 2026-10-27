@@ -204,6 +204,9 @@ fun VideoMakerScreen(
                 Toggle(if (bismillah) "Begin with A'udhu and Bismillah" else "Begin with A'udhu", "Recited before the first ayah", options.opening, !working) { on ->
                     viewModel.update { it.copy(opening = on) }
                 }
+                Toggle("Credits on video", "Sources in small print under the text. Off, they go in the share message", options.credits, !working) { on ->
+                    viewModel.update { it.copy(credits = on) }
+                }
             }
 
             Section("Background") {

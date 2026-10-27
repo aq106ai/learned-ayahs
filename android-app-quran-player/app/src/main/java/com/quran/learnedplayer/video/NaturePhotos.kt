@@ -28,7 +28,7 @@ class PhotoSubject(val key: String, val title: String, val photos: List<NaturePh
  * The photos themselves are not in the app: each is downloaded the first time it's used, from the
  * project's repository (`backgrounds/nature/`, chosen and checked by
  * `backgrounds/fetch_nature_photos.py`), and kept in `filesDir/video-photos/`. Every one is CC0
- * from Wikimedia Commons; the app still names the photographer on the video.
+ * from Wikimedia Commons; the photographer is named on the video when credits are on.
  *
  * A photo subject is addressed like a drawn theme, by a key: [PREFIX] + the subject, so the
  * background plan and the picker treat both alike.

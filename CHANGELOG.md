@@ -22,7 +22,9 @@ Android 1.10.0 (versionCode 42).
     waterfalls, mountain lakes, ocean, dunes, night sky and more), each checked by hand, matched to
     the ayahs the same way and downloaded only when used.
   Backgrounds show only sky, land, water, light and pattern, never people or animals, and the
-  video carries the recitation alone, with no music. The sources are named on every video.
+  video carries the recitation alone, with no music. The picture stays clean, with only the
+  surah and ayah; the sources go in the message the video is shared with, or under the text with
+  "Credits on video".
 - **Sources and disclaimer**, in the Android app and the web app. Before anything else, both
   list where all the Qur'an text, meanings, recitations and timings come from, and ask the user
   to agree to the disclaimer. Users updating from an earlier version are asked once too. The

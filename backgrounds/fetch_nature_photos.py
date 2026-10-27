@@ -6,7 +6,7 @@
 
 Every photo comes from Wikimedia Commons and must be released under CC0 (no rights reserved), read
 from the file's own licence metadata, so the app and the videos people share need no permission and
-no attribution, though the app credits the photographer anyway. Candidates are found by searching
+no attribution, though the app can credit the photographer on the video. Candidates are found by searching
 each subject within Commons' "CC-zero" category; anything whose title, description or categories
 mention people, animals, buildings or places of worship is dropped, because the videos carry the
 Qur'an (see the content norms in android-app-quran-player/CLAUDE.md).

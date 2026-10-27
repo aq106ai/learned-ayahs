@@ -13,8 +13,12 @@ Qur'an (see the content norms in android-app-quran-player/CLAUDE.md).
 
 That filter is a first pass, not a guarantee: a person reviews the contact sheets in candidates/
 and lists the photos to keep in selected.json. `finalize` then downloads only those, as JPEGs
-2048 px on the long side, plus a 216×384 thumbnail each, and writes nature/photos.json (what the
-app reads) and nature/CREDITS.md.
+2048 px on the long side, plus a 216×384 thumbnail each, and writes nature/photos.json, its copy
+in the app's assets (nature_photos.json), and nature/CREDITS.md.
+
+Reviewed by eye on the first run: rejected for people (green_hills-0), birds (coast-0), possible
+figures (dunes-0), buildings, cars, cranes, pylons or a city (storm-0,1,3; river_valley-5,7;
+ocean-3; sunrise-0,7; snow_peaks-3,4; mountain_lake-3,7), and 500px watermarks (coast-2,3).
 
 Needs network access to commons.wikimedia.org and upload.wikimedia.org, and Pillow.
 """
@@ -32,6 +36,8 @@ from PIL import Image, ImageDraw, ImageOps
 HERE = Path(__file__).resolve().parent
 CANDIDATES = HERE / "candidates"
 NATURE = HERE / "nature"
+# The app reads the list from its assets; the photos stay here and are downloaded when used.
+APP_ASSET = HERE.parent / "android-app-quran-player" / "app" / "src" / "main" / "assets" / "nature_photos.json"
 SELECTED = HERE / "selected.json"
 API = "https://commons.wikimedia.org/w/api.php"
 USER_AGENT = "LearnedAyahs/1.0 (https://github.com/aq106ai/learned-ayahs; background photo curation)"
@@ -46,14 +52,14 @@ SUBJECTS = {
     "coast": ("Coast", "coast cliffs sea sunset", ["sea", "dawn", "gratitude"]),
     "dunes": ("Dunes", "sand dunes desert", ["desert", "prophets", "ruins", "moses"]),
     "meadow": ("Meadows", "meadow flowers field", ["growth", "gratitude", "mercy", "provision"]),
-    "river_valley": ("Rivers", "river valley", ["rivers", "provision", "earth"]),
+    "river_valley": ("Valleys", "river valley", ["rivers", "provision", "earth"]),
     "autumn": ("Autumn", "autumn forest leaves", ["death", "resurrection", "signs"]),
     "sunrise": ("Sunrise", "sunrise clouds sky", ["dawn", "resurrection", "glad_tidings", "light"]),
     "sunset": ("Sunset", "sunset sky clouds", ["death", "sun", "family"]),
     "night_sky": ("Night sky", "milky way night sky stars", ["night", "stars", "cosmos", "supplication"]),
-    "storm": ("Storm clouds", "storm clouds thunderstorm", ["storm", "punishment", "judgment", "wind"]),
+    "storm": ("Clouds", "storm clouds thunderstorm", ["storm", "punishment", "judgment", "wind"]),
     "canyon": ("Canyons", "canyon rock formation", ["earth", "ruins", "creation_of_man", "majesty"]),
-    "green_hills": ("Green hills", "green hills landscape", ["earth", "growth", "harvest", "trust"]),
+    "green_hills": ("Hills", "green hills landscape", ["earth", "growth", "harvest", "trust"]),
 }
 
 # Anything that names one of these is not a pure landscape.
@@ -173,7 +179,9 @@ def finalize():
                 "author": pick["author"], "licence": pick["licence"], "source": pick["page"],
             })
             credits.append(f"| `{name}.jpg` | {title} | {pick['author']} | {pick['licence']} | [{pick['file']}]({pick['page']}) |")
-    (NATURE / "photos.json").write_text(json.dumps({"version": 1, "photos": photos}, indent=1, ensure_ascii=False), encoding="utf-8")
+    manifest = json.dumps({"version": 1, "photos": photos}, indent=1, ensure_ascii=False)
+    (NATURE / "photos.json").write_text(manifest, encoding="utf-8")
+    APP_ASSET.write_text(manifest, encoding="utf-8")
     (NATURE / "CREDITS.md").write_text(
         "# Nature photo credits\n\nEvery photo is from Wikimedia Commons under CC0 (no rights reserved), "
         "chosen by `backgrounds/fetch_nature_photos.py` and reviewed by hand. Resized to 2048 px.\n\n"

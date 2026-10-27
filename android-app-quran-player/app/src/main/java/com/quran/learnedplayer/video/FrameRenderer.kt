@@ -196,9 +196,22 @@ class FrameRenderer(
             if (request.wordByWord) add("Word meanings: Quran.com")
             if (backgroundCredit != null) add(backgroundCredit)
         }
-        // In landscape there is room below the card for one line, not three.
-        val lines = if (landscape) listOf(credits.joinToString("   ·   ")) else credits
-        var y = card.bottom + (if (landscape) 40f else 50f) * u
+        // In landscape there is room below the card for a line or two, not four: pack the credits
+        // side by side, as many as fit across.
+        val lines = if (!landscape) credits else buildList {
+            var line = ""
+            for (credit in credits) {
+                val joined = if (line.isEmpty()) credit else "$line   ·   $credit"
+                if (line.isNotEmpty() && labelPaint.measureText(joined) > w * 0.92f) {
+                    add(line)
+                    line = credit
+                } else {
+                    line = joined
+                }
+            }
+            if (line.isNotEmpty()) add(line)
+        }
+        var y = card.bottom + (if (landscape) 34f else 50f) * u
         for (line in lines) {
             canvas.drawText(line, w / 2, y, labelPaint)
             y += 34f * u

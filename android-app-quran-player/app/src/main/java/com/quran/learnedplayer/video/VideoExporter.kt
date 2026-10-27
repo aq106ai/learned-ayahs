@@ -169,7 +169,9 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
             }
         },
         creditFor = { key, variant ->
-            photos.photo(key, variant)?.takeIf { NaturePhotos.isPhoto(key) }?.let { "Photo: ${it.author} · Wikimedia Commons (CC0)" }
+            photos.photo(key, variant)?.takeIf { NaturePhotos.isPhoto(key) }?.let {
+                if (it.author == "Unknown") "Photo: Wikimedia Commons (CC0)" else "Photo: ${it.author} · Wikimedia Commons (CC0)"
+            }
         },
     )
 

@@ -94,7 +94,13 @@ def fetch(url):
 
 
 def strip_html(text):
-    return re.sub(r"<[^>]+>", "", text or "").strip()
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", text or "")).strip()
+
+
+def photographer(text):
+    """The Artist field, cleaned: Commons repeats "Unknown author" for an unnamed one."""
+    name = strip_html(text)
+    return "Unknown" if not name or name.lower().startswith("unknown author") else name
 
 
 def search(terms):
@@ -131,7 +137,7 @@ def search(terms):
             "thumb": info.get("thumburl"),
             "width": info.get("width"),
             "height": info.get("height"),
-            "author": strip_html(meta.get("Artist", {}).get("value", "")) or "Unknown",
+            "author": photographer(meta.get("Artist", {}).get("value", "")),
             "licence": licence.strip(),
             "description": description[:200],
         })
@@ -167,7 +173,8 @@ def finalize():
     for key, indexes in selected.items():
         title, _, themes = SUBJECTS[key]
         for n, index in enumerate(indexes):
-            pick = listing[key][index]
+            pick = dict(listing[key][index])
+            pick["author"] = photographer(pick["author"])
             image = Image.open(io.BytesIO(fetch(pick["thumb"]))).convert("RGB")
             image.thumbnail((2048, 2048))
             name = f"{key}_{n + 1}"

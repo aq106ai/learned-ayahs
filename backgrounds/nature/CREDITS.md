@@ -8,7 +8,7 @@ Every photo is from Wikimedia Commons under CC0 (no rights reserved), chosen by 
 | `forest_2.jpg` | Forest | Elisa Coluccia xelysa | CC0 | [File:Sunshine and snowy trees (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Sunshine_and_snowy_trees_(Unsplash).jpg) |
 | `forest_3.jpg` | Forest | David Whelan | CC0 | [File:Autumn sun through the trees (30106016861).jpg](https://commons.wikimedia.org/wiki/File:Autumn_sun_through_the_trees_(30106016861).jpg) |
 | `waterfall_1.jpg` | Waterfalls | Martin Eklund | CC0 | [File:Waterfall in forest.jpg](https://commons.wikimedia.org/wiki/File:Waterfall_in_forest.jpg) |
-| `waterfall_2.jpg` | Waterfalls | Jeffrey  Workman jeffreyp | CC0 | [File:Peaceful waterfall (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Peaceful_waterfall_(Unsplash).jpg) |
+| `waterfall_2.jpg` | Waterfalls | Jeffrey Workman jeffreyp | CC0 | [File:Peaceful waterfall (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Peaceful_waterfall_(Unsplash).jpg) |
 | `waterfall_3.jpg` | Waterfalls | Jdubphotography | CC0 | [File:Waterfall slowmotion manmade.jpg](https://commons.wikimedia.org/wiki/File:Waterfall_slowmotion_manmade.jpg) |
 | `mountain_lake_1.jpg` | Mountain lakes | Ales Krivec aleskrivec | CC0 | [File:Clouds mirrored in a mountain lake (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Clouds_mirrored_in_a_mountain_lake_(Unsplash).jpg) |
 | `mountain_lake_2.jpg` | Mountain lakes | Johannes Plenio jplenio | CC0 | [File:Beautiful mountain reflection (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Beautiful_mountain_reflection_(Unsplash).jpg) |
@@ -31,12 +31,12 @@ Every photo is from Wikimedia Commons under CC0 (no rights reserved), chosen by 
 | `autumn_1.jpg` | Autumn | Tojiwiv87 | CC0 | [File:Autumn Forest Pathway with Fallen Leaves.jpg](https://commons.wikimedia.org/wiki/File:Autumn_Forest_Pathway_with_Fallen_Leaves.jpg) |
 | `autumn_2.jpg` | Autumn | Gergő Gulyás | CC0 | [File:Autumn Forest (201072635).jpeg](https://commons.wikimedia.org/wiki/File:Autumn_Forest_(201072635).jpeg) |
 | `autumn_3.jpg` | Autumn | Gerda Arendt | CC0 | [File:Foliage in forest around Malbach, Ehrenbach.jpg](https://commons.wikimedia.org/wiki/File:Foliage_in_forest_around_Malbach,_Ehrenbach.jpg) |
-| `sunrise_1.jpg` | Sunrise | Unknown authorUnknown author | CC0 | [File:Sky Clouds Sun.jpg](https://commons.wikimedia.org/wiki/File:Sky_Clouds_Sun.jpg) |
-| `sunrise_2.jpg` | Sunrise | Unknown authorUnknown author | CC0 | [File:Sky Forest Clouds.jpg](https://commons.wikimedia.org/wiki/File:Sky_Forest_Clouds.jpg) |
+| `sunrise_1.jpg` | Sunrise | Unknown | CC0 | [File:Sky Clouds Sun.jpg](https://commons.wikimedia.org/wiki/File:Sky_Clouds_Sun.jpg) |
+| `sunrise_2.jpg` | Sunrise | Unknown | CC0 | [File:Sky Forest Clouds.jpg](https://commons.wikimedia.org/wiki/File:Sky_Forest_Clouds.jpg) |
 | `sunrise_3.jpg` | Sunrise | Alan Levine | CC0 | [File:Sky Fire Morning - January Canadian sunrise.jpg](https://commons.wikimedia.org/wiki/File:Sky_Fire_Morning_-_January_Canadian_sunrise.jpg) |
 | `sunset_1.jpg` | Sunset | Jebulon | CC0 | [File:Stormy sunset clouds over Rome, Italy.jpg](https://commons.wikimedia.org/wiki/File:Stormy_sunset_clouds_over_Rome,_Italy.jpg) |
-| `sunset_2.jpg` | Sunset | Unknown authorUnknown author | CC0 | [File:Sunset sky water.jpg](https://commons.wikimedia.org/wiki/File:Sunset_sky_water.jpg) |
-| `sunset_3.jpg` | Sunset | Unknown authorUnknown author | CC0 | [File:Sun Sunset Sky.jpg](https://commons.wikimedia.org/wiki/File:Sun_Sunset_Sky.jpg) |
+| `sunset_2.jpg` | Sunset | Unknown | CC0 | [File:Sunset sky water.jpg](https://commons.wikimedia.org/wiki/File:Sunset_sky_water.jpg) |
+| `sunset_3.jpg` | Sunset | Unknown | CC0 | [File:Sun Sunset Sky.jpg](https://commons.wikimedia.org/wiki/File:Sun_Sunset_Sky.jpg) |
 | `night_sky_1.jpg` | Night sky | W.carter | CC0 | [File:Stars and Milky Way over Åbyfjorden 2.jpg](https://commons.wikimedia.org/wiki/File:Stars_and_Milky_Way_over_%C3%85byfjorden_2.jpg) |
 | `night_sky_2.jpg` | Night sky | W.carter | CC0 | [File:Stars and Milky Way over Åbyfjorden 7.jpg](https://commons.wikimedia.org/wiki/File:Stars_and_Milky_Way_over_%C3%85byfjorden_7.jpg) |
 | `night_sky_3.jpg` | Night sky | W.carter | CC0 | [File:Stars and Milky Way over Åbyfjorden 3.jpg](https://commons.wikimedia.org/wiki/File:Stars_and_Milky_Way_over_%C3%85byfjorden_3.jpg) |

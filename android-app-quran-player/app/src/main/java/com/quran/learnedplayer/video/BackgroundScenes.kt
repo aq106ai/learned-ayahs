@@ -79,6 +79,9 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
     // The still layer
 
     private fun paintStill(c: Canvas, s: SceneSpec) {
+        // Opaque from the start: every frame reuses one bitmap, and anything see-through here
+        // would let the frame before show through.
+        c.drawColor(Color.rgb(Color.red(s.top), Color.green(s.top), Color.blue(s.top)))
         val r = Random(seed(s))
         when (s.kind) {
             SceneKind.SKY -> {
@@ -149,6 +152,7 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
                 moon(c, s, horizon * 0.45f)
                 band(c, horizon, h, blend(s.middle, s.land, 0.5f), s.land)
                 if (s.has(Feature.SUN) || s.has(Feature.FULL_MOON)) {
+                    fill.alpha = 255
                     fill.shader = LinearGradient(0f, horizon, 0f, h, withAlpha(s.light, 0.55f), withAlpha(s.light, 0f), Shader.TileMode.CLAMP)
                     val path = Path().apply {
                         moveTo(w * 0.47f, horizon); lineTo(w * 0.53f, horizon); lineTo(w * 0.68f, h); lineTo(w * 0.32f, h); close()
@@ -202,12 +206,14 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
     private fun sky(c: Canvas, top: Int, bottom: Int, to: Float) = band(c, 0f, to, top, bottom)
 
     private fun band(c: Canvas, from: Float, to: Float, top: Int, bottom: Int) {
+        fill.alpha = 255
         fill.shader = LinearGradient(0f, from, 0f, to, top, bottom, Shader.TileMode.CLAMP)
         c.drawRect(0f, from, w, to, fill)
         fill.shader = null
     }
 
     private fun glow(c: Canvas, x: Float, y: Float, radius: Float, color: Int, strength: Float) {
+        fill.alpha = 255
         fill.shader = RadialGradient(x, y, radius, withAlpha(color, strength), withAlpha(color, 0f), Shader.TileMode.CLAMP)
         c.drawCircle(x, y, radius, fill)
         fill.shader = null
@@ -215,6 +221,7 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
 
     private fun vignette(c: Canvas) {
         val radius = max(w, h) * 0.75f
+        fill.alpha = 255
         fill.shader = RadialGradient(w / 2, h / 2, radius, intArrayOf(0, 0, Color.argb(150, 0, 0, 0)), floatArrayOf(0f, 0.6f, 1f), Shader.TileMode.CLAMP)
         c.drawRect(0f, 0f, w, h, fill)
         fill.shader = null
@@ -276,6 +283,7 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
                 }
                 lineTo(w, h); close()
             }
+            fill.alpha = 255
             fill.shader = LinearGradient(0f, baseline - 100f * u, 0f, h, crest, color, Shader.TileMode.CLAMP)
             c.drawPath(path, fill)
             fill.shader = null
@@ -322,6 +330,7 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
         hills(c, r, horizon + 10f * u, 40f * u, blend(s.middle, s.land, 0.55f), 3)
         hills(c, r, horizon + 90f * u, 55f * u, s.land, 2)
         if (s.has(Feature.RIVER)) {
+            fill.alpha = 255
             fill.shader = LinearGradient(0f, horizon + 60f * u, 0f, h, withAlpha(s.light, 0.75f), withAlpha(blend(s.light, s.middle, 0.5f), 0.9f), Shader.TileMode.CLAMP)
             val path = Path().apply {
                 moveTo(w * 0.49f, horizon + 70f * u)
@@ -415,6 +424,7 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
                     lineTo(right, bottom)
                     close()
                 }
+                fill.alpha = 255
                 fill.shader = LinearGradient(0f, top, 0f, bottom, withAlpha(s.light, 0.55f - depth * 0.2f), withAlpha(s.middle, 0.35f), Shader.TileMode.CLAMP)
                 c.drawPath(opening, fill)
                 fill.shader = null
@@ -631,6 +641,7 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
             val y = h * (0.45f + r.nextFloat() * 0.5f)
             val bandW = w * (0.8f + r.nextFloat() * 0.8f)
             val x = ((r.nextFloat() * (w + bandW) + t * (10 + r.nextFloat() * 18) * u) % (w + bandW)) - bandW
+            fill.alpha = 255
             fill.shader = RadialGradient(x + bandW / 2, y, bandW / 2, withAlpha(color, 0.22f), withAlpha(color, 0f), Shader.TileMode.CLAMP)
             c.save()
             c.scale(1f, 0.22f, x + bandW / 2, y)

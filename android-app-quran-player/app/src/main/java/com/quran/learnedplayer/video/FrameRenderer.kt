@@ -90,6 +90,7 @@ class FrameRenderer(
 
     fun draw(canvas: Canvas, ms: Long) {
         val (slot, previous, fade) = BackgroundPlan.at(slots, ms)
+        canvas.drawColor(Color.BLACK) // the frame bitmap is reused; start each frame clean
         if (previous != null) scenes.draw(canvas, VideoThemes.variant(previous.themeKey, previous.variant), ms)
         scenes.draw(canvas, VideoThemes.variant(slot.themeKey, slot.variant), ms, (fade * 255).toInt())
 
@@ -190,8 +191,10 @@ class FrameRenderer(
             if (request.fullTranslation) add("Translation: Saheeh International · tanzil.net")
             if (request.wordByWord) add("Word meanings: Quran.com")
         }
-        var y = card.bottom + 50f * u
-        for (line in credits) {
+        // In landscape there is room below the card for one line, not three.
+        val lines = if (landscape) listOf(credits.joinToString("   ·   ")) else credits
+        var y = card.bottom + (if (landscape) 40f else 50f) * u
+        for (line in lines) {
             canvas.drawText(line, w / 2, y, labelPaint)
             y += 34f * u
         }

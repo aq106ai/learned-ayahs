@@ -56,7 +56,7 @@ class VideoExportTest {
     }
 
     @Test
-    fun a_video_of_al_ikhlas_has_picture_and_sound_for_its_whole_length() = runBlocking {
+    fun a_video_of_al_ikhlas_has_picture_and_sound_for_its_whole_length() = runBlocking<Unit> {
         val request = VideoRequest(
             surah = 112, fromAyah = 1, toAyah = 4, reciter = Reciter.DEFAULT, aspect = VideoAspect.SQUARE,
             wordByWord = true, fullTranslation = true, opening = true, themeKey = null,

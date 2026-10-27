@@ -66,7 +66,8 @@ class NaturePhotos(context: Context) {
     private fun fetch(name: String): File {
         val file = File(dir, name)
         if (file.exists() && file.length() > 0) return file
-        if (!AtomicDownload.toFile("$BASE_URL/$name", file, AtomicDownload::looksLikeJpeg)) {
+        // main first; dev while a build from dev is being reviewed before it reaches main.
+        if (BASE_URLS.none { AtomicDownload.toFile("$it/$name", file, AtomicDownload::looksLikeJpeg) }) {
             throw IOException("Couldn't download the background photo. Check your connection and try again.")
         }
         return file
@@ -81,7 +82,8 @@ class NaturePhotos(context: Context) {
 
     companion object {
         const val PREFIX = "photo:"
-        const val BASE_URL = "https://raw.githubusercontent.com/aq106ai/learned-ayahs/main/backgrounds/nature"
+        private const val REPOSITORY = "https://raw.githubusercontent.com/aq106ai/learned-ayahs"
+        val BASE_URLS = listOf("$REPOSITORY/main/backgrounds/nature", "$REPOSITORY/dev/backgrounds/nature")
 
         /** Subjects that suit an ayah whose theme no photo subject names. */
         private val GENERAL = listOf("sunrise", "mountain_lake", "green_hills", "ocean", "forest")

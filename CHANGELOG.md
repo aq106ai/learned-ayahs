@@ -6,6 +6,8 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
+Android 1.10.0 (versionCode 42).
+
 ### Added
 - **Android: share ayahs as a video.** "Make a video" (the film icon in the player and on a
   surah's page) turns one ayah, a range or a whole surah into an MP4 on the phone, to save or

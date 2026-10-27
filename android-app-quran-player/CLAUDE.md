@@ -188,8 +188,8 @@ the film icon in the player header and on a surah's page) → `VideoExporter`. T
   this environment can't reach Commons) and **reviewed by eye before they ship** — the script's
   word filter misses people, birds, buildings and watermarks that a look catches; the rejects are
   listed in its docstring. They live in the repository's `backgrounds/nature/`, not the APK, and
-  download on first use from `raw.githubusercontent.com/.../main/`, so new photos only work once
-  merged to main. A subject is addressed like a theme, `photo:<subject>`, and "Matched" with
+  download on first use from `raw.githubusercontent.com/.../main/`, falling back to `dev/` so a
+  build reviewed from dev works before the photos reach main. A subject is addressed like a theme, `photo:<subject>`, and "Matched" with
   photos maps each ayah's drawn theme to a subject that lists it. A photo scene is drawn with a
   slow zoom (`BackgroundScenes`), and the photographer is credited on the video.
 - **The translation** in videos is Saheeh International (`assets/translation_en_saheeh.json`, from

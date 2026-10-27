@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only finished videos are shared, from the cache's videos/ folder. -->
+<paths>
+    <cache-path name="videos" path="videos/" />
+</paths>

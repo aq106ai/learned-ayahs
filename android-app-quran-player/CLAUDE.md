@@ -158,6 +158,42 @@ holds the disclaimer. `AppNav` shows it as `TermsDialog` before the intro whenev
 again. The web app shows the same text (`web-app/static/js/views/terms.js`): change both together.
 `AppReset` pre-accepts it for the instrumented tests.
 
+### Share as video (`video/`, `ui/video/`)
+
+"Make a video" turns a range of ayahs into an MP4, entirely on the phone: `VideoMakerScreen` (from
+the film icon in the player header and on a surah's page) → `VideoExporter`. The pieces:
+
+- **Audio first, and the timeline comes from it.** `AudioPipeline` decodes each clip (the chosen
+  reciter's everyayah MP3, cached in the player's own `filesDir/audio/<folder>/`), converts it to
+  44.1 kHz stereo (`PcmResampler`) and encodes one AAC track, laying clips end to end with gaps.
+  `VideoTimeline` is measured from the decoded audio, so highlighting matches what is heard.
+- **Frames are drawn on a Canvas, then go to the encoder through EGL**, not through
+  `Surface.lockCanvas`: only `eglPresentationTimeANDROID` lets each frame carry its time in the
+  video, and a Canvas post is stamped with the wall clock, so a video rendered faster or slower
+  than real time would play at the wrong speed. `VideoEncoder` interleaves the audio samples as
+  it muxes. The render loop is not a suspend function on purpose: EGL is bound to one thread.
+- **Text** is `AyahLayout` (pure, unit-tested): right-to-left columns with the word meaning under
+  each word, shrunk to fit one screen before it ever pages; a page turns when its first word is
+  recited. Highlighting uses `WordSync` and the reciter's validated timings, and an ayah without
+  them simply isn't highlighted — the same rule as the player.
+- **Backgrounds** are drawn, never photographs: `VideoThemes` (53 themes of two or three
+  `SceneSpec`s) painted by `BackgroundScenes` (19 scene kinds, a still layer cached as a bitmap
+  plus a light moving layer). **Content norms: no people, no animals, no music** — keep it that
+  way when adding a scene. Each ayah's theme comes from `assets/video_themes.json`, which
+  `.setup/make_video_themes.py` builds by scoring the English meaning against a word list per
+  theme, smoothed across neighbouring ayahs; `BackgroundPlan` holds a background at least 12 s.
+  `VideoThemesTest` keeps the script's keys and `VideoThemes` equal.
+- **The translation** in videos is Saheeh International (`assets/translation_en_saheeh.json`, from
+  Tanzil.net via the `quran-json` npm package, written by the same script). It is named on every
+  video and in the sources dialog; adding it raised `TERMS_VERSION` to 2.
+- **Saving needs no storage permission**: MediaStore (Movies/Learned Ayahs) on Android 10+, the
+  SAF "save as" picker below that; sharing goes through the `FileProvider` (`res/xml/shared_files.xml`,
+  cache `videos/` only).
+
+`VideoExportTest` makes a real MP4 from the test suite's own Al-Ikhlas recordings (no network) and
+checks its tracks, length and frame count. `VideoSamples` (not a test; `video-samples.yml` runs it)
+draws every background and a real video for a person to review, into `store/raw/video-maker/`.
+
 ### Navigation
 
 `AppNav.kt` picks its start destination once, from `PlayerSettings.seenIntro`: **the player is the

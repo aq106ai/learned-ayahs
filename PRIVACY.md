@@ -52,6 +52,12 @@ audio to your phone's speech recognition service so it can follow your recitatio
 The app does not save, upload or share your recordings itself. The microphone is used only while
 Recite & review is listening, and you can revoke the permission at any time in Android settings.
 
+## Videos you make
+
+"Make a video" builds the video on your phone. It downloads only the recitation it needs, from the
+services listed above, and the finished video stays on your phone until you save it or share it
+with an app you choose.
+
 ## Notifications
 
 The app shows a notification while it plays audio, so you can control playback from the

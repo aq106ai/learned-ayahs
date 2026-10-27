@@ -3,7 +3,7 @@ name: Nature photos
 # Gathers the CC0 nature photos "Share as video" offers, from Wikimedia Commons, in two steps:
 #   candidates — search and filter, commit contact sheets to backgrounds/candidates/ for review;
 #   finalize   — once backgrounds/selected.json lists the keepers, fetch them into backgrounds/nature/.
-# Pushing a change to selected.json runs finalize; anything else runs candidates.
+# Pushing a change to selected.json runs finalize; candidates only runs from the Actions tab.
 on:
   workflow_dispatch:
     inputs:
@@ -13,8 +13,7 @@ on:
   push:
     branches-ignore: [main, dev]
     paths:
-      - .github/workflows/nature-photos.yml
-      - backgrounds/fetch_nature_photos.py
+      # Only a new selection: a fresh search could reorder the candidates selected.json counts on.
       - backgrounds/selected.json
 
 permissions:

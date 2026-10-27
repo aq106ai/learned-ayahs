@@ -22,6 +22,7 @@ import com.quran.learnedplayer.ui.home.SurahListScreen
 import com.quran.learnedplayer.ui.settings.AddByDescriptionScreen
 import com.quran.learnedplayer.ui.settings.SettingsScreen
 import com.quran.learnedplayer.ui.surah.SurahDetailScreen
+import com.quran.learnedplayer.ui.video.VideoMakerScreen
 
 import com.quran.learnedplayer.ui.recitation.RecitationScreen
 
@@ -32,8 +33,12 @@ object Routes {
     const val ADD_BY_DESCRIPTION = "add_by_description"
     const val RECITATION = "recitation?globalId={globalId}"
     const val SURAH = "surah/{surah}"
+    const val VIDEO = "video?surah={surah}&ayah={ayah}"
 
     fun surah(surah: Int) = "surah/$surah"
+
+    /** "Make a video", starting on [ayah] of [surah], or on the surah's opening ayahs when 0. */
+    fun video(surah: Int, ayah: Int = 0) = "video?surah=$surah&ayah=$ayah"
     fun recitation(globalId: Int = 1) = "recitation?globalId=$globalId"
 }
 
@@ -115,6 +120,7 @@ fun AppNav(
                 isOnboarding = isOnboarding,
                 onBackToMain = backToMain,
                 onPlayRequested = onPlayRequested,
+                onMakeVideo = { navController.navigate(Routes.video(surah)) },
             )
         }
 
@@ -125,6 +131,21 @@ fun AppNav(
                 onBrowseSurahs = { navController.navigate(Routes.HOME) { launchSingleTop = true } },
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onOpenRecitation = { globalId -> navController.navigate(Routes.recitation(globalId)) },
+                onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah)) },
+            )
+        }
+
+        composable(
+            route = Routes.VIDEO,
+            arguments = listOf(
+                navArgument("surah") { type = NavType.IntType; defaultValue = 1 },
+                navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
+            ),
+        ) { entry ->
+            VideoMakerScreen(
+                surah = entry.arguments?.getInt("surah") ?: 1,
+                ayah = entry.arguments?.getInt("ayah") ?: 0,
+                onBack = { navController.popBackStack() },
             )
         }
 

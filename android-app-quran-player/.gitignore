@@ -24,3 +24,5 @@
 !/store/raw/video/audio/*.mp3
 # …and the recitation the promo video plays (render-promo.cjs).
 !/store/raw/promo/*.mp3
+# The sample video video-samples.yml makes; the run keeps it as an artifact.
+/store/raw/video-maker/*.mp4

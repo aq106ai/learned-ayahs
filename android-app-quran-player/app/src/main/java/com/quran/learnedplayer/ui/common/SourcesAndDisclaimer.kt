@@ -26,8 +26,8 @@ const val TAG_TERMS_ACCEPT = "terms_accept"
 
 /**
  * Where every piece of Qur'an content in the app comes from, and what the app does and does not
- * answer for. The web app shows the same words (`web-app/static/js/views/terms.js`); keep the two
- * in step. Changing what a user agrees to means raising [PlayerSettings.TERMS_VERSION] so that
+ * answer for. The web app shows the same words (`web-app/static/js/views/terms.js`), less the
+ * translation only the Android app's video export uses; keep the two in step. Changing what a user agrees to means raising [PlayerSettings.TERMS_VERSION] so that
  * everyone is asked again.
  */
 object SourcesAndDisclaimer {
@@ -40,6 +40,8 @@ object SourcesAndDisclaimer {
             "EveryAyah · everyayah.com",
         ),
         Source("Single-word recitations", "Quran.com · audio.qurancdn.com"),
+        Source("English translation in shared videos", "Saheeh International · via tanzil.net"),
+        Source("Nature photos in shared videos (CC0)", "Wikimedia Commons · commons.wikimedia.org"),
         Source("Word timings used to highlight each word", "Quranic Universal Library (QUL) by Tarteel · qul.tarteel.ai"),
         Source("Arabic font Scheherazade New", "SIL International · software.sil.org"),
     )

@@ -141,8 +141,11 @@ object PlayerSettings {
     private const val KEY_USE_WORD_CLIPS = "use_word_clips"
     private const val KEY_ACCEPTED_TERMS_VERSION = "accepted_terms_version"
 
-    /** Raise when the sources and disclaimer change, so that everyone is asked to agree again. */
-    const val TERMS_VERSION = 1
+    /**
+     * Raise when the sources and disclaimer change, so that everyone is asked to agree again.
+     * 2: the translation and nature photos shared videos carry joined the sources.
+     */
+    const val TERMS_VERSION = 2
 
     /** Selectable pause lengths (seconds) between repeats under [RepeatMode.AYAH]. 0 = no pause. */
     val REVISION_DELAY_CHOICES = listOf(0, 3, 5, 10)

@@ -25,6 +25,9 @@ MADE FOR DAILY REVISION
 • Light and dark themes.
 • Back up your list to a file, and restore it on another phone.
 
+SHARE AYAHS AS A VIDEO
+Turn an ayah, a passage or a whole short surah into a video for Shorts, Reels, a feed post or YouTube, made on your phone. Choose the reciter and whether to show word-by-word meanings and the translation, and each word lights up as it is recited. The background is matched to what each ayah is about, from over a hundred drawn scenes of sky, land, water and light, with no people, no animals and no music.
+
 RECITE & REVIEW (BETA, ANDROID 13+)
 An optional practice coach that listens while you recite a learned ayah and plays the correct word when it hears a mistake. It is off until you turn it on in Settings. Recognition of Qur'anic recitation is still imperfect, so treat it as an aid, not a judge.
 

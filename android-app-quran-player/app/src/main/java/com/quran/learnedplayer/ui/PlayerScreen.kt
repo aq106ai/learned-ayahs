@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -91,6 +92,7 @@ const val TAG_SURAH_PANEL_SEARCH = "surah_panel_search"
 const val TAG_SURAH_PANEL_LIST = "surah_panel_list"
 const val TAG_MANAGE_AYAHS = "manage_ayahs"
 const val TAG_OPEN_SETTINGS = "open_settings_from_player"
+const val TAG_MAKE_VIDEO = "make_video_from_player"
 const val TAG_EXPAND_PANEL = "expand_playback_panel"
 const val TAG_OPEN_RECITATION = "open_recitation"
 fun surahPanelRowTag(surah: Int) = "surah_panel_row_$surah"
@@ -111,6 +113,7 @@ fun PlayerScreen(
     onBrowseSurahs: () -> Unit,
     onOpenSettings: () -> Unit = {},
     onOpenRecitation: (Int) -> Unit = {},
+    onMakeVideo: (surah: Int, ayah: Int) -> Unit = { _, _ -> },
 ) {
     val state by viewModel.uiState.collectAsState()
     val reciteBetaEnabled by PlayerSettings.reciteBetaEnabledFlow.collectAsState()
@@ -141,6 +144,7 @@ fun PlayerScreen(
                 onOpenSurahPanel = { showSurahPanel = true },
                 onOpenPlaylistPanel = { showPlaylistPanel = true },
                 onOpenSettings = onOpenSettings,
+                onMakeVideo = state.currentTrack?.let { track -> { onMakeVideo(track.surah, track.ayah) } },
             )
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -253,6 +257,7 @@ private fun ReaderHeader(
     onOpenSurahPanel: () -> Unit,
     onOpenPlaylistPanel: () -> Unit,
     onOpenSettings: () -> Unit,
+    onMakeVideo: (() -> Unit)?,
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
@@ -281,6 +286,11 @@ private fun ReaderHeader(
                     modifier = Modifier.testTag(TAG_TOGGLE_WORD_BY_WORD),
                 ) {
                     Text(if (wordByWord) "Whole ayah" else "Word by word")
+                }
+            }
+            if (onMakeVideo != null) {
+                IconButton(onClick = onMakeVideo, modifier = Modifier.testTag(TAG_MAKE_VIDEO)) {
+                    Icon(Icons.Filled.Movie, contentDescription = "Make a video of this ayah", tint = TextMuted)
                 }
             }
             IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(TAG_OPEN_SETTINGS)) {

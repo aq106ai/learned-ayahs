@@ -6,7 +6,23 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
+Android 1.10.0 (versionCode 42).
+
 ### Added
+- **Android: share ayahs as a video.** "Make a video" (the film icon in the player and on a
+  surah's page) turns one ayah, a range or a whole surah into an MP4 on the phone, to save or
+  share:
+  - shapes for Shorts and Reels (9:16), feed posts (4:5), square and YouTube (16:9);
+  - any of the five reciters, with the word being recited lit up;
+  - optional word-by-word meanings and the Saheeh International translation;
+  - A'udhu and Bismillah before the first ayah;
+  - a background matched to what each ayah is about, from 53 themes of two or three drawn
+    backgrounds each, or one theme chosen for the whole video.
+  - or nature photos instead: 45 CC0 photos from Wikimedia Commons in fifteen subjects (forest,
+    waterfalls, mountain lakes, ocean, dunes, night sky and more), each checked by hand, matched to
+    the ayahs the same way and downloaded only when used.
+  Backgrounds show only sky, land, water, light and pattern, never people or animals, and the
+  video carries the recitation alone, with no music. The sources are named on every video.
 - **Sources and disclaimer**, in the Android app and the web app. Before anything else, both
   list where all the Qur'an text, meanings, recitations and timings come from, and ask the user
   to agree to the disclaimer. Users updating from an earlier version are asked once too. The

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
@@ -59,6 +60,7 @@ const val TAG_SURAH_DETAIL = "surah_detail"
 const val TAG_SURAH_DETAIL_LOADING = "surah_detail_loading"
 const val TAG_SELECT_ALL_AYAHS = "surah_detail_select_all"
 const val TAG_BACK_TO_MAIN = "surah_detail_back_to_main"
+const val TAG_SURAH_MAKE_VIDEO = "surah_detail_make_video"
 fun ayahRowTag(ayah: Int) = "ayah_row_$ayah"
 fun markLearnedTag(ayah: Int) = "mark_learned_$ayah"
 
@@ -79,6 +81,7 @@ fun SurahDetailScreen(
     isOnboarding: Boolean,
     onBackToMain: () -> Unit,
     onPlayRequested: ((() -> Unit) -> Unit),
+    onMakeVideo: () -> Unit = {},
 ) {
     BackHandler(onBack = onBack)
     val state by viewModel.uiState.collectAsState()
@@ -117,6 +120,12 @@ fun SurahDetailScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = TextMuted,
                 )
+            }
+
+            if (!isOnboarding) {
+                IconButton(onClick = onMakeVideo, modifier = Modifier.testTag(TAG_SURAH_MAKE_VIDEO)) {
+                    Icon(Icons.Filled.Movie, contentDescription = "Make a video", tint = TextMuted)
+                }
             }
 
             if (isOnboarding) {

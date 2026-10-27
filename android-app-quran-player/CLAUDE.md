@@ -12,7 +12,8 @@ and plays them back with lock-screen / Bluetooth / Android Auto controls.
 a fresh install starts with an empty playlist, and browsing plus Surah-loop playback still work
 with nothing marked (`QueueBuilder.surahAllAyahs` doesn't read the master — and
 `PlaybackService.handleCommand` must accept a full-surah load with an empty master; until 1.9.2 it
-didn't, and tapping an ayah with nothing marked played nothing). Until v1.4.0 the app
+didn't, and tapping an ayah with nothing marked played nothing; `finishIntroAndResume` had the
+same guard until versionCode 41, so it played A'udhu and then stopped). Until v1.4.0 the app
 merged `DefaultSupplement` — the repo owner's 1,216 personal ayahs — into everyone's list; that
 class is gone. Don't reintroduce anything that marks ayahs the user did not choose.
 

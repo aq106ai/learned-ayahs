@@ -42,6 +42,8 @@ data class VideoRequest(
     val themeKey: String?,
     /** With [themeKey] null: match each ayah to a nature photo rather than a drawn theme. */
     val photos: Boolean = false,
+    /** Print the sources under the card and "Made with Learned Ayahs" at the foot. Off: a clean picture. */
+    val credits: Boolean = false,
 ) {
     init {
         require(surah in 1..114) { "No surah $surah" }

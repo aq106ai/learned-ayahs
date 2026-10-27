@@ -191,10 +191,14 @@ the film icon in the player header and on a surah's page) → `VideoExporter`. T
   download on first use from `raw.githubusercontent.com/.../main/`, falling back to `dev/` so a
   build reviewed from dev works before the photos reach main. A subject is addressed like a theme, `photo:<subject>`, and "Matched" with
   photos maps each ayah's drawn theme to a subject that lists it. A photo scene is drawn with a
-  slow zoom (`BackgroundScenes`), and the photographer is credited on the video.
+  slow zoom (`BackgroundScenes`).
 - **The translation** in videos is Saheeh International (`assets/translation_en_saheeh.json`, from
-  Tanzil.net via the `quran-json` npm package, written by the same script). It is named on every
-  video and in the sources dialog; adding it raised `TERMS_VERSION` to 2.
+  Tanzil.net via the `quran-json` npm package, written by the same script). It is named in the
+  sources dialog; adding it raised `TERMS_VERSION` to 2.
+- **Credits** (reciter, translation, word meanings, photographer) are off the picture by default:
+  the video shows only the surah:ayah reference, and the sources travel in the text it's shared
+  with (`VideoMakerViewModel.caption`). The "Credits on video" toggle (`VideoRequest.credits`)
+  prints them under the card again, with "Made with Learned Ayahs" at the foot.
 - **Saving needs no storage permission**: MediaStore (Movies/Learned Ayahs) on Android 10+, the
   SAF "save as" picker below that; sharing goes through the `FileProvider` (`res/xml/shared_files.xml`,
   cache `videos/` only).

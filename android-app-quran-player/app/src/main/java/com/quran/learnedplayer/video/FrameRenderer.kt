@@ -74,10 +74,11 @@ class FrameRenderer(
     }
 
     // The card and the boxes inside it.
+    // Without the credits underneath, the card takes most of that space.
     private val card: RectF = when {
-        landscape -> RectF(w * 0.08f, h * 0.15f, w * 0.92f, h * 0.84f)
-        height > width * 1.5f -> RectF(w * 0.06f, h * 0.17f, w * 0.94f, h * 0.83f)
-        else -> RectF(w * 0.06f, h * 0.13f, w * 0.94f, h * 0.85f)
+        landscape -> RectF(w * 0.08f, h * 0.15f, w * 0.92f, h * (if (request.credits) 0.84f else 0.9f))
+        height > width * 1.5f -> RectF(w * 0.06f, h * 0.17f, w * 0.94f, h * (if (request.credits) 0.83f else 0.87f))
+        else -> RectF(w * 0.06f, h * 0.13f, w * 0.94f, h * (if (request.credits) 0.85f else 0.9f))
     }
     private val pad = 36f * u
     private val translationShare = if (request.fullTranslation) (if (landscape) 0.3f else 0.32f) else 0f
@@ -187,6 +188,8 @@ class FrameRenderer(
         labelPaint.textSize = 40f * u
         labelPaint.setShadowLayer(8f * u, 0f, 2f * u, Color.argb(170, 0, 0, 0))
         canvas.drawText(text.reference, w / 2, card.top - 42f * u, labelPaint)
+        // Off by default: the sources go with the video in the text it's shared with instead.
+        if (!request.credits) return
 
         labelPaint.textSize = 26f * u
         labelPaint.color = Color.argb(225, 255, 255, 255)

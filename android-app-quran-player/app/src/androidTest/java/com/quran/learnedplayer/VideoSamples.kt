@@ -85,6 +85,11 @@ class VideoSamples {
         // Without the word meanings and translation, for comparison.
         val plain = VideoRequest(67, 1, 1, Reciter.DEFAULT, VideoAspect.PORTRAIT, false, false, false, null)
         save(exporter.preview(plain, 540), "preview_67_1_plain.png")
+        // With "Credits on video", in each shape, so the small print can be checked for fit.
+        for (aspect in VideoAspect.entries) {
+            val credited = VideoRequest(67, 1, 1, Reciter.DEFAULT, aspect, true, true, false, "photo:sunrise", photos = true, credits = true)
+            save(exporter.preview(credited, if (aspect == VideoAspect.LANDSCAPE) 960 else 540), "credits_67_1_${aspect.ratio.replace(':', 'x')}.png")
+        }
     }
 
     private fun video() = runBlocking {

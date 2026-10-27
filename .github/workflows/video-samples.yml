@@ -1,7 +1,9 @@
 name: Video maker samples
 
 # Draws every "Share as video" background, previews in each shape and one real video on an
-# emulator, and commits them to android-app-quran-player/store/raw/video-maker/ for review.
+# emulator, and commits the pictures to android-app-quran-player/store/raw/video-maker/ for review
+# (the sample video itself is kept out of git; it is in the run's artifacts). Run it from the
+# Actions tab after changing anything under video/.
 on:
   workflow_dispatch:
   push:
@@ -10,7 +12,6 @@ on:
       - .github/workflows/video-samples.yml
       - android-app-quran-player/store/capture-video-samples.sh
       - android-app-quran-player/app/src/androidTest/java/com/quran/learnedplayer/VideoSamples.kt
-      - android-app-quran-player/app/src/main/java/com/quran/learnedplayer/video/**
 
 permissions:
   contents: write
@@ -54,6 +55,14 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           working-directory: android-app-quran-player
           script: SKIP_BUILD=1 bash store/capture-video-samples.sh store/raw/video-maker
+
+      - name: Keep the sample video
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-maker-sample
+          path: android-app-quran-player/store/raw/video-maker/*.mp4
+          retention-days: 14
 
       - name: Commit the samples
         if: always()

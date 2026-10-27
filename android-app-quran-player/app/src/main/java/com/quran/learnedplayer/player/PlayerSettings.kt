@@ -143,7 +143,7 @@ object PlayerSettings {
 
     /**
      * Raise when the sources and disclaimer change, so that everyone is asked to agree again.
-     * 2: the translation shared videos carry joined the sources.
+     * 2: the translation and nature photos shared videos carry joined the sources.
      */
     const val TERMS_VERSION = 2
 

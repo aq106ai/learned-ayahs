@@ -17,7 +17,8 @@ import java.net.URL
 internal object AtomicDownload {
     private const val USER_AGENT = "LearnedAyahsPlayer/1.0"
 
-    fun toFile(url: String, dest: File): Boolean {
+    /** [accept] checks the finished file before it replaces [dest]; recitation by default. */
+    fun toFile(url: String, dest: File, accept: (File) -> Boolean = ::looksLikeAudio): Boolean {
         val dir = dest.parentFile ?: return false
         dir.mkdirs()
         // A unique temporary name: the same clip can be fetched by two jobs at once (play and
@@ -42,7 +43,7 @@ internal object AtomicDownload {
                 }
                 val size = part.length()
                 if (size <= 0L || (expected > 0L && size != expected)) return false
-                if (!looksLikeAudio(part)) return false
+                if (!accept(part)) return false
                 part.renameTo(dest)
             } finally {
                 connection.disconnect()
@@ -54,6 +55,13 @@ internal object AtomicDownload {
         } finally {
             if (part.exists()) part.delete()
         }
+    }
+
+    /** A JPEG picture (its start-of-image marker), not an HTML page. */
+    fun looksLikeJpeg(file: File): Boolean {
+        val head = ByteArray(3)
+        val read = runCatching { file.inputStream().use { it.read(head) } }.getOrDefault(-1)
+        return read == 3 && (head[0].toInt() and 0xFF) == 0xFF && (head[1].toInt() and 0xFF) == 0xD8 && (head[2].toInt() and 0xFF) == 0xFF
     }
 
     /** MP3 (an ID3 tag or an MPEG frame sync), WAV or Ogg — not an HTML page. */

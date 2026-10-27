@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.net.Uri
 import android.os.Build
@@ -19,6 +20,8 @@ import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.video.BackgroundScenes
+import com.quran.learnedplayer.video.NaturePhotos
+import com.quran.learnedplayer.video.PhotoSubject
 import com.quran.learnedplayer.video.VideoAspect
 import com.quran.learnedplayer.video.VideoExporter
 import com.quran.learnedplayer.video.VideoRequest
@@ -56,10 +59,12 @@ data class VideoOptions(
     val opening: Boolean = fromAyah == 1,
     /** null: matched to each ayah. */
     val themeKey: String? = null,
+    /** Nature photos rather than drawn scenes (what "Matched" picks from, and the tiles shown). */
+    val photos: Boolean = false,
 ) {
     val ayahCount: Int get() = toAyah - fromAyah + 1
 
-    fun toRequest() = VideoRequest(surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey)
+    fun toRequest() = VideoRequest(surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey, photos)
 }
 
 /**
@@ -72,6 +77,32 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
         VideoExporter(context, ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF)
     }
     private val texts = VideoTexts(application)
+    private val naturePhotos = NaturePhotos(application)
+
+    /** The nature photo subjects, empty if the app has none listed. */
+    val photoSubjects: List<PhotoSubject> get() = naturePhotos.subjects
+
+    private val _photoThumbnails = MutableStateFlow<Map<String, Bitmap>>(emptyMap())
+    val photoThumbnails: StateFlow<Map<String, Bitmap>> = _photoThumbnails.asStateFlow()
+    private var photoThumbnailsJob: Job? = null
+
+    /** Shown under the preview when it can't be drawn, such as a photo that couldn't download. */
+    private val _previewError = MutableStateFlow<String?>(null)
+    val previewError: StateFlow<String?> = _previewError.asStateFlow()
+
+    /** Switches between drawn scenes and nature photos; the photos' small pictures download then. */
+    fun setPhotos(on: Boolean) {
+        update { it.copy(photos = on, themeKey = null) }
+        if (on && photoThumbnailsJob == null) {
+            photoThumbnailsJob = viewModelScope.launch(Dispatchers.IO) {
+                for (subject in naturePhotos.subjects) {
+                    val file = naturePhotos.thumbnail(subject) ?: continue
+                    val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: continue
+                    _photoThumbnails.update { it + (subject.key to bitmap) }
+                }
+            }
+        }
+    }
 
     private val _options = MutableStateFlow(VideoOptions(surah = 1, fromAyah = 1, toAyah = 7))
     val options: StateFlow<VideoOptions> = _options.asStateFlow()
@@ -139,11 +170,13 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             delay(150) // let quick changes settle
             val request = _options.value.toRequest()
             _matchedTheme.value = withContext(Dispatchers.Default) {
-                VideoThemes.theme(texts.themeKey(request.surah, request.fromAyah)).title
+                val drawn = texts.themeKey(request.surah, request.fromAyah)
+                if (request.photos) naturePhotos.subjectFor(drawn)?.title ?: "" else VideoThemes.theme(drawn).title
             }
-            _preview.value = withContext(Dispatchers.Default) {
-                runCatching { exporter.preview(request, PREVIEW_W) }.getOrNull()
-            }
+            // A photo may have to download first, so this runs on the IO pool.
+            val result = withContext(Dispatchers.IO) { runCatching { exporter.preview(request, PREVIEW_W) } }
+            _preview.value = result.getOrNull()
+            _previewError.value = result.exceptionOrNull()?.let { it.message ?: "The preview couldn't be drawn." }
         }
     }
 

@@ -25,8 +25,9 @@ enum class VideoAspect(val label: String, val ratio: String, val width: Int, val
 /**
  * Everything the user chose for one video.
  *
- * [themeKey] null means "match each ayah" ([VideoThemes] picks from the bundled map); otherwise
- * every ayah gets that theme. [opening] puts A'udhu, and Bismillah where the surah has it, before
+ * [themeKey] null means "match each ayah" (from the bundled map, to a drawn theme or, with
+ * [photos], a nature photo); otherwise every ayah gets that theme, drawn or a photo subject
+ * ([NaturePhotos.PREFIX]). [opening] puts A'udhu, and Bismillah where the surah has it, before
  * the first ayah.
  */
 data class VideoRequest(
@@ -39,6 +40,8 @@ data class VideoRequest(
     val fullTranslation: Boolean,
     val opening: Boolean,
     val themeKey: String?,
+    /** With [themeKey] null: match each ayah to a nature photo rather than a drawn theme. */
+    val photos: Boolean = false,
 ) {
     init {
         require(surah in 1..114) { "No surah $surah" }

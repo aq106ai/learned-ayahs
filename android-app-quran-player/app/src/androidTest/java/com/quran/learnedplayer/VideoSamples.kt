@@ -73,6 +73,15 @@ class VideoSamples {
             val request = VideoRequest(surah, ayah, ayah, Reciter.DEFAULT, aspect, true, true, false, theme.takeIf { it != "matched" })
             save(exporter.preview(request, if (aspect == VideoAspect.LANDSCAPE) 960 else 540), "preview_${surah}_${ayah}_${aspect.ratio.replace(':', 'x')}.png")
         }
+        // Nature photos (copied onto the device by capture-video-samples.sh): matched, and chosen.
+        val photoCases = listOf(
+            Triple(67, 1, null), Triple(55, 19, null), Triple(2, 164, null), Triple(78, 6, null),
+            Triple(1, 1, "photo:waterfall"), Triple(112, 1, "photo:night_sky"),
+        )
+        for ((surah, ayah, theme) in photoCases) for (aspect in listOf(VideoAspect.PORTRAIT, VideoAspect.LANDSCAPE)) {
+            val request = VideoRequest(surah, ayah, ayah, Reciter.DEFAULT, aspect, true, true, false, theme, photos = true)
+            save(exporter.preview(request, if (aspect == VideoAspect.LANDSCAPE) 960 else 540), "photo_${surah}_${ayah}_${aspect.ratio.replace(':', 'x')}.png")
+        }
         // Without the word meanings and translation, for comparison.
         val plain = VideoRequest(67, 1, 1, Reciter.DEFAULT, VideoAspect.PORTRAIT, false, false, false, null)
         save(exporter.preview(plain, 540), "preview_67_1_plain.png")

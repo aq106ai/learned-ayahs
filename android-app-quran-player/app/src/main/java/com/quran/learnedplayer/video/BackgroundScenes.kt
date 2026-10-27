@@ -1,6 +1,7 @@
 package com.quran.learnedplayer.video
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -44,8 +45,19 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
         val t = ms / 1000f
         if (alpha < 255) canvas.saveLayerAlpha(0f, 0f, w, h, alpha)
         bitmapPaint.alpha = 255
-        canvas.drawBitmap(still(spec), 0f, 0f, bitmapPaint)
-        animate(canvas, spec, t)
+        if (spec.kind == SceneKind.PHOTO) {
+            // A slow zoom and drift, so a still photo doesn't look frozen: up to 7% larger,
+            // easing in and out over about half a minute.
+            val ease = (1 - cos(t * 2 * PI.toFloat() / 32f)) / 2f
+            val scale = 1.01f + 0.06f * ease
+            canvas.save()
+            canvas.scale(scale, scale, w / 2 + sin(t / 11f) * w * 0.04f, h / 2)
+            canvas.drawBitmap(still(spec), 0f, 0f, bitmapPaint)
+            canvas.restore()
+        } else {
+            canvas.drawBitmap(still(spec), 0f, 0f, bitmapPaint)
+            animate(canvas, spec, t)
+        }
         if (alpha < 255) canvas.restore()
     }
 
@@ -200,7 +212,27 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
                 vignette(c)
             }
             SceneKind.MANUSCRIPT -> manuscript(c, r, s)
+            SceneKind.PHOTO -> photo(c, s)
         }
+    }
+
+    /** The photo cropped to fill the frame, darkened a little so the text on it stays readable. */
+    private fun photo(c: Canvas, s: SceneSpec) {
+        val path = s.photo ?: return
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        if (bounds.outWidth <= 0) return
+        // Decode no larger than the frame needs.
+        var sample = 1
+        while (bounds.outWidth / (sample * 2) >= width && bounds.outHeight / (sample * 2) >= height) sample *= 2
+        val bitmap = BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return
+        val cover = max(w / bitmap.width, h / bitmap.height)
+        val dw = bitmap.width * cover
+        val dh = bitmap.height * cover
+        c.drawBitmap(bitmap, null, RectF((w - dw) / 2, (h - dh) / 2, (w + dw) / 2, (h + dh) / 2), bitmapPaint)
+        bitmap.recycle()
+        c.drawColor(Color.argb(60, 0, 0, 0))
+        vignette(c)
     }
 
     private fun sky(c: Canvas, top: Int, bottom: Int, to: Float) = band(c, 0f, to, top, bottom)
@@ -545,6 +577,7 @@ class BackgroundScenes(private val width: Int, private val height: Int) {
             SceneKind.ARCHES -> motes(c, r, t, s.light, 30, h * 0.2f, h * 0.9f)
             SceneKind.LANTERN -> lantern(c, t, s)
             SceneKind.GEOMETRIC, SceneKind.MANUSCRIPT -> sweep(c, t, s.light)
+            SceneKind.PHOTO -> Unit
         }
     }
 

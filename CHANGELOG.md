@@ -16,6 +16,9 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
   - A'udhu and Bismillah before the first ayah;
   - a background matched to what each ayah is about, from 53 themes of two or three drawn
     backgrounds each, or one theme chosen for the whole video.
+  - or nature photos instead: 45 CC0 photos from Wikimedia Commons in fifteen subjects (forest,
+    waterfalls, mountain lakes, ocean, dunes, night sky and more), each checked by hand, matched to
+    the ayahs the same way and downloaded only when used.
   Backgrounds show only sky, land, water, light and pattern, never people or animals, and the
   video carries the recitation alone, with no music. The sources are named on every video.
 - **Sources and disclaimer**, in the Android app and the web app. Before anything else, both

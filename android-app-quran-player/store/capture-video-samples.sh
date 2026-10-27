@@ -9,6 +9,14 @@ set -euo pipefail
 out="${1:?usage: capture-video-samples.sh <out-dir>}"
 source "$(dirname "$0")/device.sh"
 prepare_device
+
+# The nature photos download from the repository's main branch, which may not have them yet;
+# put this checkout's photos where the app keeps downloaded ones instead.
+adb shell run-as "$app" mkdir -p files/video-photos
+for photo in ../backgrounds/nature/*.jpg; do
+    adb exec-in run-as "$app" sh -c "cat > files/video-photos/$(basename "$photo")" < "$photo"
+done
+
 instrument VideoSamples
 
 rm -rf "$out" && mkdir -p "$out"

@@ -54,7 +54,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add backgrounds
+          git add backgrounds android-app-quran-player/app/src/main/assets/nature_photos.json
           if git diff --cached --quiet; then echo "Nothing changed"; exit 0; fi
           git commit -m "Nature photos: ${{ steps.step.outputs.step }} at ${GITHUB_SHA::7}"
           for attempt in 1 2 3; do

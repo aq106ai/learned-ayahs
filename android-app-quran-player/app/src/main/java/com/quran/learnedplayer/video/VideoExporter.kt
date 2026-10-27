@@ -26,6 +26,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
     private val appContext = context.applicationContext
     private val quran = QuranDataRepository(appContext)
     private val texts = VideoTexts(appContext)
+    private val photos = NaturePhotos(appContext)
 
     enum class Stage { DOWNLOADING, AUDIO, VIDEO }
 
@@ -63,8 +64,10 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
             if (timeline.totalMs > VideoRequest.MAX_DURATION_MS) {
                 throw IOException("That's over ${VideoRequest.MAX_DURATION_MS / 60_000} minutes of recitation. Choose fewer ayahs.")
             }
+            val slots = slotsFor(request, timeline)
+            downloadPhotos(slots)
             val (width, height) = VideoEncoder.supportedSize(request.aspect, scale)
-            render(request, timeline, audio, output, width, height, fps, checkCancelled) { fraction ->
+            render(request, timeline, slots, audio, output, width, height, fps, checkCancelled) { fraction ->
                 onProgress(Progress(Stage.VIDEO, 0.25f + 0.75f * fraction))
             }
             output
@@ -83,6 +86,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
     private fun render(
         request: VideoRequest,
         timeline: VideoTimeline,
+        slots: List<BackgroundSlot>,
         audio: EncodedAudio,
         output: File,
         width: Int,
@@ -91,7 +95,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         checkCancelled: () -> Unit,
         onFraction: (Float) -> Unit,
     ) {
-        val renderer = rendererFor(request, timeline, width, height)
+        val renderer = rendererFor(request, timeline, slots, width, height)
         val frame = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(frame)
         val encoder = VideoEncoder(width, height, fps, output, audio)
@@ -122,7 +126,9 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         val durationMs = text.segments?.lastOrNull()?.last?.plus(300) ?: 5_000L
         val timeline = VideoTimeline.Builder().apply { add(ClipKind.AYAH, request.surah, request.fromAyah, durationMs) }.build()
         val clip = timeline.clips.first()
-        val renderer = rendererFor(request, timeline, width, height)
+        val slots = slotsFor(request, timeline)
+        downloadPhotos(slots)
+        val renderer = rendererFor(request, timeline, slots, width, height)
         val at = text.segments?.let { it[it.size / 3].first } ?: 0L
         return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
             renderer.draw(Canvas(it), clip.startMs + at)
@@ -130,15 +136,42 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         }
     }
 
-    private fun rendererFor(request: VideoRequest, timeline: VideoTimeline, width: Int, height: Int): FrameRenderer {
-        val slots = BackgroundPlan.plan(
+    /** Which background shows when: drawn themes, or nature photos matched to the same themes. */
+    private fun slotsFor(request: VideoRequest, timeline: VideoTimeline): List<BackgroundSlot> =
+        BackgroundPlan.plan(
             timeline.clips,
             request.themeKey,
-            themeOf = { surah, ayah -> texts.themeKey(surah, ayah) },
+            themeOf = { surah, ayah ->
+                val drawn = texts.themeKey(surah, ayah)
+                if (request.photos) photos.subjectFor(drawn)?.themeKey ?: drawn else drawn
+            },
             variantSeed = { surah, ayah -> AyahMapping.surahAyahToGlobal(surah, ayah) },
         )
-        return FrameRenderer(width, height, request, timeline, slots, { textFor(request, it) }, arabicTypeface)
+
+    /** Fetches every photo the video shows before the first frame is drawn. */
+    private fun downloadPhotos(slots: List<BackgroundSlot>) {
+        for (slot in slots) photos.photo(slot.themeKey, slot.variant)?.let(photos::ensure)
     }
+
+    private fun rendererFor(
+        request: VideoRequest,
+        timeline: VideoTimeline,
+        slots: List<BackgroundSlot>,
+        width: Int,
+        height: Int,
+    ): FrameRenderer = FrameRenderer(
+        width, height, request, timeline, slots, { textFor(request, it) }, arabicTypeface,
+        sceneFor = { key, variant ->
+            if (NaturePhotos.isPhoto(key)) {
+                photos.photo(key, variant)?.let(photos::scene) ?: VideoThemes.variant(null, variant)
+            } else {
+                VideoThemes.variant(key, variant)
+            }
+        },
+        creditFor = { key, variant ->
+            photos.photo(key, variant)?.takeIf { NaturePhotos.isPhoto(key) }?.let { "Photo: ${it.author} · Wikimedia Commons (CC0)" }
+        },
+    )
 
     private fun textFor(request: VideoRequest, clip: TimelineClip): ClipText = when (clip.kind) {
         ClipKind.AUDHU -> ClipText(

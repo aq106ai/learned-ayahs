@@ -1,9 +1,14 @@
 package com.quran.learnedplayer.video
 
-/** The kinds of picture [BackgroundScenes] can paint. None of them shows a person or an animal. */
+/**
+ * The kinds of picture [BackgroundScenes] can paint. None of them shows a person or an animal; nor
+ * do the photos, which were checked by hand.
+ */
 enum class SceneKind {
     SKY, RAYS, WATER, RAIN, GARDEN, EMBERS, STORM, RUINS, NEBULA, MIST, STARS, SEA, DUNES,
     MOUNTAINS, FIELDS, ARCHES, LANTERN, GEOMETRIC, MANUSCRIPT,
+    /** A nature photograph ([SceneSpec.photo]), from [NaturePhotos]. */
+    PHOTO,
 }
 
 /** Optional elements a scene can add. */
@@ -13,7 +18,7 @@ enum class Feature { SUN, CRESCENT, FULL_MOON, CLOUDS, RIVER, PALMS, TREES, RAIN
  * One background. [colors] are, by convention: top of the sky, the horizon or middle, the land or
  * main shape, and the light or accent. Each scene reads them in that order.
  */
-class SceneSpec(val kind: SceneKind, val colors: IntArray, val features: Set<Feature>) {
+class SceneSpec(val kind: SceneKind, val colors: IntArray, val features: Set<Feature>, val photo: String? = null) {
     fun has(feature: Feature) = feature in features
 }
 

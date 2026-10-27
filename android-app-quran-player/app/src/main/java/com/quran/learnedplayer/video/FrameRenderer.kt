@@ -38,6 +38,10 @@ class FrameRenderer(
     private val textFor: (TimelineClip) -> ClipText,
     arabicTypeface: Typeface,
     private val latinTypeface: Typeface = Typeface.DEFAULT,
+    /** The background for a theme key and variant: drawn, or a nature photo. */
+    private val sceneFor: (String, Int) -> SceneSpec = VideoThemes::variant,
+    /** "Photo: …" for a photo background, null for a drawn one. */
+    private val creditFor: (String, Int) -> String? = { _, _ -> null },
 ) {
     private val w = width.toFloat()
     private val h = height.toFloat()
@@ -91,8 +95,8 @@ class FrameRenderer(
     fun draw(canvas: Canvas, ms: Long) {
         val (slot, previous, fade) = BackgroundPlan.at(slots, ms)
         canvas.drawColor(Color.BLACK) // the frame bitmap is reused; start each frame clean
-        if (previous != null) scenes.draw(canvas, VideoThemes.variant(previous.themeKey, previous.variant), ms)
-        scenes.draw(canvas, VideoThemes.variant(slot.themeKey, slot.variant), ms, (fade * 255).toInt())
+        if (previous != null) scenes.draw(canvas, sceneFor(previous.themeKey, previous.variant), ms)
+        scenes.draw(canvas, sceneFor(slot.themeKey, slot.variant), ms, (fade * 255).toInt())
 
         val clip = timeline.clipAt(ms) ?: return
         val (text, pages) = pagesCache.getOrPut(clip) {
@@ -111,7 +115,7 @@ class FrameRenderer(
         if (request.fullTranslation && text.translation != null) {
             drawTranslation(canvas, clip, text.translation, pageIndex, pages.pages.size)
         }
-        drawLabels(canvas, text)
+        drawLabels(canvas, text, creditFor(slot.themeKey, slot.variant))
     }
 
     fun release() = scenes.release()
@@ -177,7 +181,7 @@ class FrameRenderer(
         return layout
     }
 
-    private fun drawLabels(canvas: Canvas, text: ClipText) {
+    private fun drawLabels(canvas: Canvas, text: ClipText, backgroundCredit: String?) {
         labelPaint.textAlign = Paint.Align.CENTER
         labelPaint.color = Color.WHITE
         labelPaint.textSize = 40f * u
@@ -190,6 +194,7 @@ class FrameRenderer(
             add("Recitation: ${request.reciter.displayName} · everyayah.com")
             if (request.fullTranslation) add("Translation: Saheeh International · tanzil.net")
             if (request.wordByWord) add("Word meanings: Quran.com")
+            if (backgroundCredit != null) add(backgroundCredit)
         }
         // In landscape there is room below the card for one line, not three.
         val lines = if (landscape) listOf(credits.joinToString("   ·   ")) else credits

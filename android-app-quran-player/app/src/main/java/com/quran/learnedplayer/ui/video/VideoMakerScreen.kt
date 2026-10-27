@@ -99,6 +99,8 @@ fun VideoMakerScreen(
     val export by viewModel.export.collectAsState()
     val thumbnails by viewModel.thumbnails.collectAsState()
     val matchedTheme by viewModel.matchedTheme.collectAsState()
+    val photoThumbnails by viewModel.photoThumbnails.collectAsState()
+    val previewError by viewModel.previewError.collectAsState()
     val context = LocalContext.current
     var pickingSurah by remember { mutableStateOf(false) }
 
@@ -142,7 +144,12 @@ fun VideoMakerScreen(
                     if (bitmap != null) {
                         Image(bitmap.asImageBitmap(), contentDescription = "Preview of the first ayah", contentScale = ContentScale.Fit)
                     } else {
-                        Text("Preparing preview…", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            previewError ?: "Preparing preview…",
+                            color = TextMuted,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(16.dp),
+                        )
                     }
                 }
             }
@@ -200,6 +207,13 @@ fun VideoMakerScreen(
             }
 
             Section("Background") {
+                if (viewModel.photoSubjects.isNotEmpty()) {
+                    ChipRow {
+                        Choice("Drawn scenes", !options.photos, enabled = !working) { viewModel.setPhotos(false) }
+                        Choice("Nature photos", options.photos, enabled = !working) { viewModel.setPhotos(true) }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                }
                 Text(
                     "Matched picks a background for each ayah from what it is about. Or choose one for the whole video.",
                     color = TextMuted,
@@ -214,19 +228,36 @@ fun VideoMakerScreen(
                         image = null,
                         enabled = !working,
                     ) { viewModel.update { it.copy(themeKey = null) } }
-                    VideoThemes.all.forEach { theme ->
-                        ThemeTile(
-                            title = theme.title,
-                            subtitle = null,
-                            selected = options.themeKey == theme.key,
-                            image = thumbnails[theme.key],
-                            enabled = !working,
-                        ) { viewModel.update { it.copy(themeKey = theme.key) } }
+                    if (options.photos) {
+                        viewModel.photoSubjects.forEach { subject ->
+                            ThemeTile(
+                                title = subject.title,
+                                subtitle = null,
+                                selected = options.themeKey == subject.themeKey,
+                                image = photoThumbnails[subject.key],
+                                enabled = !working,
+                            ) { viewModel.update { it.copy(themeKey = subject.themeKey) } }
+                        }
+                    } else {
+                        VideoThemes.all.forEach { theme ->
+                            ThemeTile(
+                                title = theme.title,
+                                subtitle = null,
+                                selected = options.themeKey == theme.key,
+                                image = thumbnails[theme.key],
+                                enabled = !working,
+                            ) { viewModel.update { it.copy(themeKey = theme.key) } }
+                        }
                     }
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation.",
+                    if (options.photos) {
+                        "Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. " +
+                            "They download when first used. Videos carry no music, only the recitation."
+                    } else {
+                        "Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation."
+                    },
                     color = TextMuted,
                     style = MaterialTheme.typography.bodySmall,
                 )

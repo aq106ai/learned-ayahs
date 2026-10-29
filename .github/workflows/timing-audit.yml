@@ -39,6 +39,12 @@ jobs:
             curl -sS -o /dev/null -D - -H "Origin: https://aq106ai.github.io" "$url" | grep -iE "^(HTTP|access-control)" || true
           done
 
+      - name: Cache the recordings
+        uses: actions/cache@v4
+        with:
+          path: timing-audit/audio
+          key: timing-audio-${{ inputs.reciter || 'maher' }}
+
       - name: Audit
         working-directory: android-app-quran-player
         run: |

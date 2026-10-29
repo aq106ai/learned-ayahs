@@ -145,9 +145,17 @@ def audit(key, segments, path):
     onsets = [s[0] for s in segments]
 
     ok, matched, in_pause, lead = judge(onsets, voice_start, voice_end, pauses)
+    # How loud the last word's own segment is, against the recording's peak: a last word timed
+    # after the recitation has ended sits in near-silence.
+    peak = float(np.percentile(db, 95))
+    a, b = onsets[-1] // FRAME_MS, max(onsets[-1] // FRAME_MS + 1, segments[-1][1] // FRAME_MS)
+    last_word_db = round(float(np.max(db[a:b])) - peak, 1) if a < len(db) else -120.0
+    faint = np.flatnonzero(speech_mask(db, share=0.05))
     row = {
         "ayah": key, "words": len(segments), "duration_ms": total, "voice_start_ms": voice_start, "voice_end_ms": voice_end,
-        "first_onset_ms": onsets[0], "last_onset_ms": onsets[-1], "lead_offset_ms": lead, "pauses": len(pauses),
+        "faint_end_ms": int(faint[-1] + 1) * FRAME_MS if len(faint) else 0,
+        "first_onset_ms": onsets[0], "last_onset_ms": onsets[-1], "last_end_ms": segments[-1][1],
+        "tail_ms": onsets[-1] - voice_end, "last_word_db": last_word_db, "lead_offset_ms": lead, "pauses": len(pauses),
         "matched_pauses": matched, "onsets_in_pause": in_pause, "shift_ms": 0, "verdict": "fine", "reason": "",
     }
     if ok:
@@ -216,6 +224,21 @@ def main():
             "shift": shifts,
             "drop": drops,
         }, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    # Measurements for a person to judge the thresholds by, in the log only.
+    def spread(values):
+        values = sorted(values)
+        return " ".join(f"p{q}={values[min(len(values) - 1, len(values) * q // 100)]}" for q in (1, 10, 25, 50, 75, 90, 99)) if values else "-"
+    measured = [r for r in rows if "lead_offset_ms" in r]
+    print(f"lead (first onset - voice start), all ayahs: {spread([r['lead_offset_ms'] for r in measured])}", file=sys.stderr)
+    print(f"tail (last onset - voice end), all ayahs: {spread([r['tail_ms'] for r in measured])}", file=sys.stderr)
+    print(f"last word peak vs recording peak (dB), all ayahs: {spread([r['last_word_db'] for r in measured])}", file=sys.stderr)
+    print(f"duration - last segment end, all ayahs: {spread([r['duration_ms'] - r['last_end_ms'] for r in measured])}", file=sys.stderr)
+    print("dropped: ayah words duration voice_start voice_end faint_end first_onset last_onset last_end lead tail last_db pauses matched in_pause", file=sys.stderr)
+    for r in rows:
+        if r["verdict"] == "drop" and "lead_offset_ms" in r:
+            print("  " + " ".join(str(r[f]) for f in ("ayah", "words", "duration_ms", "voice_start_ms", "voice_end_ms", "faint_end_ms", "first_onset_ms",
+                  "last_onset_ms", "last_end_ms", "lead_offset_ms", "tail_ms", "last_word_db", "pauses", "matched_pauses", "onsets_in_pause")), file=sys.stderr)
 
     print(f"\n{args.reciter}: {len(rows)} ayahs: {len(rows) - len(shifts) - len(drops)} fine, {len(shifts)} shifted, {len(drops)} dropped")
     print("\nShifted (largest first):")

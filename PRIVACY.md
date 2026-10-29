@@ -34,6 +34,7 @@ The app connects to the internet only to fetch Qur'an recitation and text:
 | everyayah.com | Ayah recitation audio |
 | audio.qurancdn.com (Quran.com) | Word-by-word audio |
 | api.qurancdn.com (Quran.com) | Ayah text, if it is missing from the app |
+| raw.githubusercontent.com (this project on GitHub) | Nature photos for video backgrounds, only if you choose them |
 
 These requests contain only what is needed to download the file (which ayah or word). Like any
 internet request, they reveal your IP address and the app's name to that service, which handles
@@ -51,6 +52,13 @@ audio to your phone's speech recognition service so it can follow your recitatio
 
 The app does not save, upload or share your recordings itself. The microphone is used only while
 Recite & review is listening, and you can revoke the permission at any time in Android settings.
+
+## Videos you make
+
+"Make a video" builds the video on your phone. It downloads only what it needs: the recitation,
+from the services listed above, and, if you choose nature photos as the background, those photos
+from this project's own GitHub repository (raw.githubusercontent.com). The finished video stays on
+your phone until you save it or share it with an app you choose.
 
 ## Notifications
 

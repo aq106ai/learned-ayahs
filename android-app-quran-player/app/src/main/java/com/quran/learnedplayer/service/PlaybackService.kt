@@ -816,7 +816,10 @@ class PlaybackService : MediaSessionService() {
         introStep = IntroStep.NONE
         PlayerStateHolder.updateIntroLabel(null)
         PlayerStateHolder.updateProgress(0L, 0L)
-        if (master.isEmpty()) return
+        // A full surah plays with nothing marked (see handleCommand); only the learned-list
+        // modes have nothing to resume into. Returning here for FULL_SURAH left a new user who
+        // tapped an ayah with A'udhu and then silence.
+        if (master.isEmpty() && mode != PlaybackMode.FULL_SURAH) return
         val resumeGlobal = tracks.getOrNull(introResumeIndex)?.globalId ?: currentGlobalId()
         loadForMode(mode, repeatMode, currentSurah, resumeGlobal)
         player?.play()

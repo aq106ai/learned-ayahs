@@ -28,8 +28,8 @@ android {
         // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
         // every screen inside the safe area.
         targetSdk = 36
-        versionCode = 41
-        versionName = "1.9.2"
+        versionCode = 42
+        versionName = "1.10.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -46,8 +46,13 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
+            // Without keystore.properties (CI, a fresh clone) the release build is signed with the
+            // debug key, so it can still be installed and checked; Play needs the upload key.
+            signingConfig = signingConfigs.getByName(if (keystorePropertiesFile.exists()) "release" else "debug")
+            // R8: shrinks, optimizes and obfuscates the release build. Play uploads the mapping
+            // (app/build/outputs/mapping/release/mapping.txt) with the bundle to read crash traces.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

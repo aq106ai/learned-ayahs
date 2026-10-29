@@ -17,7 +17,9 @@ What it finds, and does about it:
   and Word by word plays the last two words as one. The last word's start is found in the
   recording: the dip in loudness nearest where the letters of the last two words put it. The
   estimator is scored first on the ayahs whose last word QUL did time, with that onset hidden, and
-  the run fails rather than write repairs if it is not accurate enough (see GATE_*).
+  the run fails rather than write repairs unless the best way clearly beats leaving the sliver
+  (see gate()). Measured on Maher: within 160 ms for half the ayahs, 460 ms for nine in ten, where
+  the sliver itself is out by the whole last word.
 - **The first word started at 0 on a recording that opens with silence**: moved to the voice.
 - **The whole ayah out by a constant amount**, where both ends agree: shifted.
 - **Timings that don't fit the recording at all** (a different recording, a first word seconds
@@ -62,9 +64,6 @@ PAUSE_TOLERANCE_MS = 160
 MIN_SHIFT_MS = 150      # a smaller offset isn't worth correcting
 SLIVER_MS = 120         # a last word shorter than this, ending at the file's end, is QUL's artefact
 EDGE_MS = 250           # the last word starts at least this far from the word before and the end
-# The last-word estimator must be at least this good on ayahs whose last onset QUL did time.
-GATE_P50_MS = 150
-GATE_P90_MS = 400
 
 def fetch(url, dest):
     if dest.exists() and dest.stat().st_size > 0:
@@ -183,21 +182,23 @@ KINDS = ("gap2-mid", "gap2-end", "dip3", "dip6")
 
 # Ways of finding the last word's start between the word before (P) and the voice's end (E). Each
 # is scored on the ayahs QUL timed properly, and the best that passes the gate is used:
-# - letters: where the letters of the last two words put it (the text alone: a baseline, never used);
+# - sliver: leaving it where QUL puts it on those ayahs, at the file's end (what a repair must beat);
+# - letters: where the letters of the last two words put it between the measured start of the word
+#   before and the measured end of the voice;
 # - near-<kind>-<t>: the dip in loudness nearest that, within t% of the span;
 # - fit: E minus the reciter's own duration for a last word of that many letters, fitted on the
 #   ayahs QUL timed properly (and scored on others than it was fitted on);
 # - fit-snap-<kind>-<ms>: that, moved to a dip in loudness within ms of it.
-VARIANTS = ["letters", "fit"] + [f"near-{k}-{t}" for k in KINDS for t in (35, 50)] + [
+VARIANTS = ["sliver", "letters", "fit"] + [f"near-{k}-{t}" for k in KINDS for t in (35, 50)] + [
     f"fit-snap-{k}-{ms}" for k in KINDS for ms in (60, 120, 200)]
 
 
-def window_of(db, mask, p, e, share_before, last_letters):
+def window_of(db, mask, p, e, share_before, last_letters, end):
     """What the estimators need to place the last word: the span and its dips in loudness."""
     lo, hi = p + EDGE_MS, e - EDGE_MS
     if hi <= lo:
         return None
-    return {"p": p, "e": e, "share": share_before, "last": last_letters, "points": {
+    return {"p": p, "e": e, "end": end, "share": share_before, "last": last_letters, "points": {
         "gap2-mid": [(a + b) // 2 for a, b in gaps_of(mask, lo, hi, 2)],
         "gap2-end": [b for _, b in gaps_of(mask, lo, hi, 2)],
         "dip3": dips_of(db, lo, hi, 3),
@@ -212,6 +213,9 @@ def estimate(w, variant, model):
     lo, hi = w["p"] + EDGE_MS, w["e"] - EDGE_MS
     clamp = lambda t: int(min(max(t, lo), hi)) // FRAME_MS * FRAME_MS  # noqa: E731
     expected = w["p"] + (w["e"] - w["p"]) * w["share"]
+    if variant == "sliver":
+        # What QUL does on the ayahs this repairs: the last word ~50 ms before the end of the file.
+        return w["end"] - 50
     if variant == "letters":
         return clamp(expected)
     fitted = clamp(w["e"] - (model[0] + model[1] * w["last"]))
@@ -259,7 +263,7 @@ def measure(key, segments, words, path):
     }
     if len(segments) >= 2 and len(words) >= 2:
         before, lastw = letters(words[-2]), letters(words[-1])
-        row["window"] = window_of(db, mask, segments[-2][0], voice_end, before / (before + lastw), lastw)
+        row["window"] = window_of(db, mask, segments[-2][0], voice_end, before / (before + lastw), lastw, segments[-1][1])
     return row
 
 
@@ -332,6 +336,14 @@ def score(rows):
     return stats, fit(good)
 
 
+def gate(stats):
+    """The best way of placing the last word, if it clearly beats leaving QUL's sliver: half its
+    errors under half the sliver's median, nine in ten under the sliver's median."""
+    left = stats["sliver"]["p50"]
+    passing = {n: s for n, s in stats.items() if n != "sliver" and s["p50"] <= left / 2 and s["p90"] <= left}
+    return max(passing, key=lambda n: passing[n]["useful"]) if passing else None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("reciter", choices=sorted(FOLDERS))
@@ -374,11 +386,8 @@ def main():
     print("\nFinding the last word's start, scored on ayahs whose last word QUL timed (error in ms):")
     for name, s in sorted(stats.items(), key=lambda kv: -kv[1]["useful"]):
         print(f"  {name:>12}: {s}")
-    # "letters" places the word from the text alone; it is the baseline the recording has to beat,
-    # never a way to repair one.
-    passing = {n: s for n, s in stats.items() if n != "letters" and s["p50"] <= GATE_P50_MS and s["p90"] <= GATE_P90_MS}
-    chosen = max(passing, key=lambda n: passing[n]["useful"]) if passing else None
-    print(f"chosen: {chosen or 'none passes the gate (p50 <= %d ms, p90 <= %d ms)' % (GATE_P50_MS, GATE_P90_MS)}")
+    chosen = gate(stats)
+    print(f"chosen: {chosen or 'none clearly beats leaving the sliver'}")
 
     fixes = {"shift": {}, "first_onset": {}, "last_onset": {}, "drop": {}}
     kinds = {"fine": 0, "repair": 0, "shift": 0, "drop": 0}
@@ -406,8 +415,15 @@ def main():
     print(f"\n{args.reciter}: {len(rows)} ayahs: {kinds['fine']} fine, {kinds['repair']} repaired "
           f"({len(fixes['last_onset'])} last words, {len(fixes['first_onset'])} first words), "
           f"{kinds['shift']} shifted, {kinds['drop']} dropped")
+    # Why ayahs are dropped, by the reason's first words, with examples to look up.
+    groups = {}
+    for key, why in fixes["drop"].items():
+        groups.setdefault(" ".join(w for w in why.split()[:4] if not w.lstrip("+-").isdigit()), []).append(f"{key} ({why})")
+    print("\nDropped, by reason:")
+    for reason, items in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+        print(f"  {len(items):5d}  {reason}:  " + "; ".join(items[:4]))
     if chosen is None:
-        sys.exit("The last-word estimator isn't accurate enough to trust; nothing written.")
+        sys.exit("No way of placing the last word clearly beats leaving it; nothing written.")
     if not args.limit:
         FIXES.mkdir(exist_ok=True)
         (FIXES / f"{args.reciter}.json").write_text(json.dumps({

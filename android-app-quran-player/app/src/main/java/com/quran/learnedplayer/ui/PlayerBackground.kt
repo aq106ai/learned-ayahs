@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntSize
 import com.quran.learnedplayer.data.AyahMapping
+import com.quran.learnedplayer.video.BackgroundFrame
 import com.quran.learnedplayer.video.BackgroundScenes
 import com.quran.learnedplayer.video.LiveBackground
 import com.quran.learnedplayer.video.NaturePhotos
@@ -89,6 +90,7 @@ fun PlayerBackground(
     LaunchedEffect(Unit) {
         var last = SystemClock.uptimeMillis()
         var shownChoice: String? = null
+        var drawn: BackgroundFrame? = null
         while (true) {
             val now = SystemClock.uptimeMillis()
             wantedNow?.let { (forChoice, key) ->
@@ -103,12 +105,18 @@ fun PlayerBackground(
                 if (t - last >= FRAME_MS) {
                     if (animatingNow) sceneMs += t - last
                     last = t
+                    drawn = live.at(t)
                     frame = t
                 }
             } else {
+                // Paused and settled: redraw only when there's something new to show.
+                val shown = live.at(now)
+                if (shown != drawn) {
+                    drawn = shown
+                    frame = now
+                }
                 delay(IDLE_CHECK_MS)
                 last = SystemClock.uptimeMillis()
-                frame = last
             }
         }
     }

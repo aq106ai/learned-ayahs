@@ -204,6 +204,15 @@ for name in SELECTED:
             continue
         out[key] = {"segments": merge_split_words(key, segs)}
 
+    # The audit's verdicts from the recordings themselves (audit_timings.py): shift ayahs whose
+    # timings are out by a constant amount, drop the ones that don't fit the audio at all.
+    fixes_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "timing_fixes", f"{name}.json")
+    if os.path.exists(fixes_path):
+        import apply_timing_fixes
+        with open(fixes_path, encoding="utf-8") as fh:
+            shifted, removed = apply_timing_fixes.apply(out, json.load(fh))
+        print(f"[{name}] audio audit: shifted {shifted}, dropped {removed}")
+
     dest = os.path.join(ASSETS, f"word_timings_{name}.json")
     with open(dest, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))

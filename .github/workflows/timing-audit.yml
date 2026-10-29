@@ -2,7 +2,8 @@ name: Word timing audit
 
 # Checks a reciter's word timings against everyayah's recordings, every ayah (see
 # android-app-quran-player/.setup/audit_timings.py). This environment can't reach everyayah.com,
-# so it runs here. The CSV of measurements is kept as an artifact.
+# so it runs here. It commits the verdicts (.setup/timing_fixes/<reciter>.json) and a summary to the
+# branch it ran on; the CSV of measurements is kept as an artifact.
 on:
   workflow_dispatch:
     inputs:
@@ -15,6 +16,9 @@ on:
       - .github/workflows/timing-audit.yml
       - android-app-quran-player/.setup/audit_timings.py
 
+permissions:
+  contents: write
+
 jobs:
   audit:
     name: Audit ${{ inputs.reciter || 'maher' }}
@@ -23,12 +27,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install ffmpeg
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install ffmpeg and numpy
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python3 -m pip install --quiet numpy
+
+      - name: Can other sites fetch the audio? (decides whether the static web app can make videos)
+        run: |
+          for url in https://everyayah.com/data/MaherAlMuaiqly128kbps/001001.mp3 https://everyayah.com/data/audhubillah.mp3 https://audio.qurancdn.com/wbw/001_001_001.mp3; do
+            echo "== $url"
+            curl -sS -o /dev/null -D - -H "Origin: https://aq106ai.github.io" "$url" | grep -iE "^(HTTP|access-control)" || true
+          done
 
       - name: Audit
         working-directory: android-app-quran-player
-        run: python3 .setup/audit_timings.py "${{ inputs.reciter || 'maher' }}" --out ../timing-audit | tee ../timing-audit-summary.txt
+        run: |
+          python3 .setup/audit_timings.py "${{ inputs.reciter || 'maher' }}" --out ../timing-audit | tee ../timing-audit-summary.txt
+          cp ../timing-audit-summary.txt ".setup/timing_fixes/${{ inputs.reciter || 'maher' }}-summary.txt"
+
+      - name: Commit the verdicts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android-app-quran-player/.setup/timing_fixes
+          if git diff --cached --quiet; then echo "Verdicts unchanged"; exit 0; fi
+          git commit -m "Timing audit (${{ inputs.reciter || 'maher' }}): verdicts at ${GITHUB_SHA::7}"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep 5
+          done
+          exit 1
 
       - name: Keep the measurements
         if: always()

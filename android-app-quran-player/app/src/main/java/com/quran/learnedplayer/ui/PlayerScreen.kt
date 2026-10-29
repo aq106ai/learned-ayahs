@@ -142,7 +142,7 @@ fun PlayerScreen(
         onDispose { overridePalette(null) }
     }
     // The header and controls let the scene show through.
-    val chrome = if (withBackground) Color.Black.copy(alpha = 0.38f) else Border
+    val chrome = if (withBackground) Color.Black.copy(alpha = 0.6f) else Border
 
     ImmersiveSystemBars()
     // Keep the screen on for as long as there's something to read, not only while playing —

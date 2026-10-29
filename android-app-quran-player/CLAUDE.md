@@ -268,6 +268,21 @@ that ayah isn't in the learned list.
   a segment has to use the next word's onset as the boundary, which is what
   `.setup/make_recitation_corpus.py` does when it splices a deliberate mistake.
 
+  **QUL's timings can be well-formed and still wrong for everyayah's recording**, which the
+  shape checks above can't see: for Maher, some ayahs' first onset sits seconds away from where
+  the voice starts (4:175 by almost 5 s), and some last words are timed after the recitation has
+  ended, so the highlight runs early or late, or never reaches the last word.
+  `.setup/audit_timings.py <reciter>` (run on CI by `timing-audit.yml`, since it downloads every
+  ayah MP3; it commits its verdicts back to the branch) measures each recording's loudness and
+  writes `.setup/timing_fixes/<reciter>.json`: ayahs out by a constant amount get **shifted** to
+  the voice, ayahs that don't fit at all get **dropped**. `make_timings.py` applies the file on
+  every regeneration, and `.setup/apply_timing_fixes.py <reciter>` applies it to the asset as it
+  stands (a shift only while the first onset is still the measured one, so it is never applied
+  twice). Loudness is weak evidence inside an ayah — a stop or a nasal dips like a pause — so the
+  audit only judges where the voice starts and ends and words that begin inside a long silence;
+  don't tighten it into dropping on pause alignment alone (an earlier version dropped two thirds
+  of the Qur'an that way).
+
 ### Recite & review
 
 The practice coach: you recite a learned ayah and the app follows along, interrupting with the
@@ -527,7 +542,12 @@ Two independent axes:
   service plays the ayah reciter's MP3 and cuts each word at the *next* word's onset
   (`loadAyahWordSeek` / `maybeParkAtWordEnd` — QUL's segment ends are too early to cut on); with
   *Word clips* on, ExoPlayer instead holds that ayah's **word files** (`loadWordPlaylist`). An
-  ayah without validated timings has nothing to cut on and plays whole. The reader is
+  ayah without validated timings has nothing to cut on and plays whole. **While cutting words the
+  progress ticker wakes at the current word's cut point** (`nextTickDelay`), not every 250 ms,
+  and carrying on to the next word takes the word from the audio position, not `index + 1`: with
+  a fixed tick a word ran up to a quarter second into the next, and through a run of short words
+  the counter fell behind the audio, so the highlight lagged and a remote's Next stepped from a
+  stale word ("words stuck in the middle"). The reader is
   `WordByWordView` only (no whole-ayah toggle). Next/Previous step words; running off either end
   of the ayah loads the next/previous ayah's words. Surah intros are skipped. Recite & review
   plays word files via `WordAudioPlayer` regardless.

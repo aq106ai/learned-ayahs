@@ -6,7 +6,7 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
-Android 1.11.0 (versionCode 43).
+Android 1.11.1 (versionCode 44), which includes 1.11.0 (versionCode 43).
 
 ### Added
 - **Android: backgrounds in the player.** The background button (in the playback panel) puts
@@ -15,12 +15,34 @@ Android 1.11.0 (versionCode 43).
   moves only while the recitation plays, and the text stays light on it whatever the theme.
 - **Android: the whole ayah's translation in the player** (Saheeh International), under the
   Arabic. Turned on with a background, or on its own in Settings → Reading.
+- **Web app: make videos.** The video maker runs in the browser (Make a video, or Share → Video
+  in the player): the same shapes, reciters, word meanings, translation, drawn scenes and nature
+  photos as the Android app, encoded on the device with WebCodecs to MP4 (or WebM where the
+  browser has no H.264). It works on the GitHub Pages site too.
+- **Web app: backgrounds in the player, the whole ayah's translation, and Share** (a video or an
+  image of the ayah as it looks now), as in the Android app.
+- **Word timing audit** (`.setup/audit_timings.py`, `timing-audit.yml`): checks a reciter's word
+  timings against everyayah's recordings, ayah by ayah, and writes which ayahs to shift and which
+  to drop to `.setup/timing_fixes/`, which `make_timings.py` applies.
 
 ### Changed
 - **Android: one Share button in the player**, in place of the film icon. It offers a video,
   which opens the video maker set up like the player (background, translation, word meanings),
   or an image of the ayah as it looks now, with the word being recited lit up, in any of the
   video shapes. The sources go in the message, as for videos.
+
+### Fixed
+- **Word highlighting that started early or late, or never reached the last word.** For Maher
+  Al Muaiqly, some ayahs' timings didn't match everyayah's recording: the highlight ran ahead of
+  or behind the voice by up to several seconds, or the last word was timed after the recitation
+  ended. Ayahs out by a constant amount are now shifted to the voice; those that can't be put
+  right show without highlighting rather than with the wrong word lit (Android and web app).
+- **Android: words cut mid-word in Play → Word by word, and Next from a remote stepping from the
+  wrong word.** With words cut from the ayah recording, a word's end was checked only every
+  250 ms and each check moved the word counter on by one, so a word could run into the next and
+  the counter fell behind the recitation through a run of short words. The word now stops on
+  time, the counter follows the audio, and Next/Previous across an ayah during a repeat pause
+  carries on playing.
 
 ## Android 1.10.0 (versionCode 42)
 

@@ -103,6 +103,28 @@ class TimingDataIntegrityTest {
     }
 
     @Test
+    fun the_last_word_is_never_a_sliver_at_the_end() {
+        // QUL times the last word of ~18% of ayahs, for every reciter, as a 20-110ms sliver at the
+        // very end of the file, after the recitation has ended: the highlight never reached the
+        // last word, and Word by word played the last two as one. audit_timings.py finds where the
+        // recording shows the last word starting (timing_fixes/), and make_timings.py applies it.
+        Reciter.entries.forEach { reciter ->
+            for (surah in 1..114) {
+                for (ayah in 1..QuranConstants.VERSE_COUNTS[surah - 1]) {
+                    val segments = repo.timingsFor(reciter, surah, ayah) ?: continue
+                    if (segments.size < 2) continue
+                    val last = segments.last()
+                    assertTrue(
+                        "${reciter.displayName} $surah:$ayah's last word lasts ${last.last - last.first}ms: " +
+                            "QUL's trailing sliver (run the timing audit)",
+                        last.last - last.first >= 120,
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     fun coverage_is_effectively_complete() {
         // Approximation is gone, so an ayah without timings simply doesn't highlight. Track how
         // many that is — it should be a rounding error, not a feature gap.

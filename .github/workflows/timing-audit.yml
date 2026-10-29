@@ -1,0 +1,41 @@
+name: Word timing audit
+
+# Checks a reciter's word timings against everyayah's recordings, every ayah (see
+# android-app-quran-player/.setup/audit_timings.py). This environment can't reach everyayah.com,
+# so it runs here. The CSV of measurements is kept as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      reciter:
+        description: "maher, abdulbasit_murattal, husary, sudais or shuraym"
+        default: maher
+  push:
+    branches-ignore: [main, dev]
+    paths:
+      - .github/workflows/timing-audit.yml
+      - android-app-quran-player/.setup/audit_timings.py
+
+jobs:
+  audit:
+    name: Audit ${{ inputs.reciter || 'maher' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Audit
+        working-directory: android-app-quran-player
+        run: python3 .setup/audit_timings.py "${{ inputs.reciter || 'maher' }}" --out ../timing-audit | tee ../timing-audit-summary.txt
+
+      - name: Keep the measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: timing-audit-${{ inputs.reciter || 'maher' }}
+          path: |
+            timing-audit/*.csv
+            timing-audit-summary.txt
+          retention-days: 30

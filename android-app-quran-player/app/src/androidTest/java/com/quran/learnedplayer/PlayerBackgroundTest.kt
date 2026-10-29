@@ -1,5 +1,6 @@
 package com.quran.learnedplayer
 
+import android.accessibilityservice.AccessibilityService
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -74,6 +75,11 @@ class PlayerBackgroundTest : BaseAppTest() {
         val picture = images.listFiles()?.singleOrNull()
         assertTrue("an image of the ayah is written to share", picture != null && picture.length() > 10_000)
         assertTrue(picture!!.name.endsWith(".jpg"))
+
+        // Close the system share sheet, so it isn't left over the next test's screen.
+        InstrumentationRegistry.getInstrumentation().uiAutomation
+            .performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
+        composeRule.waitForIdle()
     }
 
     @Test

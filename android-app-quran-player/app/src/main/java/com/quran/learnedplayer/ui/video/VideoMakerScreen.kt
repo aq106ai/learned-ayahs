@@ -91,9 +91,10 @@ fun VideoMakerScreen(
     surah: Int,
     ayah: Int,
     onBack: () -> Unit,
+    fromPlayer: Boolean = false,
     viewModel: VideoMakerViewModel = viewModel(),
 ) {
-    LaunchedEffect(surah, ayah) { viewModel.start(surah, ayah) }
+    LaunchedEffect(surah, ayah) { viewModel.start(surah, ayah, fromPlayer) }
     val options by viewModel.options.collectAsState()
     val preview by viewModel.preview.collectAsState()
     val export by viewModel.export.collectAsState()
@@ -422,37 +423,5 @@ private fun Stepper(label: String, value: Int, range: IntRange, enabled: Boolean
         IconButton(onClick = { onChange((value + 1).coerceIn(range)) }, enabled = enabled && value < range.last) {
             Icon(Icons.Filled.Add, contentDescription = "$label up", tint = TextMuted)
         }
-    }
-}
-
-@Composable
-private fun ThemeTile(
-    title: String,
-    subtitle: String?,
-    selected: Boolean,
-    image: android.graphics.Bitmap?,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.width(76.dp).clickable(enabled = enabled, onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(width = 68.dp, height = 104.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Border)
-                .border(if (selected) 3.dp else 0.dp, if (selected) AccentGreen else Border, RoundedCornerShape(10.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (image != null) {
-                Image(image.asImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            } else if (subtitle != null) {
-                Text("Auto", color = if (selected) AccentGreen else TextMuted, style = MaterialTheme.typography.labelLarge)
-            }
-        }
-        Text(title, style = MaterialTheme.typography.labelSmall, color = if (selected) AccentGreen else TextPrimary, maxLines = 2)
-        if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1)
     }
 }

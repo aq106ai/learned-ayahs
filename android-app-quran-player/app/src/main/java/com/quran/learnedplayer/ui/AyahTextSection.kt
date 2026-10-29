@@ -5,12 +5,14 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -19,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,6 +30,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -39,6 +43,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -55,7 +60,10 @@ import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
 import com.quran.learnedplayer.ui.theme.findActivity
 import com.quran.learnedplayer.ui.theme.quranArabicStyle
+import com.quran.learnedplayer.video.VideoTexts
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /** UI-side tick between service progress updates, for smooth word tracking. */
 private const val SMOOTH_TICK_MS = 100L
@@ -68,6 +76,10 @@ private const val MIN_FIT_SCALE = 0.4f
 private const val FIT_SCALE_STEP = 0.05f
 
 const val TAG_FULLSCREEN_WHOLE_AYAH = "fullscreen_whole_ayah"
+const val TAG_AYAH_TRANSLATION = "ayah_translation"
+
+/** The whole-ayah translation's size (sp), before fit-to-screen shrinks it with the Arabic. */
+private const val TRANSLATION_SIZE = 17f
 
 /**
  * The player's central reading area: the word-by-word pager or the whole-ayah view, with
@@ -139,6 +151,7 @@ private fun WholeAyahReader(
     modifier: Modifier = Modifier,
 ) {
     val overflowMode by PlayerSettings.ayahOverflowModeFlow.collectAsState()
+    val translation = rememberAyahTranslation(state)
     when (overflowMode) {
         AyahOverflowMode.FIT_TO_SCREEN -> {
             val density = LocalDensity.current
@@ -151,12 +164,15 @@ private fun WholeAyahReader(
                 contentAlignment = Alignment.Center,
             ) {
                 ShrinkToFit(maxHeightPx = maxHeightPx, modifier = Modifier.fillMaxWidth()) { fontScale ->
-                    AyahWordsContent(
-                        state = state,
-                        large = true,
-                        fontScale = fontScale,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        AyahWordsContent(
+                            state = state,
+                            large = true,
+                            fontScale = fontScale,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        translation?.let { AyahTranslation(it, fontScale) }
+                    }
                 }
             }
         }
@@ -172,16 +188,55 @@ private fun WholeAyahReader(
                     .padding(horizontal = 16.dp, vertical = 24.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                AyahWordsContent(
-                    state = state,
-                    large = true,
-                    scrollState = scrollState,
-                    containerCoordinates = { containerCoordinates },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    AyahWordsContent(
+                        state = state,
+                        large = true,
+                        scrollState = scrollState,
+                        containerCoordinates = { containerCoordinates },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    translation?.let { AyahTranslation(it) }
+                }
             }
         }
     }
+}
+
+/**
+ * The current ayah's English translation (Saheeh International, the one shared videos use) when
+ * [PlayerSettings.showAyahTranslation] is on; null while it loads, or when it's off. Loaded off
+ * the main thread: the first call reads the whole translation asset.
+ */
+@Composable
+private fun rememberAyahTranslation(state: PlayerUiState): String? {
+    val show by PlayerSettings.showAyahTranslationFlow.collectAsState()
+    val track = state.currentTrack
+    val context = LocalContext.current
+    val text by produceState<String?>(null, show, track?.surah, track?.ayah) {
+        value = if (show && track != null) {
+            withContext(Dispatchers.IO) { VideoTexts(context).translation(track.surah, track.ayah) }
+        } else {
+            null
+        }
+    }
+    return text
+}
+
+@Composable
+private fun AyahTranslation(text: String, fontScale: Float = 1f) {
+    Text(
+        text = text,
+        color = TextPrimary.copy(alpha = 0.92f),
+        style = MaterialTheme.typography.bodyLarge,
+        fontSize = (TRANSLATION_SIZE * fontScale).sp,
+        lineHeight = (TRANSLATION_SIZE * 1.4f * fontScale).sp,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp, start = 4.dp, end = 4.dp)
+            .testTag(TAG_AYAH_TRANSLATION),
+    )
 }
 
 /**

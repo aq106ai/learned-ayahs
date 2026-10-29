@@ -118,18 +118,25 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
     }
 
     /** A still of the first ayah as it will look, with a word lit up, [width] pixels wide. */
-    fun preview(request: VideoRequest, width: Int): Bitmap {
+    fun preview(request: VideoRequest, width: Int): Bitmap = still(request, width, atMs = null)
+
+    /**
+     * A frame of the first ayah of [request], [width] pixels wide, as it looks [atMs] into the
+     * ayah's recitation: the word being recited then is lit up, none before the first. With
+     * [atMs] null, a word a third of the way in, as an example. Downloads a photo it needs.
+     */
+    fun still(request: VideoRequest, width: Int, atMs: Long?): Bitmap {
         val (fullW, fullH) = request.aspect.size()
         val height = width * fullH / fullW
         val first = TimelineClip(ClipKind.AYAH, request.surah, request.fromAyah, 0, 0)
         val text = textFor(request, first)
-        val durationMs = text.segments?.lastOrNull()?.last?.plus(300) ?: 5_000L
+        val durationMs = maxOf(text.segments?.lastOrNull()?.last?.plus(300) ?: 5_000L, (atMs ?: 0L) + 1)
         val timeline = VideoTimeline.Builder().apply { add(ClipKind.AYAH, request.surah, request.fromAyah, durationMs) }.build()
         val clip = timeline.clips.first()
         val slots = slotsFor(request, timeline)
         downloadPhotos(slots)
         val renderer = rendererFor(request, timeline, slots, width, height)
-        val at = text.segments?.let { it[it.size / 3].first } ?: 0L
+        val at = atMs ?: text.segments?.let { it[it.size / 3].first } ?: 0L
         return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
             renderer.draw(Canvas(it), clip.startMs + at)
             renderer.release()

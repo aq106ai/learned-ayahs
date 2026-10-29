@@ -12,6 +12,7 @@ on:
       - .github/workflows/video-samples.yml
       - android-app-quran-player/store/capture-video-samples.sh
       - android-app-quran-player/app/src/androidTest/java/com/quran/learnedplayer/VideoSamples.kt
+      - android-app-quran-player/app/src/androidTest/java/com/quran/learnedplayer/PlayerBackgroundShots.kt
 
 permissions:
   contents: write

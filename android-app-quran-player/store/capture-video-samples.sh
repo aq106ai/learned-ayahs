@@ -4,7 +4,7 @@
 #   bash store/capture-video-samples.sh store/raw/video-maker      (from android-app-quran-player/)
 #
 # Runs VideoSamples: a contact sheet of every background, previews in each shape, and one real
-# video of Al-Mulk 67:1-3. Needs a network connection on the device for the recitation.
+# video of Al-Mulk 67:1-3; then PlayerBackgroundShots: the player with each kind of background. Needs a network connection on the device for the recitation.
 set -euo pipefail
 out="${1:?usage: capture-video-samples.sh <out-dir>}"
 source "$(dirname "$0")/device.sh"
@@ -18,6 +18,9 @@ for photo in ../backgrounds/nature/*.jpg; do
 done
 
 instrument VideoSamples
+grep -q "^OK" instrument.log
+# Screenshots of the player's backgrounds and the shared image, into the same folder.
+instrument PlayerBackgroundShots
 
 rm -rf "$out" && mkdir -p "$out"
 for file in $(adb exec-out run-as "$app" ls files/video-samples < /dev/null | tr -d '\r'); do

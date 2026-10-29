@@ -68,7 +68,7 @@ jobs:
             adb shell settings put global hide_error_dialogs 1
             adb shell settings put system screen_off_timeout 2147483647
             adb shell svc power stayon true
-            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest,com.quran.learnedplayer.PlayStoreScreenshots,com.quran.learnedplayer.PlayStoreFgsVideo,com.quran.learnedplayer.VideoSamples || touch "$RUNNER_TEMP/instrumented-failed"
+            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.quran.learnedplayer.FullSurahRecitationTest,com.quran.learnedplayer.PlayStoreScreenshots,com.quran.learnedplayer.PlayStoreFgsVideo,com.quran.learnedplayer.VideoSamples,com.quran.learnedplayer.PlayerBackgroundShots || touch "$RUNNER_TEMP/instrumented-failed"
             adb logcat -d -b main,system,crash > "$RUNNER_TEMP/logcat.txt" || true
 
       # The HTML report is uploaded below, but failures are also printed here so they can be

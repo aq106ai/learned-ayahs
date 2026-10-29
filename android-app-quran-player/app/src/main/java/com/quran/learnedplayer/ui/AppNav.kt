@@ -33,12 +33,12 @@ object Routes {
     const val ADD_BY_DESCRIPTION = "add_by_description"
     const val RECITATION = "recitation?globalId={globalId}"
     const val SURAH = "surah/{surah}"
-    const val VIDEO = "video?surah={surah}&ayah={ayah}"
+    const val VIDEO = "video?surah={surah}&ayah={ayah}&fromPlayer={fromPlayer}"
 
     fun surah(surah: Int) = "surah/$surah"
 
     /** "Make a video", starting on [ayah] of [surah], or on the surah's opening ayahs when 0. */
-    fun video(surah: Int, ayah: Int = 0) = "video?surah=$surah&ayah=$ayah"
+    fun video(surah: Int, ayah: Int = 0, fromPlayer: Boolean = false) = "video?surah=$surah&ayah=$ayah&fromPlayer=$fromPlayer"
     fun recitation(globalId: Int = 1) = "recitation?globalId=$globalId"
 }
 
@@ -131,7 +131,7 @@ fun AppNav(
                 onBrowseSurahs = { navController.navigate(Routes.HOME) { launchSingleTop = true } },
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onOpenRecitation = { globalId -> navController.navigate(Routes.recitation(globalId)) },
-                onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah)) },
+                onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah, fromPlayer = true)) },
             )
         }
 
@@ -140,11 +140,13 @@ fun AppNav(
             arguments = listOf(
                 navArgument("surah") { type = NavType.IntType; defaultValue = 1 },
                 navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
+                navArgument("fromPlayer") { type = NavType.BoolType; defaultValue = false },
             ),
         ) { entry ->
             VideoMakerScreen(
                 surah = entry.arguments?.getInt("surah") ?: 1,
                 ayah = entry.arguments?.getInt("ayah") ?: 0,
+                fromPlayer = entry.arguments?.getBoolean("fromPlayer") ?: false,
                 onBack = { navController.popBackStack() },
             )
         }

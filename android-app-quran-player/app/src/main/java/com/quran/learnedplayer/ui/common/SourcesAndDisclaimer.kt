@@ -40,8 +40,8 @@ object SourcesAndDisclaimer {
             "EveryAyah · everyayah.com",
         ),
         Source("Single-word recitations", "Quran.com · audio.qurancdn.com"),
-        Source("English translation in shared videos", "Saheeh International · via tanzil.net"),
-        Source("Nature photos in shared videos (CC0)", "Wikimedia Commons · commons.wikimedia.org"),
+        Source("English translation of whole ayahs (player and shared videos)", "Saheeh International · via tanzil.net"),
+        Source("Nature photos for backgrounds (CC0)", "Wikimedia Commons · commons.wikimedia.org"),
         Source("Word timings used to highlight each word", "Quranic Universal Library (QUL) by Tarteel · qul.tarteel.ai"),
         Source("Arabic font Scheherazade New", "SIL International · software.sil.org"),
     )

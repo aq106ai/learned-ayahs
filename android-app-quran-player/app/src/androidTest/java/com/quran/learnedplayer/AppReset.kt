@@ -42,6 +42,8 @@ internal object AppReset {
         PlayerSettings.reciteBetaEnabled = false
         PlayerSettings.seekInsideAyahAudio = false
         PlayerSettings.useWordClips = false
+        PlayerSettings.playerBackground = com.quran.learnedplayer.video.PlayerBackgrounds.PLAIN
+        PlayerSettings.showAyahTranslation = false
         PlayerSettings.autoPlayMistakeAudio = true
         PlayerSettings.autoAdvanceSuccess = true
         // The first-run hadith would sit over every screen these tests drive;

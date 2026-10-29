@@ -25,7 +25,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -76,7 +77,12 @@ import com.quran.learnedplayer.player.PlayerViewModel
 import com.quran.learnedplayer.player.RepeatMode
 import com.quran.learnedplayer.ui.common.SidePanel
 import com.quran.learnedplayer.ui.common.SidePanelEdge
+import com.quran.learnedplayer.ui.player.BackgroundSheet
+import com.quran.learnedplayer.ui.player.ShareDialog
 import com.quran.learnedplayer.ui.theme.AccentGreen
+import com.quran.learnedplayer.ui.theme.DarkGreenPalette
+import com.quran.learnedplayer.ui.theme.overridePalette
+import com.quran.learnedplayer.video.PlayerBackgrounds
 import com.quran.learnedplayer.ui.theme.Border
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
@@ -92,7 +98,9 @@ const val TAG_SURAH_PANEL_SEARCH = "surah_panel_search"
 const val TAG_SURAH_PANEL_LIST = "surah_panel_list"
 const val TAG_MANAGE_AYAHS = "manage_ayahs"
 const val TAG_OPEN_SETTINGS = "open_settings_from_player"
-const val TAG_MAKE_VIDEO = "make_video_from_player"
+const val TAG_SHARE = "share_from_player"
+const val TAG_OPEN_BACKGROUND = "open_background_sheet"
+const val TAG_READER_CARD = "reader_card"
 const val TAG_EXPAND_PANEL = "expand_playback_panel"
 const val TAG_OPEN_RECITATION = "open_recitation"
 fun surahPanelRowTag(surah: Int) = "surah_panel_row_$surah"
@@ -122,129 +130,186 @@ fun PlayerScreen(
     var panelExpanded by rememberSaveable { mutableStateOf(false) }
     var showSurahPanel by remember { mutableStateOf(false) }
     var showPlaylistPanel by remember { mutableStateOf(false) }
+    var showBackgroundSheet by remember { mutableStateOf(false) }
+    var showShare by remember { mutableStateOf(false) }
+    val background by PlayerSettings.playerBackgroundFlow.collectAsState()
+    val withBackground = background != PlayerBackgrounds.PLAIN
+
+    // Over a scene the text is light whatever the theme, as in a shared video: the light
+    // theme's dark text would be lost on it. Only while this screen shows.
+    DisposableEffect(withBackground) {
+        overridePalette(if (withBackground) DarkGreenPalette else null)
+        onDispose { overridePalette(null) }
+    }
+    // The header and controls let the scene show through.
+    val chrome = if (withBackground) Color.Black.copy(alpha = 0.6f) else Border
 
     ImmersiveSystemBars()
     // Keep the screen on for as long as there's something to read, not only while playing —
     // this screen is now always the reader, so a paused reading session should not sleep either.
     KeepScreenOn(enabled = state.isPlaying || state.tracks.isNotEmpty())
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Panel)
-            // Keep controls clear of cutouts / gesture bars while immersive.
-            .windowInsetsPadding(WindowInsets.safeDrawing),
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            ReaderHeader(
-                state = state,
-                wordByWord = wordByWord || wordFileMode,
-                showWordToggle = !wordFileMode,
-                onToggleWordByWord = { wordByWord = !wordByWord },
-                onOpenSurahPanel = { showSurahPanel = true },
-                onOpenPlaylistPanel = { showPlaylistPanel = true },
-                onOpenSettings = onOpenSettings,
-                onMakeVideo = state.currentTrack?.let { track -> { onMakeVideo(track.surah, track.ayah) } },
+    Box(modifier = Modifier.fillMaxSize().background(Panel)) {
+        if (withBackground) {
+            PlayerBackground(
+                choice = background,
+                surah = state.currentTrack?.surah,
+                ayah = state.currentTrack?.ayah,
+                animating = state.isPlaying,
+                modifier = Modifier.fillMaxSize(),
             )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                // Keep controls clear of cutouts / gesture bars while immersive.
+                .windowInsetsPadding(WindowInsets.safeDrawing),
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                ReaderHeader(
+                    state = state,
+                    wordByWord = wordByWord || wordFileMode,
+                    showWordToggle = !wordFileMode,
+                    onToggleWordByWord = { wordByWord = !wordByWord },
+                    onOpenSurahPanel = { showSurahPanel = true },
+                    onOpenPlaylistPanel = { showPlaylistPanel = true },
+                    onOpenSettings = onOpenSettings,
+                    onShare = if (state.currentTrack != null) ({ showShare = true }) else null,
+                    chrome = chrome,
+                )
 
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                when {
-                    state.isLoading -> CenteredMessage { LoadingContent(state) }
-                    state.error != null -> CenteredMessage { ErrorContent(state, onBrowseSurahs) }
-                    state.tracks.isEmpty() -> CenteredMessage { EmptyContent(onBrowseSurahs) }
-                    else -> AyahReaderContent(
-                        state = state,
-                        wordByWord = wordByWord || wordFileMode,
-                        onPrevious = {
-                            if (wordFileMode) viewModel.skipAyah(false) else viewModel.previous()
-                        },
-                        onNext = {
-                            if (wordFileMode) viewModel.skipAyah(true) else viewModel.next()
-                        },
-                        onPlayWord = { viewModel.playWord(it) },
-                        wordFileMode = wordFileMode,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-
-            // Recite & review bar placed right above the bottom play panel. Hidden entirely until
-            // the user opts in to the beta from Settings — an unfinished coach should not be the
-            // most prominent button on the player for someone who never asked for it.
-            if (reciteBetaEnabled) Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Surface(
-                    onClick = {
-                        viewModel.pause()
-                        onOpenRecitation(state.currentTrack?.globalId ?: 1)
-                    },
-                    modifier = Modifier.testTag(TAG_OPEN_RECITATION),
-                    shape = RoundedCornerShape(24.dp),
-                    color = AccentGreen,
-                    shadowElevation = 4.dp,
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .then(
+                            // The translucent card a shared video puts behind its text.
+                            if (withBackground) {
+                                Modifier
+                                    .padding(12.dp)
+                                    .background(Color(0x76040810), RoundedCornerShape(24.dp))
+                                    .testTag(TAG_READER_CARD)
+                            } else {
+                                Modifier
+                            },
+                        ),
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Mic,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp),
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Recite & review",
-                            color = Color.White,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
+                    when {
+                        state.isLoading -> CenteredMessage { LoadingContent(state) }
+                        state.error != null -> CenteredMessage { ErrorContent(state, onBrowseSurahs) }
+                        state.tracks.isEmpty() -> CenteredMessage { EmptyContent(onBrowseSurahs) }
+                        else -> AyahReaderContent(
+                            state = state,
+                            wordByWord = wordByWord || wordFileMode,
+                            onPrevious = {
+                                if (wordFileMode) viewModel.skipAyah(false) else viewModel.previous()
+                            },
+                            onNext = {
+                                if (wordFileMode) viewModel.skipAyah(true) else viewModel.next()
+                            },
+                            onPlayWord = { viewModel.playWord(it) },
+                            wordFileMode = wordFileMode,
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 }
-            }
 
-            BottomPlaybackPanel(
-                state = state,
-                viewModel = viewModel,
-                onPlayRequested = onPlayRequested,
-                expanded = panelExpanded,
-                onToggleExpanded = { panelExpanded = !panelExpanded },
-            )
-        }
+                // Recite & review bar placed right above the bottom play panel. Hidden entirely until
+                // the user opts in to the beta from Settings — an unfinished coach should not be the
+                // most prominent button on the player for someone who never asked for it.
+                if (reciteBetaEnabled) Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Surface(
+                        onClick = {
+                            viewModel.pause()
+                            onOpenRecitation(state.currentTrack?.globalId ?: 1)
+                        },
+                        modifier = Modifier.testTag(TAG_OPEN_RECITATION),
+                        shape = RoundedCornerShape(24.dp),
+                        color = AccentGreen,
+                        shadowElevation = 4.dp,
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Mic,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Recite & review",
+                                color = Color.White,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
 
-        SidePanel(
-            visible = showSurahPanel,
-            edge = SidePanelEdge.START,
-            onDismiss = { showSurahPanel = false },
-        ) {
-            SurahNavPanel(
-                viewModel = viewModel,
-                currentSurah = state.currentTrack?.surah,
-                onDismiss = { showSurahPanel = false },
-                onBrowseSurahs = onBrowseSurahs,
-            )
-        }
-
-        SidePanel(
-            visible = showPlaylistPanel,
-            edge = SidePanelEdge.END,
-            onDismiss = { showPlaylistPanel = false },
-        ) {
-            if (state.tracks.isNotEmpty()) {
-                PlaylistScreen(
+                BottomPlaybackPanel(
                     state = state,
                     viewModel = viewModel,
-                    onDismiss = { showPlaylistPanel = false },
                     onPlayRequested = onPlayRequested,
+                    expanded = panelExpanded,
+                    onToggleExpanded = { panelExpanded = !panelExpanded },
+                    onOpenBackground = { showBackgroundSheet = true },
+                    chrome = chrome,
                 )
             }
+
+            SidePanel(
+                visible = showSurahPanel,
+                edge = SidePanelEdge.START,
+                onDismiss = { showSurahPanel = false },
+            ) {
+                SurahNavPanel(
+                    viewModel = viewModel,
+                    currentSurah = state.currentTrack?.surah,
+                    onDismiss = { showSurahPanel = false },
+                    onBrowseSurahs = onBrowseSurahs,
+                )
+            }
+
+            SidePanel(
+                visible = showPlaylistPanel,
+                edge = SidePanelEdge.END,
+                onDismiss = { showPlaylistPanel = false },
+            ) {
+                if (state.tracks.isNotEmpty()) {
+                    PlaylistScreen(
+                        state = state,
+                        viewModel = viewModel,
+                        onDismiss = { showPlaylistPanel = false },
+                        onPlayRequested = onPlayRequested,
+                    )
+                }
+            }
         }
+    }
+
+    if (showBackgroundSheet) BackgroundSheet(onDismiss = { showBackgroundSheet = false })
+    val track = state.currentTrack
+    if (showShare && track != null) {
+        ShareDialog(
+            surah = track.surah,
+            ayah = track.ayah,
+            // The word being recited, unless an intro is playing or the ayah hasn't started.
+            atMs = state.positionMs.takeIf { state.introLabel == null && it > 0L },
+            onShareVideo = {
+                showShare = false
+                onMakeVideo(track.surah, track.ayah)
+            },
+            onDismiss = { showShare = false },
+        )
     }
 }
 
@@ -257,13 +322,14 @@ private fun ReaderHeader(
     onOpenSurahPanel: () -> Unit,
     onOpenPlaylistPanel: () -> Unit,
     onOpenSettings: () -> Unit,
-    onMakeVideo: (() -> Unit)?,
+    onShare: (() -> Unit)?,
+    chrome: Color,
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Border)
+                .background(chrome)
                 .padding(start = 4.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -288,9 +354,9 @@ private fun ReaderHeader(
                     Text(if (wordByWord) "Whole ayah" else "Word by word")
                 }
             }
-            if (onMakeVideo != null) {
-                IconButton(onClick = onMakeVideo, modifier = Modifier.testTag(TAG_MAKE_VIDEO)) {
-                    Icon(Icons.Filled.Movie, contentDescription = "Make a video of this ayah", tint = TextMuted)
+            if (onShare != null) {
+                IconButton(onClick = onShare, modifier = Modifier.testTag(TAG_SHARE)) {
+                    Icon(Icons.Filled.Share, contentDescription = "Share this ayah", tint = TextMuted)
                 }
             }
             IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(TAG_OPEN_SETTINGS)) {
@@ -372,8 +438,10 @@ private fun BottomPlaybackPanel(
     onPlayRequested: (() -> Unit) -> Unit,
     expanded: Boolean,
     onToggleExpanded: () -> Unit,
+    onOpenBackground: () -> Unit,
+    chrome: Color,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().background(Border)) {
+    Column(modifier = Modifier.fillMaxWidth().background(chrome)) {
         // Peek row — always visible; tap anywhere on it to expand/collapse the controls below.
         Row(
             modifier = Modifier
@@ -402,6 +470,9 @@ private fun BottomPlaybackPanel(
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                 )
+            }
+            IconButton(onClick = onOpenBackground, modifier = Modifier.testTag(TAG_OPEN_BACKGROUND)) {
+                Icon(Icons.Filled.Wallpaper, contentDescription = "Background", tint = TextMuted)
             }
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,

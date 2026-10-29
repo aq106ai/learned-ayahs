@@ -28,8 +28,8 @@ android {
         // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
         // every screen inside the safe area.
         targetSdk = 36
-        versionCode = 42
-        versionName = "1.10.0"
+        versionCode = 43
+        versionName = "1.11.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

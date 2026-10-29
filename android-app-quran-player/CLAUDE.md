@@ -161,7 +161,7 @@ again. The web app shows the same text (`web-app/static/js/views/terms.js`): cha
 ### Share as video (`video/`, `ui/video/`)
 
 "Make a video" turns a range of ayahs into an MP4, entirely on the phone: `VideoMakerScreen` (from
-the film icon in the player header and on a surah's page) → `VideoExporter`. The pieces:
+the player's Share button → Video, and the film icon on a surah's page) → `VideoExporter`. The pieces:
 
 - **Audio first, and the timeline comes from it.** `AudioPipeline` decodes each clip (the chosen
   reciter's everyayah MP3, cached in the player's own `filesDir/audio/<folder>/`), converts it to
@@ -201,11 +201,26 @@ the film icon in the player header and on a surah's page) → `VideoExporter`. T
   prints them under the card again, with "Made with Learned Ayahs" at the foot.
 - **Saving needs no storage permission**: MediaStore (Movies/Learned Ayahs) on Android 10+, the
   SAF "save as" picker below that; sharing goes through the `FileProvider` (`res/xml/shared_files.xml`,
-  cache `videos/` only).
+  cache `videos/` and `images/` only).
+
+**The player shows the same backgrounds** (`ui/PlayerBackground.kt`), opt-in from the background
+button in its playback panel (`ui/player/BackgroundSheet.kt`); `PlayerSettings.playerBackground` is
+`plain` (the default: the player looks as it always did), `matched`, `photos`, or one theme key.
+`LiveBackground` (pure, unit-tested) applies `BackgroundPlan`'s hold and crossfade on a running
+clock. The scene is drawn by `BackgroundScenes` at half resolution and scaled up (a full-screen
+still is ~10 MB), moves only while playing, and only asks for a photo once it's downloaded. While a
+background shows, `overridePalette` makes the player's colours the dark palette whatever the theme,
+so the text stays light on the scene. The whole-ayah translation (`showAyahTranslation`, off by
+default, turned on by choosing a background) sits under the Arabic in `WholeAyahReader`.
+**Share** in the player header offers Video (the maker set up like the player, via
+`VideoOptions.likeThePlayer` and the route's `fromPlayer`) or an image (`ui/player/ShareImage.kt`:
+`VideoExporter.still` at the current position, cache `images/`, shared with the same caption).
 
 `VideoExportTest` makes a real MP4 from the test suite's own Al-Ikhlas recordings (no network) and
 checks its tracks, length and frame count. `VideoSamples` (not a test; `video-samples.yml` runs it)
-draws every background and a real video for a person to review, into `store/raw/video-maker/`.
+draws every background and a real video for a person to review, into `store/raw/video-maker/`, and
+`PlayerBackgroundShots` adds screenshots of the player with each kind of background.
+`PlayerBackgroundTest` covers the sheet, the translation and both Share paths.
 
 ### Navigation
 

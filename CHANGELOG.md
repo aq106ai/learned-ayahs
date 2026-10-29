@@ -6,7 +6,23 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
-Android 1.10.0 (versionCode 42).
+Android 1.11.0 (versionCode 43).
+
+### Added
+- **Android: backgrounds in the player.** The background button (in the playback panel) puts
+  the video maker's scenes behind the ayah while it plays: matched to what each ayah is about,
+  drawn or as nature photos, or one chosen for every ayah. It's off unless chosen; the scene
+  moves only while the recitation plays, and the text stays light on it whatever the theme.
+- **Android: the whole ayah's translation in the player** (Saheeh International), under the
+  Arabic. Turned on with a background, or on its own in Settings → Reading.
+
+### Changed
+- **Android: one Share button in the player**, in place of the film icon. It offers a video,
+  which opens the video maker set up like the player (background, translation, word meanings),
+  or an image of the ayah as it looks now, with the word being recited lit up, in any of the
+  video shapes. The sources go in the message, as for videos.
+
+## Android 1.10.0 (versionCode 42)
 
 ### Added
 - **Android: share ayahs as a video.** "Make a video" (the film icon in the player and on a

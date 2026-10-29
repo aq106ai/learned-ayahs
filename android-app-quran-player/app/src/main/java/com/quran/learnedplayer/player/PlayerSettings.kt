@@ -8,6 +8,7 @@ import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.data.WordReciter
 import com.quran.learnedplayer.ui.theme.applyAppTheme
+import com.quran.learnedplayer.video.PlayerBackgrounds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -140,6 +141,8 @@ object PlayerSettings {
     private const val KEY_SEEK_INSIDE_AYAH_AUDIO = "seek_inside_ayah_audio"
     private const val KEY_USE_WORD_CLIPS = "use_word_clips"
     private const val KEY_ACCEPTED_TERMS_VERSION = "accepted_terms_version"
+    private const val KEY_PLAYER_BACKGROUND = "player_background"
+    private const val KEY_AYAH_TRANSLATION = "show_ayah_translation"
 
     /**
      * Raise when the sources and disclaimer change, so that everyone is asked to agree again.
@@ -176,6 +179,8 @@ object PlayerSettings {
         _reciteBetaEnabled.value = prefs?.getBoolean(KEY_RECITE_BETA_ENABLED, false) ?: false
         _seekInsideAyahAudio.value = prefs?.getBoolean(KEY_SEEK_INSIDE_AYAH_AUDIO, false) ?: false
         _useWordClips.value = prefs?.getBoolean(KEY_USE_WORD_CLIPS, false) ?: false
+        _playerBackground.value = prefs?.getString(KEY_PLAYER_BACKGROUND, null) ?: PlayerBackgrounds.PLAIN
+        _showAyahTranslation.value = prefs?.getBoolean(KEY_AYAH_TRANSLATION, false) ?: false
     }
 
     private val _mode = MutableStateFlow(PlaybackMode.DEFAULT)
@@ -395,6 +400,35 @@ object PlayerSettings {
         set(value) {
             _useWordClips.value = value
             prefs?.edit()?.putBoolean(KEY_USE_WORD_CLIPS, value)?.apply()
+        }
+
+    private val _playerBackground = MutableStateFlow(PlayerBackgrounds.PLAIN)
+    val playerBackgroundFlow: StateFlow<String> = _playerBackground.asStateFlow()
+
+    /**
+     * What the player shows behind the ayah: [PlayerBackgrounds.PLAIN] (the app theme, the
+     * default), [PlayerBackgrounds.MATCHED] or [PlayerBackgrounds.PHOTOS] (chosen per ayah, as in
+     * a shared video), or one theme key throughout (a drawn theme, or `photo:<subject>`).
+     */
+    var playerBackground: String
+        get() = _playerBackground.value
+        set(value) {
+            _playerBackground.value = value
+            prefs?.edit()?.putString(KEY_PLAYER_BACKGROUND, value)?.apply()
+        }
+
+    private val _showAyahTranslation = MutableStateFlow(false)
+    val showAyahTranslationFlow: StateFlow<Boolean> = _showAyahTranslation.asStateFlow()
+
+    /**
+     * Show the whole ayah's English translation (Saheeh International) under the Arabic. Off by
+     * default; choosing a background turns it on, since that's the look of a shared video.
+     */
+    var showAyahTranslation: Boolean
+        get() = _showAyahTranslation.value
+        set(value) {
+            _showAyahTranslation.value = value
+            prefs?.edit()?.putBoolean(KEY_AYAH_TRANSLATION, value)?.apply()
         }
 
     private val _seekInsideAyahAudio = MutableStateFlow(false)

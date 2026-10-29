@@ -179,34 +179,65 @@ def dips_of(db, start_ms, end_ms, prominence):
     return out
 
 
+KINDS = ("gap2-mid", "gap2-end", "dip3", "dip6")
+
 # Ways of finding the last word's start between the word before (P) and the voice's end (E). Each
-# is scored on the ayahs QUL timed properly, and the best that passes the gate is used.
-VARIANTS = {
-    "letters": ("letters", 0, 0),
-    "gap2-end-25": ("gap-end", 2, 0.25), "gap2-end-35": ("gap-end", 2, 0.35), "gap2-end-50": ("gap-end", 2, 0.5),
-    "gap3-end-35": ("gap-end", 3, 0.35), "gap2-mid-35": ("gap-mid", 2, 0.35),
-    "dip3-35": ("dip", 3, 0.35), "dip3-50": ("dip", 3, 0.5), "dip6-35": ("dip", 6, 0.35), "dip6-50": ("dip", 6, 0.5),
-}
+# is scored on the ayahs QUL timed properly, and the best that passes the gate is used:
+# - letters: where the letters of the last two words put it (the text alone: a baseline, never used);
+# - near-<kind>-<t>: the dip in loudness nearest that, within t% of the span;
+# - fit: E minus the reciter's own duration for a last word of that many letters, fitted on the
+#   ayahs QUL timed properly (and scored on others than it was fitted on);
+# - fit-snap-<kind>-<ms>: that, moved to a dip in loudness within ms of it.
+VARIANTS = ["letters", "fit"] + [f"near-{k}-{t}" for k in KINDS for t in (35, 50)] + [
+    f"fit-snap-{k}-{ms}" for k in KINDS for ms in (60, 120, 200)]
 
 
-def estimates(db, mask, p, e, share_before):
-    """The last word's start by each of VARIANTS, or None where a variant finds nothing."""
+def window_of(db, mask, p, e, share_before, last_letters):
+    """What the estimators need to place the last word: the span and its dips in loudness."""
     lo, hi = p + EDGE_MS, e - EDGE_MS
     if hi <= lo:
-        return {name: None for name in VARIANTS}
-    expected = p + (e - p) * share_before
-    out = {}
-    for name, (kind, n, tolerance) in VARIANTS.items():
-        if kind == "letters":
-            out[name] = int(min(max(expected, lo), hi)) // FRAME_MS * FRAME_MS
-            continue
-        if kind == "dip":
-            points = dips_of(db, lo, hi, n)
-        else:
-            points = [(b if kind == "gap-end" else (a + b) // 2) for a, b in gaps_of(mask, lo, hi, n)]
-        near = [t for t in points if abs(t - expected) <= tolerance * (e - p)]
-        out[name] = min(near, key=lambda t: abs(t - expected)) if near else None
-    return out
+        return None
+    return {"p": p, "e": e, "share": share_before, "last": last_letters, "points": {
+        "gap2-mid": [(a + b) // 2 for a, b in gaps_of(mask, lo, hi, 2)],
+        "gap2-end": [b for _, b in gaps_of(mask, lo, hi, 2)],
+        "dip3": dips_of(db, lo, hi, 3),
+        "dip6": dips_of(db, lo, hi, 6),
+    }}
+
+
+def estimate(w, variant, model):
+    """The last word's start by [variant], or None; [model] is fit()'s (a, b)."""
+    if not w:
+        return None
+    lo, hi = w["p"] + EDGE_MS, w["e"] - EDGE_MS
+    clamp = lambda t: int(min(max(t, lo), hi)) // FRAME_MS * FRAME_MS  # noqa: E731
+    expected = w["p"] + (w["e"] - w["p"]) * w["share"]
+    if variant == "letters":
+        return clamp(expected)
+    fitted = clamp(w["e"] - (model[0] + model[1] * w["last"]))
+    if variant == "fit":
+        return fitted
+    parts = variant.split("-")
+    if parts[0] == "near":
+        kind, reach, centre = f"{parts[1]}-{parts[2]}" if parts[1] == "gap2" else parts[1], None, expected
+        reach = int(parts[-1]) / 100 * (w["e"] - w["p"])
+    else:
+        kind = f"{parts[2]}-{parts[3]}" if parts[2] == "gap2" else parts[2]
+        reach, centre = int(parts[-1]), fitted
+    near = [t for t in w["points"][kind] if abs(t - centre) <= reach]
+    if near:
+        return min(near, key=lambda t: abs(t - centre))
+    return None if parts[0] == "near" else fitted
+
+
+def fit(rows):
+    """Least squares (a, b) for: voice end - last onset = a + b * letters of the last word."""
+    xs = np.array([r["window"]["last"] for r in rows], dtype=float)
+    ys = np.array([r["window"]["e"] - r["segments"][-1][0] for r in rows], dtype=float)
+    if len(xs) < 10:
+        return (600.0, 60.0)
+    b, a = np.polyfit(xs, ys, 1)
+    return (float(a), float(b))
 
 
 def measure(key, segments, words, path):
@@ -224,16 +255,17 @@ def measure(key, segments, words, path):
     faint = np.flatnonzero(speech_mask(db, share=0.05))
     row = {
         "ayah": key, "segments": segments, "duration_ms": total, "voice_start_ms": voice_start, "voice_end_ms": voice_end,
-        "faint_end_ms": int(faint[-1] + 1) * FRAME_MS, "pauses": pauses_of(mask, first, last), "estimates": {},
+        "faint_end_ms": int(faint[-1] + 1) * FRAME_MS, "pauses": pauses_of(mask, first, last), "window": None,
     }
     if len(segments) >= 2 and len(words) >= 2:
         before, lastw = letters(words[-2]), letters(words[-1])
-        row["estimates"] = estimates(db, mask, segments[-2][0], voice_end, before / (before + lastw))
+        row["window"] = window_of(db, mask, segments[-2][0], voice_end, before / (before + lastw), lastw)
     return row
 
 
-def verdict(row, variant):
-    """(kind, detail, fixes) for one measured ayah, using [variant] to place a sliver's last word."""
+def verdict(row, found):
+    """(kind, detail, fixes) for one measured ayah; [found] is where its last word starts if QUL
+    timed it in the trailing silence (None: not found, or no estimator good enough)."""
     segs = row["segments"]
     if row.get("silent"):
         return "drop", "no voice found", {}
@@ -247,7 +279,6 @@ def verdict(row, variant):
 
     fixes = {}
     if len(segs) >= 2 and segs[-1][1] - segs[-1][0] < SLIVER_MS:
-        found = row["estimates"].get(variant)
         if found is None:
             return "drop", "last word timed in the trailing silence, and its start isn't clear in the recording", {}
         fixes["last_onset"] = {"from": onsets[-1], "to": found}
@@ -279,24 +310,26 @@ def verdict(row, variant):
 
 
 def score(rows):
-    """Each variant's error on ayahs whose last word QUL timed: {name: stats}."""
-    good = [r for r in rows if not r.get("silent") and r["estimates"] and r["segments"][-1][1] - r["segments"][-1][0] >= 200
+    """Each variant's error on ayahs whose last word QUL timed, the fit made on the other half:
+    ({name: stats}, the fit over all of them)."""
+    good = [r for r in rows if not r.get("silent") and r["window"] and r["segments"][-1][1] - r["segments"][-1][0] >= 200
             and abs(r["segments"][0][0] - r["voice_start_ms"]) <= LEAD_TOLERANCE_MS]
+    train, test = good[::2], good[1::2]
+    model = fit(train)
     stats = {}
     for name in VARIANTS:
-        errors = [abs(r["estimates"][name] - r["segments"][-1][0]) for r in good if r["estimates"][name] is not None]
+        errors = sorted(abs(e - r["segments"][-1][0]) for r in test for e in [estimate(r["window"], name, model)] if e is not None)
         if not errors:
-            stats[name] = {"found": 0, "p50": 10 ** 6, "p90": 10 ** 6, "within150": 0, "useful": 0}
+            stats[name] = {"found": 0, "p50": 10 ** 6, "p90": 10 ** 6, "useful": 0}
             continue
-        errors.sort()
         within = sum(1 for e in errors if e <= 150)
         stats[name] = {
-            "found": round(len(errors) / len(good), 3), "p50": errors[len(errors) // 2], "p90": errors[len(errors) * 9 // 10],
+            "found": round(len(errors) / len(test), 3), "p50": errors[len(errors) // 2], "p90": errors[len(errors) * 9 // 10],
             "within150": round(within / len(errors), 3), "within300": round(sum(1 for e in errors if e <= 300) / len(errors), 3),
             # Right to within 150 ms, as a share of all the ayahs (not finding counts against it).
-            "useful": round(within / len(good), 3), "of": len(good),
+            "useful": round(within / len(test), 3), "of": len(test),
         }
-    return stats
+    return stats, fit(good)
 
 
 def main():
@@ -336,7 +369,8 @@ def main():
         rows = list(pool.map(measure, keys, [timings[k]["segments"] for k in keys], [words.get(k, []) for k in keys],
                              [files[k] for k in keys], chunksize=32))
 
-    stats = score(rows)
+    stats, model = score(rows)
+    print(f"last word: voice end - onset = {model[0]:.0f} ms + {model[1]:.0f} ms per letter (fitted)")
     print("\nFinding the last word's start, scored on ayahs whose last word QUL timed (error in ms):")
     for name, s in sorted(stats.items(), key=lambda kv: -kv[1]["useful"]):
         print(f"  {name:>12}: {s}")
@@ -350,7 +384,7 @@ def main():
     kinds = {"fine": 0, "repair": 0, "shift": 0, "drop": 0}
     table = []
     for row in rows:
-        kind, why, fix = verdict(row, chosen)
+        kind, why, fix = verdict(row, estimate(row["window"], chosen, model) if chosen else None)
         kinds[kind] += 1
         key = row["ayah"]
         for name, value in fix.items():
@@ -382,7 +416,7 @@ def main():
                      "while the asset still holds each 'from' value. last_onset: QUL timed the last word in the trailing silence; "
                      "'to' is where the recording shows it starting. first_onset: QUL started the first word at 0 on a recording "
                      "that opens with silence. shift: every segment out by a constant amount. drop: the timings don't fit.",
-            "last_word_estimator": {"method": chosen, **stats[chosen]},
+            "last_word_estimator": {"method": chosen, "fit_ms": [round(model[0]), round(model[1])], **stats[chosen]},
             **fixes,
         }, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 

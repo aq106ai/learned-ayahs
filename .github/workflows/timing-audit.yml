@@ -40,8 +40,8 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           python3 -m pip install --quiet numpy
 
-      - name: Cache the recordings and QUL's timings
-        uses: actions/cache@v4
+      - name: Restore the recordings and QUL's timings
+        uses: actions/cache/restore@v4
         with:
           path: |
             timing-audit/audio/${{ matrix.reciter }}
@@ -54,6 +54,16 @@ jobs:
           set -o pipefail
           python3 .setup/audit_timings.py "${{ matrix.reciter }}" --out ../timing-audit | tee "../timing-audit-${{ matrix.reciter }}.txt"
           cp "../timing-audit-${{ matrix.reciter }}.txt" ".setup/timing_fixes/${{ matrix.reciter }}-summary.txt"
+
+      # Saved even when the audit fails (its gate, say), so the next run doesn't fetch it all again.
+      - name: Keep the recordings and QUL's timings
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            timing-audit/audio/${{ matrix.reciter }}
+            android-app-quran-player/raw_${{ matrix.reciter }}.json
+          key: timing-audit-v2-${{ matrix.reciter }}
 
       - name: Regenerate the asset with the verdicts applied
         working-directory: android-app-quran-player

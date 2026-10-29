@@ -47,9 +47,11 @@ FOLDERS = {
 RATE = 8000
 FRAME_MS = 20
 PAUSE_MIN_MS = 160      # quieter than speech for at least this long counts as a pause
-LEAD_TOLERANCE_MS = 250
+LEAD_TOLERANCE_MS = 300
+TAIL_TOLERANCE_MS = 300  # an ayah's last word often fades out below the loudness threshold
+SILENCE_MS = 600        # a word can't begin well inside a silence this long
 PAUSE_TOLERANCE_MS = 160
-MIN_SHIFT_MS = 120      # a smaller offset isn't worth correcting
+MIN_SHIFT_MS = 150      # a smaller offset isn't worth correcting
 
 
 def fetch(url, dest):
@@ -84,11 +86,12 @@ def envelope(path):
     return 20 * np.log10(rms + 1e-9)
 
 
-def speech_mask(db):
-    """Which frames are voice: well above the recording's own quiet floor, held for 60 ms."""
+def speech_mask(db, share=0.35):
+    """Which frames are voice: well above the recording's own quiet floor, held for 60 ms.
+    [share] places the threshold between the floor and the peak; lower catches quiet endings."""
     floor = np.percentile(db, 10)
     peak = np.percentile(db, 95)
-    threshold = max(floor + 0.35 * (peak - floor), peak - 35)
+    threshold = max(floor + share * (peak - floor), peak - 40)
     loud = db > threshold
     # Ignore blips shorter than 60 ms.
     mask = loud.copy()
@@ -118,27 +121,25 @@ def pauses_of(mask, start, end):
 
 
 def judge(onsets, voice_start, voice_end, pauses):
-    """How well a set of word onsets fits the recording."""
+    """How well a set of word onsets fits the recording. Pauses are only evidence here, never a
+    reason on their own: a dip in loudness inside a word (a stop, a nasal) looks like one too."""
     matched = sum(1 for _, e in pauses if any(abs(o - e) <= PAUSE_TOLERANCE_MS for o in onsets))
-    in_pause = sum(1 for o in onsets[1:] if any(s + 100 < o < e - 100 and e - s >= 300 for s, e in pauses))
+    in_pause = sum(1 for o in onsets[1:] if any(s + 250 < o < e - 250 and e - s >= SILENCE_MS for s, e in pauses))
     lead = onsets[0] - voice_start
-    ok = (
-        abs(lead) <= LEAD_TOLERANCE_MS
-        and onsets[-1] < voice_end - 40
-        and in_pause == 0
-        and (not pauses or matched >= max(1, round(0.6 * len(pauses))))
-    )
+    ok = abs(lead) <= LEAD_TOLERANCE_MS and onsets[-1] < voice_end + TAIL_TOLERANCE_MS and in_pause == 0
     return ok, matched, in_pause, lead
 
 
 def audit(key, segments, path):
     db = envelope(path)
     mask = speech_mask(db)
-    voiced = np.flatnonzero(mask)
+    # Where the voice starts and ends is taken with a gentler threshold: recitation often fades
+    # in and out more quietly than it is recited.
+    gentle = np.flatnonzero(speech_mask(db, share=0.15))
     total = len(db) * FRAME_MS
-    if len(voiced) == 0:
+    if len(gentle) == 0:
         return {"ayah": key, "verdict": "drop", "reason": "no voice found", "shift_ms": 0, "duration_ms": total}
-    first, last = int(voiced[0]), int(voiced[-1]) + 1
+    first, last = int(gentle[0]), int(gentle[-1]) + 1
     voice_start, voice_end = first * FRAME_MS, last * FRAME_MS
     pauses = pauses_of(mask, first, last)
     onsets = [s[0] for s in segments]
@@ -155,18 +156,17 @@ def audit(key, segments, path):
     if abs(shift) >= MIN_SHIFT_MS:
         moved = [o + shift for o in onsets]
         ok2, m2, p2, _ = judge(moved, voice_start, voice_end, pauses)
-        if ok2 and moved[0] >= 0:
+        # Moving the words must not make them fit the recitation's pauses any worse.
+        if ok2 and moved[0] >= 0 and m2 >= matched:
             row.update(verdict="shift", shift_ms=shift, reason=f"all words {abs(shift)} ms {'late' if shift < 0 else 'early'}; shifted, {m2}/{len(pauses)} pauses fit")
             return row
     reasons = []
     if abs(lead) > LEAD_TOLERANCE_MS:
         reasons.append(f"first word {lead:+d} ms from the voice")
-    if onsets[-1] >= voice_end - 40:
+    if onsets[-1] >= voice_end + TAIL_TOLERANCE_MS:
         reasons.append(f"last word starts at {onsets[-1]} ms, voice ends {voice_end} ms")
     if in_pause:
-        reasons.append(f"{in_pause} words start inside a pause")
-    if pauses and matched < max(1, round(0.6 * len(pauses))):
-        reasons.append(f"{len(pauses) - matched}/{len(pauses)} pauses with no word after them")
+        reasons.append(f"{in_pause} words start inside a silence")
     row.update(verdict="drop", reason="; ".join(reasons))
     return row
 

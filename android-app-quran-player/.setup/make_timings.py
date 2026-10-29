@@ -164,61 +164,71 @@ def merge_split_words(key, segs):
     return out
 
 
-# Optional CLI filter: `python make_timings.py sudais shuraym` regenerates only those assets.
-# Without it every reciter is rebuilt, which costs ~570 QUL requests each.
-SELECTED = sys.argv[1:] or list(RECITERS)
-for unknown in [n for n in SELECTED if n not in RECITERS]:
-    sys.exit(f"unknown reciter '{unknown}'; known: {', '.join(RECITERS)}")
+def main():
+    # Optional CLI filter: `python make_timings.py sudais shuraym` regenerates only those assets.
+    # Without it every reciter is rebuilt, which costs ~570 QUL requests each.
+    SELECTED = sys.argv[1:] or list(RECITERS)
+    for unknown in [n for n in SELECTED if n not in RECITERS]:
+        sys.exit(f"unknown reciter '{unknown}'; known: {', '.join(RECITERS)}")
 
-for name in SELECTED:
-    rid = RECITERS[name]
-    cache = f"raw_{name}.json"
-    if os.path.exists(cache):
-        with open(cache, encoding="utf-8") as fh:
-            raw_all = json.load(fh)
-        print(f"[{name}] loaded {len(raw_all)} ayahs from cache")
-    else:
-        raw_all = {}
-        for surah in range(1, 115):
-            frm = 1
-            while frm <= VERSE_COUNTS[surah - 1]:
-                for key, val in fetch(rid, surah, frm).items():
-                    if val.get("segments"):
-                        raw_all[key] = val["segments"]
-                frm += PAGE
-                time.sleep(0.05)
-            print(f"[{name}] surah {surah:3d}/114  ayahs={len(raw_all)}", flush=True)
-        with open(cache, "w", encoding="utf-8") as fh:
-            json.dump(raw_all, fh)
+    for name in SELECTED:
+        rid = RECITERS[name]
+        cache = f"raw_{name}.json"
+        if os.path.exists(cache):
+            with open(cache, encoding="utf-8") as fh:
+                raw_all = json.load(fh)
+            print(f"[{name}] loaded {len(raw_all)} ayahs from cache")
+        else:
+            raw_all = {}
+            for surah in range(1, 115):
+                frm = 1
+                while frm <= VERSE_COUNTS[surah - 1]:
+                    for key, val in fetch(rid, surah, frm).items():
+                        if val.get("segments"):
+                            raw_all[key] = val["segments"]
+                    frm += PAGE
+                    time.sleep(0.05)
+                print(f"[{name}] surah {surah:3d}/114  ayahs={len(raw_all)}", flush=True)
+            with open(cache, "w", encoding="utf-8") as fh:
+                json.dump(raw_all, fh)
 
-    out, dropped = {}, []
-    for key, want in WORDS.items():
-        raw = raw_all.get(key)
-        if not raw:
-            dropped.append((key, "missing"))
-            continue
-        spoken = want + len(QUL_SPLIT_WORDS.get(key, ()))
-        segs = clean(raw, spoken)
-        if segs is None:
-            dropped.append((key, f"{len(raw)} segs vs {spoken} spoken words"))
-            continue
-        out[key] = {"segments": merge_split_words(key, segs)}
+        out, dropped = {}, []
+        for key, want in WORDS.items():
+            raw = raw_all.get(key)
+            if not raw:
+                dropped.append((key, "missing"))
+                continue
+            spoken = want + len(QUL_SPLIT_WORDS.get(key, ()))
+            segs = clean(raw, spoken)
+            if segs is None:
+                dropped.append((key, f"{len(raw)} segs vs {spoken} spoken words"))
+                continue
+            out[key] = {"segments": merge_split_words(key, segs)}
 
-    # The audit's verdicts from the recordings themselves (audit_timings.py): shift ayahs whose
-    # timings are out by a constant amount, drop the ones that don't fit the audio at all.
-    fixes_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "timing_fixes", f"{name}.json")
-    if os.path.exists(fixes_path):
-        import apply_timing_fixes
-        with open(fixes_path, encoding="utf-8") as fh:
-            shifted, removed = apply_timing_fixes.apply(out, json.load(fh))
-        print(f"[{name}] audio audit: shifted {shifted}, dropped {removed}")
+        # A run that couldn't reach QUL fetches nothing; don't replace a good asset with that.
+        if len(out) < 6000:
+            sys.exit(f"[{name}] only {len(out)}/6236 ayahs; not writing the asset")
 
-    dest = os.path.join(ASSETS, f"word_timings_{name}.json")
-    with open(dest, "w", encoding="utf-8") as fh:
-        json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))
+        # The audit's verdicts from the recordings themselves (audit_timings.py): shift ayahs whose
+        # timings are out by a constant amount, drop the ones that don't fit the audio at all.
+        fixes_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "timing_fixes", f"{name}.json")
+        if os.path.exists(fixes_path):
+            import apply_timing_fixes
+            with open(fixes_path, encoding="utf-8") as fh:
+                shifted, removed = apply_timing_fixes.apply(out, json.load(fh))
+            print(f"[{name}] audio audit: shifted {shifted}, dropped {removed}")
 
-    pct = 100 * len(out) / 6236
-    print(f"\n[{name}] VALID {len(out)}/6236 ({pct:.1f}%)   dropped {len(dropped)}")
-    for k, why in dropped[:8]:
-        print(f"    {k}: {why}")
-    print(f"[{name}] wrote {dest} ({os.path.getsize(dest)/1024:.0f} KB)\n")
+        dest = os.path.join(ASSETS, f"word_timings_{name}.json")
+        with open(dest, "w", encoding="utf-8") as fh:
+            json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))
+
+        pct = 100 * len(out) / 6236
+        print(f"\n[{name}] VALID {len(out)}/6236 ({pct:.1f}%)   dropped {len(dropped)}")
+        for k, why in dropped[:8]:
+            print(f"    {k}: {why}")
+        print(f"[{name}] wrote {dest} ({os.path.getsize(dest)/1024:.0f} KB)\n")
+
+
+# Behind a guard so inspect_timings.py can import the fetch and cleaning without regenerating.
+if __name__ == "__main__":
+    main()

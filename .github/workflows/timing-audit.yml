@@ -10,6 +10,9 @@ on:
       reciter:
         description: "maher, abdulbasit_murattal, husary, sudais or shuraym"
         default: maher
+      inspect:
+        description: "Ayahs to show in detail (QUL's raw segments, the asset's, the voiced stretches)"
+        default: ""
   push:
     branches-ignore: [main, dev]
     paths:
@@ -44,6 +47,11 @@ jobs:
         with:
           path: timing-audit/audio
           key: timing-audio-${{ inputs.reciter || 'maher' }}
+
+      - name: Inspect ayahs
+        if: inputs.inspect != '' || github.event_name == 'push'
+        working-directory: android-app-quran-player
+        run: python3 .setup/inspect_timings.py "${{ inputs.reciter || 'maher' }}" ${{ inputs.inspect || '1:3 2:13 2:20 2:124 2:134 2:216 2:220 2:77 2:169 2:253 3:4 4:175 39:5 67:1 112:1' }}
 
       - name: Audit
         working-directory: android-app-quran-player

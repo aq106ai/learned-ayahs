@@ -82,6 +82,9 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
+      - name: Video themes match the Android app's
+        run: python3 tools/sync_video_themes.py --check
+
       - name: Unit tests (ported logic)
         run: npm test
 
@@ -89,5 +92,5 @@ jobs:
         run: npm run test:server
 
       - name: Browser tests (Playwright)
-        timeout-minutes: 10
+        timeout-minutes: 15
         run: npm run test:e2e

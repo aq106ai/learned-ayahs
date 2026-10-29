@@ -16,6 +16,7 @@ import { settingsView } from './views/settings.js';
 import { reciteView } from './views/recite.js';
 import { accountView } from './views/account.js';
 import { adminView } from './views/admin.js';
+import { videoView } from './views/video.js';
 import { showIntro } from './views/intro.js';
 import { showTerms, TERMS_VERSION } from './views/terms.js';
 
@@ -28,10 +29,11 @@ const ROUTES = {
   settings: settingsView,
   account: accountView,
   admin: adminView,
+  video: videoView,
 };
 
 // Views that live under a navigation item without having one of their own.
-const NAV_PARENT = { surah: 'surahs', add: 'surahs' };
+const NAV_PARENT = { surah: 'surahs', add: 'surahs', video: 'player' };
 
 const THEME_COLORS = { dark: '#0a1710', light: '#f1f8f3' };
 

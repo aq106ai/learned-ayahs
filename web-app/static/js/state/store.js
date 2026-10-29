@@ -22,6 +22,10 @@ export const DEFAULT_SETTINGS = Object.freeze({
   theme: 'DARK',
   showWordTranslations: true,
   ayahOverflowMode: 'AUTO_SCROLL',
+  // The whole ayah's English translation (Saheeh International) under the Arabic.
+  showAyahTranslation: false,
+  // What the player shows behind the ayah: 'plain', 'matched', 'photos', or one theme key.
+  playerBackground: 'plain',
   // Gestures
   swipeToNavigate: true,
   tapToAdvance: true,

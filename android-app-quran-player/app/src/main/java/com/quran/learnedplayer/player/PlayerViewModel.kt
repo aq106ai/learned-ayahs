@@ -522,7 +522,10 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             PlayerStateHolder.next()
             return
         }
-        val state = uiState.value
+        // The holder's own state, not this ViewModel's copy of it: the copy catches up
+        // asynchronously, so a second quick press could read the index from before the first
+        // and step to the same ayah again — two taps of Next would move only one ayah.
+        val state = PlayerStateHolder.uiState.value
         if (state.tracks.isEmpty()) return
         // Next always steps one ayah — matching swipe/tap. FULL_SURAH is the one case a queue
         // can run out mid-traversal (repeat SURAH wraps below instead); running past the last
@@ -567,7 +570,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             PlayerStateHolder.previous()
             return
         }
-        val state = uiState.value
+        val state = PlayerStateHolder.uiState.value // see next()
         if (state.tracks.isEmpty()) return
         if (state.mode == PlaybackMode.FULL_SURAH && state.repeatMode != RepeatMode.SURAH &&
             state.currentIndex <= 0
@@ -587,7 +590,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
      *  ayah going forward, or the last ayah going backward, same convention as the service. */
     private fun navigateSurahPreview(forward: Boolean) {
         val master = PlaylistStore.latest?.tracks ?: return
-        val state = uiState.value
+        val state = PlayerStateHolder.uiState.value // see next()
         val curSurah = state.currentTrack?.surah
             ?: QueueBuilder.learnedSurahs(master).firstOrNull()
             ?: return

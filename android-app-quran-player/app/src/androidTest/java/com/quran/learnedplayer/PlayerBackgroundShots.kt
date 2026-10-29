@@ -60,8 +60,17 @@ class PlayerBackgroundShots : BaseAppTest() {
     }
 
     private fun shot(name: String, settleMs: Long = 1_500) {
+        // The test holds the app's frame clock: its effects (the background's own loop among
+        // them) only move as the clock is advanced, so a plain sleep would photograph a frozen
+        // screen. Advance it alongside real time, which the off-thread loading needs.
+        var waited = 0L
+        while (waited < settleMs) {
+            Thread.sleep(100)
+            composeRule.mainClock.advanceTimeBy(100)
+            waited += 100
+        }
         composeRule.waitForIdle()
-        Thread.sleep(settleMs)
+        Thread.sleep(300) // let the last frame reach the screen
         val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot() ?: return
         File(out, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         bitmap.recycle()

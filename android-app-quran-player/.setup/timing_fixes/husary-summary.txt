@@ -28,12 +28,11 @@ Finding the last word's start, scored on ayahs whose last word QUL timed (error 
         sliver: {'found': 1.0, 'p50': 3990, 'p90': 5790, 'within150': 0.0, 'within300': 0.0, 'useful': 0.0, 'of': 689}
 chosen: letters
 
-husary: 6217 ayahs: 1103 fine, 2265 repaired (466 last words, 2127 first words), 156 shifted, 2693 dropped
+husary: 6217 ayahs: 1177 fine, 2404 repaired (461 last words, 2270 first words), 156 shifted, 2480 dropped
 
 Dropped, by reason:
-   1487  first word ms:  1:3 (first word +660 ms from the voice); 2:6 (first word -1400 ms from the voice); 2:10 (first word -1520 ms from the voice; 1 words start inside a silence); 2:19 (first word -1200 ms from the voice)
-    830  words start inside:  2:2 (1 words start inside a silence); 2:13 (1 words start inside a silence); 2:20 (1 words start inside a silence); 2:25 (1 words start inside a silence)
-    375  timings end at:  2:1 (timings end at 5840 ms, the recitation at 9900 ms); 2:35 (timings end at 36320 ms, the recitation at 40260 ms); 2:54 (timings end at 49560 ms, the recitation at 52740 ms); 2:55 (timings end at 19840 ms, the recitation at 24500 ms)
+   1562  first word ms:  1:3 (first word +660 ms from the voice); 2:1 (first word -1140 ms from the voice); 2:6 (first word -1400 ms from the voice); 2:10 (first word -1520 ms from the voice; 1 words start inside a silence)
+    917  words start inside:  2:2 (1 words start inside a silence); 2:13 (1 words start inside a silence); 2:20 (1 words start inside a silence); 2:25 (1 words start inside a silence)
       1  last word starts at:  55:45 (last word starts at 15480 ms, voice ends 12720 ms)
 
 Shifted:
@@ -82,7 +81,7 @@ Last words moved (largest first):
 
 Dropped:
        1:3  first word +660 ms from the voice
-       2:1  timings end at 5840 ms, the recitation at 9900 ms
+       2:1  first word -1140 ms from the voice
        2:2  1 words start inside a silence
        2:6  first word -1400 ms from the voice
       2:10  first word -1520 ms from the voice; 1 words start inside a silence
@@ -96,16 +95,13 @@ Dropped:
       2:28  1 words start inside a silence
       2:30  1 words start inside a silence
       2:33  first word +850 ms from the voice; 1 words start inside a silence
-      2:35  timings end at 36320 ms, the recitation at 40260 ms
       2:37  1 words start inside a silence
       2:40  first word +430 ms from the voice
       2:42  first word -1300 ms from the voice
       2:47  first word +450 ms from the voice
-      2:54  timings end at 49560 ms, the recitation at 52740 ms
-      2:55  timings end at 19840 ms, the recitation at 24500 ms
+      2:54  2 words start inside a silence
       2:57  1 words start inside a silence
       2:60  2 words start inside a silence
-      2:61  timings end at 115280 ms, the recitation at 118960 ms
       2:62  first word -2020 ms from the voice
       2:64  1 words start inside a silence
       2:67  1 words start inside a silence
@@ -128,7 +124,7 @@ Dropped:
       2:94  first word -680 ms from the voice
       2:97  first word -1000 ms from the voice
       2:98  first word -860 ms from the voice
-     2:102  timings end at 126560 ms, the recitation at 133720 ms
+     2:102  first word +340 ms from the voice; 2 words start inside a silence
      2:103  first word -840 ms from the voice
      2:104  first word -1720 ms from the voice
      2:105  first word -960 ms from the voice
@@ -150,7 +146,6 @@ Dropped:
      2:128  first word +380 ms from the voice
      2:129  first word +420 ms from the voice
      2:131  first word -860 ms from the voice
-     2:132  timings end at 39200 ms, the recitation at 43980 ms
      2:133  first word -1900 ms from the voice
      2:135  1 words start inside a silence
      2:137  1 words start inside a silence
@@ -161,3 +156,7 @@ Dropped:
      2:144  4 words start inside a silence
      2:145  2 words start inside a silence
      2:146  1 words start inside a silence
+     2:148  3 words start inside a silence
+     2:149  first word -640 ms from the voice
+     2:150  first word -1040 ms from the voice
+     2:151  first word -680 ms from the voice

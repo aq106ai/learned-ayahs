@@ -1,0 +1,97 @@
+name: Word timing audit
+
+# Checks each reciter's word timings against everyayah's recordings, every ayah, repairs what the
+# recordings show how to repair and drops what doesn't fit (see
+# android-app-quran-player/.setup/audit_timings.py). This environment can't reach everyayah.com or
+# QUL, so it runs here. It regenerates the asset with the verdicts applied and commits both, with a
+# summary, to the branch it ran on; the CSV of measurements is kept as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      reciter:
+        description: "maher, abdulbasit_murattal, husary, sudais or shuraym (empty: all five)"
+        default: ""
+      inspect:
+        description: "Ayahs to show in detail afterwards (QUL's raw segments, the asset's, the voiced stretches)"
+        default: ""
+  push:
+    branches-ignore: [main, dev]
+    paths:
+      - .github/workflows/timing-audit.yml
+      - android-app-quran-player/.setup/audit_timings.py
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    name: Audit ${{ matrix.reciter }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        reciter: ${{ fromJSON(inputs.reciter && format('["{0}"]', inputs.reciter) || '["maher","abdulbasit_murattal","husary","sudais","shuraym"]') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ffmpeg and numpy
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python3 -m pip install --quiet numpy
+
+      - name: Restore the recordings and QUL's timings
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            timing-audit/audio/${{ matrix.reciter }}
+            android-app-quran-player/raw_${{ matrix.reciter }}.json
+          key: timing-audit-v2-${{ matrix.reciter }}
+
+      - name: Audit
+        working-directory: android-app-quran-player
+        run: |
+          set -o pipefail
+          python3 .setup/audit_timings.py "${{ matrix.reciter }}" --out ../timing-audit | tee "../timing-audit-${{ matrix.reciter }}.txt"
+          cp "../timing-audit-${{ matrix.reciter }}.txt" ".setup/timing_fixes/${{ matrix.reciter }}-summary.txt"
+
+      # Saved even when the audit fails (its gate, say), so the next run doesn't fetch it all again.
+      - name: Keep the recordings and QUL's timings
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            timing-audit/audio/${{ matrix.reciter }}
+            android-app-quran-player/raw_${{ matrix.reciter }}.json
+          key: timing-audit-v2-${{ matrix.reciter }}
+
+      - name: Regenerate the asset with the verdicts applied
+        working-directory: android-app-quran-player
+        run: python3 .setup/make_timings.py "${{ matrix.reciter }}"
+
+      - name: Inspect ayahs
+        working-directory: android-app-quran-player
+        run: python3 .setup/inspect_timings.py "${{ matrix.reciter }}" ${{ inputs.inspect || '1:3 2:13 2:20 2:124 2:169 2:220 3:4 39:5 67:1 112:1' }}
+
+      - name: Commit the verdicts and the asset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android-app-quran-player/.setup/timing_fixes "android-app-quran-player/app/src/main/assets/word_timings_${{ matrix.reciter }}.json"
+          if git diff --cached --quiet; then echo "Verdicts unchanged"; exit 0; fi
+          git commit -m "Timing audit (${{ matrix.reciter }}): verdicts and asset at ${GITHUB_SHA::7}"
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1
+
+      - name: Keep the measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: timing-audit-${{ matrix.reciter }}
+          path: |
+            timing-audit/*.csv
+            timing-audit-*.txt
+          retention-days: 30

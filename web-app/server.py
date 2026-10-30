@@ -57,7 +57,9 @@ RECITER_FOLDERS = frozenset(
 EVERYAYAH = "https://everyayah.com/data"
 WORD_CLIPS = "https://audio.qurancdn.com/wbw"
 
-DATA_FILES = re.compile(r"^(quran_text|word_translations|word_timings_[a-z_]+)\.json$")
+DATA_FILES = re.compile(r"^(quran_text|word_translations|word_timings_[a-z_]+|translation_en_saheeh|video_themes|nature_photos)\.json$")
+# The CC0 nature photos video and player backgrounds can use (see backgrounds/README).
+PHOTO_FILE = re.compile(r"^[a-z_]+_\d+(_thumb)?\.jpg$")
 AYAH_AUDIO = re.compile(r"^(?P<folder>[A-Za-z0-9_\-]+)/(?P<file>\d{6}\.mp3)$")
 INTRO_AUDIO = re.compile(r"^(audhubillah|bismillah)\.mp3$")
 WORD_AUDIO = re.compile(r"^\d{3}_\d{3}_\d{3}\.mp3$")
@@ -83,6 +85,7 @@ class Config:
     assets_dir: Path = REPO / "android-app-quran-player" / "app" / "src" / "main" / "assets"
     font_path: Path = REPO / "android-app-quran-player" / "app" / "src" / "main" / "res" / "font" / "scheherazade_new.ttf"
     static_dir: Path = HERE / "static"
+    photos_dir: Path = REPO / "backgrounds" / "nature"
     registration_default: bool = True
     session_days: int = 30
     pbkdf2_iterations: int = 200_000
@@ -562,7 +565,7 @@ def make_handler(app: App):
             self.send_header(
                 "Content-Security-Policy",
                 "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
-                "img-src 'self' data:; font-src 'self'; "
+                "img-src 'self' data: blob:; font-src 'self'; "
                 "media-src 'self' https://everyayah.com https://audio.qurancdn.com blob:; "
                 "connect-src 'self' https://everyayah.com https://audio.qurancdn.com; "
                 "worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'",
@@ -665,6 +668,11 @@ def make_handler(app: App):
                 elif path.startswith("/audio/"):
                     kind, _, rel = path[len("/audio/"):].partition("/")
                     self.serve_audio(kind, rel)
+                elif path.startswith("/backgrounds/nature/"):
+                    name = path[len("/backgrounds/nature/"):]
+                    if not PHOTO_FILE.match(name):
+                        raise ApiError(404, "not_found", "Not found.")
+                    self.serve_file(config.photos_dir / name, "image/jpeg", "public, max-age=604800")
                 elif path == "/fonts/scheherazade_new.ttf":
                     self.serve_file(config.font_path, "font/ttf", "public, max-age=604800")
                 else:
@@ -1043,7 +1051,14 @@ def export_static(config: Config, out: Path) -> int:
             copied += 1
     (out / "fonts").mkdir(exist_ok=True)
     shutil.copy2(config.font_path, out / "fonts" / config.font_path.name)
-    print(f"Static app written to {out} ({copied} data files). Serve the folder over HTTPS (or http://localhost).")
+    photos = 0
+    if config.photos_dir.is_dir():
+        (out / "backgrounds" / "nature").mkdir(parents=True, exist_ok=True)
+        for f in sorted(config.photos_dir.iterdir()):
+            if PHOTO_FILE.match(f.name):
+                shutil.copy2(f, out / "backgrounds" / "nature" / f.name)
+                photos += 1
+    print(f"Static app written to {out} ({copied} data files, {photos} photos). Serve the folder over HTTPS (or http://localhost).")
     return 0
 
 

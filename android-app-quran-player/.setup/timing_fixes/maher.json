@@ -1,1132 +1,4472 @@
 {
  "reciter": "maher",
- "about": "Written by audit_timings.py from everyayah's recordings. shift: move every segment of the ayah by shift_ms (applied only while its first onset is still first_onset_ms). drop: remove the ayah's timings.",
+ "about": "Written by audit_timings.py from everyayah's recordings; applied by make_timings.py and apply_timing_fixes.py while the asset still holds each 'from' value. last_onset: QUL timed the last word in the trailing silence; 'to' is where the recording shows it starting. first_onset: QUL started the first word at 0 on a recording that opens with silence. shift: every segment out by a constant amount. drop: the timings don't fit.",
+ "last_word_estimator": {
+  "method": "letters",
+  "fit_ms": [
+   653,
+   122
+  ],
+  "found": 1.0,
+  "p50": 160,
+  "p90": 460,
+  "within150": 0.465,
+  "within300": 0.776,
+  "useful": 0.465,
+  "of": 2461
+ },
  "shift": {
-  "1:3": {
-   "first_onset_ms": 480,
-   "shift_ms": -420,
-   "why": "all words 420 ms late; shifted, 0/0 pauses fit"
-  },
-  "2:33": {
-   "first_onset_ms": 370,
-   "shift_ms": -350,
-   "why": "all words 350 ms late; shifted, 2/6 pauses fit"
-  },
-  "2:132": {
-   "first_onset_ms": 0,
-   "shift_ms": 380,
-   "why": "all words 380 ms early; shifted, 2/5 pauses fit"
-  },
-  "2:162": {
-   "first_onset_ms": 450,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 1/2 pauses fit"
-  },
-  "2:164": {
-   "first_onset_ms": 0,
-   "shift_ms": 420,
-   "why": "all words 420 ms early; shifted, 3/10 pauses fit"
-  },
-  "2:174": {
-   "first_onset_ms": 0,
-   "shift_ms": 380,
-   "why": "all words 380 ms early; shifted, 3/10 pauses fit"
-  },
-  "2:203": {
-   "first_onset_ms": 0,
-   "shift_ms": 360,
-   "why": "all words 360 ms early; shifted, 3/7 pauses fit"
-  },
-  "2:213": {
-   "first_onset_ms": 680,
-   "shift_ms": -520,
-   "why": "all words 520 ms late; shifted, 6/15 pauses fit"
-  },
-  "2:214": {
-   "first_onset_ms": 0,
-   "shift_ms": 320,
-   "why": "all words 320 ms early; shifted, 4/7 pauses fit"
-  },
-  "2:235": {
-   "first_onset_ms": 720,
-   "shift_ms": -340,
-   "why": "all words 340 ms late; shifted, 4/9 pauses fit"
-  },
-  "2:243": {
-   "first_onset_ms": 0,
-   "shift_ms": 420,
-   "why": "all words 420 ms early; shifted, 1/4 pauses fit"
-  },
-  "2:247": {
-   "first_onset_ms": 1040,
-   "shift_ms": -960,
-   "why": "all words 960 ms late; shifted, 5/9 pauses fit"
-  },
-  "3:4": {
-   "first_onset_ms": 3250,
-   "shift_ms": -3190,
-   "why": "all words 3190 ms late; shifted, 3/3 pauses fit"
-  },
-  "3:65": {
-   "first_onset_ms": 1650,
-   "shift_ms": -1610,
-   "why": "all words 1610 ms late; shifted, 1/7 pauses fit"
-  },
-  "3:70": {
-   "first_onset_ms": 1690,
-   "shift_ms": -1630,
-   "why": "all words 1630 ms late; shifted, 0/1 pauses fit"
-  },
-  "3:88": {
-   "first_onset_ms": 410,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 0/0 pauses fit"
-  },
-  "3:119": {
-   "first_onset_ms": 960,
-   "shift_ms": -920,
-   "why": "all words 920 ms late; shifted, 5/8 pauses fit"
-  },
-  "4:109": {
-   "first_onset_ms": 840,
-   "shift_ms": -800,
-   "why": "all words 800 ms late; shifted, 2/7 pauses fit"
-  },
-  "4:171": {
-   "first_onset_ms": 1550,
-   "shift_ms": -1450,
-   "why": "all words 1450 ms late; shifted, 7/15 pauses fit"
-  },
-  "5:68": {
-   "first_onset_ms": 290,
-   "shift_ms": -230,
-   "why": "all words 230 ms late; shifted, 5/13 pauses fit"
-  },
-  "5:82": {
-   "first_onset_ms": 0,
-   "shift_ms": 320,
-   "why": "all words 320 ms early; shifted, 6/12 pauses fit"
-  },
-  "6:27": {
-   "first_onset_ms": 280,
-   "shift_ms": -220,
-   "why": "all words 220 ms late; shifted, 4/5 pauses fit"
-  },
-  "6:95": {
-   "first_onset_ms": 0,
-   "shift_ms": 380,
-   "why": "all words 380 ms early; shifted, 3/4 pauses fit"
-  },
-  "6:128": {
-   "first_onset_ms": 560,
-   "shift_ms": -460,
-   "why": "all words 460 ms late; shifted, 12/19 pauses fit"
-  },
-  "6:151": {
-   "first_onset_ms": 0,
-   "shift_ms": 420,
-   "why": "all words 420 ms early; shifted, 4/9 pauses fit"
-  },
-  "7:61": {
-   "first_onset_ms": 410,
-   "shift_ms": -350,
-   "why": "all words 350 ms late; shifted, 2/5 pauses fit"
-  },
-  "7:67": {
-   "first_onset_ms": 410,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 4/5 pauses fit"
-  },
-  "7:88": {
-   "first_onset_ms": 520,
-   "shift_ms": -480,
-   "why": "all words 480 ms late; shifted, 3/7 pauses fit"
-  },
-  "7:176": {
-   "first_onset_ms": 440,
-   "shift_ms": -360,
-   "why": "all words 360 ms late; shifted, 5/18 pauses fit"
-  },
-  "9:22": {
-   "first_onset_ms": 450,
-   "shift_ms": -410,
-   "why": "all words 410 ms late; shifted, 1/3 pauses fit"
-  },
-  "9:46": {
-   "first_onset_ms": 0,
-   "shift_ms": 320,
-   "why": "all words 320 ms early; shifted, 1/5 pauses fit"
-  },
-  "9:65": {
-   "first_onset_ms": 0,
-   "shift_ms": 680,
-   "why": "all words 680 ms early; shifted, 1/7 pauses fit"
-  },
-  "10:84": {
-   "first_onset_ms": 930,
-   "shift_ms": -870,
-   "why": "all words 870 ms late; shifted, 1/7 pauses fit"
-  },
-  "11:28": {
-   "first_onset_ms": 410,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 3/6 pauses fit"
-  },
   "11:59": {
    "first_onset_ms": 0,
    "shift_ms": 200,
-   "why": "all words 200 ms early; shifted, 3/6 pauses fit"
-  },
-  "11:88": {
-   "first_onset_ms": 370,
-   "shift_ms": -330,
-   "why": "all words 330 ms late; shifted, 8/18 pauses fit"
-  },
-  "11:92": {
-   "first_onset_ms": 410,
-   "shift_ms": -390,
-   "why": "all words 390 ms late; shifted, 3/10 pauses fit"
-  },
-  "12:5": {
-   "first_onset_ms": 410,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 0/1 pauses fit"
-  },
-  "12:39": {
-   "first_onset_ms": 400,
-   "shift_ms": -360,
-   "why": "all words 360 ms late; shifted, 2/2 pauses fit"
-  },
-  "12:41": {
-   "first_onset_ms": 360,
-   "shift_ms": -320,
-   "why": "all words 320 ms late; shifted, 5/10 pauses fit"
-  },
-  "13:11": {
-   "first_onset_ms": 360,
-   "shift_ms": -340,
-   "why": "all words 340 ms late; shifted, 4/11 pauses fit"
-  },
-  "15:32": {
-   "first_onset_ms": 450,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 0/0 pauses fit"
-  },
-  "17:1": {
-   "first_onset_ms": 0,
-   "shift_ms": 400,
-   "why": "all words 400 ms early; shifted, 2/4 pauses fit"
-  },
-  "18:108": {
-   "first_onset_ms": 530,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 0/1 pauses fit"
-  },
-  "19:32": {
-   "first_onset_ms": 0,
-   "shift_ms": 400,
-   "why": "all words 400 ms early; shifted, 0/0 pauses fit"
-  },
-  "19:43": {
-   "first_onset_ms": 1040,
-   "shift_ms": -960,
-   "why": "all words 960 ms late; shifted, 0/3 pauses fit"
-  },
-  "19:45": {
-   "first_onset_ms": 1240,
-   "shift_ms": -1160,
-   "why": "all words 1160 ms late; shifted, 1/2 pauses fit"
-  },
-  "20:19": {
-   "first_onset_ms": 400,
-   "shift_ms": -360,
-   "why": "all words 360 ms late; shifted, 0/0 pauses fit"
-  },
-  "20:36": {
-   "first_onset_ms": 370,
-   "shift_ms": -330,
-   "why": "all words 330 ms late; shifted, 0/0 pauses fit"
-  },
-  "20:49": {
-   "first_onset_ms": 720,
-   "shift_ms": -360,
-   "why": "all words 360 ms late; shifted, 0/0 pauses fit"
-  },
-  "20:57": {
-   "first_onset_ms": 440,
-   "shift_ms": -320,
-   "why": "all words 320 ms late; shifted, 0/0 pauses fit"
-  },
-  "20:83": {
-   "first_onset_ms": 1080,
-   "shift_ms": -1040,
-   "why": "all words 1040 ms late; shifted, 0/0 pauses fit"
-  },
-  "20:92": {
-   "first_onset_ms": 410,
-   "shift_ms": -350,
-   "why": "all words 350 ms late; shifted, 0/0 pauses fit"
-  },
-  "20:94": {
-   "first_onset_ms": 520,
-   "shift_ms": -480,
-   "why": "all words 480 ms late; shifted, 2/4 pauses fit"
-  },
-  "20:95": {
-   "first_onset_ms": 330,
-   "shift_ms": -310,
-   "why": "all words 310 ms late; shifted, 0/0 pauses fit"
-  },
-  "20:101": {
-   "first_onset_ms": 410,
-   "shift_ms": -350,
-   "why": "all words 350 ms late; shifted, 0/1 pauses fit"
-  },
-  "25:27": {
-   "first_onset_ms": 600,
-   "shift_ms": -580,
-   "why": "all words 580 ms late; shifted, 3/4 pauses fit"
-  },
-  "26:3": {
-   "first_onset_ms": 360,
-   "shift_ms": -320,
-   "why": "all words 320 ms late; shifted, 1/1 pauses fit"
-  },
-  "26:40": {
-   "first_onset_ms": 440,
-   "shift_ms": -420,
-   "why": "all words 420 ms late; shifted, 1/1 pauses fit"
-  },
-  "27:46": {
-   "first_onset_ms": 370,
-   "shift_ms": -330,
-   "why": "all words 330 ms late; shifted, 1/4 pauses fit"
-  },
-  "28:27": {
-   "first_onset_ms": 440,
-   "shift_ms": -380,
-   "why": "all words 380 ms late; shifted, 3/7 pauses fit"
-  },
-  "28:45": {
-   "first_onset_ms": 400,
-   "shift_ms": -360,
-   "why": "all words 360 ms late; shifted, 2/2 pauses fit"
-  },
-  "29:56": {
-   "first_onset_ms": 400,
-   "shift_ms": -380,
-   "why": "all words 380 ms late; shifted, 0/3 pauses fit"
-  },
-  "30:7": {
-   "first_onset_ms": 450,
-   "shift_ms": -410,
-   "why": "all words 410 ms late; shifted, 1/2 pauses fit"
-  },
-  "31:9": {
-   "first_onset_ms": 530,
-   "shift_ms": -350,
-   "why": "all words 350 ms late; shifted, 0/1 pauses fit"
-  },
-  "33:65": {
-   "first_onset_ms": 370,
-   "shift_ms": -350,
-   "why": "all words 350 ms late; shifted, 0/0 pauses fit"
-  },
-  "33:66": {
-   "first_onset_ms": 400,
-   "shift_ms": -360,
-   "why": "all words 360 ms late; shifted, 1/2 pauses fit"
-  },
-  "34:31": {
-   "first_onset_ms": 560,
-   "shift_ms": -500,
-   "why": "all words 500 ms late; shifted, 7/15 pauses fit"
-  },
-  "35:12": {
-   "first_onset_ms": 600,
-   "shift_ms": -560,
-   "why": "all words 560 ms late; shifted, 5/11 pauses fit"
-  },
-  "37:7": {
-   "first_onset_ms": 0,
-   "shift_ms": 540,
-   "why": "all words 540 ms early; shifted, 0/1 pauses fit"
-  },
-  "37:11": {
-   "first_onset_ms": 0,
-   "shift_ms": 380,
-   "why": "all words 380 ms early; shifted, 2/5 pauses fit"
-  },
-  "37:12": {
-   "first_onset_ms": 0,
-   "shift_ms": 320,
-   "why": "all words 320 ms early; shifted, 0/2 pauses fit"
-  },
-  "37:27": {
-   "first_onset_ms": 0,
-   "shift_ms": 440,
-   "why": "all words 440 ms early; shifted, 1/2 pauses fit"
-  },
-  "37:46": {
-   "first_onset_ms": 0,
-   "shift_ms": 340,
-   "why": "all words 340 ms early; shifted, 2/3 pauses fit"
-  },
-  "37:105": {
-   "first_onset_ms": 1850,
-   "shift_ms": -1810,
-   "why": "all words 1810 ms late; shifted, 3/4 pauses fit"
-  },
-  "37:136": {
-   "first_onset_ms": 0,
-   "shift_ms": 500,
-   "why": "all words 500 ms early; shifted, 0/0 pauses fit"
-  },
-  "37:150": {
-   "first_onset_ms": 0,
-   "shift_ms": 360,
-   "why": "all words 360 ms early; shifted, 0/0 pauses fit"
-  },
-  "37:177": {
-   "first_onset_ms": 0,
-   "shift_ms": 320,
-   "why": "all words 320 ms early; shifted, 0/0 pauses fit"
-  },
-  "38:75": {
-   "first_onset_ms": 410,
-   "shift_ms": -370,
-   "why": "all words 370 ms late; shifted, 2/4 pauses fit"
-  },
-  "39:5": {
-   "first_onset_ms": 3810,
-   "shift_ms": -3730,
-   "why": "all words 3730 ms late; shifted, 3/7 pauses fit"
-  },
-  "39:16": {
-   "first_onset_ms": 450,
-   "shift_ms": -410,
-   "why": "all words 410 ms late; shifted, 3/6 pauses fit"
-  },
-  "39:21": {
-   "first_onset_ms": 0,
-   "shift_ms": 320,
-   "why": "all words 320 ms early; shifted, 7/8 pauses fit"
-  },
-  "39:23": {
-   "first_onset_ms": 930,
-   "shift_ms": -750,
-   "why": "all words 750 ms late; shifted, 5/9 pauses fit"
-  },
-  "39:53": {
-   "first_onset_ms": 290,
-   "shift_ms": -150,
-   "why": "all words 150 ms late; shifted, 2/8 pauses fit"
-  },
-  "40:30": {
-   "first_onset_ms": 570,
-   "shift_ms": -550,
-   "why": "all words 550 ms late; shifted, 2/3 pauses fit"
-  },
-  "40:38": {
-   "first_onset_ms": 570,
-   "shift_ms": -530,
-   "why": "all words 530 ms late; shifted, 3/7 pauses fit"
-  },
-  "53:14": {
-   "first_onset_ms": 650,
-   "shift_ms": -630,
-   "why": "all words 630 ms late; shifted, 0/0 pauses fit"
-  },
-  "53:15": {
-   "first_onset_ms": 880,
-   "shift_ms": -860,
-   "why": "all words 860 ms late; shifted, 0/1 pauses fit"
-  },
-  "55:1": {
-   "first_onset_ms": 600,
-   "shift_ms": -580,
-   "why": "all words 580 ms late; shifted, 0/0 pauses fit"
-  },
-  "59:7": {
-   "first_onset_ms": 960,
-   "shift_ms": -920,
-   "why": "all words 920 ms late; shifted, 7/14 pauses fit"
+   "why": "both ends 200 ms out; 3/6 pauses fit"
   },
   "71:2": {
    "first_onset_ms": 370,
    "shift_ms": -310,
-   "why": "all words 310 ms late; shifted, 0/0 pauses fit"
+   "why": "both ends 310 ms out; 0/0 pauses fit"
+  }
+ },
+ "first_onset": {
+  "2:169": {
+   "from": 0,
+   "to": 560
   },
-  "75:32": {
-   "first_onset_ms": 360,
-   "shift_ms": -340,
-   "why": "all words 340 ms late; shifted, 1/1 pauses fit"
+  "2:203": {
+   "from": 0,
+   "to": 360
   },
-  "79:10": {
-   "first_onset_ms": 570,
-   "shift_ms": -530,
-   "why": "all words 530 ms late; shifted, 0/0 pauses fit"
+  "2:233": {
+   "from": 0,
+   "to": 780
   },
-  "82:12": {
-   "first_onset_ms": 490,
-   "shift_ms": -470,
-   "why": "all words 470 ms late; shifted, 0/0 pauses fit"
+  "2:243": {
+   "from": 0,
+   "to": 420
   },
-  "84:13": {
-   "first_onset_ms": 0,
-   "shift_ms": 380,
-   "why": "all words 380 ms early; shifted, 0/1 pauses fit"
+  "2:252": {
+   "from": 0,
+   "to": 520
   },
-  "89:27": {
-   "first_onset_ms": 1240,
-   "shift_ms": -1200,
-   "why": "all words 1200 ms late; shifted, 0/1 pauses fit"
+  "2:263": {
+   "from": 0,
+   "to": 380
+  },
+  "3:133": {
+   "from": 0,
+   "to": 480
+  },
+  "5:82": {
+   "from": 0,
+   "to": 320
+  },
+  "6:36": {
+   "from": 0,
+   "to": 380
+  },
+  "6:59": {
+   "from": 0,
+   "to": 480
+  },
+  "6:74": {
+   "from": 0,
+   "to": 600
+  },
+  "6:141": {
+   "from": 0,
+   "to": 800
+  },
+  "9:65": {
+   "from": 0,
+   "to": 680
+  },
+  "12:90": {
+   "from": 0,
+   "to": 740
+  },
+  "19:32": {
+   "from": 0,
+   "to": 400
+  },
+  "37:6": {
+   "from": 0,
+   "to": 520
+  },
+  "37:7": {
+   "from": 0,
+   "to": 540
+  },
+  "37:11": {
+   "from": 0,
+   "to": 380
+  },
+  "37:27": {
+   "from": 0,
+   "to": 440
+  },
+  "37:46": {
+   "from": 0,
+   "to": 340
+  },
+  "37:136": {
+   "from": 0,
+   "to": 500
+  },
+  "37:177": {
+   "from": 0,
+   "to": 320
+  },
+  "39:21": {
+   "from": 0,
+   "to": 320
+  },
+  "39:73": {
+   "from": 0,
+   "to": 340
+  }
+ },
+ "last_onset": {
+  "2:2": {
+   "from": 5610,
+   "to": 3640
+  },
+  "2:3": {
+   "from": 7690,
+   "to": 6400
+  },
+  "2:6": {
+   "from": 9810,
+   "to": 8540
+  },
+  "2:9": {
+   "from": 10050,
+   "to": 8540
+  },
+  "2:12": {
+   "from": 6810,
+   "to": 5400
+  },
+  "2:13": {
+   "from": 18730,
+   "to": 17260
+  },
+  "2:20": {
+   "from": 24210,
+   "to": 22440
+  },
+  "2:22": {
+   "from": 21490,
+   "to": 19800
+  },
+  "2:29": {
+   "from": 20930,
+   "to": 19820
+  },
+  "2:30": {
+   "from": 22850,
+   "to": 21360
+  },
+  "2:34": {
+   "from": 15890,
+   "to": 14220
+  },
+  "2:37": {
+   "from": 11690,
+   "to": 10460
+  },
+  "2:42": {
+   "from": 6370,
+   "to": 4980
+  },
+  "2:58": {
+   "from": 17730,
+   "to": 15940
+  },
+  "2:66": {
+   "from": 7250,
+   "to": 5600
+  },
+  "2:74": {
+   "from": 29610,
+   "to": 27660
+  },
+  "2:75": {
+   "from": 18010,
+   "to": 16560
+  },
+  "2:79": {
+   "from": 21690,
+   "to": 19840
+  },
+  "2:80": {
+   "from": 19090,
+   "to": 17520
+  },
+  "2:85": {
+   "from": 59170,
+   "to": 57620
+  },
+  "2:88": {
+   "from": 8610,
+   "to": 6880
+  },
+  "2:89": {
+   "from": 22810,
+   "to": 21180
+  },
+  "2:91": {
+   "from": 32090,
+   "to": 29880
+  },
+  "2:93": {
+   "from": 35170,
+   "to": 32820
+  },
+  "2:96": {
+   "from": 21050,
+   "to": 19660
+  },
+  "2:100": {
+   "from": 8370,
+   "to": 6840
+  },
+  "2:101": {
+   "from": 20650,
+   "to": 19180
+  },
+  "2:103": {
+   "from": 13330,
+   "to": 11980
+  },
+  "2:106": {
+   "from": 13690,
+   "to": 12160
+  },
+  "2:110": {
+   "from": 13250,
+   "to": 12400
+  },
+  "2:115": {
+   "from": 10570,
+   "to": 9420
+  },
+  "2:124": {
+   "from": 16810,
+   "to": 15200
+  },
+  "2:127": {
+   "from": 13290,
+   "to": 12160
+  },
+  "2:128": {
+   "from": 19450,
+   "to": 18180
+  },
+  "2:134": {
+   "from": 12810,
+   "to": 11020
+  },
+  "2:137": {
+   "from": 16129,
+   "to": 15020
+  },
+  "2:140": {
+   "from": 26690,
+   "to": 25040
+  },
+  "2:141": {
+   "from": 13370,
+   "to": 11420
+  },
+  "2:143": {
+   "from": 38530,
+   "to": 37280
+  },
+  "2:144": {
+   "from": 25410,
+   "to": 23960
+  },
+  "2:145": {
+   "from": 30730,
+   "to": 28880
+  },
+  "2:146": {
+   "from": 12330,
+   "to": 10860
+  },
+  "2:148": {
+   "from": 17610,
+   "to": 15780
+  },
+  "2:149": {
+   "from": 11970,
+   "to": 10560
+  },
+  "2:151": {
+   "from": 17810,
+   "to": 16500
+  },
+  "2:158": {
+   "from": 17290,
+   "to": 16020
+  },
+  "2:160": {
+   "from": 13650,
+   "to": 12480
+  },
+  "2:163": {
+   "from": 8610,
+   "to": 7240
+  },
+  "2:169": {
+   "from": 12130,
+   "to": 10060
+  },
+  "2:173": {
+   "from": 22410,
+   "to": 21240
+  },
+  "2:180": {
+   "from": 12450,
+   "to": 10880
+  },
+  "2:181": {
+   "from": 11250,
+   "to": 10200
+  },
+  "2:182": {
+   "from": 14610,
+   "to": 13360
+  },
+  "2:187": {
+   "from": 51690,
+   "to": 50300
+  },
+  "2:188": {
+   "from": 18650,
+   "to": 16440
+  },
+  "2:191": {
+   "from": 23730,
+   "to": 20880
+  },
+  "2:192": {
+   "from": 5330,
+   "to": 4140
+  },
+  "2:193": {
+   "from": 11410,
+   "to": 9940
+  },
+  "2:195": {
+   "from": 12170,
+   "to": 10560
+  },
+  "2:196": {
+   "from": 60490,
+   "to": 58600
+  },
+  "2:199": {
+   "from": 9210,
+   "to": 8000
+  },
+  "2:202": {
+   "from": 7330,
+   "to": 5980
+  },
+  "2:211": {
+   "from": 19090,
+   "to": 17660
+  },
+  "2:215": {
+   "from": 24290,
+   "to": 23120
+  },
+  "2:216": {
+   "from": 20650,
+   "to": 19100
+  },
+  "2:218": {
+   "from": 15690,
+   "to": 14540
+  },
+  "2:223": {
+   "from": 18770,
+   "to": 16880
+  },
+  "2:224": {
+   "from": 12530,
+   "to": 11180
+  },
+  "2:226": {
+   "from": 12970,
+   "to": 11900
+  },
+  "2:227": {
+   "from": 5050,
+   "to": 3820
+  },
+  "2:230": {
+   "from": 31290,
+   "to": 29480
+  },
+  "2:231": {
+   "from": 48970,
+   "to": 47740
+  },
+  "2:233": {
+   "from": 58730,
+   "to": 57780
+  },
+  "2:234": {
+   "from": 28890,
+   "to": 27920
+  },
+  "2:236": {
+   "from": 25010,
+   "to": 23260
+  },
+  "2:239": {
+   "from": 15530,
+   "to": 14120
+  },
+  "2:241": {
+   "from": 6410,
+   "to": 4900
+  },
+  "2:244": {
+   "from": 7890,
+   "to": 6580
+  },
+  "2:248": {
+   "from": 31050,
+   "to": 28680
+  },
+  "2:250": {
+   "from": 18290,
+   "to": 16500
+  },
+  "2:252": {
+   "from": 8690,
+   "to": 6540
+  },
+  "2:254": {
+   "from": 26050,
+   "to": 24120
+  },
+  "2:256": {
+   "from": 22770,
+   "to": 21600
+  },
+  "2:259": {
+   "from": 57930,
+   "to": 56260
+  },
+  "2:261": {
+   "from": 21530,
+   "to": 20220
+  },
+  "2:265": {
+   "from": 34610,
+   "to": 33560
+  },
+  "2:268": {
+   "from": 15690,
+   "to": 14400
+  },
+  "2:271": {
+   "from": 21410,
+   "to": 20540
+  },
+  "2:273": {
+   "from": 30290,
+   "to": 28980
+  },
+  "2:278": {
+   "from": 15170,
+   "to": 13080
+  },
+  "2:280": {
+   "from": 12370,
+   "to": 10220
+  },
+  "2:281": {
+   "from": 17410,
+   "to": 15400
+  },
+  "2:282": {
+   "from": 130210,
+   "to": 128760
+  },
+  "2:283": {
+   "from": 32409,
+   "to": 31320
+  },
+  "2:284": {
+   "from": 27370,
+   "to": 25760
+  },
+  "2:286": {
+   "from": 49410,
+   "to": 45360
+  },
+  "3:11": {
+   "from": 14170,
+   "to": 12520
+  },
+  "3:19": {
+   "from": 19890,
+   "to": 18360
+  },
+  "3:24": {
+   "from": 13530,
+   "to": 12040
+  },
+  "3:25": {
+   "from": 10730,
+   "to": 8920
+  },
+  "3:26": {
+   "from": 27570,
+   "to": 25900
+  },
+  "3:29": {
+   "from": 14410,
+   "to": 12660
+  },
+  "3:31": {
+   "from": 15250,
+   "to": 14060
+  },
+  "3:32": {
+   "from": 15130,
+   "to": 12680
+  },
+  "3:34": {
+   "from": 5450,
+   "to": 4400
+  },
+  "3:35": {
+   "from": 14930,
+   "to": 13700
+  },
+  "3:49": {
+   "from": 38450,
+   "to": 36360
+  },
+  "3:57": {
+   "from": 9250,
+   "to": 7820
+  },
+  "3:68": {
+   "from": 12810,
+   "to": 11040
+  },
+  "3:69": {
+   "from": 12370,
+   "to": 10940
+  },
+  "3:73": {
+   "from": 31330,
+   "to": 30200
+  },
+  "3:76": {
+   "from": 6730,
+   "to": 5160
+  },
+  "3:78": {
+   "from": 23730,
+   "to": 22300
+  },
+  "3:86": {
+   "from": 19370,
+   "to": 17780
+  },
+  "3:89": {
+   "from": 9730,
+   "to": 8280
+  },
+  "3:92": {
+   "from": 13930,
+   "to": 11960
+  },
+  "3:94": {
+   "from": 7490,
+   "to": 5820
+  },
+  "3:98": {
+   "from": 11690,
+   "to": 10060
+  },
+  "3:99": {
+   "from": 25410,
+   "to": 23120
+  },
+  "3:121": {
+   "from": 8250,
+   "to": 6980
+  },
+  "3:129": {
+   "from": 18610,
+   "to": 17000
+  },
+  "3:133": {
+   "from": 12850,
+   "to": 11040
+  },
+  "3:134": {
+   "from": 15370,
+   "to": 14000
+  },
+  "3:135": {
+   "from": 22330,
+   "to": 20840
+  },
+  "3:138": {
+   "from": 6130,
+   "to": 4320
+  },
+  "3:139": {
+   "from": 7930,
+   "to": 5940
+  },
+  "3:140": {
+   "from": 20890,
+   "to": 19360
+  },
+  "3:141": {
+   "from": 5570,
+   "to": 3800
+  },
+  "3:147": {
+   "from": 19090,
+   "to": 17400
+  },
+  "3:148": {
+   "from": 9930,
+   "to": 7720
+  },
+  "3:151": {
+   "from": 17010,
+   "to": 15280
+  },
+  "3:152": {
+   "from": 34370,
+   "to": 32780
+  },
+  "3:153": {
+   "from": 31050,
+   "to": 29560
+  },
+  "3:154": {
+   "from": 59370,
+   "to": 57360
+  },
+  "3:156": {
+   "from": 31930,
+   "to": 30860
+  },
+  "3:161": {
+   "from": 13410,
+   "to": 11660
+  },
+  "3:163": {
+   "from": 6370,
+   "to": 4920
+  },
+  "3:165": {
+   "from": 17050,
+   "to": 15380
+  },
+  "3:166": {
+   "from": 7690,
+   "to": 6120
+  },
+  "3:171": {
+   "from": 8370,
+   "to": 6900
+  },
+  "3:175": {
+   "from": 14730,
+   "to": 11760
+  },
+  "3:180": {
+   "from": 22770,
+   "to": 21780
+  },
+  "3:189": {
+   "from": 7770,
+   "to": 6060
+  },
+  "3:190": {
+   "from": 8290,
+   "to": 8080
+  },
+  "3:199": {
+   "from": 31330,
+   "to": 29720
+  },
+  "4:19": {
+   "from": 49370,
+   "to": 48940
+  },
+  "4:25": {
+   "from": 56490,
+   "to": 55360
+  },
+  "4:39": {
+   "from": 14850,
+   "to": 13320
+  },
+  "4:43": {
+   "from": 45570,
+   "to": 45440
+  },
+  "4:70": {
+   "from": 4810,
+   "to": 3720
+  },
+  "4:71": {
+   "from": 10290,
+   "to": 10100
+  },
+  "4:82": {
+   "from": 13290,
+   "to": 13280
+  },
+  "4:83": {
+   "from": 25690,
+   "to": 24400
+  },
+  "4:99": {
+   "from": 7370,
+   "to": 7240
+  },
+  "4:127": {
+   "from": 37290,
+   "to": 36100
+  },
+  "4:139": {
+   "from": 17730,
+   "to": 17540
+  },
+  "4:142": {
+   "from": 17530,
+   "to": 16240
+  },
+  "4:147": {
+   "from": 16570,
+   "to": 14860
+  },
+  "4:148": {
+   "from": 9970,
+   "to": 8800
+  },
+  "4:160": {
+   "from": 10890,
+   "to": 10780
+  },
+  "4:172": {
+   "from": 18810,
+   "to": 18760
+  },
+  "5:3": {
+   "from": 55050,
+   "to": 53560
+  },
+  "5:4": {
+   "from": 29330,
+   "to": 27680
+  },
+  "5:7": {
+   "from": 20170,
+   "to": 18400
+  },
+  "5:8": {
+   "from": 25370,
+   "to": 23740
+  },
+  "5:13": {
+   "from": 26650,
+   "to": 25120
+  },
+  "5:17": {
+   "from": 33610,
+   "to": 31860
+  },
+  "5:23": {
+   "from": 23050,
+   "to": 20840
+  },
+  "5:27": {
+   "from": 21610,
+   "to": 19740
+  },
+  "5:29": {
+   "from": 13410,
+   "to": 11000
+  },
+  "5:34": {
+   "from": 11250,
+   "to": 10120
+  },
+  "5:39": {
+   "from": 10010,
+   "to": 8640
+  },
+  "5:40": {
+   "from": 16650,
+   "to": 14640
+  },
+  "5:45": {
+   "from": 33690,
+   "to": 31860
+  },
+  "5:46": {
+   "from": 24730,
+   "to": 22620
+  },
+  "5:51": {
+   "from": 23890,
+   "to": 22320
+  },
+  "5:54": {
+   "from": 36050,
+   "to": 34760
+  },
+  "5:57": {
+   "from": 30450,
+   "to": 27660
+  },
+  "5:62": {
+   "from": 10930,
+   "to": 9220
+  },
+  "5:66": {
+   "from": 23010,
+   "to": 21320
+  },
+  "5:67": {
+   "from": 18090,
+   "to": 16460
+  },
+  "5:68": {
+   "from": 31210,
+   "to": 29180
+  },
+  "5:71": {
+   "from": 16250,
+   "to": 14820
+  },
+  "5:74": {
+   "from": 12130,
+   "to": 10740
+  },
+  "5:76": {
+   "from": 11530,
+   "to": 9940
+  },
+  "5:85": {
+   "from": 19570,
+   "to": 16860
+  },
+  "5:93": {
+   "from": 21650,
+   "to": 20160
+  },
+  "5:98": {
+   "from": 7810,
+   "to": 6580
+  },
+  "5:105": {
+   "from": 20450,
+   "to": 18700
+  },
+  "5:107": {
+   "from": 29530,
+   "to": 27600
+  },
+  "5:112": {
+   "from": 26530,
+   "to": 24220
+  },
+  "5:120": {
+   "from": 12090,
+   "to": 8160
+  },
+  "6:12": {
+   "from": 21490,
+   "to": 19860
+  },
+  "6:13": {
+   "from": 6050,
+   "to": 4580
+  },
+  "6:17": {
+   "from": 12330,
+   "to": 10760
+  },
+  "6:20": {
+   "from": 12250,
+   "to": 10760
+  },
+  "6:21": {
+   "from": 9210,
+   "to": 7340
+  },
+  "6:24": {
+   "from": 9730,
+   "to": 8020
+  },
+  "6:26": {
+   "from": 9050,
+   "to": 7600
+  },
+  "6:27": {
+   "from": 12690,
+   "to": 10760
+  },
+  "6:37": {
+   "from": 13730,
+   "to": 12340
+  },
+  "6:43": {
+   "from": 12810,
+   "to": 11640
+  },
+  "6:47": {
+   "from": 10410,
+   "to": 8980
+  },
+  "6:51": {
+   "from": 12610,
+   "to": 11520
+  },
+  "6:52": {
+   "from": 20690,
+   "to": 19120
+  },
+  "6:54": {
+   "from": 28730,
+   "to": 27720
+  },
+  "6:60": {
+   "from": 19490,
+   "to": 18000
+  },
+  "6:67": {
+   "from": 5650,
+   "to": 3800
+  },
+  "6:68": {
+   "from": 17850,
+   "to": 16420
+  },
+  "6:81": {
+   "from": 19210,
+   "to": 17520
+  },
+  "6:83": {
+   "from": 13010,
+   "to": 11820
+  },
+  "6:84": {
+   "from": 18330,
+   "to": 17120
+  },
+  "6:88": {
+   "from": 10850,
+   "to": 9520
+  },
+  "6:97": {
+   "from": 12530,
+   "to": 10980
+  },
+  "6:99": {
+   "from": 43410,
+   "to": 41680
+  },
+  "6:105": {
+   "from": 7690,
+   "to": 6040
+  },
+  "6:112": {
+   "from": 20690,
+   "to": 19260
+  },
+  "6:115": {
+   "from": 10850,
+   "to": 9620
+  },
+  "6:118": {
+   "from": 7570,
+   "to": 6240
+  },
+  "6:122": {
+   "from": 17710,
+   "to": 16500
+  },
+  "6:123": {
+   "from": 12410,
+   "to": 10880
+  },
+  "6:125": {
+   "from": 24210,
+   "to": 22780
+  },
+  "6:129": {
+   "from": 6650,
+   "to": 5180
+  },
+  "6:132": {
+   "from": 7650,
+   "to": 6240
+  },
+  "6:135": {
+   "from": 15570,
+   "to": 13880
+  },
+  "6:137": {
+   "from": 20250,
+   "to": 18720
+  },
+  "6:138": {
+   "from": 29570,
+   "to": 28200
+  },
+  "6:139": {
+   "from": 22090,
+   "to": 20800
+  },
+  "6:154": {
+   "from": 18850,
+   "to": 17580
+  },
+  "6:160": {
+   "from": 17890,
+   "to": 16280
+  },
+  "6:165": {
+   "from": 21650,
+   "to": 19500
+  },
+  "7:6": {
+   "from": 6930,
+   "to": 4980
+  },
+  "7:28": {
+   "from": 25330,
+   "to": 23820
+  },
+  "7:32": {
+   "from": 19970,
+   "to": 18280
+  },
+  "7:33": {
+   "from": 20330,
+   "to": 18680
+  },
+  "7:41": {
+   "from": 10250,
+   "to": 8720
+  },
+  "7:44": {
+   "from": 26410,
+   "to": 24860
+  },
+  "7:47": {
+   "from": 12970,
+   "to": 11240
+  },
+  "7:52": {
+   "from": 11330,
+   "to": 9680
+  },
+  "7:56": {
+   "from": 13770,
+   "to": 10840
+  },
+  "7:62": {
+   "from": 8610,
+   "to": 7000
+  },
+  "7:70": {
+   "from": 15130,
+   "to": 13360
+  },
+  "7:95": {
+   "from": 22450,
+   "to": 20780
+  },
+  "7:96": {
+   "from": 21170,
+   "to": 19740
+  },
+  "7:101": {
+   "from": 23890,
+   "to": 22080
+  },
+  "7:105": {
+   "from": 15970,
+   "to": 13300
+  },
+  "7:106": {
+   "from": 8930,
+   "to": 7140
+  },
+  "7:109": {
+   "from": 6730,
+   "to": 5460
+  },
+  "7:118": {
+   "from": 4490,
+   "to": 3120
+  },
+  "7:123": {
+   "from": 16970,
+   "to": 15100
+  },
+  "7:128": {
+   "from": 15330,
+   "to": 13740
+  },
+  "7:129": {
+   "from": 19810,
+   "to": 17440
+  },
+  "7:131": {
+   "from": 23850,
+   "to": 22220
+  },
+  "7:139": {
+   "from": 11210,
+   "to": 9800
+  },
+  "7:143": {
+   "from": 45050,
+   "to": 43160
+  },
+  "7:147": {
+   "from": 13210,
+   "to": 11500
+  },
+  "7:153": {
+   "from": 16970,
+   "to": 15040
+  },
+  "7:164": {
+   "from": 18250,
+   "to": 16640
+  },
+  "7:180": {
+   "from": 14970,
+   "to": 13120
+  },
+  "7:182": {
+   "from": 7170,
+   "to": 5740
+  },
+  "7:185": {
+   "from": 20850,
+   "to": 19140
+  },
+  "7:187": {
+   "from": 35810,
+   "to": 34000
+  },
+  "7:188": {
+   "from": 22850,
+   "to": 20160
+  },
+  "7:200": {
+   "from": 12690,
+   "to": 11140
+  },
+  "7:203": {
+   "from": 24090,
+   "to": 22420
+  },
+  "8:1": {
+   "from": 19010,
+   "to": 16780
+  },
+  "8:3": {
+   "from": 6730,
+   "to": 5280
+  },
+  "8:6": {
+   "from": 9210,
+   "to": 7520
+  },
+  "8:7": {
+   "from": 19810,
+   "to": 18120
+  },
+  "8:8": {
+   "from": 6090,
+   "to": 4040
+  },
+  "8:17": {
+   "from": 18010,
+   "to": 16740
+  },
+  "8:18": {
+   "from": 5450,
+   "to": 3620
+  },
+  "8:19": {
+   "from": 20370,
+   "to": 18500
+  },
+  "8:25": {
+   "from": 14130,
+   "to": 12460
+  },
+  "8:27": {
+   "from": 14730,
+   "to": 13120
+  },
+  "8:31": {
+   "from": 19890,
+   "to": 17960
+  },
+  "8:34": {
+   "from": 22930,
+   "to": 21420
+  },
+  "8:38": {
+   "from": 12090,
+   "to": 9960
+  },
+  "8:39": {
+   "from": 21930,
+   "to": 20980
+  },
+  "8:43": {
+   "from": 18170,
+   "to": 16660
+  },
+  "8:52": {
+   "from": 16970,
+   "to": 14960
+  },
+  "8:53": {
+   "from": 17010,
+   "to": 15960
+  },
+  "8:55": {
+   "from": 9650,
+   "to": 8100
+  },
+  "8:56": {
+   "from": 14330,
+   "to": 12740
+  },
+  "8:61": {
+   "from": 9690,
+   "to": 8380
+  },
+  "8:64": {
+   "from": 7850,
+   "to": 6180
+  },
+  "8:69": {
+   "from": 9930,
+   "to": 8540
+  },
+  "8:70": {
+   "from": 23290,
+   "to": 21960
+  },
+  "8:72": {
+   "from": 45730,
+   "to": 44620
+  },
+  "8:75": {
+   "from": 20370,
+   "to": 18080
+  },
+  "9:2": {
+   "from": 17530,
+   "to": 15480
+  },
+  "9:4": {
+   "from": 25410,
+   "to": 23680
+  },
+  "9:5": {
+   "from": 23530,
+   "to": 22220
+  },
+  "9:6": {
+   "from": 18090,
+   "to": 16380
+  },
+  "9:7": {
+   "from": 24490,
+   "to": 22900
+  },
+  "9:9": {
+   "from": 12770,
+   "to": 11260
+  },
+  "9:11": {
+   "from": 12450,
+   "to": 10420
+  },
+  "9:13": {
+   "from": 24930,
+   "to": 22860
+  },
+  "9:14": {
+   "from": 13410,
+   "to": 12260
+  },
+  "9:16": {
+   "from": 21690,
+   "to": 19840
+  },
+  "9:19": {
+   "from": 21930,
+   "to": 20240
+  },
+  "9:23": {
+   "from": 30610,
+   "to": 28660
+  },
+  "9:26": {
+   "from": 18250,
+   "to": 15340
+  },
+  "9:27": {
+   "from": 11090,
+   "to": 9560
+  },
+  "9:31": {
+   "from": 30690,
+   "to": 29020
+  },
+  "9:39": {
+   "from": 28730,
+   "to": 26600
+  },
+  "9:62": {
+   "from": 12530,
+   "to": 10640
+  },
+  "9:82": {
+   "from": 9450,
+   "to": 7840
+  },
+  "9:92": {
+   "from": 21890,
+   "to": 19360
+  },
+  "9:93": {
+   "from": 17770,
+   "to": 15780
+  },
+  "9:98": {
+   "from": 17250,
+   "to": 15440
+  },
+  "9:103": {
+   "from": 17290,
+   "to": 15740
+  },
+  "9:104": {
+   "from": 14010,
+   "to": 12520
+  },
+  "9:105": {
+   "from": 16810,
+   "to": 14860
+  },
+  "9:109": {
+   "from": 24570,
+   "to": 22400
+  },
+  "9:112": {
+   "from": 23730,
+   "to": 21240
+  },
+  "9:115": {
+   "from": 15610,
+   "to": 14060
+  },
+  "9:117": {
+   "from": 26690,
+   "to": 24800
+  },
+  "9:118": {
+   "from": 33610,
+   "to": 31760
+  },
+  "9:119": {
+   "from": 8170,
+   "to": 5580
+  },
+  "9:121": {
+   "from": 20010,
+   "to": 17820
+  },
+  "9:123": {
+   "from": 15770,
+   "to": 13700
+  },
+  "9:128": {
+   "from": 18410,
+   "to": 16240
+  },
+  "10:5": {
+   "from": 23050,
+   "to": 20920
+  },
+  "10:6": {
+   "from": 16290,
+   "to": 14000
+  },
+  "10:8": {
+   "from": 7730,
+   "to": 5780
+  },
+  "10:12": {
+   "from": 25670,
+   "to": 24020
+  },
+  "10:14": {
+   "from": 13170,
+   "to": 10780
+  },
+  "10:17": {
+   "from": 10770,
+   "to": 8960
+  },
+  "10:30": {
+   "from": 17610,
+   "to": 15420
+  },
+  "10:33": {
+   "from": 9650,
+   "to": 7220
+  },
+  "10:39": {
+   "from": 16290,
+   "to": 14780
+  },
+  "10:41": {
+   "from": 20130,
+   "to": 18100
+  },
+  "10:47": {
+   "from": 15970,
+   "to": 14260
+  },
+  "10:50": {
+   "from": 8970,
+   "to": 7280
+  },
+  "10:54": {
+   "from": 16770,
+   "to": 14940
+  },
+  "10:55": {
+   "from": 14330,
+   "to": 12680
+  },
+  "10:63": {
+   "from": 4330,
+   "to": 2960
+  },
+  "10:65": {
+   "from": 9530,
+   "to": 8220
+  },
+  "10:82": {
+   "from": 6570,
+   "to": 4640
+  },
+  "10:85": {
+   "from": 9890,
+   "to": 7620
+  },
+  "10:86": {
+   "from": 5330,
+   "to": 3220
+  },
+  "10:87": {
+   "from": 15610,
+   "to": 13780
+  },
+  "10:89": {
+   "from": 11450,
+   "to": 9680
+  },
+  "10:96": {
+   "from": 6010,
+   "to": 4440
+  },
+  "10:99": {
+   "from": 13490,
+   "to": 11940
+  },
+  "10:101": {
+   "from": 11450,
+   "to": 9680
+  },
+  "10:103": {
+   "from": 10210,
+   "to": 7600
+  },
+  "10:106": {
+   "from": 12690,
+   "to": 10640
+  },
+  "11:4": {
+   "from": 5850,
+   "to": 4120
+  },
+  "11:5": {
+   "from": 17450,
+   "to": 15840
+  },
+  "11:17": {
+   "from": 39850,
+   "to": 38200
+  },
+  "11:18": {
+   "from": 19770,
+   "to": 18100
+  },
+  "11:21": {
+   "from": 11090,
+   "to": 9720
+  },
+  "11:31": {
+   "from": 32170,
+   "to": 30280
+  },
+  "11:41": {
+   "from": 10130,
+   "to": 8680
+  },
+  "11:49": {
+   "from": 18770,
+   "to": 16840
+  },
+  "11:66": {
+   "from": 16810,
+   "to": 16560
+  },
+  "11:111": {
+   "from": 10410,
+   "to": 9400
+  },
+  "11:112": {
+   "from": 10210,
+   "to": 9260
+  },
+  "11:115": {
+   "from": 5490,
+   "to": 3660
+  },
+  "11:123": {
+   "from": 19130,
+   "to": 16220
+  },
+  "12:15": {
+   "from": 16530,
+   "to": 14660
+  },
+  "12:21": {
+   "from": 38410,
+   "to": 36160
+  },
+  "12:22": {
+   "from": 9730,
+   "to": 8160
+  },
+  "12:23": {
+   "from": 22970,
+   "to": 21160
+  },
+  "12:27": {
+   "from": 8370,
+   "to": 6260
+  },
+  "12:34": {
+   "from": 10010,
+   "to": 8540
+  },
+  "12:36": {
+   "from": 25370,
+   "to": 23580
+  },
+  "12:40": {
+   "from": 34770,
+   "to": 33180
+  },
+  "12:46": {
+   "from": 21930,
+   "to": 20360
+  },
+  "12:50": {
+   "from": 21610,
+   "to": 19980
+  },
+  "12:51": {
+   "from": 31130,
+   "to": 29160
+  },
+  "12:53": {
+   "from": 20570,
+   "to": 18820
+  },
+  "12:55": {
+   "from": 7530,
+   "to": 6180
+  },
+  "12:56": {
+   "from": 15930,
+   "to": 14220
+  },
+  "12:57": {
+   "from": 7530,
+   "to": 5680
+  },
+  "12:68": {
+   "from": 27570,
+   "to": 25320
+  },
+  "12:69": {
+   "from": 14010,
+   "to": 12320
+  },
+  "12:75": {
+   "from": 10690,
+   "to": 9060
+  },
+  "12:76": {
+   "from": 34730,
+   "to": 33280
+  },
+  "12:86": {
+   "from": 12130,
+   "to": 10600
+  },
+  "12:90": {
+   "from": 21570,
+   "to": 18940
+  },
+  "12:96": {
+   "from": 18170,
+   "to": 16420
+  },
+  "12:98": {
+   "from": 7850,
+   "to": 6360
+  },
+  "12:107": {
+   "from": 14890,
+   "to": 13000
+  },
+  "12:111": {
+   "from": 27490,
+   "to": 24960
+  },
+  "13:1": {
+   "from": 21050,
+   "to": 19440
+  },
+  "13:6": {
+   "from": 17850,
+   "to": 16480
+  },
+  "13:19": {
+   "from": 11250,
+   "to": 11080
+  },
+  "13:21": {
+   "from": 14290,
+   "to": 12220
+  },
+  "13:41": {
+   "from": 12210,
+   "to": 10760
+  },
+  "14:13": {
+   "from": 16770,
+   "to": 15140
+  },
+  "14:36": {
+   "from": 16010,
+   "to": 14900
+  },
+  "14:51": {
+   "from": 10450,
+   "to": 9160
+  },
+  "15:3": {
+   "from": 5970,
+   "to": 4540
+  },
+  "15:7": {
+   "from": 6850,
+   "to": 5080
+  },
+  "15:10": {
+   "from": 4770,
+   "to": 3380
+  },
+  "15:13": {
+   "from": 4970,
+   "to": 3100
+  },
+  "15:25": {
+   "from": 8010,
+   "to": 5940
+  },
+  "15:49": {
+   "from": 6370,
+   "to": 5360
+  },
+  "15:51": {
+   "from": 2290,
+   "to": 1980
+  },
+  "15:80": {
+   "from": 3850,
+   "to": 2660
+  },
+  "15:84": {
+   "from": 5690,
+   "to": 4240
+  },
+  "15:86": {
+   "from": 4290,
+   "to": 3180
+  },
+  "15:93": {
+   "from": 2610,
+   "to": 1440
+  },
+  "15:96": {
+   "from": 6050,
+   "to": 4560
+  },
+  "15:97": {
+   "from": 6010,
+   "to": 4460
+  },
+  "16:1": {
+   "from": 9010,
+   "to": 7440
+  },
+  "16:3": {
+   "from": 5810,
+   "to": 4460
+  },
+  "16:7": {
+   "from": 12210,
+   "to": 11000
+  },
+  "16:8": {
+   "from": 7650,
+   "to": 6240
+  },
+  "16:18": {
+   "from": 9090,
+   "to": 7680
+  },
+  "16:24": {
+   "from": 9450,
+   "to": 7840
+  },
+  "16:26": {
+   "from": 18370,
+   "to": 16960
+  },
+  "16:27": {
+   "from": 22690,
+   "to": 21200
+  },
+  "16:28": {
+   "from": 20290,
+   "to": 18660
+  },
+  "16:30": {
+   "from": 17210,
+   "to": 15400
+  },
+  "16:31": {
+   "from": 19010,
+   "to": 17460
+  },
+  "16:32": {
+   "from": 13050,
+   "to": 10920
+  },
+  "16:38": {
+   "from": 12530,
+   "to": 11100
+  },
+  "16:41": {
+   "from": 14570,
+   "to": 13260
+  },
+  "16:43": {
+   "from": 12730,
+   "to": 11400
+  },
+  "16:45": {
+   "from": 12130,
+   "to": 10800
+  },
+  "16:47": {
+   "from": 7970,
+   "to": 6460
+  },
+  "16:54": {
+   "from": 10890,
+   "to": 9280
+  },
+  "16:55": {
+   "from": 6970,
+   "to": 5420
+  },
+  "16:64": {
+   "from": 14130,
+   "to": 12380
+  },
+  "16:70": {
+   "from": 18610,
+   "to": 17260
+  },
+  "16:74": {
+   "from": 9530,
+   "to": 7900
+  },
+  "16:75": {
+   "from": 24170,
+   "to": 22620
+  },
+  "16:77": {
+   "from": 16730,
+   "to": 15080
+  },
+  "16:79": {
+   "from": 15690,
+   "to": 13220
+  },
+  "16:87": {
+   "from": 12690,
+   "to": 10580
+  },
+  "16:93": {
+   "from": 19530,
+   "to": 17800
+  },
+  "16:95": {
+   "from": 11450,
+   "to": 9720
+  },
+  "16:96": {
+   "from": 18770,
+   "to": 17400
+  },
+  "16:97": {
+   "from": 15850,
+   "to": 14520
+  },
+  "16:101": {
+   "from": 17050,
+   "to": 15600
+  },
+  "16:107": {
+   "from": 9930,
+   "to": 8320
+  },
+  "16:110": {
+   "from": 19010,
+   "to": 17200
+  },
+  "16:111": {
+   "from": 10490,
+   "to": 8940
+  },
+  "16:115": {
+   "from": 19370,
+   "to": 18100
+  },
+  "16:119": {
+   "from": 20570,
+   "to": 18900
+  },
+  "17:44": {
+   "from": 17290,
+   "to": 17360
+  },
+  "17:52": {
+   "from": 9450,
+   "to": 8320
+  },
+  "17:62": {
+   "from": 19450,
+   "to": 18060
+  },
+  "17:74": {
+   "from": 7770,
+   "to": 6200
+  },
+  "17:76": {
+   "from": 9730,
+   "to": 8560
+  },
+  "17:85": {
+   "from": 10090,
+   "to": 8760
+  },
+  "17:103": {
+   "from": 5650,
+   "to": 5380
+  },
+  "18:2": {
+   "from": 12970,
+   "to": 12980
+  },
+  "18:3": {
+   "from": 1490,
+   "to": 1440
+  },
+  "18:5": {
+   "from": 15810,
+   "to": 14580
+  },
+  "18:15": {
+   "from": 16850,
+   "to": 15840
+  },
+  "18:20": {
+   "from": 11730,
+   "to": 11780
+  },
+  "18:35": {
+   "from": 9930,
+   "to": 9680
+  },
+  "18:57": {
+   "from": 25650,
+   "to": 25700
+  },
+  "19:9": {
+   "from": 8530,
+   "to": 8660
+  },
+  "19:39": {
+   "from": 11330,
+   "to": 9240
+  },
+  "19:42": {
+   "from": 12590,
+   "to": 12480
+  },
+  "19:60": {
+   "from": 14290,
+   "to": 14720
+  },
+  "19:67": {
+   "from": 6010,
+   "to": 6060
+  },
+  "20:9": {
+   "from": 2050,
+   "to": 1720
+  },
+  "20:11": {
+   "from": 3410,
+   "to": 3240
+  },
+  "20:17": {
+   "from": 2410,
+   "to": 2280
+  },
+  "20:18": {
+   "from": 8450,
+   "to": 7260
+  },
+  "20:22": {
+   "from": 8850,
+   "to": 7640
+  },
+  "20:33": {
+   "from": 1370,
+   "to": 1320
+  },
+  "20:34": {
+   "from": 1090,
+   "to": 1020
+  },
+  "20:37": {
+   "from": 4250,
+   "to": 2920
+  },
+  "20:55": {
+   "from": 7250,
+   "to": 6000
+  },
+  "20:67": {
+   "from": 3330,
+   "to": 2660
+  },
+  "20:72": {
+   "from": 16530,
+   "to": 15540
+  },
+  "20:91": {
+   "from": 5130,
+   "to": 4960
+  },
+  "21:4": {
+   "from": 6650,
+   "to": 5600
+  },
+  "21:6": {
+   "from": 6530,
+   "to": 5320
+  },
+  "21:7": {
+   "from": 11410,
+   "to": 10120
+  },
+  "21:8": {
+   "from": 6210,
+   "to": 4900
+  },
+  "21:27": {
+   "from": 4770,
+   "to": 3480
+  },
+  "21:29": {
+   "from": 12850,
+   "to": 11640
+  },
+  "21:30": {
+   "from": 15170,
+   "to": 13800
+  },
+  "21:48": {
+   "from": 7930,
+   "to": 6400
+  },
+  "21:59": {
+   "from": 6570,
+   "to": 5140
+  },
+  "21:64": {
+   "from": 9010,
+   "to": 7180
+  },
+  "21:88": {
+   "from": 7250,
+   "to": 5540
+  },
+  "22:6": {
+   "from": 10850,
+   "to": 9080
+  },
+  "22:35": {
+   "from": 16370,
+   "to": 14860
+  },
+  "22:37": {
+   "from": 21610,
+   "to": 19640
+  },
+  "22:40": {
+   "from": 36130,
+   "to": 35900
+  },
+  "22:60": {
+   "from": 22130,
+   "to": 20780
+  },
+  "22:61": {
+   "from": 12130,
+   "to": 10300
+  },
+  "22:63": {
+   "from": 13050,
+   "to": 11740
+  },
+  "22:65": {
+   "from": 20330,
+   "to": 19000
+  },
+  "22:68": {
+   "from": 5890,
+   "to": 4320
+  },
+  "22:74": {
+   "from": 5250,
+   "to": 4980
+  },
+  "22:75": {
+   "from": 11250,
+   "to": 9400
+  },
+  "23:24": {
+   "from": 23810,
+   "to": 21820
+  },
+  "23:28": {
+   "from": 12130,
+   "to": 10560
+  },
+  "23:41": {
+   "from": 13890,
+   "to": 11820
+  },
+  "23:44": {
+   "from": 21530,
+   "to": 20140
+  },
+  "23:51": {
+   "from": 12250,
+   "to": 11300
+  },
+  "23:56": {
+   "from": 6490,
+   "to": 4360
+  },
+  "23:58": {
+   "from": 4450,
+   "to": 3200
+  },
+  "23:62": {
+   "from": 10410,
+   "to": 8600
+  },
+  "23:68": {
+   "from": 9010,
+   "to": 7300
+  },
+  "23:83": {
+   "from": 13970,
+   "to": 12200
+  },
+  "23:84": {
+   "from": 7650,
+   "to": 5560
+  },
+  "23:88": {
+   "from": 13810,
+   "to": 11800
+  },
+  "23:92": {
+   "from": 7730,
+   "to": 5340
+  },
+  "23:94": {
+   "from": 4170,
+   "to": 2800
+  },
+  "23:114": {
+   "from": 7330,
+   "to": 5440
+  },
+  "24:2": {
+   "from": 28410,
+   "to": 25820
+  },
+  "24:3": {
+   "from": 17010,
+   "to": 14500
+  },
+  "24:5": {
+   "from": 10850,
+   "to": 9240
+  },
+  "24:6": {
+   "from": 23050,
+   "to": 20840
+  },
+  "24:9": {
+   "from": 11930,
+   "to": 9840
+  },
+  "24:17": {
+   "from": 10890,
+   "to": 8660
+  },
+  "24:19": {
+   "from": 18490,
+   "to": 16620
+  },
+  "24:20": {
+   "from": 11930,
+   "to": 10040
+  },
+  "24:22": {
+   "from": 26370,
+   "to": 24560
+  },
+  "24:24": {
+   "from": 10690,
+   "to": 9180
+  },
+  "24:28": {
+   "from": 17490,
+   "to": 16380
+  },
+  "24:32": {
+   "from": 18530,
+   "to": 17300
+  },
+  "24:34": {
+   "from": 14690,
+   "to": 12740
+  },
+  "24:39": {
+   "from": 27050,
+   "to": 25420
+  },
+  "24:45": {
+   "from": 32610,
+   "to": 30540
+  },
+  "24:50": {
+   "from": 15850,
+   "to": 13840
+  },
+  "24:53": {
+   "from": 16610,
+   "to": 15060
+  },
+  "24:60": {
+   "from": 33890,
+   "to": 31980
+  },
+  "24:64": {
+   "from": 27810,
+   "to": 25780
+  },
+  "25:14": {
+   "from": 5330,
+   "to": 5100
+  },
+  "25:49": {
+   "from": 9450,
+   "to": 9240
+  },
+  "26:8": {
+   "from": 5650,
+   "to": 4400
+  },
+  "26:9": {
+   "from": 3650,
+   "to": 2640
+  },
+  "26:10": {
+   "from": 5450,
+   "to": 4040
+  },
+  "26:11": {
+   "from": 2770,
+   "to": 1560
+  },
+  "26:17": {
+   "from": 5290,
+   "to": 2360
+  },
+  "26:19": {
+   "from": 5290,
+   "to": 3920
+  },
+  "26:21": {
+   "from": 7770,
+   "to": 6560
+  },
+  "26:22": {
+   "from": 8690,
+   "to": 5760
+  },
+  "26:26": {
+   "from": 5490,
+   "to": 3340
+  },
+  "26:31": {
+   "from": 5210,
+   "to": 3540
+  },
+  "26:34": {
+   "from": 5970,
+   "to": 4900
+  },
+  "26:51": {
+   "from": 9290,
+   "to": 7740
+  },
+  "26:59": {
+   "from": 5650,
+   "to": 2840
+  },
+  "26:67": {
+   "from": 7490,
+   "to": 5600
+  },
+  "26:68": {
+   "from": 4850,
+   "to": 3500
+  },
+  "26:90": {
+   "from": 4250,
+   "to": 2240
+  },
+  "26:99": {
+   "from": 5690,
+   "to": 3780
+  },
+  "26:102": {
+   "from": 5610,
+   "to": 4140
+  },
+  "26:103": {
+   "from": 6770,
+   "to": 5280
+  },
+  "26:104": {
+   "from": 4250,
+   "to": 2860
+  },
+  "26:105": {
+   "from": 3250,
+   "to": 1640
+  },
+  "26:112": {
+   "from": 3650,
+   "to": 2540
+  },
+  "26:114": {
+   "from": 4410,
+   "to": 2640
+  },
+  "26:118": {
+   "from": 8090,
+   "to": 6380
+  },
+  "26:121": {
+   "from": 7290,
+   "to": 5460
+  },
+  "26:122": {
+   "from": 4770,
+   "to": 3460
+  },
+  "26:123": {
+   "from": 3410,
+   "to": 1440
+  },
+  "26:132": {
+   "from": 6450,
+   "to": 4860
+  },
+  "26:137": {
+   "from": 5010,
+   "to": 2840
+  },
+  "26:139": {
+   "from": 10250,
+   "to": 8380
+  },
+  "26:140": {
+   "from": 4850,
+   "to": 3440
+  },
+  "26:141": {
+   "from": 3130,
+   "to": 1700
+  },
+  "26:154": {
+   "from": 9450,
+   "to": 7640
+  },
+  "26:158": {
+   "from": 9970,
+   "to": 8240
+  },
+  "26:159": {
+   "from": 3890,
+   "to": 2860
+  },
+  "26:160": {
+   "from": 3490,
+   "to": 1720
+  },
+  "26:169": {
+   "from": 4690,
+   "to": 2820
+  },
+  "26:174": {
+   "from": 6970,
+   "to": 5360
+  },
+  "26:175": {
+   "from": 4290,
+   "to": 3140
+  },
+  "26:176": {
+   "from": 3810,
+   "to": 2300
+  },
+  "26:184": {
+   "from": 5210,
+   "to": 3420
+  },
+  "26:187": {
+   "from": 7890,
+   "to": 6080
+  },
+  "26:188": {
+   "from": 5090,
+   "to": 3660
+  },
+  "26:190": {
+   "from": 9210,
+   "to": 7660
+  },
+  "26:191": {
+   "from": 4330,
+   "to": 3160
+  },
+  "26:196": {
+   "from": 3770,
+   "to": 2060
+  },
+  "26:197": {
+   "from": 9370,
+   "to": 6420
+  },
+  "26:199": {
+   "from": 5210,
+   "to": 3620
+  },
+  "26:202": {
+   "from": 5130,
+   "to": 3640
+  },
+  "26:215": {
+   "from": 4450,
+   "to": 2880
+  },
+  "26:216": {
+   "from": 6610,
+   "to": 4860
+  },
+  "26:220": {
+   "from": 3570,
+   "to": 2220
+  },
+  "27:11": {
+   "from": 9730,
+   "to": 8240
+  },
+  "27:15": {
+   "from": 11170,
+   "to": 9540
+  },
+  "27:50": {
+   "from": 5290,
+   "to": 3940
+  },
+  "27:52": {
+   "from": 9810,
+   "to": 8120
+  },
+  "27:53": {
+   "from": 4530,
+   "to": 3440
+  },
+  "27:59": {
+   "from": 11610,
+   "to": 9700
+  },
+  "27:63": {
+   "from": 16050,
+   "to": 14760
+  },
+  "27:68": {
+   "from": 11690,
+   "to": 10160
+  },
+  "27:78": {
+   "from": 6010,
+   "to": 5080
+  },
+  "27:84": {
+   "from": 16090,
+   "to": 14660
+  },
+  "27:86": {
+   "from": 10730,
+   "to": 9320
+  },
+  "27:90": {
+   "from": 11250,
+   "to": 9420
+  },
+  "27:93": {
+   "from": 14090,
+   "to": 11380
+  },
+  "28:3": {
+   "from": 7210,
+   "to": 5440
+  },
+  "28:7": {
+   "from": 25770,
+   "to": 23700
+  },
+  "28:9": {
+   "from": 17450,
+   "to": 15920
+  },
+  "28:10": {
+   "from": 16570,
+   "to": 15100
+  },
+  "28:11": {
+   "from": 10730,
+   "to": 9280
+  },
+  "28:13": {
+   "from": 18770,
+   "to": 17400
+  },
+  "28:14": {
+   "from": 10250,
+   "to": 8960
+  },
+  "28:16": {
+   "from": 8650,
+   "to": 7540
+  },
+  "28:21": {
+   "from": 9290,
+   "to": 7560
+  },
+  "28:36": {
+   "from": 18290,
+   "to": 16460
+  },
+  "28:37": {
+   "from": 14810,
+   "to": 13100
+  },
+  "28:40": {
+   "from": 8850,
+   "to": 7280
+  },
+  "28:47": {
+   "from": 21490,
+   "to": 20020
+  },
+  "28:50": {
+   "from": 16970,
+   "to": 15540
+  },
+  "28:52": {
+   "from": 6890,
+   "to": 5580
+  },
+  "28:54": {
+   "from": 12530,
+   "to": 11200
+  },
+  "28:57": {
+   "from": 27690,
+   "to": 26240
+  },
+  "28:65": {
+   "from": 7930,
+   "to": 5680
+  },
+  "28:68": {
+   "from": 13210,
+   "to": 11600
+  },
+  "28:75": {
+   "from": 16610,
+   "to": 15560
+  },
+  "28:78": {
+   "from": 28450,
+   "to": 26540
+  },
+  "28:83": {
+   "from": 12130,
+   "to": 10300
+  },
+  "28:84": {
+   "from": 19530,
+   "to": 18180
+  },
+  "29:5": {
+   "from": 11850,
+   "to": 10780
+  },
+  "29:7": {
+   "from": 10890,
+   "to": 9640
+  },
+  "29:8": {
+   "from": 16890,
+   "to": 15420
+  },
+  "29:13": {
+   "from": 11530,
+   "to": 9760
+  },
+  "29:16": {
+   "from": 9530,
+   "to": 7880
+  },
+  "29:20": {
+   "from": 13290,
+   "to": 11840
+  },
+  "29:24": {
+   "from": 20570,
+   "to": 19080
+  },
+  "29:29": {
+   "from": 19850,
+   "to": 18120
+  },
+  "29:41": {
+   "from": 18690,
+   "to": 17380
+  },
+  "29:49": {
+   "from": 10850,
+   "to": 9100
+  },
+  "29:51": {
+   "from": 18850,
+   "to": 17180
+  },
+  "29:53": {
+   "from": 22170,
+   "to": 20640
+  },
+  "29:55": {
+   "from": 9410,
+   "to": 7820
+  },
+  "29:60": {
+   "from": 14450,
+   "to": 13260
+  },
+  "29:62": {
+   "from": 10330,
+   "to": 9100
+  },
+  "29:64": {
+   "from": 16970,
+   "to": 15620
+  },
+  "29:65": {
+   "from": 10330,
+   "to": 8740
+  },
+  "29:66": {
+   "from": 9010,
+   "to": 7520
+  },
+  "29:69": {
+   "from": 9650,
+   "to": 7140
+  },
+  "30:5": {
+   "from": 8010,
+   "to": 6880
+  },
+  "30:6": {
+   "from": 7250,
+   "to": 5800
+  },
+  "30:12": {
+   "from": 3890,
+   "to": 2480
+  },
+  "30:30": {
+   "from": 18170,
+   "to": 16720
+  },
+  "30:33": {
+   "from": 22610,
+   "to": 21080
+  },
+  "30:34": {
+   "from": 6570,
+   "to": 5180
+  },
+  "30:35": {
+   "from": 7410,
+   "to": 5940
+  },
+  "30:37": {
+   "from": 12010,
+   "to": 10340
+  },
+  "30:40": {
+   "from": 21370,
+   "to": 19920
+  },
+  "30:45": {
+   "from": 9370,
+   "to": 7600
+  },
+  "30:47": {
+   "from": 19890,
+   "to": 17260
+  },
+  "30:50": {
+   "from": 13690,
+   "to": 12100
+  },
+  "30:56": {
+   "from": 13610,
+   "to": 12080
+  },
+  "30:59": {
+   "from": 5010,
+   "to": 3760
+  },
+  "31:15": {
+   "from": 27490,
+   "to": 25960
+  },
+  "31:16": {
+   "from": 19690,
+   "to": 18560
+  },
+  "31:23": {
+   "from": 13410,
+   "to": 11980
+  },
+  "31:25": {
+   "from": 12010,
+   "to": 10560
+  },
+  "31:28": {
+   "from": 14650,
+   "to": 12920
+  },
+  "31:29": {
+   "from": 19290,
+   "to": 18220
+  },
+  "31:34": {
+   "from": 20890,
+   "to": 19000
+  },
+  "32:6": {
+   "from": 4690,
+   "to": 3700
+  },
+  "32:14": {
+   "from": 13170,
+   "to": 11240
+  },
+  "32:16": {
+   "from": 14690,
+   "to": 13360
+  },
+  "32:17": {
+   "from": 12290,
+   "to": 11080
+  },
+  "32:19": {
+   "from": 12890,
+   "to": 11400
+  },
+  "32:23": {
+   "from": 12970,
+   "to": 10300
+  },
+  "33:16": {
+   "from": 9850,
+   "to": 8620
+  },
+  "33:18": {
+   "from": 16570,
+   "to": 15360
+  },
+  "33:20": {
+   "from": 22610,
+   "to": 21340
+  },
+  "33:21": {
+   "from": 11210,
+   "to": 11180
+  },
+  "33:40": {
+   "from": 14570,
+   "to": 13060
+  },
+  "33:41": {
+   "from": 5010,
+   "to": 4780
+  },
+  "33:54": {
+   "from": 6370,
+   "to": 5120
+  },
+  "33:60": {
+   "from": 16770,
+   "to": 15400
+  },
+  "34:11": {
+   "from": 9690,
+   "to": 8660
+  },
+  "34:15": {
+   "from": 17010,
+   "to": 15500
+  },
+  "34:20": {
+   "from": 7690,
+   "to": 6240
+  },
+  "34:25": {
+   "from": 7410,
+   "to": 6140
+  },
+  "34:26": {
+   "from": 10090,
+   "to": 9000
+  },
+  "34:28": {
+   "from": 11770,
+   "to": 10440
+  },
+  "34:33": {
+   "from": 38050,
+   "to": 36820
+  },
+  "34:36": {
+   "from": 11050,
+   "to": 9720
+  },
+  "35:1": {
+   "from": 23650,
+   "to": 22020
+  },
+  "35:24": {
+   "from": 9770,
+   "to": 9780
+  },
+  "35:28": {
+   "from": 27890,
+   "to": 25920
+  },
+  "35:31": {
+   "from": 13290,
+   "to": 11780
+  },
+  "35:38": {
+   "from": 10010,
+   "to": 7720
+  },
+  "35:41": {
+   "from": 15210,
+   "to": 15160
+  },
+  "36:3": {
+   "from": 2570,
+   "to": 1640
+  },
+  "36:7": {
+   "from": 5450,
+   "to": 4240
+  },
+  "36:10": {
+   "from": 7090,
+   "to": 5680
+  },
+  "36:36": {
+   "from": 12610,
+   "to": 11300
+  },
+  "36:54": {
+   "from": 12290,
+   "to": 10560
+  },
+  "36:59": {
+   "from": 3370,
+   "to": 1860
+  },
+  "36:65": {
+   "from": 14010,
+   "to": 12740
+  },
+  "36:70": {
+   "from": 5730,
+   "to": 4760
+  },
+  "36:79": {
+   "from": 8690,
+   "to": 7640
+  },
+  "36:81": {
+   "from": 10970,
+   "to": 9600
+  },
+  "37:19": {
+   "from": 8610,
+   "to": 6480
+  },
+  "37:29": {
+   "from": 3370,
+   "to": 2160
+  },
+  "37:37": {
+   "from": 5290,
+   "to": 3400
+  },
+  "37:39": {
+   "from": 4970,
+   "to": 3320
+  },
+  "37:71": {
+   "from": 4210,
+   "to": 2800
+  },
+  "37:80": {
+   "from": 4130,
+   "to": 2600
+  },
+  "37:81": {
+   "from": 4170,
+   "to": 2600
+  },
+  "37:96": {
+   "from": 3330,
+   "to": 2060
+  },
+  "37:110": {
+   "from": 2850,
+   "to": 1600
+  },
+  "37:111": {
+   "from": 3650,
+   "to": 2340
+  },
+  "37:121": {
+   "from": 3810,
+   "to": 2360
+  },
+  "37:122": {
+   "from": 4330,
+   "to": 2960
+  },
+  "37:123": {
+   "from": 3730,
+   "to": 2080
+  },
+  "37:126": {
+   "from": 6130,
+   "to": 4000
+  },
+  "37:131": {
+   "from": 4010,
+   "to": 2740
+  },
+  "37:132": {
+   "from": 3650,
+   "to": 2360
+  },
+  "37:133": {
+   "from": 4010,
+   "to": 2200
+  },
+  "37:139": {
+   "from": 4170,
+   "to": 2460
+  },
+  "37:168": {
+   "from": 5210,
+   "to": 3560
+  },
+  "37:170": {
+   "from": 4090,
+   "to": 2440
+  },
+  "37:171": {
+   "from": 4850,
+   "to": 3240
+  },
+  "37:181": {
+   "from": 2290,
+   "to": 1260
+  },
+  "38:16": {
+   "from": 4890,
+   "to": 3820
+  },
+  "38:36": {
+   "from": 5490,
+   "to": 5520
+  },
+  "38:43": {
+   "from": 8730,
+   "to": 8540
+  },
+  "38:53": {
+   "from": 4370,
+   "to": 2680
+  },
+  "38:61": {
+   "from": 5930,
+   "to": 5880
+  },
+  "38:74": {
+   "from": 4890,
+   "to": 3560
+  },
+  "39:7": {
+   "from": 32450,
+   "to": 30420
+  },
+  "39:9": {
+   "from": 21010,
+   "to": 20900
+  },
+  "39:19": {
+   "from": 5650,
+   "to": 5600
+  },
+  "39:21": {
+   "from": 22690,
+   "to": 22560
+  },
+  "39:25": {
+   "from": 6210,
+   "to": 4980
+  },
+  "39:26": {
+   "from": 8290,
+   "to": 7200
+  },
+  "39:28": {
+   "from": 4850,
+   "to": 3920
+  },
+  "39:29": {
+   "from": 21490,
+   "to": 19980
+  },
+  "39:34": {
+   "from": 8330,
+   "to": 6080
+  },
+  "39:35": {
+   "from": 9210,
+   "to": 7980
+  },
+  "39:39": {
+   "from": 8530,
+   "to": 7040
+  },
+  "39:49": {
+   "from": 17210,
+   "to": 15940
+  },
+  "39:50": {
+   "from": 7570,
+   "to": 6360
+  },
+  "39:52": {
+   "from": 12370,
+   "to": 10820
+  },
+  "39:53": {
+   "from": 23330,
+   "to": 22140
+  },
+  "39:57": {
+   "from": 5690,
+   "to": 4220
+  },
+  "39:58": {
+   "from": 11850,
+   "to": 10520
+  },
+  "39:59": {
+   "from": 13690,
+   "to": 12360
+  },
+  "39:67": {
+   "from": 15170,
+   "to": 13880
+  },
+  "39:68": {
+   "from": 16970,
+   "to": 15260
+  },
+  "39:73": {
+   "from": 23730,
+   "to": 22340
+  },
+  "40:17": {
+   "from": 8850,
+   "to": 7300
+  },
+  "40:22": {
+   "from": 14250,
+   "to": 12480
+  },
+  "40:27": {
+   "from": 13770,
+   "to": 12160
+  },
+  "40:53": {
+   "from": 6210,
+   "to": 6420
+  },
+  "40:54": {
+   "from": 2450,
+   "to": 2320
+  },
+  "40:57": {
+   "from": 9850,
+   "to": 8500
+  },
+  "40:59": {
+   "from": 8370,
+   "to": 6640
+  },
+  "40:70": {
+   "from": 11490,
+   "to": 9720
+  },
+  "40:82": {
+   "from": 28170,
+   "to": 26360
+  },
+  "41:3": {
+   "from": 7890,
+   "to": 5880
+  },
+  "41:17": {
+   "from": 12010,
+   "to": 10500
+  },
+  "41:18": {
+   "from": 9290,
+   "to": 7280
+  },
+  "41:20": {
+   "from": 14210,
+   "to": 12520
+  },
+  "41:22": {
+   "from": 20450,
+   "to": 18480
+  },
+  "41:27": {
+   "from": 11530,
+   "to": 10000
+  },
+  "41:36": {
+   "from": 11690,
+   "to": 10060
+  },
+  "41:40": {
+   "from": 23730,
+   "to": 22620
+  },
+  "41:41": {
+   "from": 8010,
+   "to": 8120
+  },
+  "42:5": {
+   "from": 22690,
+   "to": 21040
+  },
+  "42:12": {
+   "from": 13290,
+   "to": 11820
+  },
+  "42:19": {
+   "from": 11050,
+   "to": 10860
+  },
+  "42:24": {
+   "from": 20810,
+   "to": 18960
+  },
+  "42:27": {
+   "from": 17650,
+   "to": 15480
+  },
+  "42:29": {
+   "from": 14490,
+   "to": 12540
+  },
+  "42:38": {
+   "from": 18410,
+   "to": 15920
+  },
+  "42:40": {
+   "from": 13490,
+   "to": 11960
+  },
+  "42:50": {
+   "from": 15810,
+   "to": 14120
+  },
+  "43:6": {
+   "from": 4370,
+   "to": 2940
+  },
+  "43:8": {
+   "from": 6970,
+   "to": 5480
+  },
+  "43:9": {
+   "from": 10570,
+   "to": 9600
+  },
+  "43:35": {
+   "from": 11410,
+   "to": 9800
+  },
+  "43:59": {
+   "from": 8530,
+   "to": 5940
+  },
+  "43:66": {
+   "from": 11570,
+   "to": 10220
+  },
+  "43:67": {
+   "from": 13610,
+   "to": 12000
+  },
+  "43:72": {
+   "from": 9730,
+   "to": 8020
+  },
+  "43:76": {
+   "from": 6890,
+   "to": 5180
+  },
+  "43:84": {
+   "from": 8850,
+   "to": 7620
+  },
+  "43:86": {
+   "from": 11530,
+   "to": 10100
+  },
+  "43:89": {
+   "from": 6810,
+   "to": 4140
+  },
+  "44:6": {
+   "from": 4850,
+   "to": 3800
+  },
+  "44:8": {
+   "from": 10090,
+   "to": 8300
+  },
+  "44:39": {
+   "from": 10970,
+   "to": 8580
+  },
+  "44:42": {
+   "from": 8250,
+   "to": 7080
+  },
+  "45:6": {
+   "from": 10330,
+   "to": 8920
+  },
+  "45:14": {
+   "from": 11970,
+   "to": 10500
+  },
+  "45:18": {
+   "from": 12450,
+   "to": 11120
+  },
+  "45:19": {
+   "from": 13010,
+   "to": 11220
+  },
+  "45:22": {
+   "from": 13650,
+   "to": 12100
+  },
+  "45:26": {
+   "from": 17170,
+   "to": 15680
+  },
+  "45:28": {
+   "from": 14770,
+   "to": 12780
+  },
+  "45:29": {
+   "from": 11610,
+   "to": 9820
+  },
+  "46:8": {
+   "from": 16610,
+   "to": 15540
+  },
+  "46:14": {
+   "from": 10330,
+   "to": 9100
+  },
+  "46:17": {
+   "from": 24250,
+   "to": 22820
+  },
+  "46:19": {
+   "from": 8410,
+   "to": 7000
+  },
+  "46:22": {
+   "from": 10250,
+   "to": 8680
+  },
+  "46:28": {
+   "from": 12450,
+   "to": 10140
+  },
+  "46:33": {
+   "from": 17730,
+   "to": 16240
+  },
+  "47:6": {
+   "from": 3170,
+   "to": 3020
+  },
+  "47:11": {
+   "from": 6810,
+   "to": 6920
+  },
+  "47:12": {
+   "from": 15730,
+   "to": 15620
+  },
+  "47:13": {
+   "from": 13170,
+   "to": 12960
+  },
+  "47:20": {
+   "from": 23250,
+   "to": 23160
+  },
+  "47:21": {
+   "from": 7210,
+   "to": 7080
+  },
+  "47:25": {
+   "from": 12930,
+   "to": 12860
+  },
+  "47:34": {
+   "from": 10490,
+   "to": 10420
+  },
+  "48:15": {
+   "from": 25290,
+   "to": 24040
+  },
+  "48:26": {
+   "from": 21850,
+   "to": 20500
+  },
+  "49:1": {
+   "from": 13730,
+   "to": 12600
+  },
+  "49:5": {
+   "from": 8490,
+   "to": 7580
+  },
+  "49:11": {
+   "from": 40410,
+   "to": 37760
+  },
+  "49:12": {
+   "from": 28370,
+   "to": 27080
+  },
+  "49:13": {
+   "from": 21850,
+   "to": 20660
+  },
+  "49:14": {
+   "from": 21770,
+   "to": 20740
+  },
+  "49:16": {
+   "from": 10330,
+   "to": 9220
+  },
+  "49:18": {
+   "from": 10210,
+   "to": 7780
+  },
+  "51:30": {
+   "from": 5610,
+   "to": 4840
+  },
+  "51:35": {
+   "from": 4850,
+   "to": 3220
+  },
+  "51:44": {
+   "from": 7090,
+   "to": 5300
+  },
+  "51:55": {
+   "from": 5210,
+   "to": 3220
+  },
+  "52:16": {
+   "from": 11690,
+   "to": 10120
+  },
+  "52:19": {
+   "from": 5610,
+   "to": 4100
+  },
+  "52:28": {
+   "from": 7930,
+   "to": 6660
+  },
+  "52:33": {
+   "from": 4410,
+   "to": 3040
+  },
+  "52:43": {
+   "from": 7770,
+   "to": 6440
+  },
+  "52:47": {
+   "from": 8450,
+   "to": 7140
+  },
+  "53:13": {
+   "from": 2650,
+   "to": 1860
+  },
+  "53:28": {
+   "from": 9450,
+   "to": 9660
+  },
+  "53:29": {
+   "from": 7570,
+   "to": 6500
+  },
+  "53:36": {
+   "from": 2990,
+   "to": 2600
+  },
+  "53:38": {
+   "from": 4290,
+   "to": 2980
+  },
+  "55:23": {
+   "from": 4830,
+   "to": 3640
+  },
+  "55:25": {
+   "from": 5190,
+   "to": 3740
+  },
+  "55:28": {
+   "from": 5070,
+   "to": 3700
+  },
+  "55:32": {
+   "from": 5350,
+   "to": 3920
+  },
+  "55:40": {
+   "from": 4790,
+   "to": 3540
+  },
+  "55:43": {
+   "from": 5850,
+   "to": 4120
+  },
+  "55:45": {
+   "from": 6710,
+   "to": 4560
+  },
+  "55:47": {
+   "from": 5110,
+   "to": 3940
+  },
+  "55:49": {
+   "from": 4910,
+   "to": 3460
+  },
+  "55:53": {
+   "from": 5150,
+   "to": 3760
+  },
+  "55:55": {
+   "from": 4670,
+   "to": 3580
+  },
+  "55:63": {
+   "from": 5190,
+   "to": 3820
+  },
+  "55:67": {
+   "from": 4790,
+   "to": 3400
+  },
+  "55:73": {
+   "from": 5110,
+   "to": 3700
+  },
+  "55:75": {
+   "from": 5910,
+   "to": 4160
+  },
+  "55:77": {
+   "from": 6310,
+   "to": 4560
+  },
+  "56:13": {
+   "from": 2130,
+   "to": 1140
+  },
+  "56:24": {
+   "from": 6050,
+   "to": 4620
+  },
+  "56:39": {
+   "from": 2290,
+   "to": 1120
+  },
+  "56:61": {
+   "from": 7890,
+   "to": 6460
+  },
+  "57:2": {
+   "from": 8010,
+   "to": 6400
+  },
+  "57:3": {
+   "from": 6690,
+   "to": 5580
+  },
+  "57:4": {
+   "from": 27730,
+   "to": 27120
+  },
+  "57:6": {
+   "from": 13730,
+   "to": 12220
+  },
+  "57:8": {
+   "from": 15970,
+   "to": 14260
+  },
+  "57:9": {
+   "from": 16290,
+   "to": 15320
+  },
+  "57:25": {
+   "from": 27930,
+   "to": 27520
+  },
+  "57:28": {
+   "from": 21770,
+   "to": 20680
+  },
+  "58:1": {
+   "from": 17930,
+   "to": 16520
+  },
+  "58:2": {
+   "from": 22690,
+   "to": 21360
+  },
+  "58:3": {
+   "from": 25490,
+   "to": 24820
+  },
+  "58:11": {
+   "from": 28770,
+   "to": 27820
+  },
+  "58:12": {
+   "from": 18250,
+   "to": 17180
+  },
+  "58:13": {
+   "from": 23130,
+   "to": 21800
+  },
+  "58:14": {
+   "from": 12370,
+   "to": 11060
+  },
+  "58:15": {
+   "from": 8650,
+   "to": 7140
+  },
+  "58:21": {
+   "from": 10930,
+   "to": 10720
+  },
+  "59:3": {
+   "from": 10250,
+   "to": 10200
+  },
+  "59:4": {
+   "from": 14090,
+   "to": 12640
+  },
+  "59:10": {
+   "from": 27450,
+   "to": 26080
+  },
+  "59:17": {
+   "from": 12450,
+   "to": 9420
+  },
+  "59:18": {
+   "from": 14170,
+   "to": 12880
+  },
+  "59:22": {
+   "from": 9930,
+   "to": 8880
+  },
+  "59:23": {
+   "from": 18410,
+   "to": 17060
+  },
+  "60:3": {
+   "from": 14050,
+   "to": 13300
+  },
+  "60:7": {
+   "from": 11410,
+   "to": 10460
+  },
+  "60:9": {
+   "from": 20850,
+   "to": 19560
+  },
+  "61:7": {
+   "from": 11010,
+   "to": 9700
+  },
+  "61:11": {
+   "from": 15450,
+   "to": 13700
+  },
+  "61:13": {
+   "from": 8970,
+   "to": 7300
+  },
+  "62:5": {
+   "from": 16250,
+   "to": 15060
+  },
+  "62:8": {
+   "from": 15910,
+   "to": 14480
+  },
+  "62:9": {
+   "from": 16370,
+   "to": 14820
+  },
+  "63:2": {
+   "from": 11330,
+   "to": 10340
+  },
+  "63:11": {
+   "from": 16690,
+   "to": 14500
+  },
+  "64:1": {
+   "from": 9050,
+   "to": 7660
+  },
+  "64:2": {
+   "from": 9250,
+   "to": 8680
+  },
+  "64:4": {
+   "from": 9730,
+   "to": 8540
+  },
+  "64:8": {
+   "from": 11530,
+   "to": 11000
+  },
+  "64:11": {
+   "from": 12090,
+   "to": 11160
+  },
+  "64:14": {
+   "from": 15570,
+   "to": 14780
+  },
+  "65:6": {
+   "from": 30610,
+   "to": 29200
+  },
+  "66:1": {
+   "from": 13730,
+   "to": 12880
+  },
+  "66:7": {
+   "from": 8970,
+   "to": 7620
+  },
+  "66:8": {
+   "from": 49690,
+   "to": 48400
+  },
+  "66:11": {
+   "from": 23330,
+   "to": 22040
+  },
+  "67:1": {
+   "from": 5970,
+   "to": 4680
+  },
+  "67:8": {
+   "from": 13330,
+   "to": 13300
+  },
+  "67:13": {
+   "from": 7530,
+   "to": 6120
+  },
+  "67:19": {
+   "from": 14650,
+   "to": 13380
+  },
+  "68:15": {
+   "from": 5450,
+   "to": 4240
+  },
+  "68:33": {
+   "from": 6210,
+   "to": 5060
+  },
+  "68:44": {
+   "from": 8410,
+   "to": 7220
+  },
+  "69:48": {
+   "from": 4210,
+   "to": 2420
+  },
+  "69:50": {
+   "from": 4330,
+   "to": 2560
+  },
+  "70:39": {
+   "from": 5890,
+   "to": 4460
+  },
+  "71:4": {
+   "from": 14810,
+   "to": 13520
+  },
+  "72:5": {
+   "from": 7730,
+   "to": 6980
+  },
+  "72:23": {
+   "from": 13890,
+   "to": 13580
+  },
+  "73:2": {
+   "from": 2290,
+   "to": 1300
+  },
+  "73:3": {
+   "from": 3130,
+   "to": 2280
+  },
+  "73:11": {
+   "from": 5170,
+   "to": 4220
+  },
+  "75:1": {
+   "from": 3050,
+   "to": 2400
+  },
+  "75:6": {
+   "from": 2250,
+   "to": 1580
+  },
+  "75:16": {
+   "from": 3210,
+   "to": 2880
+  },
+  "77:16": {
+   "from": 1850,
+   "to": 860
+  },
+  "77:43": {
+   "from": 5450,
+   "to": 4140
+  },
+  "77:44": {
+   "from": 3210,
+   "to": 2220
+  },
+  "77:50": {
+   "from": 4930,
+   "to": 2880
+  },
+  "79:15": {
+   "from": 2130,
+   "to": 1800
+  },
+  "79:38": {
+   "from": 2970,
+   "to": 2060
+  },
+  "83:13": {
+   "from": 6290,
+   "to": 4860
+  },
+  "83:14": {
+   "from": 7090,
+   "to": 5600
+  },
+  "83:23": {
+   "from": 4370,
+   "to": 2540
+  },
+  "83:35": {
+   "from": 4210,
+   "to": 2440
+  },
+  "84:20": {
+   "from": 3170,
+   "to": 1440
+  },
+  "87:16": {
+   "from": 2970,
+   "to": 2260
+  },
+  "96:1": {
+   "from": 2330,
+   "to": 2500
+  },
+  "100:10": {
+   "from": 2970,
+   "to": 1500
+  },
+  "102:3": {
+   "from": 1890,
+   "to": 960
+  },
+  "102:4": {
+   "from": 3530,
+   "to": 2320
+  },
+  "113:2": {
+   "from": 1530,
+   "to": 1660
+  },
+  "114:1": {
+   "from": 3170,
+   "to": 1780
+  },
+  "114:2": {
+   "from": 2170,
+   "to": 840
+  },
+  "114:3": {
+   "from": 1810,
+   "to": 1040
+  },
+  "114:5": {
+   "from": 3650,
+   "to": 2680
   }
  },
  "drop": {
-  "2:13": "last word starts at 18730 ms, voice ends 18420 ms",
-  "2:20": "last word starts at 24210 ms, voice ends 23900 ms",
+  "1:3": "first word +420 ms from the voice",
+  "2:1": "timings end at 2960 ms, the recitation at 4540 ms",
+  "2:33": "first word +350 ms from the voice",
+  "2:35": "timings end at 12160 ms, the recitation at 13740 ms",
+  "2:54": "timings end at 29080 ms, the recitation at 31420 ms",
+  "2:55": "timings end at 7800 ms, the recitation at 10280 ms",
+  "2:61": "timings end at 61000 ms, the recitation at 63680 ms",
+  "2:68": "timings end at 14550 ms, the recitation at 18120 ms",
   "2:77": "2 words start inside a silence",
-  "2:124": "last word starts at 16810 ms, voice ends 16500 ms",
-  "2:134": "last word starts at 12810 ms, voice ends 12380 ms",
-  "2:141": "last word starts at 13370 ms, voice ends 12860 ms",
-  "2:145": "last word starts at 30730 ms, voice ends 30360 ms",
-  "2:158": "last word starts at 17290 ms, voice ends 16980 ms",
-  "2:163": "last word starts at 8610 ms, voice ends 8140 ms",
-  "2:169": "first word -560 ms from the voice",
-  "2:192": "last word starts at 5330 ms, voice ends 4980 ms",
-  "2:196": "last word starts at 60490 ms, voice ends 60160 ms",
-  "2:215": "last word starts at 24290 ms, voice ends 23980 ms",
-  "2:216": "last word starts at 20650 ms, voice ends 20340 ms",
-  "2:218": "last word starts at 15690 ms, voice ends 15380 ms",
-  "2:220": "last word starts at 24548 ms, voice ends 21920 ms",
-  "2:230": "last word starts at 31290 ms, voice ends 30960 ms",
-  "2:233": "first word -780 ms from the voice; last word starts at 58730 ms, voice ends 58360 ms",
-  "2:234": "last word starts at 28890 ms, voice ends 28500 ms",
-  "2:236": "last word starts at 25010 ms, voice ends 24700 ms",
-  "2:252": "first word -520 ms from the voice",
-  "2:253": "first word -520 ms from the voice",
-  "2:261": "last word starts at 21530 ms, voice ends 21180 ms",
-  "2:263": "first word -380 ms from the voice",
-  "2:265": "last word starts at 34610 ms, voice ends 34180 ms",
-  "2:273": "last word starts at 30290 ms, voice ends 29960 ms",
-  "2:278": "last word starts at 15170 ms, voice ends 14860 ms",
-  "2:280": "last word starts at 12370 ms, voice ends 12060 ms",
-  "2:282": "last word starts at 130210 ms, voice ends 129800 ms",
-  "2:284": "last word starts at 27370 ms, voice ends 27020 ms",
-  "2:286": "last word starts at 49410 ms, voice ends 47120 ms",
-  "3:11": "last word starts at 14170 ms, voice ends 13800 ms",
-  "3:19": "last word starts at 19890 ms, voice ends 19520 ms",
-  "3:24": "last word starts at 13530 ms, voice ends 13160 ms",
-  "3:25": "last word starts at 10730 ms, voice ends 10340 ms",
-  "3:26": "last word starts at 27570 ms, voice ends 27220 ms",
-  "3:29": "last word starts at 14410 ms, voice ends 14000 ms",
-  "3:32": "last word starts at 15130 ms, voice ends 14640 ms",
-  "3:35": "last word starts at 14930 ms, voice ends 14560 ms",
+  "2:102": "timings end at 57680 ms, the recitation at 66060 ms",
+  "2:109": "timings end at 23190 ms, the recitation at 27840 ms",
+  "2:113": "timings end at 23590 ms, the recitation at 26820 ms",
+  "2:132": "timings end at 14800 ms, the recitation at 16900 ms",
+  "2:136": "timings end at 32440 ms, the recitation at 37880 ms",
+  "2:162": "first word +370 ms from the voice",
+  "2:164": "first word -420 ms from the voice",
+  "2:165": "timings end at 25070 ms, the recitation at 29660 ms",
+  "2:167": "timings end at 27710 ms, the recitation at 29500 ms",
+  "2:174": "first word -380 ms from the voice",
+  "2:175": "timings end at 10790 ms, the recitation at 12540 ms",
+  "2:179": "timings end at 5640 ms, the recitation at 7440 ms",
+  "2:197": "timings end at 21480 ms, the recitation at 28020 ms",
+  "2:201": "timings end at 17030 ms, the recitation at 18240 ms",
+  "2:213": "timings end at 40510 ms, the recitation at 50140 ms",
+  "2:214": "first word -320 ms from the voice",
+  "2:217": "timings end at 47120 ms, the recitation at 57400 ms",
+  "2:220": "timings run to 26169 ms on a 22280 ms recording",
+  "2:222": "timings end at 22600 ms, the recitation at 25600 ms",
+  "2:232": "timings end at 28560 ms, the recitation at 33380 ms",
+  "2:235": "timings end at 44080 ms, the recitation at 49400 ms",
+  "2:246": "timings end at 41000 ms, the recitation at 48840 ms",
+  "2:247": "timings end at 32840 ms, the recitation at 35260 ms",
+  "2:253": "timings end at 42750 ms, the recitation at 44280 ms",
+  "2:258": "timings end at 33630 ms, the recitation at 92880 ms",
+  "2:260": "timings end at 32789 ms, the recitation at 36340 ms",
+  "2:264": "timings end at 36520 ms, the recitation at 40960 ms",
+  "2:269": "timings end at 14350 ms, the recitation at 15520 ms",
+  "3:1": "timings end at 3840 ms, the recitation at 5780 ms",
+  "3:4": "first word +3190 ms from the voice",
+  "3:5": "timings end at 5030 ms, the recitation at 7320 ms",
+  "3:7": "timings end at 38310 ms, the recitation at 46160 ms",
+  "3:10": "timings end at 12670 ms, the recitation at 13760 ms",
+  "3:16": "timings end at 12550 ms, the recitation at 13820 ms",
+  "3:27": "timings end at 15640 ms, the recitation at 18220 ms",
+  "3:37": "timings end at 28040 ms, the recitation at 32460 ms",
+  "3:40": "timings end at 9850 ms, the recitation at 11440 ms",
+  "3:42": "timings end at 10960 ms, the recitation at 12480 ms",
+  "3:65": "first word +1610 ms from the voice",
   "3:66": "first word +840 ms from the voice",
+  "3:70": "first word +1630 ms from the voice",
   "3:71": "first word +1490 ms from the voice",
   "3:75": "first word +450 ms from the voice",
-  "3:76": "last word starts at 6730 ms, voice ends 6220 ms",
-  "3:86": "last word starts at 19370 ms, voice ends 19060 ms",
-  "3:89": "last word starts at 9730 ms, voice ends 9280 ms",
-  "3:92": "last word starts at 13930 ms, voice ends 13260 ms",
+  "3:81": "timings end at 29840 ms, the recitation at 33000 ms",
+  "3:88": "first word +370 ms from the voice",
+  "3:112": "timings end at 29480 ms, the recitation at 33100 ms",
   "3:114": "first word +410 ms from the voice",
-  "3:121": "last word starts at 8250 ms, voice ends 7920 ms",
-  "3:133": "first word -480 ms from the voice",
-  "3:139": "last word starts at 7930 ms, voice ends 7560 ms",
-  "3:152": "last word starts at 34370 ms, voice ends 34020 ms",
-  "3:153": "last word starts at 31050 ms, voice ends 30680 ms",
-  "3:154": "last word starts at 59370 ms, voice ends 58880 ms",
-  "3:156": "last word starts at 31930 ms, voice ends 31500 ms",
-  "3:161": "last word starts at 13410 ms, voice ends 13080 ms",
-  "3:163": "last word starts at 6370 ms, voice ends 6060 ms",
-  "3:165": "last word starts at 17050 ms, voice ends 16580 ms",
-  "3:166": "last word starts at 7690 ms, voice ends 7380 ms",
-  "3:171": "last word starts at 8370 ms, voice ends 8060 ms",
-  "3:175": "last word starts at 14730 ms, voice ends 13980 ms",
-  "3:180": "last word starts at 22770 ms, voice ends 22360 ms",
-  "3:199": "last word starts at 31330 ms, voice ends 30960 ms",
+  "3:117": "timings end at 17910 ms, the recitation at 25260 ms",
+  "3:119": "first word +920 ms from the voice",
+  "3:191": "timings end at 18350 ms, the recitation at 19440 ms",
+  "4:6": "timings end at 30600 ms, the recitation at 31820 ms",
   "4:12": "1 words start inside a silence",
   "4:32": "2 words start inside a silence",
-  "4:39": "last word starts at 14850 ms, voice ends 14220 ms",
-  "4:70": "last word starts at 4810 ms, voice ends 4500 ms",
+  "4:33": "timings end at 14470 ms, the recitation at 15800 ms",
+  "4:34": "timings end at 34800 ms, the recitation at 41860 ms",
+  "4:41": "timings end at 11110 ms, the recitation at 12260 ms",
+  "4:46": "timings end at 30710 ms, the recitation at 37900 ms",
+  "4:47": "timings end at 25040 ms, the recitation at 29060 ms",
+  "4:72": "timings end at 14070 ms, the recitation at 15080 ms",
+  "4:73": "timings end at 19960 ms, the recitation at 21240 ms",
+  "4:77": "timings end at 40320 ms, the recitation at 44020 ms",
+  "4:79": "timings end at 15470 ms, the recitation at 16860 ms",
+  "4:90": "timings end at 31840 ms, the recitation at 36420 ms",
+  "4:91": "timings end at 31560 ms, the recitation at 34360 ms",
   "4:97": "3 words start inside a silence",
+  "4:109": "first word +800 ms from the voice",
+  "4:113": "timings end at 28960 ms, the recitation at 31840 ms",
   "4:114": "first word -400 ms from the voice",
   "4:123": "1 words start inside a silence",
-  "4:127": "last word starts at 37290 ms, voice ends 36960 ms",
-  "4:140": "2 words start inside a silence",
-  "4:142": "last word starts at 17530 ms, voice ends 17200 ms",
-  "4:147": "last word starts at 16570 ms, voice ends 15980 ms",
-  "4:148": "last word starts at 9970 ms, voice ends 9660 ms",
+  "4:140": "timings end at 31270 ms, the recitation at 32280 ms",
+  "4:155": "timings end at 22240 ms, the recitation at 25900 ms",
   "4:157": "1 words start inside a silence",
+  "4:159": "timings end at 9270 ms, the recitation at 10780 ms",
+  "4:166": "timings end at 15630 ms, the recitation at 16820 ms",
+  "4:171": "first word +1450 ms from the voice; 1 words start inside a silence",
   "4:174": "1 words start inside a silence",
   "4:175": "first word +4820 ms from the voice",
+  "4:176": "timings end at 38360 ms, the recitation at 40080 ms",
   "5:1": "first word +1540 ms from the voice; 1 words start inside a silence",
-  "5:3": "last word starts at 55050 ms, voice ends 54560 ms",
-  "5:4": "last word starts at 29330 ms, voice ends 28940 ms",
-  "5:7": "last word starts at 20170 ms, voice ends 19660 ms",
-  "5:8": "last word starts at 25370 ms, voice ends 25000 ms",
-  "5:13": "last word starts at 26650 ms, voice ends 26320 ms",
+  "5:2": "timings end at 42190 ms, the recitation at 45740 ms",
   "5:15": "first word +1610 ms from the voice",
-  "5:17": "last word starts at 33610 ms, voice ends 33140 ms",
   "5:18": "1 words start inside a silence",
-  "5:20": "last word starts at 18008 ms, voice ends 16980 ms",
-  "5:23": "last word starts at 23050 ms, voice ends 22460 ms",
-  "5:27": "last word starts at 21610 ms, voice ends 21280 ms",
-  "5:31": "1 words start inside a silence",
-  "5:39": "last word starts at 10010 ms, voice ends 9560 ms",
-  "5:40": "last word starts at 16650 ms, voice ends 16200 ms",
+  "5:20": "timings run to 19748 ms on a 17420 ms recording",
+  "5:22": "timings end at 14400 ms, the recitation at 15820 ms",
+  "5:24": "timings end at 17600 ms, the recitation at 19200 ms",
+  "5:31": "timings end at 17045 ms, the recitation at 23700 ms",
+  "5:32": "timings end at 33630 ms, the recitation at 40440 ms",
   "5:41": "1 words start inside a silence",
-  "5:46": "last word starts at 24730 ms, voice ends 24160 ms",
-  "5:54": "last word starts at 36050 ms, voice ends 35560 ms",
-  "5:57": "last word starts at 30450 ms, voice ends 30060 ms",
-  "5:66": "last word starts at 23010 ms, voice ends 22520 ms",
-  "5:67": "last word starts at 18090 ms, voice ends 17740 ms",
+  "5:48": "timings end at 47600 ms, the recitation at 53060 ms",
+  "5:49": "timings end at 28390 ms, the recitation at 33200 ms",
+  "5:64": "timings end at 45400 ms, the recitation at 49700 ms",
+  "5:72": "timings end at 34910 ms, the recitation at 37560 ms",
   "5:73": "1 words start inside a silence",
-  "5:74": "last word starts at 12130 ms, voice ends 11780 ms",
-  "5:76": "last word starts at 11530 ms, voice ends 11140 ms",
   "5:77": "1 words start inside a silence",
-  "5:85": "last word starts at 19570 ms, voice ends 19260 ms",
-  "5:93": "last word starts at 21650 ms, voice ends 21280 ms",
+  "5:90": "timings end at 14000 ms, the recitation at 15620 ms",
   "5:94": "1 words start inside a silence",
-  "5:97": "first word -460 ms from the voice; last word starts at 24570 ms, voice ends 24260 ms",
-  "5:98": "last word starts at 7810 ms, voice ends 7380 ms",
-  "5:105": "last word starts at 20450 ms, voice ends 20140 ms",
-  "5:107": "last word starts at 29530 ms, voice ends 28920 ms",
-  "5:112": "last word starts at 26530 ms, voice ends 25960 ms",
-  "5:120": "last word starts at 12090 ms, voice ends 10460 ms",
-  "6:12": "last word starts at 21490 ms, voice ends 21000 ms",
-  "6:13": "last word starts at 6050 ms, voice ends 5600 ms",
-  "6:17": "last word starts at 12330 ms, voice ends 11940 ms",
-  "6:20": "last word starts at 12250 ms, voice ends 11860 ms",
-  "6:21": "last word starts at 9210 ms, voice ends 8760 ms",
-  "6:26": "last word starts at 9050 ms, voice ends 8720 ms",
-  "6:36": "first word -380 ms from the voice",
-  "6:38": "first word +840 ms from the voice; 1 words start inside a silence",
+  "5:97": "first word -460 ms from the voice",
+  "5:116": "timings end at 39040 ms, the recitation at 40960 ms",
+  "6:8": "timings end at 10600 ms, the recitation at 11780 ms",
+  "6:25": "timings end at 25360 ms, the recitation at 31160 ms",
+  "6:34": "timings end at 15360 ms, the recitation at 19280 ms",
+  "6:38": "timings end at 21000 ms, the recitation at 25500 ms",
   "6:44": "1 words start inside a silence",
-  "6:47": "last word starts at 10410 ms, voice ends 10100 ms",
-  "6:59": "first word -480 ms from the voice",
-  "6:67": "last word starts at 5650 ms, voice ends 5340 ms",
-  "6:68": "last word starts at 17850 ms, voice ends 17540 ms",
   "6:69": "1 words start inside a silence",
-  "6:74": "first word -600 ms from the voice",
-  "6:83": "last word starts at 13010 ms, voice ends 12680 ms",
-  "6:84": "last word starts at 18330 ms, voice ends 18000 ms",
-  "6:99": "last word starts at 43410 ms, voice ends 43060 ms",
+  "6:78": "timings end at 12640 ms, the recitation at 14320 ms",
+  "6:95": "first word -380 ms from the voice",
   "6:100": "1 words start inside a silence",
   "6:101": "1 words start inside a silence",
-  "6:105": "last word starts at 7690 ms, voice ends 7180 ms",
-  "6:108": "last word starts at 18650 ms, voice ends 18260 ms; 1 words start inside a silence",
+  "6:108": "1 words start inside a silence",
   "6:109": "1 words start inside a silence",
   "6:111": "first word -360 ms from the voice",
-  "6:115": "last word starts at 10850 ms, voice ends 10520 ms",
   "6:116": "1 words start inside a silence",
-  "6:118": "last word starts at 7570 ms, voice ends 7200 ms",
-  "6:123": "last word starts at 12410 ms, voice ends 12100 ms",
   "6:124": "1 words start inside a silence",
   "6:127": "1 words start inside a silence",
-  "6:129": "last word starts at 6650 ms, voice ends 6180 ms",
-  "6:132": "last word starts at 7650 ms, voice ends 7280 ms",
-  "6:137": "last word starts at 20250 ms, voice ends 19900 ms",
-  "6:138": "last word starts at 29570 ms, voice ends 29260 ms",
+  "6:128": "first word +460 ms from the voice",
+  "6:130": "timings end at 26270 ms, the recitation at 32040 ms",
   "6:140": "1 words start inside a silence",
-  "6:141": "first word -800 ms from the voice",
   "6:142": "1 words start inside a silence",
   "6:144": "2 words start inside a silence",
-  "6:145": "first word +700 ms from the voice",
-  "6:158": "1 words start inside a silence",
-  "6:160": "last word starts at 17890 ms, voice ends 17580 ms",
-  "6:165": "last word starts at 21650 ms, voice ends 20840 ms",
-  "7:6": "last word starts at 6930 ms, voice ends 6540 ms",
+  "6:145": "timings end at 27640 ms, the recitation at 34120 ms",
+  "6:151": "first word -420 ms from the voice",
+  "6:158": "timings end at 25000 ms, the recitation at 38220 ms",
+  "7:1": "timings end at 7400 ms, the recitation at 10220 ms",
   "7:17": "1 words start inside a silence",
+  "7:19": "timings end at 11560 ms, the recitation at 13160 ms",
   "7:22": "1 words start inside a silence",
-  "7:27": "last word starts at 35930 ms, voice ends 35520 ms; 1 words start inside a silence",
-  "7:28": "last word starts at 25330 ms, voice ends 24960 ms",
+  "7:27": "1 words start inside a silence",
   "7:30": "1 words start inside a silence",
-  "7:32": "last word starts at 19970 ms, voice ends 19620 ms",
-  "7:33": "last word starts at 20330 ms, voice ends 20000 ms",
   "7:37": "1 words start inside a silence",
-  "7:38": "last word starts at 41090 ms, voice ends 40720 ms; 1 words start inside a silence",
-  "7:41": "last word starts at 10250 ms, voice ends 9900 ms",
-  "7:44": "last word starts at 26410 ms, voice ends 25920 ms",
-  "7:47": "last word starts at 12970 ms, voice ends 12580 ms",
+  "7:38": "1 words start inside a silence",
+  "7:43": "timings end at 32600 ms, the recitation at 34660 ms",
   "7:48": "1 words start inside a silence",
   "7:50": "1 words start inside a silence",
-  "7:52": "last word starts at 11330 ms, voice ends 10940 ms",
-  "7:53": "last word starts at 38970 ms, voice ends 37620 ms; 1 words start inside a silence",
-  "7:56": "last word starts at 13770 ms, voice ends 12620 ms",
-  "7:59": "1 words start inside a silence",
-  "7:62": "last word starts at 8610 ms, voice ends 8240 ms",
-  "7:70": "last word starts at 15130 ms, voice ends 14660 ms",
+  "7:53": "1 words start inside a silence",
+  "7:57": "timings end at 26760 ms, the recitation at 29480 ms",
+  "7:59": "timings end at 13560 ms, the recitation at 14600 ms",
+  "7:61": "first word +350 ms from the voice",
+  "7:65": "timings end at 10840 ms, the recitation at 12340 ms",
+  "7:67": "first word +370 ms from the voice",
   "7:71": "2 words start inside a silence",
-  "7:72": "last word starts at 13450 ms, voice ends 12700 ms",
+  "7:72": "1 words start inside a silence",
+  "7:73": "timings end at 35240 ms, the recitation at 36760 ms",
   "7:75": "1 words start inside a silence",
-  "7:77": "1 words start inside a silence",
-  "7:89": "1 words start inside a silence",
-  "7:95": "last word starts at 22450 ms, voice ends 22140 ms",
+  "7:77": "timings end at 11480 ms, the recitation at 12880 ms",
+  "7:79": "timings end at 10960 ms, the recitation at 14580 ms",
+  "7:85": "timings end at 29440 ms, the recitation at 31460 ms",
+  "7:88": "first word +480 ms from the voice",
+  "7:89": "timings end at 32200 ms, the recitation at 36240 ms",
+  "7:93": "timings end at 11840 ms, the recitation at 15100 ms",
   "7:102": "1 words start inside a silence",
   "7:104": "first word +850 ms from the voice",
-  "7:105": "last word starts at 15970 ms, voice ends 15660 ms",
-  "7:106": "last word starts at 8930 ms, voice ends 8540 ms",
-  "7:109": "last word starts at 6730 ms, voice ends 6300 ms",
-  "7:118": "last word starts at 4490 ms, voice ends 4180 ms",
-  "7:129": "last word starts at 19810 ms, voice ends 19360 ms",
-  "7:131": "last word starts at 23850 ms, voice ends 23520 ms",
-  "7:143": "last word starts at 45050 ms, voice ends 44600 ms",
-  "7:147": "last word starts at 13210 ms, voice ends 12800 ms",
+  "7:115": "timings end at 10240 ms, the recitation at 11600 ms",
+  "7:134": "timings end at 20150 ms, the recitation at 22960 ms",
+  "7:138": "timings end at 22200 ms, the recitation at 24300 ms",
   "7:152": "1 words start inside a silence",
-  "7:153": "last word starts at 16970 ms, voice ends 16280 ms",
   "7:155": "1 words start inside a silence",
-  "7:164": "last word starts at 18250 ms, voice ends 17840 ms",
-  "7:167": "last word starts at 20250 ms, voice ends 19860 ms; 1 words start inside a silence",
-  "7:180": "last word starts at 14970 ms, voice ends 14200 ms",
-  "7:187": "last word starts at 35810 ms, voice ends 35460 ms",
-  "7:188": "last word starts at 22850 ms, voice ends 22060 ms",
-  "7:190": "last word starts at 17810 ms, voice ends 17500 ms; 1 words start inside a silence",
+  "7:160": "timings end at 38000 ms, the recitation at 41680 ms",
+  "7:167": "1 words start inside a silence",
+  "7:169": "timings end at 28757 ms, the recitation at 36500 ms",
+  "7:176": "timings end at 24680 ms, the recitation at 30940 ms",
+  "7:190": "1 words start inside a silence",
   "7:195": "1 words start inside a silence",
-  "7:200": "last word starts at 12690 ms, voice ends 12160 ms",
-  "8:1": "last word starts at 19010 ms, voice ends 18700 ms",
-  "8:3": "last word starts at 6730 ms, voice ends 6420 ms",
-  "8:8": "last word starts at 6090 ms, voice ends 5700 ms",
+  "7:199": "timings end at 4480 ms, the recitation at 17300 ms",
   "8:10": "1 words start inside a silence",
+  "8:13": "1 words start inside a silence",
+  "8:14": "timings end at 5430 ms, the recitation at 6900 ms",
   "8:15": "1 words start inside a silence",
-  "8:17": "last word starts at 18010 ms, voice ends 17620 ms",
-  "8:18": "last word starts at 5450 ms, voice ends 5120 ms",
-  "8:19": "last word starts at 20370 ms, voice ends 20040 ms",
-  "8:25": "last word starts at 14130 ms, voice ends 13820 ms",
-  "8:27": "last word starts at 14730 ms, voice ends 14300 ms",
-  "8:31": "last word starts at 19890 ms, voice ends 19300 ms",
-  "8:34": "last word starts at 22930 ms, voice ends 22600 ms",
-  "8:38": "last word starts at 12090 ms, voice ends 11760 ms",
-  "8:39": "last word starts at 21930 ms, voice ends 21540 ms",
-  "8:41": "1 words start inside a silence",
+  "8:41": "timings end at 34870 ms, the recitation at 63060 ms",
   "8:42": "1 words start inside a silence",
-  "8:43": "last word starts at 18170 ms, voice ends 17780 ms",
-  "8:48": "1 words start inside a silence",
-  "8:52": "last word starts at 16970 ms, voice ends 16360 ms",
-  "8:54": "last word starts at 17960 ms, voice ends 16840 ms",
-  "8:55": "last word starts at 9650 ms, voice ends 9340 ms",
-  "8:56": "last word starts at 14330 ms, voice ends 14020 ms",
-  "8:61": "last word starts at 9690 ms, voice ends 9380 ms",
-  "8:64": "last word starts at 7850 ms, voice ends 7420 ms",
-  "8:69": "last word starts at 9930 ms, voice ends 9380 ms",
-  "8:70": "last word starts at 23290 ms, voice ends 22980 ms",
-  "8:72": "last word starts at 45730 ms, voice ends 45240 ms",
-  "8:75": "last word starts at 20370 ms, voice ends 19380 ms",
-  "9:2": "last word starts at 17530 ms, voice ends 17060 ms",
+  "8:48": "timings end at 28760 ms, the recitation at 31980 ms",
+  "8:54": "timings run to 20240 ms on a 17600 ms recording",
   "9:3": "1 words start inside a silence",
-  "9:4": "last word starts at 25410 ms, voice ends 25020 ms",
-  "9:5": "last word starts at 23530 ms, voice ends 23140 ms",
-  "9:6": "last word starts at 18090 ms, voice ends 17740 ms",
-  "9:7": "last word starts at 24490 ms, voice ends 24180 ms",
-  "9:9": "last word starts at 12770 ms, voice ends 12360 ms",
-  "9:11": "last word starts at 12450 ms, voice ends 12100 ms",
-  "9:13": "last word starts at 24930 ms, voice ends 24580 ms",
-  "9:16": "last word starts at 21690 ms, voice ends 21180 ms",
-  "9:23": "last word starts at 30610 ms, voice ends 30240 ms",
-  "9:24": "first word +1780 ms from the voice",
-  "9:26": "last word starts at 18250 ms, voice ends 17820 ms",
-  "9:27": "last word starts at 11090 ms, voice ends 10620 ms",
+  "9:22": "first word +410 ms from the voice",
+  "9:24": "timings end at 40320 ms, the recitation at 42980 ms",
+  "9:34": "timings end at 27950 ms, the recitation at 37740 ms",
   "9:35": "1 words start inside a silence",
-  "9:36": "first word +560 ms from the voice; 1 words start inside a silence",
-  "9:37": "last word starts at 33050 ms, voice ends 32440 ms; 1 words start inside a silence",
+  "9:36": "timings end at 40440 ms, the recitation at 45360 ms",
+  "9:37": "1 words start inside a silence",
   "9:38": "1 words start inside a silence",
-  "9:39": "last word starts at 28730 ms, voice ends 28160 ms",
   "9:40": "1 words start inside a silence",
-  "9:41": "last word starts at 16890 ms, voice ends 16400 ms",
+  "9:41": "1 words start inside a silence",
   "9:44": "2 words start inside a silence",
+  "9:46": "first word -320 ms from the voice",
   "9:60": "1 words start inside a silence",
-  "9:62": "last word starts at 12530 ms, voice ends 11920 ms",
   "9:63": "1 words start inside a silence",
   "9:69": "1 words start inside a silence",
+  "9:70": "timings end at 23590 ms, the recitation at 31300 ms",
   "9:74": "1 words start inside a silence",
-  "9:82": "last word starts at 9450 ms, voice ends 8900 ms",
-  "9:91": "last word starts at 25570 ms, voice ends 24940 ms; 1 words start inside a silence",
-  "9:92": "last word starts at 21890 ms, voice ends 21300 ms",
-  "9:93": "last word starts at 17770 ms, voice ends 16560 ms",
-  "9:94": "last word starts at 30210 ms, voice ends 29540 ms",
-  "9:95": "last word starts at 22210 ms, voice ends 21060 ms; 1 words start inside a silence",
+  "9:91": "1 words start inside a silence",
+  "9:94": "1 words start inside a silence",
+  "9:95": "1 words start inside a silence",
   "9:97": "1 words start inside a silence",
-  "9:98": "last word starts at 17250 ms, voice ends 16620 ms",
-  "9:99": "last word starts at 32650 ms, voice ends 31600 ms; 1 words start inside a silence",
+  "9:99": "1 words start inside a silence",
   "9:101": "1 words start inside a silence",
-  "9:102": "last word starts at 15370 ms, voice ends 14860 ms; 1 words start inside a silence",
-  "9:103": "last word starts at 17290 ms, voice ends 16640 ms",
-  "9:104": "last word starts at 14010 ms, voice ends 13540 ms",
-  "9:105": "last word starts at 16810 ms, voice ends 16160 ms",
+  "9:102": "1 words start inside a silence",
   "9:106": "1 words start inside a silence",
   "9:107": "1 words start inside a silence",
-  "9:109": "last word starts at 24570 ms, voice ends 23820 ms",
   "9:111": "1 words start inside a silence",
-  "9:112": "last word starts at 23730 ms, voice ends 23260 ms",
   "9:113": "1 words start inside a silence",
-  "9:115": "last word starts at 15610 ms, voice ends 15060 ms",
   "9:116": "1 words start inside a silence",
-  "9:117": "last word starts at 26690 ms, voice ends 26200 ms",
-  "9:118": "last word starts at 33610 ms, voice ends 32940 ms",
-  "9:119": "last word starts at 8170 ms, voice ends 7700 ms",
-  "9:120": "first word +940 ms from the voice",
-  "9:121": "last word starts at 20010 ms, voice ends 19240 ms",
+  "9:120": "timings end at 42110 ms, the recitation at 47180 ms",
   "9:122": "first word -440 ms from the voice",
-  "9:123": "last word starts at 15770 ms, voice ends 15220 ms",
-  "9:128": "last word starts at 18410 ms, voice ends 17720 ms",
   "10:3": "1 words start inside a silence",
   "10:4": "1 words start inside a silence",
-  "10:5": "last word starts at 23050 ms, voice ends 22220 ms",
-  "10:6": "last word starts at 16290 ms, voice ends 15840 ms",
-  "10:8": "last word starts at 7730 ms, voice ends 7220 ms",
   "10:11": "1 words start inside a silence",
-  "10:12": "last word starts at 25670 ms, voice ends 24960 ms",
-  "10:14": "last word starts at 13170 ms, voice ends 12540 ms",
   "10:16": "1 words start inside a silence",
-  "10:17": "last word starts at 10770 ms, voice ends 10360 ms",
-  "10:18": "last word starts at 28810 ms, voice ends 28460 ms; 2 words start inside a silence",
+  "10:18": "2 words start inside a silence",
   "10:20": "1 words start inside a silence",
   "10:22": "1 words start inside a silence",
-  "10:24": "1 words start inside a silence",
+  "10:24": "timings end at 46120 ms, the recitation at 55820 ms",
   "10:27": "1 words start inside a silence",
   "10:28": "1 words start inside a silence",
   "10:29": "1 words start inside a silence",
-  "10:30": "last word starts at 17610 ms, voice ends 16760 ms",
-  "10:33": "last word starts at 9650 ms, voice ends 9120 ms",
-  "10:39": "last word starts at 16290 ms, voice ends 15860 ms",
-  "10:41": "last word starts at 20130 ms, voice ends 19780 ms",
   "10:45": "1 words start inside a silence",
-  "10:47": "last word starts at 15970 ms, voice ends 15560 ms",
-  "10:50": "last word starts at 8970 ms, voice ends 8480 ms",
-  "10:54": "last word starts at 16770 ms, voice ends 16200 ms",
-  "10:55": "last word starts at 14330 ms, voice ends 13860 ms",
   "10:60": "1 words start inside a silence",
   "10:61": "2 words start inside a silence",
-  "10:63": "last word starts at 4330 ms, voice ends 3900 ms",
-  "10:65": "last word starts at 9530 ms, voice ends 9120 ms",
-  "10:68": "last word starts at 23010 ms, voice ends 22540 ms; 3 words start inside a silence",
-  "10:70": "2 words start inside a silence",
+  "10:68": "3 words start inside a silence",
+  "10:70": "timings end at 12220 ms, the recitation at 18460 ms",
+  "10:71": "timings end at 31710 ms, the recitation at 34240 ms",
   "10:80": "1 words start inside a silence",
-  "10:82": "last word starts at 6570 ms, voice ends 6080 ms",
-  "10:85": "last word starts at 9890 ms, voice ends 9560 ms",
-  "10:86": "last word starts at 5330 ms, voice ends 4960 ms",
-  "10:87": "last word starts at 15610 ms, voice ends 15220 ms",
-  "10:88": "first word +1520 ms from the voice",
-  "10:89": "last word starts at 11450 ms, voice ends 10800 ms",
-  "10:90": "1 words start inside a silence",
-  "10:96": "last word starts at 6010 ms, voice ends 5660 ms",
-  "10:99": "last word starts at 13490 ms, voice ends 13000 ms",
-  "10:101": "last word starts at 11450 ms, voice ends 10880 ms",
+  "10:84": "first word +870 ms from the voice",
+  "10:88": "timings end at 30160 ms, the recitation at 32780 ms",
+  "10:90": "timings end at 29710 ms, the recitation at 37780 ms",
   "10:102": "1 words start inside a silence",
-  "10:103": "last word starts at 10210 ms, voice ends 9680 ms",
-  "10:106": "last word starts at 12690 ms, voice ends 12120 ms",
-  "10:107": "last word starts at 28530 ms, voice ends 27980 ms; 1 words start inside a silence",
-  "11:4": "last word starts at 5850 ms, voice ends 5440 ms",
-  "11:5": "last word starts at 17450 ms, voice ends 17020 ms",
+  "10:107": "1 words start inside a silence",
+  "11:12": "timings end at 25880 ms, the recitation at 32880 ms",
   "11:14": "1 words start inside a silence",
-  "11:16": "last word starts at 13850 ms, voice ends 13400 ms; 2 words start inside a silence",
-  "11:17": "last word starts at 39850 ms, voice ends 39440 ms",
-  "11:18": "last word starts at 19770 ms, voice ends 19400 ms",
+  "11:16": "2 words start inside a silence",
   "11:27": "1 words start inside a silence",
-  "11:31": "last word starts at 32170 ms, voice ends 31760 ms",
+  "11:28": "first word +370 ms from the voice",
+  "11:29": "timings end at 22920 ms, the recitation at 24880 ms",
+  "11:30": "timings end at 5720 ms, the recitation at 7420 ms",
+  "11:32": "timings end at 10080 ms, the recitation at 11740 ms",
   "11:33": "2 words start inside a silence",
   "11:40": "1 words start inside a silence",
-  "11:41": "last word starts at 10130 ms, voice ends 9820 ms",
-  "11:49": "last word starts at 18770 ms, voice ends 18260 ms",
+  "11:42": "timings end at 14630 ms, the recitation at 16540 ms",
+  "11:44": "timings end at 15120 ms, the recitation at 18420 ms",
+  "11:48": "timings end at 18080 ms, the recitation at 19380 ms",
+  "11:50": "timings end at 12160 ms, the recitation at 13740 ms",
+  "11:52": "timings end at 19000 ms, the recitation at 20380 ms",
+  "11:53": "timings end at 14790 ms, the recitation at 16180 ms",
   "11:56": "1 words start inside a silence",
+  "11:61": "timings end at 22040 ms, the recitation at 24140 ms",
+  "11:62": "timings end at 18430 ms, the recitation at 20060 ms",
   "11:63": "first word +330 ms from the voice",
+  "11:64": "timings end at 19800 ms, the recitation at 21680 ms",
+  "11:72": "timings end at 9360 ms, the recitation at 10520 ms",
   "11:73": "1 words start inside a silence",
   "11:75": "1 words start inside a silence",
   "11:76": "first word +1470 ms from the voice",
   "11:77": "1 words start inside a silence",
+  "11:78": "timings end at 25200 ms, the recitation at 26820 ms",
   "11:80": "1 words start inside a silence",
-  "11:81": "1 words start inside a silence",
+  "11:81": "timings end at 25760 ms, the recitation at 27240 ms",
+  "11:84": "timings end at 26000 ms, the recitation at 27620 ms",
+  "11:85": "timings end at 9840 ms, the recitation at 11320 ms",
+  "11:87": "timings end at 16720 ms, the recitation at 18200 ms",
+  "11:88": "first word +330 ms from the voice",
+  "11:89": "timings end at 17520 ms, the recitation at 19600 ms",
+  "11:91": "timings end at 14040 ms, the recitation at 15280 ms",
+  "11:92": "first word +390 ms from the voice; 1 words start inside a silence",
+  "11:93": "timings end at 16960 ms, the recitation at 18600 ms",
   "11:94": "1 words start inside a silence",
   "11:98": "1 words start inside a silence",
   "11:103": "1 words start inside a silence",
   "11:104": "1 words start inside a silence",
-  "11:107": "first word +430 ms from the voice",
-  "11:111": "last word starts at 10410 ms, voice ends 10060 ms",
-  "11:112": "last word starts at 10210 ms, voice ends 9840 ms",
+  "11:107": "timings end at 11750 ms, the recitation at 13200 ms",
+  "11:108": "timings end at 14120 ms, the recitation at 21760 ms",
   "11:113": "1 words start inside a silence",
-  "11:115": "last word starts at 5490 ms, voice ends 5060 ms",
-  "11:123": "last word starts at 19130 ms, voice ends 18260 ms",
-  "12:15": "last word starts at 16530 ms, voice ends 16040 ms",
-  "12:21": "last word starts at 38410 ms, voice ends 38080 ms",
-  "12:22": "last word starts at 9730 ms, voice ends 9380 ms",
-  "12:27": "last word starts at 8370 ms, voice ends 8020 ms",
-  "12:34": "last word starts at 10010 ms, voice ends 9700 ms",
-  "12:36": "last word starts at 25370 ms, voice ends 25000 ms",
-  "12:40": "last word starts at 34770 ms, voice ends 34440 ms",
-  "12:46": "last word starts at 21930 ms, voice ends 21400 ms",
-  "12:50": "last word starts at 21610 ms, voice ends 21220 ms",
-  "12:53": "last word starts at 20570 ms, voice ends 20100 ms",
-  "12:55": "last word starts at 7530 ms, voice ends 7200 ms",
-  "12:56": "last word starts at 15930 ms, voice ends 15600 ms",
-  "12:57": "last word starts at 7530 ms, voice ends 6900 ms",
+  "12:5": "first word +370 ms from the voice",
+  "12:11": "timings end at 11110 ms, the recitation at 13020 ms",
+  "12:17": "timings end at 15440 ms, the recitation at 17600 ms",
+  "12:19": "timings end at 16070 ms, the recitation at 17720 ms",
+  "12:39": "first word +360 ms from the voice",
+  "12:41": "first word +320 ms from the voice",
+  "12:63": "timings end at 16190 ms, the recitation at 18020 ms",
+  "12:65": "timings end at 22360 ms, the recitation at 24500 ms",
   "12:67": "first word +570 ms from the voice",
-  "12:68": "last word starts at 27570 ms, voice ends 27260 ms",
-  "12:69": "last word starts at 14010 ms, voice ends 13520 ms",
-  "12:75": "last word starts at 10690 ms, voice ends 10380 ms",
-  "12:90": "first word -740 ms from the voice; last word starts at 21570 ms, voice ends 20820 ms",
-  "12:96": "last word starts at 18170 ms, voice ends 17820 ms",
-  "12:98": "last word starts at 7850 ms, voice ends 7380 ms",
-  "12:107": "last word starts at 14890 ms, voice ends 14480 ms",
-  "12:111": "last word starts at 27490 ms, voice ends 27120 ms",
-  "13:1": "last word starts at 21050 ms, voice ends 20680 ms",
+  "12:81": "timings end at 17840 ms, the recitation at 20060 ms",
+  "12:84": "timings end at 8880 ms, the recitation at 10360 ms",
+  "12:97": "timings end at 10840 ms, the recitation at 13180 ms",
+  "12:100": "timings end at 38910 ms, the recitation at 40860 ms",
   "13:2": "1 words start inside a silence",
+  "13:11": "timings end at 29030 ms, the recitation at 33200 ms",
   "13:17": "first word +390 ms from the voice",
-  "15:3": "last word starts at 5970 ms, voice ends 5620 ms",
-  "15:7": "last word starts at 6850 ms, voice ends 6540 ms",
-  "15:13": "last word starts at 4970 ms, voice ends 4660 ms",
-  "15:25": "last word starts at 8010 ms, voice ends 7340 ms",
-  "15:84": "last word starts at 5690 ms, voice ends 5360 ms",
-  "15:96": "last word starts at 6050 ms, voice ends 5680 ms",
-  "16:1": "last word starts at 9010 ms, voice ends 8660 ms",
-  "16:18": "last word starts at 9090 ms, voice ends 8720 ms",
-  "16:24": "last word starts at 9450 ms, voice ends 9040 ms",
-  "16:28": "last word starts at 20290 ms, voice ends 19960 ms",
-  "16:30": "last word starts at 17210 ms, voice ends 16820 ms",
-  "16:31": "last word starts at 19010 ms, voice ends 18700 ms",
-  "16:32": "last word starts at 13050 ms, voice ends 12560 ms",
-  "16:47": "last word starts at 7970 ms, voice ends 7520 ms",
-  "16:55": "last word starts at 6970 ms, voice ends 6620 ms",
-  "16:64": "last word starts at 14130 ms, voice ends 13800 ms",
-  "16:70": "last word starts at 18610 ms, voice ends 18300 ms",
-  "16:74": "last word starts at 9530 ms, voice ends 9160 ms",
-  "16:75": "last word starts at 24170 ms, voice ends 23800 ms",
-  "16:77": "last word starts at 16730 ms, voice ends 16400 ms",
-  "16:79": "last word starts at 15690 ms, voice ends 15140 ms",
-  "16:87": "last word starts at 12690 ms, voice ends 12300 ms",
-  "16:93": "last word starts at 19530 ms, voice ends 19120 ms",
-  "16:95": "last word starts at 11450 ms, voice ends 11140 ms",
-  "16:96": "last word starts at 18770 ms, voice ends 18440 ms",
-  "16:107": "last word starts at 9930 ms, voice ends 9620 ms",
-  "16:110": "last word starts at 19010 ms, voice ends 18380 ms",
-  "16:115": "last word starts at 19370 ms, voice ends 18920 ms",
-  "16:119": "last word starts at 20570 ms, voice ends 20060 ms",
-  "17:18": "first word +1620 ms from the voice",
-  "17:74": "last word starts at 7770 ms, voice ends 7440 ms",
-  "17:85": "last word starts at 10090 ms, voice ends 9780 ms",
-  "18:5": "last word starts at 15810 ms, voice ends 15380 ms",
-  "18:15": "last word starts at 16850 ms, voice ends 16520 ms",
+  "13:39": "timings end at 6990 ms, the recitation at 8260 ms",
+  "13:43": "timings end at 19670 ms, the recitation at 21620 ms",
+  "14:10": "timings end at 26520 ms, the recitation at 31580 ms",
+  "14:24": "timings end at 12630 ms, the recitation at 15060 ms",
+  "14:27": "timings end at 11270 ms, the recitation at 12360 ms",
+  "14:30": "timings end at 9070 ms, the recitation at 10560 ms",
+  "14:38": "timings end at 9470 ms, the recitation at 10920 ms",
+  "14:52": "timings end at 16429 ms, the recitation at 18200 ms",
+  "15:32": "first word +370 ms from the voice",
+  "16:73": "timings end at 8470 ms, the recitation at 9740 ms",
+  "17:1": "timings end at 15470 ms, the recitation at 18620 ms",
+  "17:18": "timings end at 16520 ms, the recitation at 18380 ms",
+  "17:25": "timings end at 8910 ms, the recitation at 10200 ms",
+  "17:70": "timings end at 14640 ms, the recitation at 18360 ms",
+  "17:101": "timings end at 19350 ms, the recitation at 20780 ms",
+  "18:18": "timings end at 20520 ms, the recitation at 21640 ms",
+  "18:22": "timings end at 34040 ms, the recitation at 36080 ms",
+  "18:42": "timings end at 16520 ms, the recitation at 18960 ms",
+  "18:49": "timings end at 25880 ms, the recitation at 27200 ms",
+  "18:94": "timings end at 14560 ms, the recitation at 15580 ms",
   "18:96": "1 words start inside a silence",
+  "18:102": "timings end at 14360 ms, the recitation at 17780 ms",
+  "18:108": "first word +370 ms from the voice",
+  "19:1": "timings end at 4240 ms, the recitation at 6440 ms",
+  "19:23": "timings end at 11040 ms, the recitation at 13620 ms",
+  "19:27": "timings end at 5470 ms, the recitation at 7600 ms",
   "19:28": "first word +1200 ms from the voice",
+  "19:43": "first word +960 ms from the voice",
   "19:44": "first word +1160 ms from the voice",
+  "19:45": "first word +1160 ms from the voice",
   "19:46": "first word +360 ms from the voice",
   "20:5": "first word +480 ms from the voice",
-  "20:18": "last word starts at 8450 ms, voice ends 8080 ms",
-  "20:22": "last word starts at 8850 ms, voice ends 8500 ms",
-  "20:37": "last word starts at 4250 ms, voice ends 3920 ms",
-  "20:40": "last word starts at 33157 ms, voice ends 28420 ms",
-  "20:55": "last word starts at 7250 ms, voice ends 6900 ms",
-  "21:8": "last word starts at 6210 ms, voice ends 5880 ms",
-  "22:6": "last word starts at 10850 ms, voice ends 10400 ms",
-  "22:35": "last word starts at 16370 ms, voice ends 16020 ms",
-  "22:37": "last word starts at 21610 ms, voice ends 21160 ms",
-  "22:60": "last word starts at 22130 ms, voice ends 21720 ms",
-  "22:61": "last word starts at 12130 ms, voice ends 11560 ms",
-  "22:63": "last word starts at 13050 ms, voice ends 12700 ms",
-  "22:65": "last word starts at 20330 ms, voice ends 19900 ms",
-  "22:68": "last word starts at 5890 ms, voice ends 5580 ms",
-  "22:75": "last word starts at 11250 ms, voice ends 10700 ms",
-  "23:24": "last word starts at 23810 ms, voice ends 23500 ms",
-  "23:28": "last word starts at 12130 ms, voice ends 11820 ms",
-  "23:58": "last word starts at 4450 ms, voice ends 4140 ms",
-  "23:83": "last word starts at 13970 ms, voice ends 13660 ms",
-  "24:2": "last word starts at 28410 ms, voice ends 27900 ms",
-  "24:3": "last word starts at 17010 ms, voice ends 16300 ms",
-  "24:5": "last word starts at 10850 ms, voice ends 10300 ms",
-  "24:6": "last word starts at 23050 ms, voice ends 22700 ms",
-  "24:9": "last word starts at 11930 ms, voice ends 11480 ms",
-  "24:17": "last word starts at 10890 ms, voice ends 10560 ms",
-  "24:19": "last word starts at 18490 ms, voice ends 18020 ms",
-  "24:20": "last word starts at 11930 ms, voice ends 11340 ms",
-  "24:22": "last word starts at 26370 ms, voice ends 25780 ms",
-  "24:24": "last word starts at 10690 ms, voice ends 10320 ms",
-  "24:28": "last word starts at 17490 ms, voice ends 17100 ms",
-  "24:32": "last word starts at 18530 ms, voice ends 18220 ms",
-  "24:34": "last word starts at 14690 ms, voice ends 14320 ms",
-  "24:35": "first word +660 ms from the voice",
-  "24:39": "last word starts at 27050 ms, voice ends 26740 ms",
-  "24:45": "last word starts at 32610 ms, voice ends 32100 ms",
-  "24:50": "last word starts at 15850 ms, voice ends 15460 ms",
-  "24:53": "last word starts at 16610 ms, voice ends 16300 ms",
-  "24:60": "last word starts at 33890 ms, voice ends 33200 ms",
+  "20:19": "first word +360 ms from the voice",
+  "20:36": "first word +330 ms from the voice",
+  "20:40": "timings run to 33714 ms on a 28720 ms recording",
+  "20:49": "first word +360 ms from the voice",
+  "20:57": "first word +320 ms from the voice",
+  "20:65": "timings end at 10230 ms, the recitation at 11300 ms",
+  "20:83": "first word +1040 ms from the voice",
+  "20:86": "timings end at 25800 ms, the recitation at 27540 ms",
+  "20:90": "timings end at 15040 ms, the recitation at 16740 ms",
+  "20:92": "first word +350 ms from the voice",
+  "20:94": "first word +480 ms from the voice",
+  "20:95": "first word +310 ms from the voice",
+  "20:101": "first word +350 ms from the voice",
+  "20:117": "timings end at 9360 ms, the recitation at 10600 ms",
+  "20:120": "timings end at 10030 ms, the recitation at 11040 ms",
+  "20:129": "timings end at 6350 ms, the recitation at 7480 ms",
+  "21:14": "timings end at 3360 ms, the recitation at 4740 ms",
+  "21:46": "timings end at 10600 ms, the recitation at 12020 ms",
+  "21:60": "timings end at 4590 ms, the recitation at 5760 ms",
+  "21:62": "timings end at 8470 ms, the recitation at 10880 ms",
+  "21:69": "timings end at 3960 ms, the recitation at 6420 ms",
+  "21:70": "timings run to 11560 ms on a 5900 ms recording",
+  "21:87": "timings end at 16580 ms, the recitation at 17600 ms",
+  "21:97": "timings end at 11240 ms, the recitation at 13660 ms",
+  "22:14": "timings end at 14150 ms, the recitation at 15280 ms",
+  "22:16": "timings end at 9470 ms, the recitation at 11080 ms",
+  "22:18": "timings end at 31070 ms, the recitation at 32560 ms",
+  "22:46": "timings end at 25590 ms, the recitation at 38540 ms",
+  "22:78": "timings end at 33680 ms, the recitation at 36940 ms",
+  "23:20": "timings end at 8640 ms, the recitation at 11260 ms",
+  "23:23": "timings end at 9120 ms, the recitation at 10840 ms",
+  "23:107": "timings end at 6120 ms, the recitation at 10440 ms",
+  "24:33": "timings end at 46390 ms, the recitation at 53260 ms",
+  "24:35": "timings end at 50400 ms, the recitation at 53980 ms",
+  "24:43": "timings end at 34000 ms, the recitation at 37660 ms",
+  "24:62": "timings end at 38000 ms, the recitation at 44500 ms",
   "24:63": "1 words start inside a silence",
-  "24:64": "last word starts at 27810 ms, voice ends 27100 ms",
+  "25:27": "first word +580 ms from the voice",
   "25:30": "first word +940 ms from the voice",
+  "25:38": "timings end at 5630 ms, the recitation at 6940 ms",
+  "25:51": "timings end at 4240 ms, the recitation at 11580 ms",
   "25:76": "first word +430 ms from the voice",
-  "26:9": "last word starts at 3650 ms, voice ends 3320 ms",
-  "26:17": "last word starts at 5290 ms, voice ends 4980 ms",
-  "26:22": "last word starts at 8690 ms, voice ends 8380 ms",
-  "26:26": "last word starts at 5490 ms, voice ends 5160 ms",
-  "26:59": "last word starts at 5650 ms, voice ends 5300 ms",
-  "26:99": "last word starts at 5690 ms, voice ends 5360 ms",
-  "26:104": "last word starts at 4250 ms, voice ends 3700 ms",
-  "26:118": "last word starts at 8090 ms, voice ends 7780 ms",
-  "26:121": "last word starts at 7290 ms, voice ends 6980 ms",
-  "26:137": "last word starts at 5010 ms, voice ends 4640 ms",
-  "26:140": "last word starts at 4850 ms, voice ends 4480 ms",
-  "26:184": "last word starts at 5210 ms, voice ends 4880 ms",
-  "26:196": "last word starts at 3770 ms, voice ends 3420 ms",
-  "26:197": "last word starts at 9370 ms, voice ends 8880 ms",
-  "26:199": "last word starts at 5210 ms, voice ends 4800 ms",
-  "26:216": "last word starts at 6610 ms, voice ends 6220 ms",
-  "26:220": "last word starts at 3570 ms, voice ends 3120 ms",
+  "26:1": "timings end at 2320 ms, the recitation at 3740 ms",
+  "26:3": "first word +320 ms from the voice",
+  "26:40": "first word +420 ms from the voice",
+  "26:69": "timings end at 1870 ms, the recitation at 3700 ms",
+  "26:72": "timings end at 2190 ms, the recitation at 3480 ms",
+  "26:116": "timings end at 4360 ms, the recitation at 6360 ms",
+  "26:167": "timings end at 4960 ms, the recitation at 7040 ms",
+  "26:211": "timings end at 2710 ms, the recitation at 4100 ms",
   "27:9": "first word +530 ms from the voice",
-  "27:11": "last word starts at 9730 ms, voice ends 9260 ms",
-  "27:15": "last word starts at 11170 ms, voice ends 10800 ms",
+  "27:10": "timings end at 16870 ms, the recitation at 19680 ms",
   "27:36": "1 words start inside a silence",
-  "27:40": "first word +1460 ms from the voice",
+  "27:40": "timings end at 27790 ms, the recitation at 32100 ms",
+  "27:46": "first word +330 ms from the voice",
   "27:49": "1 words start inside a silence",
-  "27:59": "last word starts at 11610 ms, voice ends 11260 ms",
-  "27:61": "last word starts at 20130 ms, voice ends 19820 ms; 1 words start inside a silence",
-  "27:90": "last word starts at 11250 ms, voice ends 10920 ms",
-  "27:93": "last word starts at 14090 ms, voice ends 13280 ms",
-  "28:3": "last word starts at 7210 ms, voice ends 6840 ms",
-  "28:7": "last word starts at 25770 ms, voice ends 25380 ms",
+  "27:61": "1 words start inside a silence",
+  "28:1": "timings end at 2640 ms, the recitation at 4240 ms",
+  "28:15": "timings end at 25320 ms, the recitation at 30320 ms",
+  "28:19": "timings end at 25560 ms, the recitation at 27120 ms",
+  "28:20": "timings end at 13360 ms, the recitation at 15080 ms",
+  "28:25": "timings end at 19280 ms, the recitation at 21540 ms",
+  "28:26": "timings end at 7360 ms, the recitation at 8660 ms",
+  "28:27": "timings end at 24310 ms, the recitation at 26520 ms",
+  "28:30": "timings end at 17990 ms, the recitation at 19800 ms",
   "28:31": "first word +380 ms from the voice",
-  "28:37": "last word starts at 14810 ms, voice ends 14500 ms",
-  "28:40": "last word starts at 8850 ms, voice ends 8460 ms",
-  "28:47": "last word starts at 21490 ms, voice ends 21100 ms",
-  "28:57": "last word starts at 27690 ms, voice ends 27340 ms",
-  "28:65": "last word starts at 7930 ms, voice ends 7540 ms",
-  "28:83": "last word starts at 12130 ms, voice ends 11800 ms",
-  "29:13": "last word starts at 11530 ms, voice ends 11040 ms",
-  "29:20": "last word starts at 13290 ms, voice ends 12940 ms",
-  "29:41": "last word starts at 18690 ms, voice ends 18380 ms",
-  "29:49": "last word starts at 10850 ms, voice ends 10500 ms",
+  "28:38": "timings end at 20183 ms, the recitation at 22880 ms",
+  "28:45": "first word +360 ms from the voice",
+  "28:79": "timings end at 15880 ms, the recitation at 17540 ms",
+  "29:1": "timings end at 4000 ms, the recitation at 6840 ms",
+  "29:36": "timings end at 9960 ms, the recitation at 11260 ms",
   "29:50": "1 words start inside a silence",
-  "29:51": "last word starts at 18850 ms, voice ends 18540 ms",
-  "29:53": "last word starts at 22170 ms, voice ends 21860 ms",
-  "29:60": "last word starts at 14450 ms, voice ends 14120 ms",
-  "29:62": "last word starts at 10330 ms, voice ends 10000 ms",
-  "29:64": "last word starts at 16970 ms, voice ends 16500 ms",
-  "29:69": "last word starts at 9650 ms, voice ends 9060 ms",
-  "30:6": "last word starts at 7250 ms, voice ends 6900 ms",
-  "30:34": "last word starts at 6570 ms, voice ends 6260 ms",
-  "30:35": "last word starts at 7410 ms, voice ends 7100 ms",
-  "30:45": "last word starts at 9370 ms, voice ends 8900 ms",
-  "30:47": "last word starts at 19890 ms, voice ends 19260 ms",
-  "30:50": "last word starts at 13690 ms, voice ends 13280 ms",
-  "30:56": "last word starts at 13610 ms, voice ends 13280 ms",
+  "29:56": "first word +380 ms from the voice",
+  "30:1": "timings end at 4400 ms, the recitation at 7300 ms",
+  "30:7": "first word +410 ms from the voice",
+  "31:1": "timings end at 4040 ms, the recitation at 7340 ms",
   "31:8": "1 words start inside a silence",
-  "31:28": "last word starts at 14650 ms, voice ends 14320 ms",
-  "31:29": "last word starts at 19290 ms, voice ends 18840 ms",
-  "31:34": "last word starts at 20890 ms, voice ends 20200 ms",
-  "32:16": "last word starts at 14690 ms, voice ends 14360 ms",
-  "33:6": "first word +560 ms from the voice",
-  "33:18": "last word starts at 16570 ms, voice ends 16260 ms",
-  "33:40": "last word starts at 14570 ms, voice ends 14000 ms",
-  "33:54": "last word starts at 6370 ms, voice ends 6000 ms",
-  "34:11": "last word starts at 9690 ms, voice ends 9280 ms",
+  "31:9": "first word +350 ms from the voice",
+  "31:13": "timings end at 8680 ms, the recitation at 9700 ms",
+  "32:1": "timings end at 4360 ms, the recitation at 7660 ms",
+  "33:6": "timings end at 26240 ms, the recitation at 28440 ms",
+  "33:13": "timings end at 17760 ms, the recitation at 21020 ms",
+  "33:37": "timings end at 33366 ms, the recitation at 34520 ms",
+  "33:55": "timings end at 33430 ms, the recitation at 34660 ms",
+  "33:65": "first word +350 ms from the voice",
+  "33:66": "first word +360 ms from the voice",
+  "34:2": "timings end at 32600 ms, the recitation at 38740 ms",
+  "34:10": "timings end at 9630 ms, the recitation at 10940 ms",
   "34:13": "first word +430 ms from the voice",
-  "34:15": "last word starts at 17010 ms, voice ends 16560 ms",
-  "34:25": "last word starts at 7410 ms, voice ends 7080 ms",
-  "35:1": "last word starts at 23650 ms, voice ends 23200 ms",
-  "35:11": "first word +540 ms from the voice",
-  "35:28": "last word starts at 27890 ms, voice ends 26980 ms",
-  "35:31": "last word starts at 13290 ms, voice ends 12980 ms",
-  "35:38": "last word starts at 10010 ms, voice ends 9220 ms",
+  "34:14": "timings end at 19230 ms, the recitation at 25240 ms",
+  "34:24": "timings end at 12640 ms, the recitation at 20160 ms",
+  "34:31": "timings end at 26560 ms, the recitation at 28180 ms",
+  "34:46": "timings end at 20910 ms, the recitation at 25640 ms",
+  "35:4": "timings end at 21320 ms, the recitation at 25360 ms",
+  "35:11": "timings end at 25760 ms, the recitation at 27740 ms",
+  "35:12": "timings end at 28030 ms, the recitation at 33560 ms",
+  "35:23": "timings end at 2230 ms, the recitation at 3400 ms",
+  "36:1": "timings end at 400 ms, the recitation at 3180 ms",
   "36:12": "1 words start inside a silence",
-  "37:6": "first word -520 ms from the voice",
+  "36:20": "timings end at 7840 ms, the recitation at 9740 ms",
+  "36:26": "timings end at 3880 ms, the recitation at 4940 ms",
+  "36:52": "timings end at 7600 ms, the recitation at 9040 ms",
+  "36:60": "timings end at 8640 ms, the recitation at 10360 ms",
   "37:8": "3 words start inside a silence",
+  "37:12": "first word -320 ms from the voice",
   "37:15": "1 words start inside a silence",
+  "37:20": "timings end at 3120 ms, the recitation at 4920 ms",
   "37:30": "1 words start inside a silence",
-  "37:81": "last word starts at 4170 ms, voice ends 3860 ms",
-  "38:24": "first word +320 ms from the voice",
-  "39:7": "last word starts at 32450 ms, voice ends 32080 ms",
-  "39:43": "last word starts at 9479 ms, voice ends 8940 ms",
-  "39:67": "last word starts at 15170 ms, voice ends 14860 ms",
-  "39:73": "first word -340 ms from the voice",
+  "37:102": "timings end at 25910 ms, the recitation at 28320 ms",
+  "37:104": "timings end at 1950 ms, the recitation at 5140 ms",
+  "37:105": "first word +1810 ms from the voice",
+  "37:109": "timings end at 2630 ms, the recitation at 4420 ms",
+  "37:130": "timings end at 2680 ms, the recitation at 4120 ms",
+  "37:150": "first word -360 ms from the voice",
+  "38:24": "timings end at 24360 ms, the recitation at 30880 ms",
+  "38:26": "timings end at 20720 ms, the recitation at 28360 ms",
+  "38:27": "timings end at 10790 ms, the recitation at 11840 ms",
+  "38:29": "timings end at 11550 ms, the recitation at 12940 ms",
+  "38:59": "timings end at 12110 ms, the recitation at 13400 ms",
+  "38:64": "timings end at 4470 ms, the recitation at 5760 ms",
+  "38:75": "first word +370 ms from the voice",
+  "38:84": "timings end at 2080 ms, the recitation at 3800 ms",
+  "39:5": "first word +3730 ms from the voice",
+  "39:8": "timings end at 22550 ms, the recitation at 28800 ms",
+  "39:16": "first word +410 ms from the voice",
+  "39:23": "first word +750 ms from the voice",
+  "39:43": "timings run to 10674 ms on a 9280 ms recording",
+  "39:69": "timings end at 15200 ms, the recitation at 21120 ms",
+  "39:71": "timings end at 34510 ms, the recitation at 40760 ms",
+  "40:1": "timings end at 360 ms, the recitation at 1920 ms",
+  "40:6": "timings end at 9430 ms, the recitation at 10620 ms",
   "40:8": "1 words start inside a silence",
-  "40:17": "last word starts at 8850 ms, voice ends 8480 ms",
   "40:19": "1 words start inside a silence",
-  "40:22": "last word starts at 14250 ms, voice ends 13880 ms",
-  "40:27": "last word starts at 13770 ms, voice ends 13360 ms",
   "40:28": "1 words start inside a silence",
+  "40:30": "first word +550 ms from the voice",
   "40:31": "1 words start inside a silence",
+  "40:32": "timings end at 4230 ms, the recitation at 6200 ms",
+  "40:35": "timings end at 17680 ms, the recitation at 24880 ms",
   "40:36": "first word +520 ms from the voice",
-  "40:43": "1 words start inside a silence",
+  "40:38": "first word +530 ms from the voice",
+  "40:41": "timings end at 6640 ms, the recitation at 7860 ms",
+  "40:43": "timings end at 18110 ms, the recitation at 19260 ms",
+  "40:47": "timings end at 17870 ms, the recitation at 19460 ms",
   "40:51": "1 words start inside a silence",
   "40:52": "1 words start inside a silence",
   "40:56": "2 words start inside a silence",
-  "40:57": "last word starts at 9850 ms, voice ends 9540 ms",
-  "40:59": "last word starts at 8370 ms, voice ends 8000 ms",
-  "40:70": "last word starts at 11490 ms, voice ends 11040 ms",
-  "40:74": "last word starts at 12850 ms, voice ends 12420 ms; 1 words start inside a silence",
-  "40:82": "last word starts at 28170 ms, voice ends 27660 ms",
-  "41:3": "last word starts at 7890 ms, voice ends 7320 ms",
+  "40:74": "1 words start inside a silence",
+  "40:78": "timings end at 23000 ms, the recitation at 25600 ms",
+  "41:1": "timings end at 280 ms, the recitation at 3140 ms",
   "41:9": "1 words start inside a silence",
-  "41:17": "last word starts at 12010 ms, voice ends 11580 ms",
-  "41:18": "last word starts at 9290 ms, voice ends 8580 ms",
-  "41:20": "last word starts at 14210 ms, voice ends 13480 ms",
-  "41:22": "last word starts at 20450 ms, voice ends 20020 ms",
-  "41:27": "last word starts at 11530 ms, voice ends 11160 ms",
   "41:28": "1 words start inside a silence",
   "41:34": "1 words start inside a silence",
   "41:35": "first word +490 ms from the voice",
-  "41:36": "last word starts at 11690 ms, voice ends 11000 ms",
-  "41:39": "last word starts at 21850 ms, voice ends 21360 ms",
-  "41:40": "last word starts at 23730 ms, voice ends 23220 ms",
+  "41:39": "1 words start inside a silence",
   "41:44": "first word +400 ms from the voice; 1 words start inside a silence",
   "41:47": "1 words start inside a silence",
   "41:53": "1 words start inside a silence",
   "41:54": "1 words start inside a silence",
+  "42:1": "timings end at 280 ms, the recitation at 2860 ms",
+  "42:2": "timings end at 4760 ms, the recitation at 6540 ms",
   "42:3": "1 words start inside a silence",
-  "42:5": "last word starts at 22690 ms, voice ends 22140 ms",
   "42:8": "1 words start inside a silence",
-  "42:9": "last word starts at 13130 ms, voice ends 12680 ms; 1 words start inside a silence",
-  "42:12": "last word starts at 13290 ms, voice ends 12900 ms",
+  "42:9": "1 words start inside a silence",
   "42:13": "1 words start inside a silence",
   "42:15": "1 words start inside a silence",
-  "42:24": "last word starts at 20810 ms, voice ends 20300 ms",
-  "42:27": "last word starts at 17650 ms, voice ends 16760 ms",
-  "42:29": "last word starts at 14490 ms, voice ends 13940 ms",
-  "42:38": "last word starts at 18410 ms, voice ends 18040 ms",
-  "42:40": "last word starts at 13490 ms, voice ends 13140 ms",
   "42:44": "1 words start inside a silence",
   "42:46": "1 words start inside a silence",
-  "42:50": "last word starts at 15810 ms, voice ends 15320 ms",
   "42:52": "1 words start inside a silence",
   "42:53": "1 words start inside a silence",
-  "43:59": "last word starts at 8530 ms, voice ends 8160 ms",
+  "43:1": "timings end at 360 ms, the recitation at 4000 ms",
+  "43:38": "timings end at 11400 ms, the recitation at 12740 ms",
+  "43:51": "timings end at 13000 ms, the recitation at 15080 ms",
   "43:68": "first word +360 ms from the voice",
-  "43:89": "last word starts at 6810 ms, voice ends 6220 ms",
+  "43:77": "timings end at 9280 ms, the recitation at 11560 ms",
+  "43:88": "timings end at 5310 ms, the recitation at 7060 ms",
+  "44:1": "timings end at 320 ms, the recitation at 3620 ms",
   "44:14": "1 words start inside a silence",
   "44:19": "1 words start inside a silence",
-  "44:39": "last word starts at 10970 ms, voice ends 10560 ms",
-  "44:42": "last word starts at 8250 ms, voice ends 7920 ms",
-  "46:28": "last word starts at 12450 ms, voice ends 11240 ms",
-  "46:33": "last word starts at 17730 ms, voice ends 17340 ms",
+  "44:50": "timings end at 4680 ms, the recitation at 9520 ms",
+  "45:1": "timings end at 320 ms, the recitation at 4200 ms",
+  "46:1": "timings end at 360 ms, the recitation at 4060 ms",
+  "46:30": "timings end at 12120 ms, the recitation at 13620 ms",
   "47:38": "first word +1060 ms from the voice",
-  "49:11": "last word starts at 40410 ms, voice ends 39760 ms",
-  "49:13": "last word starts at 21850 ms, voice ends 21420 ms",
-  "49:18": "last word starts at 10210 ms, voice ends 9480 ms",
+  "48:28": "timings end at 9347 ms, the recitation at 12560 ms",
   "51:57": "1 words start inside a silence",
-  "53:29": "last word starts at 7570 ms, voice ends 7260 ms",
+  "53:14": "first word +630 ms from the voice",
+  "53:15": "first word +860 ms from the voice",
+  "53:21": "timings end at 2800 ms, the recitation at 3860 ms",
+  "55:1": "first word +580 ms from the voice",
   "55:36": "last word starts at 5720 ms, voice ends 5420 ms",
   "55:38": "last word starts at 5920 ms, voice ends 5420 ms",
-  "55:45": "last word starts at 6710 ms, voice ends 6220 ms",
   "55:51": "last word starts at 5240 ms, voice ends 4940 ms",
   "55:61": "last word starts at 5440 ms, voice ends 5060 ms",
   "55:71": "last word starts at 5160 ms, voice ends 4860 ms",
-  "57:6": "last word starts at 13730 ms, voice ends 13280 ms",
+  "56:80": "timings end at 3080 ms, the recitation at 8140 ms",
   "57:11": "1 words start inside a silence",
   "57:20": "1 words start inside a silence",
   "57:22": "1 words start inside a silence",
+  "57:27": "timings end at 40160 ms, the recitation at 46100 ms",
   "57:29": "2 words start inside a silence",
-  "58:1": "last word starts at 17930 ms, voice ends 17620 ms",
-  "58:2": "last word starts at 22690 ms, voice ends 22260 ms",
-  "58:15": "last word starts at 8650 ms, voice ends 8080 ms",
-  "59:4": "last word starts at 14090 ms, voice ends 13600 ms",
-  "59:6": "last word starts at 25410 ms, voice ends 25040 ms; 1 words start inside a silence",
-  "59:10": "last word starts at 27450 ms, voice ends 27080 ms",
-  "59:17": "last word starts at 12450 ms, voice ends 12060 ms",
+  "59:2": "timings end at 31880 ms, the recitation at 37500 ms",
+  "59:6": "1 words start inside a silence",
+  "59:7": "timings end at 29360 ms, the recitation at 30660 ms",
+  "60:12": "timings end at 32609 ms, the recitation at 36340 ms",
+  "61:5": "timings end at 15440 ms, the recitation at 17160 ms",
+  "61:6": "timings end at 31480 ms, the recitation at 33320 ms",
   "61:10": "1 words start inside a silence",
-  "63:5": "first word -360 ms from the voice",
+  "61:14": "timings end at 30960 ms, the recitation at 36360 ms",
+  "62:2": "timings end at 14760 ms, the recitation at 17200 ms",
+  "63:5": "timings end at 9840 ms, the recitation at 11980 ms",
   "63:8": "first word +470 ms from the voice",
-  "63:11": "last word starts at 16690 ms, voice ends 16360 ms",
+  "63:10": "timings end at 18960 ms, the recitation at 23760 ms",
+  "65:4": "timings end at 21110 ms, the recitation at 23080 ms",
+  "65:10": "timings end at 15280 ms, the recitation at 16420 ms",
+  "65:11": "timings end at 26750 ms, the recitation at 32580 ms",
+  "66:5": "timings end at 19680 ms, the recitation at 26420 ms",
   "67:26": "1 words start inside a silence",
+  "68:31": "timings end at 3720 ms, the recitation at 5100 ms",
+  "68:42": "timings end at 5550 ms, the recitation at 7120 ms",
+  "69:25": "timings end at 8160 ms, the recitation at 9300 ms",
   "72:16": "first word +320 ms from the voice",
-  "77:50": "last word starts at 4930 ms, voice ends 4520 ms",
-  "86:3": "first word +320 ms from the voice"
+  "73:20": "timings end at 56722 ms, the recitation at 63700 ms",
+  "75:32": "first word +340 ms from the voice",
+  "78:40": "timings end at 20310 ms, the recitation at 23260 ms",
+  "79:10": "first word +530 ms from the voice",
+  "82:12": "first word +470 ms from the voice",
+  "82:19": "timings end at 8190 ms, the recitation at 9460 ms",
+  "84:13": "first word -380 ms from the voice",
+  "84:25": "timings end at 7253 ms, the recitation at 12300 ms",
+  "85:16": "timings end at 1670 ms, the recitation at 3140 ms",
+  "86:3": "first word +320 ms from the voice",
+  "87:19": "timings end at 2840 ms, the recitation at 3900 ms",
+  "89:24": "timings end at 2720 ms, the recitation at 4340 ms",
+  "89:27": "first word +1200 ms from the voice"
  }
 }

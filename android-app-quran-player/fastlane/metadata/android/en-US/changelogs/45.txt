@@ -1,0 +1,3 @@
+New: choose your theme and background while setting up. Backgrounds in the player: a scene or nature photo matched to each ayah, with the full English translation. Share a video or an image of an ayah.
+No agreement screen on first launch: the sources and disclaimer are in Settings.
+Fixed: the word highlight now reaches the last word of every ayah and no longer starts early or late; Word by word no longer cuts words short.

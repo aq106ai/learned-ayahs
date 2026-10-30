@@ -116,7 +116,13 @@ single shared state flow.
   revision gap and surah-intro logic.
 - **`service/PlayerStateHolder.kt`** — a singleton `StateFlow<PlayerUiState>` that is the single
   source of truth bridging service ↔ UI. The service pushes updates; the ViewModel/UI observe.
-  `attachService`/`detachService` tracks whether the service is live (`isServiceReady()`).
+  `attachService`/`detachService` tracks whether the service is live; `isServiceReady()` is
+  true only once it has also *loaded a queue* (`PlaybackService.hasLoadedQueue`). It registers in
+  onCreate but loads when its first command arrives, and the launch-time load restores
+  `START_FROM_LAST_POSITION`, read when it loads: a Next pressed while the service starts moves
+  the preview (persisted at once), and the load then picks that up instead of undoing it.
+  `PlayerDefaultScreenTest.the_last_played_ayah_is_remembered_across_a_restart` taps Next twice
+  straight after launch and caught this, intermittently, as "Ayah 2".
 - **`player/PlayerViewModel.kt`** — `AndroidViewModel` the UI calls. When the service is ready it
   forwards to it via `PlayerStateHolder`; when not, it maintains a **preview** queue locally so the
   UI works before playback starts. It also drives library loading, offline downloads, and loading
@@ -155,10 +161,21 @@ single shared state flow.
 ### Sources and disclaimer
 
 `ui/common/SourcesAndDisclaimer.kt` lists where every piece of Qur'an content comes from and
-holds the disclaimer. `AppNav` shows it as `TermsDialog` before the intro whenever
-`PlayerSettings.acceptedTermsVersion < TERMS_VERSION`, so raising `TERMS_VERSION` asks everyone
-again. The web app shows the same text (`web-app/static/js/views/terms.js`): change both together.
-`AppReset` pre-accepts it for the instrumented tests.
+holds the disclaimer. It is always in Settings (Sources and disclaimer) and a tap away from the
+intro's last page (`SourcesDialog`). The web app shows the same text
+(`web-app/static/js/views/terms.js`): change both together.
+
+**Nothing has to be agreed to before using the app.** Until 1.12.0 a `TermsDialog` blocked the
+app behind "I agree" (re-asked whenever a `TERMS_VERSION` rose). It was removed on purpose: the
+content's licences (Tanzil, Quran.com, QUL, SIL OFL; the photos are CC0) require the sources to be
+*credited*, which an always-reachable Sources screen does, not accepted; and a click-through gate
+in front of a free Qur'an app put a legal-looking wall before the first ayah for no protection
+the disclaimer in Settings, the store listing and the repository licence don't already give.
+Don't bring it back without a concrete reason (a licence that requires assent, say).
+
+**The intro lets the user choose how the app looks** (`IntroDialog` page 2: theme and player
+background, applied as they are picked). Both are ordinary settings, changeable later in Settings
+and the player's background sheet.
 
 ### Share as video (`video/`, `ui/video/`)
 
@@ -196,7 +213,7 @@ the player's Share button → Video, and the film icon on a surah's page) → `V
   slow zoom (`BackgroundScenes`).
 - **The translation** in videos is Saheeh International (`assets/translation_en_saheeh.json`, from
   Tanzil.net via the `quran-json` npm package, written by the same script). It is named in the
-  sources dialog; adding it raised `TERMS_VERSION` to 2.
+  sources and disclaimer.
 - **Credits** (reciter, translation, word meanings, photographer) are off the picture by default:
   the video shows only the surah:ayah reference, and the sources travel in the text it's shared
   with (`VideoMakerViewModel.caption`). The "Credits on video" toggle (`VideoRequest.credits`)

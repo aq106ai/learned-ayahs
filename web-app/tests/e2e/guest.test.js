@@ -21,34 +21,76 @@ after(async () => {
 
 const learnedIds = (page) => page.evaluate(() => [...window.__app.store.learned].sort((a, b) => a - b));
 
-test('first run asks to agree to the sources and disclaimer, then shows the welcome', async () => {
-  const { page, context, errors } = await openApp(browser, server, { seenIntro: false, settings: { acceptedTermsVersion: 0 }, query: '?test' });
-  await page.waitForSelector('[data-testid=terms]');
-  assert.match(await page.textContent('[data-testid=terms]'), /EveryAyah/);
-  assert.equal(await page.locator('[data-testid=intro]').count(), 0);
-  await page.click('[data-testid=terms-accept]');
+test('first run: the welcome sets the theme and background, with the sources a tap away and no agreement asked', async () => {
+  const { page, context, errors } = await openApp(browser, server, { seenIntro: false, query: '?test' });
   await page.waitForSelector('[data-testid=intro]');
-  assert.equal(await page.evaluate(() => window.__app.store.settings.acceptedTermsVersion), 1);
-  await page.click('[data-testid=intro-skip]');
+  assert.equal(await page.locator('[data-testid=terms]').count(), 0);
+  assert.match(await page.textContent('[data-testid=intro]'), /Keep refreshing your knowledge/);
+  await page.click('[data-testid=intro-next]');
+  await page.waitForSelector('[data-testid=intro-look]');
+  // Picked here, applied at once, behind the dialog.
+  await page.click('[data-testid=intro-theme-LIGHT]');
+  assert.equal(await page.getAttribute('html', 'data-theme'), 'light');
+  await page.click('[data-testid=intro-background-matched]');
+  await page.click('[data-testid=intro-next]');
+  await page.click('[data-testid=intro-next]');
+  await page.click('[data-testid=intro-sources]');
+  const sources = await page.textContent('[data-testid=sources-dialog]');
+  assert.match(sources, /EveryAyah/);
+  assert.match(sources, /Tanzil/);
+  assert.match(sources, /Wikimedia Commons/);
+  await page.click('[data-testid=sources-close]');
+  await page.click('[data-testid=intro-next]'); // "Begin"
+  await page.waitForSelector('[data-testid=intro]', { state: 'detached' });
   await page.reload();
   await page.waitForSelector('#view > :not(.boot)');
-  assert.equal(await page.locator('[data-testid=terms]').count(), 0);
+  assert.equal(await page.locator('[data-testid=intro]').count(), 0);
+  const settings = await page.evaluate(() => window.__app.store.settings);
+  assert.equal(settings.theme, 'LIGHT');
+  assert.equal(settings.playerBackground, 'matched');
+  assert.equal(settings.showAyahTranslation, true);
+  assert.equal(await page.getAttribute('html', 'data-theme'), 'light');
   assert.deepEqual(errors, []);
   await context.close();
 });
 
 test('first run shows the welcome, then lands on the surah list; it is not shown again', async () => {
-  const { page, context, errors } = await openApp(browser, server, { seenIntro: false, settings: { acceptedTermsVersion: 1 }, query: '?test' });
+  const { page, context, errors } = await openApp(browser, server, { seenIntro: false, query: '?test' });
   await page.waitForSelector('[data-testid=intro]');
-  assert.match(await page.textContent('[data-testid=intro]'), /Keep refreshing your knowledge/);
-  await page.click('[data-testid=intro-next]');
-  await page.click('[data-testid=intro-next]');
-  await page.click('[data-testid=intro-next]'); // "Begin"
+  for (let i = 0; i < 4; i++) await page.click('[data-testid=intro-next]'); // the last is "Begin"
   await page.waitForSelector('[data-testid=intro]', { state: 'detached' });
   assert.equal(new URL(page.url()).hash, '#/surahs');
+  // Left as they were: plain, and the default theme.
+  assert.equal(await page.evaluate(() => window.__app.store.settings.playerBackground), 'plain');
   await page.reload();
   await page.waitForSelector('#view > :not(.boot)');
   assert.equal(await page.locator('[data-testid=intro]').count(), 0);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('the sidebar folds to its icons and stays folded; over a player background it goes translucent', async () => {
+  const { page, context, errors } = await openApp(browser, server, { path: 'surahs', query: '?test' });
+  assert.equal(await page.evaluate(() => document.getElementById('app').classList.contains('collapsed')), false);
+  await page.click('[data-testid=sidebar-toggle]');
+  assert.equal(await page.evaluate(() => document.getElementById('app').classList.contains('collapsed')), true);
+  assert.ok((await page.locator('.sidebar').boundingBox()).width < 100);
+  await page.reload();
+  await page.waitForSelector('#view > :not(.boot)');
+  assert.equal(await page.evaluate(() => document.getElementById('app').classList.contains('collapsed')), true);
+  await page.click('[data-testid=sidebar-toggle]');
+  assert.ok((await page.locator('.sidebar').boundingBox()).width > 200);
+
+  await page.evaluate(() => window.__app.store.setSetting('playerBackground', 'matched'));
+  await page.click('[data-testid=nav-player]');
+  await page.waitForSelector('[data-testid=player-background]');
+  assert.equal(await page.evaluate(() => document.getElementById('app').classList.contains('scene')), true);
+  // The scene fills the window, under the sidebar.
+  const bg = await page.locator('[data-testid=player-background]').boundingBox();
+  assert.equal(bg.x, 0);
+  await page.click('[data-testid=nav-surahs]');
+  await page.waitForFunction(() => location.hash === '#/surahs' && !document.querySelector('[data-testid=player-background]'));
+  assert.equal(await page.evaluate(() => document.getElementById('app').classList.contains('scene')), false);
   assert.deepEqual(errors, []);
   await context.close();
 });

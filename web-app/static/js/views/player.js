@@ -536,7 +536,10 @@ export function playerView({ store, engine, server, go }) {
 
   const el = h('div', { class: 'player' }, background.el, head, readerEl, controls);
   function applyBackground() {
-    el.classList.toggle('with-bg', store.settings.playerBackground !== PlayerBackgrounds.PLAIN);
+    const on = store.settings.playerBackground !== PlayerBackgrounds.PLAIN;
+    el.classList.toggle('with-bg', on);
+    // The scene fills the window, and the sidebar and tab bar go translucent over it.
+    document.getElementById('app')?.classList.toggle('scene', on);
     background.refresh();
   }
   const offs = [
@@ -568,6 +571,7 @@ export function playerView({ store, engine, server, go }) {
       offs.forEach((off) => off());
       reader?.destroy();
       background.destroy();
+      document.getElementById('app')?.classList.remove('scene');
       closePanel();
       document.removeEventListener('visibilitychange', onVisible);
       document.removeEventListener('keydown', onKey);

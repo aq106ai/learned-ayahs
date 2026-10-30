@@ -148,6 +148,10 @@ const ICONS = {
     ['line', { x1: 8.59, y1: 13.51, x2: 15.42, y2: 17.49 }],
     ['line', { x1: 15.41, y1: 6.51, x2: 8.59, y2: 10.49 }],
   ],
+  sidebar: [
+    ['rect', { x: 3, y: 3, width: 18, height: 18, rx: 2 }],
+    ['line', { x1: 9, y1: 3, x2: 9, y2: 21 }],
+  ],
   image: [
     ['rect', { x: 3, y: 3, width: 18, height: 18, rx: 2 }],
     ['circle', { cx: 8.5, cy: 8.5, r: 1.5 }],

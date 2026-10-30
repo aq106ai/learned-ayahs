@@ -6,9 +6,14 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
-Android 1.11.1 (versionCode 44), which includes 1.11.0 (versionCode 43).
+Android 1.12.0 (versionCode 45), which includes 1.11.0 (43) and 1.11.1 (44).
 
 ### Added
+- **Choose the theme and the player's background while setting up** (Android and web app): the
+  welcome now has a "Make it yours" page, applied as you pick, and changeable any time after.
+- **Web app: the sidebar folds down to its icons** (the button at its foot; remembered in that
+  browser), and over a player background the scene fills the whole window, with the sidebar and
+  the phone tab bar translucent over it.
 - **Android: backgrounds in the player.** The background button (in the playback panel) puts
   the video maker's scenes behind the ayah while it plays: matched to what each ayah is about,
   drawn or as nature photos, or one chosen for every ayah. It's off unless chosen; the scene
@@ -26,12 +31,18 @@ Android 1.11.1 (versionCode 44), which includes 1.11.0 (versionCode 43).
   to drop to `.setup/timing_fixes/`, which `make_timings.py` applies.
 
 ### Changed
+- **No agreement screen on first launch** (Android and web app). The sources and disclaimer no
+  longer stand between a new user and the app behind "I agree": they are linked from the
+  welcome's last page and always in Settings. The content's licences ask for the sources to be
+  credited, which that does, not agreed to.
 - **Android: one Share button in the player**, in place of the film icon. It offers a video,
   which opens the video maker set up like the player (background, translation, word meanings),
   or an image of the ayah as it looks now, with the word being recited lit up, in any of the
   video shapes. The sources go in the message, as for videos.
 
 ### Fixed
+- **Android: Next pressed in the first moment after opening the app could be undone** when the
+  player finished starting up and reloaded the position from before the press.
 - **Word highlighting that never reached the last word, or started early or late** (all five
   reciters, Android and web app). Checked against every recording:
   - For about 900 ayahs per reciter the timing data put the last word in the silence after the

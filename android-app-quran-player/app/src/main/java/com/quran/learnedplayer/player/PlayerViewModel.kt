@@ -455,7 +455,8 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         // position with no surah override is what actually restores it — regardless of mode, and
         // even if that ayah isn't in the learned list. Passing uiState's own (possibly wrong,
         // best-effort) surah here would override that derivation with the wrong surah.
-        startPlaybackService(autoPlay = false, startGlobal = PlayerSettings.lastGlobalId, surah = 0)
+        // Resolved by the service when it loads, so a Next pressed while it starts isn't undone.
+        startPlaybackService(autoPlay = false, startGlobal = PlaybackService.START_FROM_LAST_POSITION, surah = 0)
     }
 
     private fun playWithService() {

@@ -1,13 +1,11 @@
 package com.quran.learnedplayer.ui
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,7 +14,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerViewModel
-import com.quran.learnedplayer.ui.common.TermsDialog
 import com.quran.learnedplayer.ui.home.IntroDialog
 import com.quran.learnedplayer.ui.home.SurahListScreen
 import com.quran.learnedplayer.ui.settings.AddByDescriptionScreen
@@ -66,16 +63,10 @@ fun AppNav(
     // happened to be on Home. Now that the player is the default destination — and a restored
     // back stack can put the player up even on a launch where the intro hasn't been seen — the
     // dialog is hoisted here, above the NavHost, so it shows over whatever is on screen.
-    // The sources and disclaimer come first, and are asked again whenever their version rises.
+    // The sources and disclaimer are linked from the intro's last page and always in Settings;
+    // nothing has to be agreed to before using the app.
     val seenIntro by PlayerSettings.seenIntroFlow.collectAsState()
-    val acceptedTerms by PlayerSettings.acceptedTermsVersionFlow.collectAsState()
-    val activity = LocalContext.current as? Activity
-    if (acceptedTerms < PlayerSettings.TERMS_VERSION) {
-        TermsDialog(
-            onAccept = { PlayerSettings.acceptedTermsVersion = PlayerSettings.TERMS_VERSION },
-            onExit = { activity?.finish() },
-        )
-    } else if (!seenIntro) {
+    if (!seenIntro) {
         IntroDialog(onDismiss = { PlayerSettings.seenIntro = true })
     }
 

@@ -539,7 +539,11 @@ class PlaybackService : MediaSessionService() {
                 val requestedMode = readMode(intent)
                 val requestedRepeat = readRepeat(intent)
                 val requestedSurah = intent.getIntExtra(EXTRA_SURAH, 0)
+                // Read the position now, not when the app sent this: a Next pressed while the
+                // service was starting has moved it since (PlayerStateHolder persists every move),
+                // and loading the position from before would undo the press.
                 val startGlobal = intent.getIntExtra(EXTRA_START_GLOBAL, 0)
+                    .let { if (it == START_FROM_LAST_POSITION) PlayerSettings.lastGlobalId else it }
                 // Full surah builds its queue from the surah, not the learned list, so it plays
                 // for someone who has marked nothing yet — tapping an ayah to hear its surah.
                 if (master.isNotEmpty() || requestedMode == PlaybackMode.FULL_SURAH) {
@@ -577,6 +581,15 @@ class PlaybackService : MediaSessionService() {
      * the surah for surah-scoped queues (0 = derive from [startGlobal] / current ayah). Playback
      * starts at [startGlobal] if that ayah exists in the queue, otherwise at the first item.
      */
+    /**
+     * Whether a queue has been loaded yet. The service registers with [PlayerStateHolder] in
+     * onCreate but loads only when its first command arrives; until then the app keeps driving
+     * its own preview, or a Next pressed in between would go to an empty player and be lost.
+     */
+    @Volatile
+    var hasLoadedQueue = false
+        private set
+
     private fun loadForMode(
         requestedMode: PlaybackMode,
         requestedRepeat: RepeatMode,
@@ -584,6 +597,7 @@ class PlaybackService : MediaSessionService() {
         startGlobal: Int,
         persistMode: Boolean = true,
     ) {
+        hasLoadedQueue = true
         cancelRevisionGap()
         clearIntroState()
         mode = requestedMode
@@ -1460,6 +1474,9 @@ class PlaybackService : MediaSessionService() {
         const val EXTRA_PERSIST_MODE = "extra_persist_mode"
         const val EXTRA_SURAH = "extra_surah"
         const val EXTRA_START_GLOBAL = "extra_start_global"
+
+        /** [EXTRA_START_GLOBAL]: wherever the user is when the service loads ([PlayerSettings.lastGlobalId]). */
+        const val START_FROM_LAST_POSITION = -1
         const val EXTRA_AUTO_PLAY = "extra_auto_play"
     }
 }

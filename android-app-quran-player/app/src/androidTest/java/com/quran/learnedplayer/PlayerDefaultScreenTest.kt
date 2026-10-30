@@ -9,6 +9,7 @@ import com.quran.learnedplayer.data.AyahMapping
 import com.quran.learnedplayer.data.BookmarksStore
 import com.quran.learnedplayer.player.PlaybackMode
 import com.quran.learnedplayer.player.PlayerSettings
+import com.quran.learnedplayer.service.PlayerStateHolder
 import com.quran.learnedplayer.ui.TAG_FULLSCREEN_NEXT
 import com.quran.learnedplayer.ui.TAG_FULLSCREEN_WHOLE_AYAH
 import com.quran.learnedplayer.ui.TAG_OPEN_PLAYLIST_PANEL
@@ -17,6 +18,7 @@ import com.quran.learnedplayer.ui.bookmarkRowTag
 import com.quran.learnedplayer.ui.bookmarkToggleTag
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,9 +44,20 @@ class PlayerDefaultScreenTest : BaseAppTest() {
         awaitTag(TAG_FULLSCREEN_WHOLE_AYAH)
         composeRule.onNodeWithTag(TAG_FULLSCREEN_NEXT).performClick()
         composeRule.onNodeWithTag(TAG_FULLSCREEN_NEXT).performClick()
-        composeRule.waitUntil(20_000) {
-            composeRule.onAllNodesWithText("Ayah 3", substring = true)
-                .fetchSemanticsNodes().isNotEmpty()
+        val reached = runCatching {
+            composeRule.waitUntil(20_000) {
+                composeRule.onAllNodesWithText("Ayah 3", substring = true)
+                    .fetchSemanticsNodes().isNotEmpty()
+            }
+        }.isSuccess
+        if (!reached) {
+            // Say where it ended up, so a failure on CI can be diagnosed from the log alone.
+            val state = PlayerStateHolder.uiState.value
+            fail(
+                "never showed Ayah 3: index ${state.currentIndex} of ${state.tracks.size}, " +
+                    "track ${state.currentTrack?.globalId}, service ready ${PlayerStateHolder.isServiceReady()}, " +
+                    "lastGlobalId ${PlayerSettings.lastGlobalId}, mode ${state.mode}, playing ${state.isPlaying}",
+            )
         }
         composeRule.waitForIdle()
 

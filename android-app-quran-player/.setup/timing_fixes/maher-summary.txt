@@ -28,12 +28,11 @@ Finding the last word's start, scored on ayahs whose last word QUL timed (error 
         sliver: {'found': 1.0, 'p50': 1510, 'p90': 2110, 'within150': 0.002, 'within300': 0.013, 'useful': 0.002, 'of': 2461}
 chosen: letters
 
-maher: 6188 ayahs: 4664 fine, 962 repaired (945 last words, 24 first words), 2 shifted, 560 dropped
+maher: 6188 ayahs: 4997 fine, 895 repaired (873 last words, 28 first words), 2 shifted, 294 dropped
 
 Dropped, by reason:
-    301  timings end at:  2:1 (timings end at 2960 ms, the recitation at 4540 ms); 2:35 (timings end at 12160 ms, the recitation at 13740 ms); 2:54 (timings end at 29080 ms, the recitation at 31420 ms); 2:55 (timings end at 7800 ms, the recitation at 10280 ms)
-    147  words start inside:  2:77 (2 words start inside a silence); 4:12 (1 words start inside a silence); 4:32 (2 words start inside a silence); 4:97 (3 words start inside a silence)
-    101  first word ms:  1:3 (first word +420 ms from the voice); 2:33 (first word +350 ms from the voice); 2:162 (first word +370 ms from the voice); 2:164 (first word -420 ms from the voice)
+    160  words start inside:  2:77 (2 words start inside a silence); 4:12 (1 words start inside a silence); 4:32 (2 words start inside a silence); 4:97 (3 words start inside a silence)
+    123  first word ms:  1:3 (first word +420 ms from the voice); 2:33 (first word +350 ms from the voice); 2:162 (first word +370 ms from the voice); 2:164 (first word -420 ms from the voice)
       6  timings run to:  2:220 (timings run to 26169 ms on a 22280 ms recording); 5:20 (timings run to 19748 ms on a 17420 ms recording); 8:54 (timings run to 20240 ms on a 17600 ms recording); 20:40 (timings run to 33714 ms on a 28720 ms recording)
       5  last word starts at:  55:36 (last word starts at 5720 ms, voice ends 5420 ms); 55:38 (last word starts at 5920 ms, voice ends 5420 ms); 55:51 (last word starts at 5240 ms, voice ends 4940 ms); 55:61 (last word starts at 5440 ms, voice ends 5060 ms)
 
@@ -65,82 +64,82 @@ Last words moved (largest first):
 
 Dropped:
        1:3  first word +420 ms from the voice
-       2:1  timings end at 2960 ms, the recitation at 4540 ms
       2:33  first word +350 ms from the voice
-      2:35  timings end at 12160 ms, the recitation at 13740 ms
-      2:54  timings end at 29080 ms, the recitation at 31420 ms
-      2:55  timings end at 7800 ms, the recitation at 10280 ms
-      2:61  timings end at 61000 ms, the recitation at 63680 ms
-      2:68  timings end at 14550 ms, the recitation at 18120 ms
       2:77  2 words start inside a silence
-     2:102  timings end at 57680 ms, the recitation at 66060 ms
-     2:109  timings end at 23190 ms, the recitation at 27840 ms
-     2:113  timings end at 23590 ms, the recitation at 26820 ms
-     2:132  timings end at 14800 ms, the recitation at 16900 ms
-     2:136  timings end at 32440 ms, the recitation at 37880 ms
      2:162  first word +370 ms from the voice
      2:164  first word -420 ms from the voice
-     2:165  timings end at 25070 ms, the recitation at 29660 ms
-     2:167  timings end at 27710 ms, the recitation at 29500 ms
      2:174  first word -380 ms from the voice
-     2:175  timings end at 10790 ms, the recitation at 12540 ms
-     2:179  timings end at 5640 ms, the recitation at 7440 ms
-     2:197  timings end at 21480 ms, the recitation at 28020 ms
-     2:201  timings end at 17030 ms, the recitation at 18240 ms
-     2:213  timings end at 40510 ms, the recitation at 50140 ms
+     2:213  first word +520 ms from the voice
      2:214  first word -320 ms from the voice
-     2:217  timings end at 47120 ms, the recitation at 57400 ms
      2:220  timings run to 26169 ms on a 22280 ms recording
-     2:222  timings end at 22600 ms, the recitation at 25600 ms
-     2:232  timings end at 28560 ms, the recitation at 33380 ms
-     2:235  timings end at 44080 ms, the recitation at 49400 ms
-     2:246  timings end at 41000 ms, the recitation at 48840 ms
-     2:247  timings end at 32840 ms, the recitation at 35260 ms
-     2:253  timings end at 42750 ms, the recitation at 44280 ms
-     2:258  timings end at 33630 ms, the recitation at 92880 ms
-     2:260  timings end at 32789 ms, the recitation at 36340 ms
-     2:264  timings end at 36520 ms, the recitation at 40960 ms
-     2:269  timings end at 14350 ms, the recitation at 15520 ms
-       3:1  timings end at 3840 ms, the recitation at 5780 ms
+     2:235  first word +340 ms from the voice
+     2:247  first word +960 ms from the voice
        3:4  first word +3190 ms from the voice
-       3:5  timings end at 5030 ms, the recitation at 7320 ms
-       3:7  timings end at 38310 ms, the recitation at 46160 ms
-      3:10  timings end at 12670 ms, the recitation at 13760 ms
-      3:16  timings end at 12550 ms, the recitation at 13820 ms
-      3:27  timings end at 15640 ms, the recitation at 18220 ms
-      3:37  timings end at 28040 ms, the recitation at 32460 ms
-      3:40  timings end at 9850 ms, the recitation at 11440 ms
-      3:42  timings end at 10960 ms, the recitation at 12480 ms
       3:65  first word +1610 ms from the voice
       3:66  first word +840 ms from the voice
       3:70  first word +1630 ms from the voice
       3:71  first word +1490 ms from the voice
       3:75  first word +450 ms from the voice
-      3:81  timings end at 29840 ms, the recitation at 33000 ms
       3:88  first word +370 ms from the voice
-     3:112  timings end at 29480 ms, the recitation at 33100 ms
      3:114  first word +410 ms from the voice
-     3:117  timings end at 17910 ms, the recitation at 25260 ms
      3:119  first word +920 ms from the voice
-     3:191  timings end at 18350 ms, the recitation at 19440 ms
-       4:6  timings end at 30600 ms, the recitation at 31820 ms
       4:12  1 words start inside a silence
       4:32  2 words start inside a silence
-      4:33  timings end at 14470 ms, the recitation at 15800 ms
-      4:34  timings end at 34800 ms, the recitation at 41860 ms
-      4:41  timings end at 11110 ms, the recitation at 12260 ms
-      4:46  timings end at 30710 ms, the recitation at 37900 ms
-      4:47  timings end at 25040 ms, the recitation at 29060 ms
-      4:72  timings end at 14070 ms, the recitation at 15080 ms
-      4:73  timings end at 19960 ms, the recitation at 21240 ms
-      4:77  timings end at 40320 ms, the recitation at 44020 ms
-      4:79  timings end at 15470 ms, the recitation at 16860 ms
-      4:90  timings end at 31840 ms, the recitation at 36420 ms
-      4:91  timings end at 31560 ms, the recitation at 34360 ms
       4:97  3 words start inside a silence
      4:109  first word +800 ms from the voice
-     4:113  timings end at 28960 ms, the recitation at 31840 ms
      4:114  first word -400 ms from the voice
      4:123  1 words start inside a silence
-     4:140  timings end at 31270 ms, the recitation at 32280 ms
-     4:155  timings end at 22240 ms, the recitation at 25900 ms
+     4:140  2 words start inside a silence
+     4:157  1 words start inside a silence
+     4:171  first word +1450 ms from the voice; 1 words start inside a silence
+     4:174  1 words start inside a silence
+     4:175  first word +4820 ms from the voice
+       5:1  first word +1540 ms from the voice; 1 words start inside a silence
+      5:15  first word +1610 ms from the voice
+      5:18  1 words start inside a silence
+      5:20  timings run to 19748 ms on a 17420 ms recording
+      5:31  1 words start inside a silence
+      5:41  1 words start inside a silence
+      5:73  1 words start inside a silence
+      5:77  1 words start inside a silence
+      5:94  1 words start inside a silence
+      5:97  first word -460 ms from the voice
+      6:38  first word +840 ms from the voice; 1 words start inside a silence
+      6:44  1 words start inside a silence
+      6:69  1 words start inside a silence
+      6:95  first word -380 ms from the voice
+     6:100  1 words start inside a silence
+     6:101  1 words start inside a silence
+     6:108  1 words start inside a silence
+     6:109  1 words start inside a silence
+     6:111  first word -360 ms from the voice
+     6:116  1 words start inside a silence
+     6:124  1 words start inside a silence
+     6:127  1 words start inside a silence
+     6:128  first word +460 ms from the voice
+     6:140  1 words start inside a silence
+     6:142  1 words start inside a silence
+     6:144  2 words start inside a silence
+     6:145  first word +700 ms from the voice
+     6:151  first word -420 ms from the voice
+     6:158  1 words start inside a silence
+      7:17  1 words start inside a silence
+      7:22  1 words start inside a silence
+      7:27  1 words start inside a silence
+      7:30  1 words start inside a silence
+      7:37  1 words start inside a silence
+      7:38  1 words start inside a silence
+      7:48  1 words start inside a silence
+      7:50  1 words start inside a silence
+      7:53  1 words start inside a silence
+      7:59  1 words start inside a silence
+      7:61  first word +350 ms from the voice
+      7:67  first word +370 ms from the voice
+      7:71  2 words start inside a silence
+      7:72  1 words start inside a silence
+      7:75  1 words start inside a silence
+      7:77  1 words start inside a silence
+      7:88  first word +480 ms from the voice
+      7:89  1 words start inside a silence
+     7:102  1 words start inside a silence
+     7:104  first word +850 ms from the voice

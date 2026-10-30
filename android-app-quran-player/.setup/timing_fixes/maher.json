@@ -28,6 +28,10 @@
   }
  },
  "first_onset": {
+  "2:132": {
+   "from": 0,
+   "to": 380
+  },
   "2:169": {
    "from": 0,
    "to": 560
@@ -45,6 +49,10 @@
    "to": 420
   },
   "2:252": {
+   "from": 0,
+   "to": 520
+  },
+  "2:253": {
    "from": 0,
    "to": 520
   },
@@ -83,6 +91,10 @@
   "12:90": {
    "from": 0,
    "to": 740
+  },
+  "17:1": {
+   "from": 0,
+   "to": 400
   },
   "19:32": {
    "from": 0,
@@ -123,6 +135,10 @@
   "39:73": {
    "from": 0,
    "to": 340
+  },
+  "63:5": {
+   "from": 0,
+   "to": 360
   }
  },
  "last_onset": {
@@ -698,17 +714,9 @@
    "from": 7770,
    "to": 6060
   },
-  "3:190": {
-   "from": 8290,
-   "to": 8080
-  },
   "3:199": {
    "from": 31330,
    "to": 29720
-  },
-  "4:19": {
-   "from": 49370,
-   "to": 48940
   },
   "4:25": {
    "from": 56490,
@@ -718,37 +726,17 @@
    "from": 14850,
    "to": 13320
   },
-  "4:43": {
-   "from": 45570,
-   "to": 45440
-  },
   "4:70": {
    "from": 4810,
    "to": 3720
-  },
-  "4:71": {
-   "from": 10290,
-   "to": 10100
-  },
-  "4:82": {
-   "from": 13290,
-   "to": 13280
   },
   "4:83": {
    "from": 25690,
    "to": 24400
   },
-  "4:99": {
-   "from": 7370,
-   "to": 7240
-  },
   "4:127": {
    "from": 37290,
    "to": 36100
-  },
-  "4:139": {
-   "from": 17730,
-   "to": 17540
   },
   "4:142": {
    "from": 17530,
@@ -761,14 +749,6 @@
   "4:148": {
    "from": 9970,
    "to": 8800
-  },
-  "4:160": {
-   "from": 10890,
-   "to": 10780
-  },
-  "4:172": {
-   "from": 18810,
-   "to": 18760
   },
   "5:3": {
    "from": 55050,
@@ -1554,10 +1534,6 @@
    "from": 18770,
    "to": 16840
   },
-  "11:66": {
-   "from": 16810,
-   "to": 16560
-  },
   "11:111": {
    "from": 10410,
    "to": 9400
@@ -1682,10 +1658,6 @@
    "from": 17850,
    "to": 16480
   },
-  "13:19": {
-   "from": 11250,
-   "to": 11080
-  },
   "13:21": {
    "from": 14290,
    "to": 12220
@@ -1729,10 +1701,6 @@
   "15:49": {
    "from": 6370,
    "to": 5360
-  },
-  "15:51": {
-   "from": 2290,
-   "to": 1980
   },
   "15:80": {
    "from": 3850,
@@ -1902,10 +1870,6 @@
    "from": 20570,
    "to": 18900
   },
-  "17:44": {
-   "from": 17290,
-   "to": 17360
-  },
   "17:52": {
    "from": 9450,
    "to": 8320
@@ -1926,18 +1890,6 @@
    "from": 10090,
    "to": 8760
   },
-  "17:103": {
-   "from": 5650,
-   "to": 5380
-  },
-  "18:2": {
-   "from": 12970,
-   "to": 12980
-  },
-  "18:3": {
-   "from": 1490,
-   "to": 1440
-  },
   "18:5": {
    "from": 15810,
    "to": 14580
@@ -1946,49 +1898,9 @@
    "from": 16850,
    "to": 15840
   },
-  "18:20": {
-   "from": 11730,
-   "to": 11780
-  },
-  "18:35": {
-   "from": 9930,
-   "to": 9680
-  },
-  "18:57": {
-   "from": 25650,
-   "to": 25700
-  },
-  "19:9": {
-   "from": 8530,
-   "to": 8660
-  },
   "19:39": {
    "from": 11330,
    "to": 9240
-  },
-  "19:42": {
-   "from": 12590,
-   "to": 12480
-  },
-  "19:60": {
-   "from": 14290,
-   "to": 14720
-  },
-  "19:67": {
-   "from": 6010,
-   "to": 6060
-  },
-  "20:9": {
-   "from": 2050,
-   "to": 1720
-  },
-  "20:11": {
-   "from": 3410,
-   "to": 3240
-  },
-  "20:17": {
-   "from": 2410,
-   "to": 2280
   },
   "20:18": {
    "from": 8450,
@@ -1998,14 +1910,6 @@
    "from": 8850,
    "to": 7640
   },
-  "20:33": {
-   "from": 1370,
-   "to": 1320
-  },
-  "20:34": {
-   "from": 1090,
-   "to": 1020
-  },
   "20:37": {
    "from": 4250,
    "to": 2920
@@ -2014,17 +1918,9 @@
    "from": 7250,
    "to": 6000
   },
-  "20:67": {
-   "from": 3330,
-   "to": 2660
-  },
   "20:72": {
    "from": 16530,
    "to": 15540
-  },
-  "20:91": {
-   "from": 5130,
-   "to": 4960
   },
   "21:4": {
    "from": 6650,
@@ -2082,10 +1978,6 @@
    "from": 21610,
    "to": 19640
   },
-  "22:40": {
-   "from": 36130,
-   "to": 35900
-  },
   "22:60": {
    "from": 22130,
    "to": 20780
@@ -2105,10 +1997,6 @@
   "22:68": {
    "from": 5890,
    "to": 4320
-  },
-  "22:74": {
-   "from": 5250,
-   "to": 4980
   },
   "22:75": {
    "from": 11250,
@@ -2249,14 +2137,6 @@
   "24:64": {
    "from": 27810,
    "to": 25780
-  },
-  "25:14": {
-   "from": 5330,
-   "to": 5100
-  },
-  "25:49": {
-   "from": 9450,
-   "to": 9240
   },
   "26:8": {
    "from": 5650,
@@ -2806,17 +2686,9 @@
    "from": 22610,
    "to": 21340
   },
-  "33:21": {
-   "from": 11210,
-   "to": 11180
-  },
   "33:40": {
    "from": 14570,
    "to": 13060
-  },
-  "33:41": {
-   "from": 5010,
-   "to": 4780
   },
   "33:54": {
    "from": 6370,
@@ -2862,10 +2734,6 @@
    "from": 23650,
    "to": 22020
   },
-  "35:24": {
-   "from": 9770,
-   "to": 9780
-  },
   "35:28": {
    "from": 27890,
    "to": 25920
@@ -2877,10 +2745,6 @@
   "35:38": {
    "from": 10010,
    "to": 7720
-  },
-  "35:41": {
-   "from": 15210,
-   "to": 15160
   },
   "36:3": {
    "from": 2570,
@@ -3014,21 +2878,9 @@
    "from": 4890,
    "to": 3820
   },
-  "38:36": {
-   "from": 5490,
-   "to": 5520
-  },
-  "38:43": {
-   "from": 8730,
-   "to": 8540
-  },
   "38:53": {
    "from": 4370,
    "to": 2680
-  },
-  "38:61": {
-   "from": 5930,
-   "to": 5880
   },
   "38:74": {
    "from": 4890,
@@ -3037,18 +2889,6 @@
   "39:7": {
    "from": 32450,
    "to": 30420
-  },
-  "39:9": {
-   "from": 21010,
-   "to": 20900
-  },
-  "39:19": {
-   "from": 5650,
-   "to": 5600
-  },
-  "39:21": {
-   "from": 22690,
-   "to": 22560
   },
   "39:25": {
    "from": 6210,
@@ -3130,14 +2970,6 @@
    "from": 13770,
    "to": 12160
   },
-  "40:53": {
-   "from": 6210,
-   "to": 6420
-  },
-  "40:54": {
-   "from": 2450,
-   "to": 2320
-  },
   "40:57": {
    "from": 9850,
    "to": 8500
@@ -3186,10 +3018,6 @@
    "from": 23730,
    "to": 22620
   },
-  "41:41": {
-   "from": 8010,
-   "to": 8120
-  },
   "42:5": {
    "from": 22690,
    "to": 21040
@@ -3197,10 +3025,6 @@
   "42:12": {
    "from": 13290,
    "to": 11820
-  },
-  "42:19": {
-   "from": 11050,
-   "to": 10860
   },
   "42:24": {
    "from": 20810,
@@ -3350,38 +3174,6 @@
    "from": 17730,
    "to": 16240
   },
-  "47:6": {
-   "from": 3170,
-   "to": 3020
-  },
-  "47:11": {
-   "from": 6810,
-   "to": 6920
-  },
-  "47:12": {
-   "from": 15730,
-   "to": 15620
-  },
-  "47:13": {
-   "from": 13170,
-   "to": 12960
-  },
-  "47:20": {
-   "from": 23250,
-   "to": 23160
-  },
-  "47:21": {
-   "from": 7210,
-   "to": 7080
-  },
-  "47:25": {
-   "from": 12930,
-   "to": 12860
-  },
-  "47:34": {
-   "from": 10490,
-   "to": 10420
-  },
   "48:15": {
    "from": 25290,
    "to": 24040
@@ -3466,17 +3258,9 @@
    "from": 2650,
    "to": 1860
   },
-  "53:28": {
-   "from": 9450,
-   "to": 9660
-  },
   "53:29": {
    "from": 7570,
    "to": 6500
-  },
-  "53:36": {
-   "from": 2990,
-   "to": 2600
   },
   "53:38": {
    "from": 4290,
@@ -3586,10 +3370,6 @@
    "from": 16290,
    "to": 15320
   },
-  "57:25": {
-   "from": 27930,
-   "to": 27520
-  },
   "57:28": {
    "from": 21770,
    "to": 20680
@@ -3625,14 +3405,6 @@
   "58:15": {
    "from": 8650,
    "to": 7140
-  },
-  "58:21": {
-   "from": 10930,
-   "to": 10720
-  },
-  "59:3": {
-   "from": 10250,
-   "to": 10200
   },
   "59:4": {
    "from": 14090,
@@ -3750,10 +3522,6 @@
    "from": 5970,
    "to": 4680
   },
-  "67:8": {
-   "from": 13330,
-   "to": 13300
-  },
   "67:13": {
    "from": 7530,
    "to": 6120
@@ -3794,10 +3562,6 @@
    "from": 7730,
    "to": 6980
   },
-  "72:23": {
-   "from": 13890,
-   "to": 13580
-  },
   "73:2": {
    "from": 2290,
    "to": 1300
@@ -3809,14 +3573,6 @@
   "73:11": {
    "from": 5170,
    "to": 4220
-  },
-  "75:1": {
-   "from": 3050,
-   "to": 2400
-  },
-  "75:6": {
-   "from": 2250,
-   "to": 1580
   },
   "75:16": {
    "from": 3210,
@@ -3837,10 +3593,6 @@
   "77:50": {
    "from": 4930,
    "to": 2880
-  },
-  "79:15": {
-   "from": 2130,
-   "to": 1800
   },
   "79:38": {
    "from": 2970,
@@ -3870,10 +3622,6 @@
    "from": 2970,
    "to": 2260
   },
-  "96:1": {
-   "from": 2330,
-   "to": 2500
-  },
   "100:10": {
    "from": 2970,
    "to": 1500
@@ -3885,143 +3633,53 @@
   "102:4": {
    "from": 3530,
    "to": 2320
-  },
-  "113:2": {
-   "from": 1530,
-   "to": 1660
-  },
-  "114:1": {
-   "from": 3170,
-   "to": 1780
-  },
-  "114:2": {
-   "from": 2170,
-   "to": 840
-  },
-  "114:3": {
-   "from": 1810,
-   "to": 1040
-  },
-  "114:5": {
-   "from": 3650,
-   "to": 2680
   }
  },
  "drop": {
   "1:3": "first word +420 ms from the voice",
-  "2:1": "timings end at 2960 ms, the recitation at 4540 ms",
   "2:33": "first word +350 ms from the voice",
-  "2:35": "timings end at 12160 ms, the recitation at 13740 ms",
-  "2:54": "timings end at 29080 ms, the recitation at 31420 ms",
-  "2:55": "timings end at 7800 ms, the recitation at 10280 ms",
-  "2:61": "timings end at 61000 ms, the recitation at 63680 ms",
-  "2:68": "timings end at 14550 ms, the recitation at 18120 ms",
   "2:77": "2 words start inside a silence",
-  "2:102": "timings end at 57680 ms, the recitation at 66060 ms",
-  "2:109": "timings end at 23190 ms, the recitation at 27840 ms",
-  "2:113": "timings end at 23590 ms, the recitation at 26820 ms",
-  "2:132": "timings end at 14800 ms, the recitation at 16900 ms",
-  "2:136": "timings end at 32440 ms, the recitation at 37880 ms",
   "2:162": "first word +370 ms from the voice",
   "2:164": "first word -420 ms from the voice",
-  "2:165": "timings end at 25070 ms, the recitation at 29660 ms",
-  "2:167": "timings end at 27710 ms, the recitation at 29500 ms",
   "2:174": "first word -380 ms from the voice",
-  "2:175": "timings end at 10790 ms, the recitation at 12540 ms",
-  "2:179": "timings end at 5640 ms, the recitation at 7440 ms",
-  "2:197": "timings end at 21480 ms, the recitation at 28020 ms",
-  "2:201": "timings end at 17030 ms, the recitation at 18240 ms",
-  "2:213": "timings end at 40510 ms, the recitation at 50140 ms",
+  "2:213": "first word +520 ms from the voice",
   "2:214": "first word -320 ms from the voice",
-  "2:217": "timings end at 47120 ms, the recitation at 57400 ms",
   "2:220": "timings run to 26169 ms on a 22280 ms recording",
-  "2:222": "timings end at 22600 ms, the recitation at 25600 ms",
-  "2:232": "timings end at 28560 ms, the recitation at 33380 ms",
-  "2:235": "timings end at 44080 ms, the recitation at 49400 ms",
-  "2:246": "timings end at 41000 ms, the recitation at 48840 ms",
-  "2:247": "timings end at 32840 ms, the recitation at 35260 ms",
-  "2:253": "timings end at 42750 ms, the recitation at 44280 ms",
-  "2:258": "timings end at 33630 ms, the recitation at 92880 ms",
-  "2:260": "timings end at 32789 ms, the recitation at 36340 ms",
-  "2:264": "timings end at 36520 ms, the recitation at 40960 ms",
-  "2:269": "timings end at 14350 ms, the recitation at 15520 ms",
-  "3:1": "timings end at 3840 ms, the recitation at 5780 ms",
+  "2:235": "first word +340 ms from the voice",
+  "2:247": "first word +960 ms from the voice",
   "3:4": "first word +3190 ms from the voice",
-  "3:5": "timings end at 5030 ms, the recitation at 7320 ms",
-  "3:7": "timings end at 38310 ms, the recitation at 46160 ms",
-  "3:10": "timings end at 12670 ms, the recitation at 13760 ms",
-  "3:16": "timings end at 12550 ms, the recitation at 13820 ms",
-  "3:27": "timings end at 15640 ms, the recitation at 18220 ms",
-  "3:37": "timings end at 28040 ms, the recitation at 32460 ms",
-  "3:40": "timings end at 9850 ms, the recitation at 11440 ms",
-  "3:42": "timings end at 10960 ms, the recitation at 12480 ms",
   "3:65": "first word +1610 ms from the voice",
   "3:66": "first word +840 ms from the voice",
   "3:70": "first word +1630 ms from the voice",
   "3:71": "first word +1490 ms from the voice",
   "3:75": "first word +450 ms from the voice",
-  "3:81": "timings end at 29840 ms, the recitation at 33000 ms",
   "3:88": "first word +370 ms from the voice",
-  "3:112": "timings end at 29480 ms, the recitation at 33100 ms",
   "3:114": "first word +410 ms from the voice",
-  "3:117": "timings end at 17910 ms, the recitation at 25260 ms",
   "3:119": "first word +920 ms from the voice",
-  "3:191": "timings end at 18350 ms, the recitation at 19440 ms",
-  "4:6": "timings end at 30600 ms, the recitation at 31820 ms",
   "4:12": "1 words start inside a silence",
   "4:32": "2 words start inside a silence",
-  "4:33": "timings end at 14470 ms, the recitation at 15800 ms",
-  "4:34": "timings end at 34800 ms, the recitation at 41860 ms",
-  "4:41": "timings end at 11110 ms, the recitation at 12260 ms",
-  "4:46": "timings end at 30710 ms, the recitation at 37900 ms",
-  "4:47": "timings end at 25040 ms, the recitation at 29060 ms",
-  "4:72": "timings end at 14070 ms, the recitation at 15080 ms",
-  "4:73": "timings end at 19960 ms, the recitation at 21240 ms",
-  "4:77": "timings end at 40320 ms, the recitation at 44020 ms",
-  "4:79": "timings end at 15470 ms, the recitation at 16860 ms",
-  "4:90": "timings end at 31840 ms, the recitation at 36420 ms",
-  "4:91": "timings end at 31560 ms, the recitation at 34360 ms",
   "4:97": "3 words start inside a silence",
   "4:109": "first word +800 ms from the voice",
-  "4:113": "timings end at 28960 ms, the recitation at 31840 ms",
   "4:114": "first word -400 ms from the voice",
   "4:123": "1 words start inside a silence",
-  "4:140": "timings end at 31270 ms, the recitation at 32280 ms",
-  "4:155": "timings end at 22240 ms, the recitation at 25900 ms",
+  "4:140": "2 words start inside a silence",
   "4:157": "1 words start inside a silence",
-  "4:159": "timings end at 9270 ms, the recitation at 10780 ms",
-  "4:166": "timings end at 15630 ms, the recitation at 16820 ms",
   "4:171": "first word +1450 ms from the voice; 1 words start inside a silence",
   "4:174": "1 words start inside a silence",
   "4:175": "first word +4820 ms from the voice",
-  "4:176": "timings end at 38360 ms, the recitation at 40080 ms",
   "5:1": "first word +1540 ms from the voice; 1 words start inside a silence",
-  "5:2": "timings end at 42190 ms, the recitation at 45740 ms",
   "5:15": "first word +1610 ms from the voice",
   "5:18": "1 words start inside a silence",
   "5:20": "timings run to 19748 ms on a 17420 ms recording",
-  "5:22": "timings end at 14400 ms, the recitation at 15820 ms",
-  "5:24": "timings end at 17600 ms, the recitation at 19200 ms",
-  "5:31": "timings end at 17045 ms, the recitation at 23700 ms",
-  "5:32": "timings end at 33630 ms, the recitation at 40440 ms",
+  "5:31": "1 words start inside a silence",
   "5:41": "1 words start inside a silence",
-  "5:48": "timings end at 47600 ms, the recitation at 53060 ms",
-  "5:49": "timings end at 28390 ms, the recitation at 33200 ms",
-  "5:64": "timings end at 45400 ms, the recitation at 49700 ms",
-  "5:72": "timings end at 34910 ms, the recitation at 37560 ms",
   "5:73": "1 words start inside a silence",
   "5:77": "1 words start inside a silence",
-  "5:90": "timings end at 14000 ms, the recitation at 15620 ms",
   "5:94": "1 words start inside a silence",
   "5:97": "first word -460 ms from the voice",
-  "5:116": "timings end at 39040 ms, the recitation at 40960 ms",
-  "6:8": "timings end at 10600 ms, the recitation at 11780 ms",
-  "6:25": "timings end at 25360 ms, the recitation at 31160 ms",
-  "6:34": "timings end at 15360 ms, the recitation at 19280 ms",
-  "6:38": "timings end at 21000 ms, the recitation at 25500 ms",
+  "6:38": "first word +840 ms from the voice; 1 words start inside a silence",
   "6:44": "1 words start inside a silence",
   "6:69": "1 words start inside a silence",
-  "6:78": "timings end at 12640 ms, the recitation at 14320 ms",
   "6:95": "first word -380 ms from the voice",
   "6:100": "1 words start inside a silence",
   "6:101": "1 words start inside a silence",
@@ -4032,68 +3690,50 @@
   "6:124": "1 words start inside a silence",
   "6:127": "1 words start inside a silence",
   "6:128": "first word +460 ms from the voice",
-  "6:130": "timings end at 26270 ms, the recitation at 32040 ms",
   "6:140": "1 words start inside a silence",
   "6:142": "1 words start inside a silence",
   "6:144": "2 words start inside a silence",
-  "6:145": "timings end at 27640 ms, the recitation at 34120 ms",
+  "6:145": "first word +700 ms from the voice",
   "6:151": "first word -420 ms from the voice",
-  "6:158": "timings end at 25000 ms, the recitation at 38220 ms",
-  "7:1": "timings end at 7400 ms, the recitation at 10220 ms",
+  "6:158": "1 words start inside a silence",
   "7:17": "1 words start inside a silence",
-  "7:19": "timings end at 11560 ms, the recitation at 13160 ms",
   "7:22": "1 words start inside a silence",
   "7:27": "1 words start inside a silence",
   "7:30": "1 words start inside a silence",
   "7:37": "1 words start inside a silence",
   "7:38": "1 words start inside a silence",
-  "7:43": "timings end at 32600 ms, the recitation at 34660 ms",
   "7:48": "1 words start inside a silence",
   "7:50": "1 words start inside a silence",
   "7:53": "1 words start inside a silence",
-  "7:57": "timings end at 26760 ms, the recitation at 29480 ms",
-  "7:59": "timings end at 13560 ms, the recitation at 14600 ms",
+  "7:59": "1 words start inside a silence",
   "7:61": "first word +350 ms from the voice",
-  "7:65": "timings end at 10840 ms, the recitation at 12340 ms",
   "7:67": "first word +370 ms from the voice",
   "7:71": "2 words start inside a silence",
   "7:72": "1 words start inside a silence",
-  "7:73": "timings end at 35240 ms, the recitation at 36760 ms",
   "7:75": "1 words start inside a silence",
-  "7:77": "timings end at 11480 ms, the recitation at 12880 ms",
-  "7:79": "timings end at 10960 ms, the recitation at 14580 ms",
-  "7:85": "timings end at 29440 ms, the recitation at 31460 ms",
+  "7:77": "1 words start inside a silence",
   "7:88": "first word +480 ms from the voice",
-  "7:89": "timings end at 32200 ms, the recitation at 36240 ms",
-  "7:93": "timings end at 11840 ms, the recitation at 15100 ms",
+  "7:89": "1 words start inside a silence",
   "7:102": "1 words start inside a silence",
   "7:104": "first word +850 ms from the voice",
-  "7:115": "timings end at 10240 ms, the recitation at 11600 ms",
-  "7:134": "timings end at 20150 ms, the recitation at 22960 ms",
-  "7:138": "timings end at 22200 ms, the recitation at 24300 ms",
   "7:152": "1 words start inside a silence",
   "7:155": "1 words start inside a silence",
-  "7:160": "timings end at 38000 ms, the recitation at 41680 ms",
   "7:167": "1 words start inside a silence",
-  "7:169": "timings end at 28757 ms, the recitation at 36500 ms",
-  "7:176": "timings end at 24680 ms, the recitation at 30940 ms",
+  "7:176": "first word +360 ms from the voice",
   "7:190": "1 words start inside a silence",
   "7:195": "1 words start inside a silence",
-  "7:199": "timings end at 4480 ms, the recitation at 17300 ms",
   "8:10": "1 words start inside a silence",
   "8:13": "1 words start inside a silence",
-  "8:14": "timings end at 5430 ms, the recitation at 6900 ms",
   "8:15": "1 words start inside a silence",
-  "8:41": "timings end at 34870 ms, the recitation at 63060 ms",
+  "8:41": "1 words start inside a silence",
   "8:42": "1 words start inside a silence",
-  "8:48": "timings end at 28760 ms, the recitation at 31980 ms",
+  "8:48": "1 words start inside a silence",
   "8:54": "timings run to 20240 ms on a 17600 ms recording",
   "9:3": "1 words start inside a silence",
   "9:22": "first word +410 ms from the voice",
-  "9:24": "timings end at 40320 ms, the recitation at 42980 ms",
-  "9:34": "timings end at 27950 ms, the recitation at 37740 ms",
+  "9:24": "first word +1780 ms from the voice",
   "9:35": "1 words start inside a silence",
-  "9:36": "timings end at 40440 ms, the recitation at 45360 ms",
+  "9:36": "first word +560 ms from the voice; 1 words start inside a silence",
   "9:37": "1 words start inside a silence",
   "9:38": "1 words start inside a silence",
   "9:40": "1 words start inside a silence",
@@ -4103,7 +3743,6 @@
   "9:60": "1 words start inside a silence",
   "9:63": "1 words start inside a silence",
   "9:69": "1 words start inside a silence",
-  "9:70": "timings end at 23590 ms, the recitation at 31300 ms",
   "9:74": "1 words start inside a silence",
   "9:91": "1 words start inside a silence",
   "9:94": "1 words start inside a silence",
@@ -4117,7 +3756,7 @@
   "9:111": "1 words start inside a silence",
   "9:113": "1 words start inside a silence",
   "9:116": "1 words start inside a silence",
-  "9:120": "timings end at 42110 ms, the recitation at 47180 ms",
+  "9:120": "first word +940 ms from the voice",
   "9:122": "first word -440 ms from the voice",
   "10:3": "1 words start inside a silence",
   "10:4": "1 words start inside a silence",
@@ -4126,7 +3765,7 @@
   "10:18": "2 words start inside a silence",
   "10:20": "1 words start inside a silence",
   "10:22": "1 words start inside a silence",
-  "10:24": "timings end at 46120 ms, the recitation at 55820 ms",
+  "10:24": "1 words start inside a silence",
   "10:27": "1 words start inside a silence",
   "10:28": "1 words start inside a silence",
   "10:29": "1 words start inside a silence",
@@ -4134,100 +3773,46 @@
   "10:60": "1 words start inside a silence",
   "10:61": "2 words start inside a silence",
   "10:68": "3 words start inside a silence",
-  "10:70": "timings end at 12220 ms, the recitation at 18460 ms",
-  "10:71": "timings end at 31710 ms, the recitation at 34240 ms",
+  "10:70": "2 words start inside a silence",
   "10:80": "1 words start inside a silence",
   "10:84": "first word +870 ms from the voice",
-  "10:88": "timings end at 30160 ms, the recitation at 32780 ms",
-  "10:90": "timings end at 29710 ms, the recitation at 37780 ms",
+  "10:88": "first word +1520 ms from the voice",
+  "10:90": "1 words start inside a silence",
   "10:102": "1 words start inside a silence",
   "10:107": "1 words start inside a silence",
-  "11:12": "timings end at 25880 ms, the recitation at 32880 ms",
   "11:14": "1 words start inside a silence",
   "11:16": "2 words start inside a silence",
   "11:27": "1 words start inside a silence",
   "11:28": "first word +370 ms from the voice",
-  "11:29": "timings end at 22920 ms, the recitation at 24880 ms",
-  "11:30": "timings end at 5720 ms, the recitation at 7420 ms",
-  "11:32": "timings end at 10080 ms, the recitation at 11740 ms",
   "11:33": "2 words start inside a silence",
   "11:40": "1 words start inside a silence",
-  "11:42": "timings end at 14630 ms, the recitation at 16540 ms",
-  "11:44": "timings end at 15120 ms, the recitation at 18420 ms",
-  "11:48": "timings end at 18080 ms, the recitation at 19380 ms",
-  "11:50": "timings end at 12160 ms, the recitation at 13740 ms",
-  "11:52": "timings end at 19000 ms, the recitation at 20380 ms",
-  "11:53": "timings end at 14790 ms, the recitation at 16180 ms",
   "11:56": "1 words start inside a silence",
-  "11:61": "timings end at 22040 ms, the recitation at 24140 ms",
-  "11:62": "timings end at 18430 ms, the recitation at 20060 ms",
   "11:63": "first word +330 ms from the voice",
-  "11:64": "timings end at 19800 ms, the recitation at 21680 ms",
-  "11:72": "timings end at 9360 ms, the recitation at 10520 ms",
   "11:73": "1 words start inside a silence",
   "11:75": "1 words start inside a silence",
   "11:76": "first word +1470 ms from the voice",
   "11:77": "1 words start inside a silence",
-  "11:78": "timings end at 25200 ms, the recitation at 26820 ms",
   "11:80": "1 words start inside a silence",
-  "11:81": "timings end at 25760 ms, the recitation at 27240 ms",
-  "11:84": "timings end at 26000 ms, the recitation at 27620 ms",
-  "11:85": "timings end at 9840 ms, the recitation at 11320 ms",
-  "11:87": "timings end at 16720 ms, the recitation at 18200 ms",
+  "11:81": "1 words start inside a silence",
   "11:88": "first word +330 ms from the voice",
-  "11:89": "timings end at 17520 ms, the recitation at 19600 ms",
-  "11:91": "timings end at 14040 ms, the recitation at 15280 ms",
   "11:92": "first word +390 ms from the voice; 1 words start inside a silence",
-  "11:93": "timings end at 16960 ms, the recitation at 18600 ms",
   "11:94": "1 words start inside a silence",
   "11:98": "1 words start inside a silence",
   "11:103": "1 words start inside a silence",
   "11:104": "1 words start inside a silence",
-  "11:107": "timings end at 11750 ms, the recitation at 13200 ms",
-  "11:108": "timings end at 14120 ms, the recitation at 21760 ms",
+  "11:107": "first word +430 ms from the voice",
   "11:113": "1 words start inside a silence",
   "12:5": "first word +370 ms from the voice",
-  "12:11": "timings end at 11110 ms, the recitation at 13020 ms",
-  "12:17": "timings end at 15440 ms, the recitation at 17600 ms",
-  "12:19": "timings end at 16070 ms, the recitation at 17720 ms",
   "12:39": "first word +360 ms from the voice",
   "12:41": "first word +320 ms from the voice",
-  "12:63": "timings end at 16190 ms, the recitation at 18020 ms",
-  "12:65": "timings end at 22360 ms, the recitation at 24500 ms",
   "12:67": "first word +570 ms from the voice",
-  "12:81": "timings end at 17840 ms, the recitation at 20060 ms",
-  "12:84": "timings end at 8880 ms, the recitation at 10360 ms",
-  "12:97": "timings end at 10840 ms, the recitation at 13180 ms",
-  "12:100": "timings end at 38910 ms, the recitation at 40860 ms",
   "13:2": "1 words start inside a silence",
-  "13:11": "timings end at 29030 ms, the recitation at 33200 ms",
+  "13:11": "first word +340 ms from the voice",
   "13:17": "first word +390 ms from the voice",
-  "13:39": "timings end at 6990 ms, the recitation at 8260 ms",
-  "13:43": "timings end at 19670 ms, the recitation at 21620 ms",
-  "14:10": "timings end at 26520 ms, the recitation at 31580 ms",
-  "14:24": "timings end at 12630 ms, the recitation at 15060 ms",
-  "14:27": "timings end at 11270 ms, the recitation at 12360 ms",
-  "14:30": "timings end at 9070 ms, the recitation at 10560 ms",
-  "14:38": "timings end at 9470 ms, the recitation at 10920 ms",
-  "14:52": "timings end at 16429 ms, the recitation at 18200 ms",
   "15:32": "first word +370 ms from the voice",
-  "16:73": "timings end at 8470 ms, the recitation at 9740 ms",
-  "17:1": "timings end at 15470 ms, the recitation at 18620 ms",
-  "17:18": "timings end at 16520 ms, the recitation at 18380 ms",
-  "17:25": "timings end at 8910 ms, the recitation at 10200 ms",
-  "17:70": "timings end at 14640 ms, the recitation at 18360 ms",
-  "17:101": "timings end at 19350 ms, the recitation at 20780 ms",
-  "18:18": "timings end at 20520 ms, the recitation at 21640 ms",
-  "18:22": "timings end at 34040 ms, the recitation at 36080 ms",
-  "18:42": "timings end at 16520 ms, the recitation at 18960 ms",
-  "18:49": "timings end at 25880 ms, the recitation at 27200 ms",
-  "18:94": "timings end at 14560 ms, the recitation at 15580 ms",
+  "17:18": "first word +1620 ms from the voice",
   "18:96": "1 words start inside a silence",
-  "18:102": "timings end at 14360 ms, the recitation at 17780 ms",
   "18:108": "first word +370 ms from the voice",
-  "19:1": "timings end at 4240 ms, the recitation at 6440 ms",
-  "19:23": "timings end at 11040 ms, the recitation at 13620 ms",
-  "19:27": "timings end at 5470 ms, the recitation at 7600 ms",
   "19:28": "first word +1200 ms from the voice",
   "19:43": "first word +960 ms from the voice",
   "19:44": "first word +1160 ms from the voice",
@@ -4239,150 +3824,65 @@
   "20:40": "timings run to 33714 ms on a 28720 ms recording",
   "20:49": "first word +360 ms from the voice",
   "20:57": "first word +320 ms from the voice",
-  "20:65": "timings end at 10230 ms, the recitation at 11300 ms",
   "20:83": "first word +1040 ms from the voice",
-  "20:86": "timings end at 25800 ms, the recitation at 27540 ms",
-  "20:90": "timings end at 15040 ms, the recitation at 16740 ms",
   "20:92": "first word +350 ms from the voice",
   "20:94": "first word +480 ms from the voice",
   "20:95": "first word +310 ms from the voice",
   "20:101": "first word +350 ms from the voice",
-  "20:117": "timings end at 9360 ms, the recitation at 10600 ms",
-  "20:120": "timings end at 10030 ms, the recitation at 11040 ms",
-  "20:129": "timings end at 6350 ms, the recitation at 7480 ms",
-  "21:14": "timings end at 3360 ms, the recitation at 4740 ms",
-  "21:46": "timings end at 10600 ms, the recitation at 12020 ms",
-  "21:60": "timings end at 4590 ms, the recitation at 5760 ms",
-  "21:62": "timings end at 8470 ms, the recitation at 10880 ms",
-  "21:69": "timings end at 3960 ms, the recitation at 6420 ms",
   "21:70": "timings run to 11560 ms on a 5900 ms recording",
-  "21:87": "timings end at 16580 ms, the recitation at 17600 ms",
-  "21:97": "timings end at 11240 ms, the recitation at 13660 ms",
-  "22:14": "timings end at 14150 ms, the recitation at 15280 ms",
-  "22:16": "timings end at 9470 ms, the recitation at 11080 ms",
-  "22:18": "timings end at 31070 ms, the recitation at 32560 ms",
-  "22:46": "timings end at 25590 ms, the recitation at 38540 ms",
-  "22:78": "timings end at 33680 ms, the recitation at 36940 ms",
-  "23:20": "timings end at 8640 ms, the recitation at 11260 ms",
-  "23:23": "timings end at 9120 ms, the recitation at 10840 ms",
-  "23:107": "timings end at 6120 ms, the recitation at 10440 ms",
-  "24:33": "timings end at 46390 ms, the recitation at 53260 ms",
-  "24:35": "timings end at 50400 ms, the recitation at 53980 ms",
-  "24:43": "timings end at 34000 ms, the recitation at 37660 ms",
-  "24:62": "timings end at 38000 ms, the recitation at 44500 ms",
+  "24:35": "first word +660 ms from the voice",
   "24:63": "1 words start inside a silence",
   "25:27": "first word +580 ms from the voice",
   "25:30": "first word +940 ms from the voice",
-  "25:38": "timings end at 5630 ms, the recitation at 6940 ms",
-  "25:51": "timings end at 4240 ms, the recitation at 11580 ms",
   "25:76": "first word +430 ms from the voice",
-  "26:1": "timings end at 2320 ms, the recitation at 3740 ms",
   "26:3": "first word +320 ms from the voice",
   "26:40": "first word +420 ms from the voice",
-  "26:69": "timings end at 1870 ms, the recitation at 3700 ms",
-  "26:72": "timings end at 2190 ms, the recitation at 3480 ms",
-  "26:116": "timings end at 4360 ms, the recitation at 6360 ms",
-  "26:167": "timings end at 4960 ms, the recitation at 7040 ms",
-  "26:211": "timings end at 2710 ms, the recitation at 4100 ms",
   "27:9": "first word +530 ms from the voice",
-  "27:10": "timings end at 16870 ms, the recitation at 19680 ms",
   "27:36": "1 words start inside a silence",
-  "27:40": "timings end at 27790 ms, the recitation at 32100 ms",
+  "27:40": "first word +1460 ms from the voice",
   "27:46": "first word +330 ms from the voice",
   "27:49": "1 words start inside a silence",
   "27:61": "1 words start inside a silence",
-  "28:1": "timings end at 2640 ms, the recitation at 4240 ms",
-  "28:15": "timings end at 25320 ms, the recitation at 30320 ms",
-  "28:19": "timings end at 25560 ms, the recitation at 27120 ms",
-  "28:20": "timings end at 13360 ms, the recitation at 15080 ms",
-  "28:25": "timings end at 19280 ms, the recitation at 21540 ms",
-  "28:26": "timings end at 7360 ms, the recitation at 8660 ms",
-  "28:27": "timings end at 24310 ms, the recitation at 26520 ms",
-  "28:30": "timings end at 17990 ms, the recitation at 19800 ms",
+  "28:27": "first word +380 ms from the voice",
   "28:31": "first word +380 ms from the voice",
-  "28:38": "timings end at 20183 ms, the recitation at 22880 ms",
   "28:45": "first word +360 ms from the voice",
-  "28:79": "timings end at 15880 ms, the recitation at 17540 ms",
-  "29:1": "timings end at 4000 ms, the recitation at 6840 ms",
-  "29:36": "timings end at 9960 ms, the recitation at 11260 ms",
   "29:50": "1 words start inside a silence",
   "29:56": "first word +380 ms from the voice",
-  "30:1": "timings end at 4400 ms, the recitation at 7300 ms",
   "30:7": "first word +410 ms from the voice",
-  "31:1": "timings end at 4040 ms, the recitation at 7340 ms",
   "31:8": "1 words start inside a silence",
   "31:9": "first word +350 ms from the voice",
-  "31:13": "timings end at 8680 ms, the recitation at 9700 ms",
-  "32:1": "timings end at 4360 ms, the recitation at 7660 ms",
-  "33:6": "timings end at 26240 ms, the recitation at 28440 ms",
-  "33:13": "timings end at 17760 ms, the recitation at 21020 ms",
-  "33:37": "timings end at 33366 ms, the recitation at 34520 ms",
-  "33:55": "timings end at 33430 ms, the recitation at 34660 ms",
+  "33:6": "first word +560 ms from the voice",
   "33:65": "first word +350 ms from the voice",
   "33:66": "first word +360 ms from the voice",
-  "34:2": "timings end at 32600 ms, the recitation at 38740 ms",
-  "34:10": "timings end at 9630 ms, the recitation at 10940 ms",
   "34:13": "first word +430 ms from the voice",
-  "34:14": "timings end at 19230 ms, the recitation at 25240 ms",
-  "34:24": "timings end at 12640 ms, the recitation at 20160 ms",
-  "34:31": "timings end at 26560 ms, the recitation at 28180 ms",
-  "34:46": "timings end at 20910 ms, the recitation at 25640 ms",
-  "35:4": "timings end at 21320 ms, the recitation at 25360 ms",
-  "35:11": "timings end at 25760 ms, the recitation at 27740 ms",
-  "35:12": "timings end at 28030 ms, the recitation at 33560 ms",
-  "35:23": "timings end at 2230 ms, the recitation at 3400 ms",
-  "36:1": "timings end at 400 ms, the recitation at 3180 ms",
+  "34:31": "first word +500 ms from the voice",
+  "35:11": "first word +540 ms from the voice",
+  "35:12": "first word +560 ms from the voice",
   "36:12": "1 words start inside a silence",
-  "36:20": "timings end at 7840 ms, the recitation at 9740 ms",
-  "36:26": "timings end at 3880 ms, the recitation at 4940 ms",
-  "36:52": "timings end at 7600 ms, the recitation at 9040 ms",
-  "36:60": "timings end at 8640 ms, the recitation at 10360 ms",
   "37:8": "3 words start inside a silence",
   "37:12": "first word -320 ms from the voice",
   "37:15": "1 words start inside a silence",
-  "37:20": "timings end at 3120 ms, the recitation at 4920 ms",
   "37:30": "1 words start inside a silence",
-  "37:102": "timings end at 25910 ms, the recitation at 28320 ms",
-  "37:104": "timings end at 1950 ms, the recitation at 5140 ms",
   "37:105": "first word +1810 ms from the voice",
-  "37:109": "timings end at 2630 ms, the recitation at 4420 ms",
-  "37:130": "timings end at 2680 ms, the recitation at 4120 ms",
   "37:150": "first word -360 ms from the voice",
-  "38:24": "timings end at 24360 ms, the recitation at 30880 ms",
-  "38:26": "timings end at 20720 ms, the recitation at 28360 ms",
-  "38:27": "timings end at 10790 ms, the recitation at 11840 ms",
-  "38:29": "timings end at 11550 ms, the recitation at 12940 ms",
-  "38:59": "timings end at 12110 ms, the recitation at 13400 ms",
-  "38:64": "timings end at 4470 ms, the recitation at 5760 ms",
+  "38:24": "first word +320 ms from the voice",
   "38:75": "first word +370 ms from the voice",
-  "38:84": "timings end at 2080 ms, the recitation at 3800 ms",
   "39:5": "first word +3730 ms from the voice",
-  "39:8": "timings end at 22550 ms, the recitation at 28800 ms",
   "39:16": "first word +410 ms from the voice",
   "39:23": "first word +750 ms from the voice",
   "39:43": "timings run to 10674 ms on a 9280 ms recording",
-  "39:69": "timings end at 15200 ms, the recitation at 21120 ms",
-  "39:71": "timings end at 34510 ms, the recitation at 40760 ms",
-  "40:1": "timings end at 360 ms, the recitation at 1920 ms",
-  "40:6": "timings end at 9430 ms, the recitation at 10620 ms",
   "40:8": "1 words start inside a silence",
   "40:19": "1 words start inside a silence",
   "40:28": "1 words start inside a silence",
   "40:30": "first word +550 ms from the voice",
   "40:31": "1 words start inside a silence",
-  "40:32": "timings end at 4230 ms, the recitation at 6200 ms",
-  "40:35": "timings end at 17680 ms, the recitation at 24880 ms",
   "40:36": "first word +520 ms from the voice",
   "40:38": "first word +530 ms from the voice",
-  "40:41": "timings end at 6640 ms, the recitation at 7860 ms",
-  "40:43": "timings end at 18110 ms, the recitation at 19260 ms",
-  "40:47": "timings end at 17870 ms, the recitation at 19460 ms",
+  "40:43": "1 words start inside a silence",
   "40:51": "1 words start inside a silence",
   "40:52": "1 words start inside a silence",
   "40:56": "2 words start inside a silence",
   "40:74": "1 words start inside a silence",
-  "40:78": "timings end at 23000 ms, the recitation at 25600 ms",
-  "41:1": "timings end at 280 ms, the recitation at 3140 ms",
   "41:9": "1 words start inside a silence",
   "41:28": "1 words start inside a silence",
   "41:34": "1 words start inside a silence",
@@ -4392,8 +3892,6 @@
   "41:47": "1 words start inside a silence",
   "41:53": "1 words start inside a silence",
   "41:54": "1 words start inside a silence",
-  "42:1": "timings end at 280 ms, the recitation at 2860 ms",
-  "42:2": "timings end at 4760 ms, the recitation at 6540 ms",
   "42:3": "1 words start inside a silence",
   "42:8": "1 words start inside a silence",
   "42:9": "1 words start inside a silence",
@@ -4403,70 +3901,34 @@
   "42:46": "1 words start inside a silence",
   "42:52": "1 words start inside a silence",
   "42:53": "1 words start inside a silence",
-  "43:1": "timings end at 360 ms, the recitation at 4000 ms",
-  "43:38": "timings end at 11400 ms, the recitation at 12740 ms",
-  "43:51": "timings end at 13000 ms, the recitation at 15080 ms",
   "43:68": "first word +360 ms from the voice",
-  "43:77": "timings end at 9280 ms, the recitation at 11560 ms",
-  "43:88": "timings end at 5310 ms, the recitation at 7060 ms",
-  "44:1": "timings end at 320 ms, the recitation at 3620 ms",
   "44:14": "1 words start inside a silence",
   "44:19": "1 words start inside a silence",
-  "44:50": "timings end at 4680 ms, the recitation at 9520 ms",
-  "45:1": "timings end at 320 ms, the recitation at 4200 ms",
-  "46:1": "timings end at 360 ms, the recitation at 4060 ms",
-  "46:30": "timings end at 12120 ms, the recitation at 13620 ms",
   "47:38": "first word +1060 ms from the voice",
-  "48:28": "timings end at 9347 ms, the recitation at 12560 ms",
   "51:57": "1 words start inside a silence",
   "53:14": "first word +630 ms from the voice",
   "53:15": "first word +860 ms from the voice",
-  "53:21": "timings end at 2800 ms, the recitation at 3860 ms",
   "55:1": "first word +580 ms from the voice",
   "55:36": "last word starts at 5720 ms, voice ends 5420 ms",
   "55:38": "last word starts at 5920 ms, voice ends 5420 ms",
   "55:51": "last word starts at 5240 ms, voice ends 4940 ms",
   "55:61": "last word starts at 5440 ms, voice ends 5060 ms",
   "55:71": "last word starts at 5160 ms, voice ends 4860 ms",
-  "56:80": "timings end at 3080 ms, the recitation at 8140 ms",
   "57:11": "1 words start inside a silence",
   "57:20": "1 words start inside a silence",
   "57:22": "1 words start inside a silence",
-  "57:27": "timings end at 40160 ms, the recitation at 46100 ms",
   "57:29": "2 words start inside a silence",
-  "59:2": "timings end at 31880 ms, the recitation at 37500 ms",
   "59:6": "1 words start inside a silence",
-  "59:7": "timings end at 29360 ms, the recitation at 30660 ms",
-  "60:12": "timings end at 32609 ms, the recitation at 36340 ms",
-  "61:5": "timings end at 15440 ms, the recitation at 17160 ms",
-  "61:6": "timings end at 31480 ms, the recitation at 33320 ms",
+  "59:7": "first word +920 ms from the voice",
   "61:10": "1 words start inside a silence",
-  "61:14": "timings end at 30960 ms, the recitation at 36360 ms",
-  "62:2": "timings end at 14760 ms, the recitation at 17200 ms",
-  "63:5": "timings end at 9840 ms, the recitation at 11980 ms",
   "63:8": "first word +470 ms from the voice",
-  "63:10": "timings end at 18960 ms, the recitation at 23760 ms",
-  "65:4": "timings end at 21110 ms, the recitation at 23080 ms",
-  "65:10": "timings end at 15280 ms, the recitation at 16420 ms",
-  "65:11": "timings end at 26750 ms, the recitation at 32580 ms",
-  "66:5": "timings end at 19680 ms, the recitation at 26420 ms",
   "67:26": "1 words start inside a silence",
-  "68:31": "timings end at 3720 ms, the recitation at 5100 ms",
-  "68:42": "timings end at 5550 ms, the recitation at 7120 ms",
-  "69:25": "timings end at 8160 ms, the recitation at 9300 ms",
   "72:16": "first word +320 ms from the voice",
-  "73:20": "timings end at 56722 ms, the recitation at 63700 ms",
   "75:32": "first word +340 ms from the voice",
-  "78:40": "timings end at 20310 ms, the recitation at 23260 ms",
   "79:10": "first word +530 ms from the voice",
   "82:12": "first word +470 ms from the voice",
-  "82:19": "timings end at 8190 ms, the recitation at 9460 ms",
   "84:13": "first word -380 ms from the voice",
-  "84:25": "timings end at 7253 ms, the recitation at 12300 ms",
-  "85:16": "timings end at 1670 ms, the recitation at 3140 ms",
   "86:3": "first word +320 ms from the voice",
-  "87:19": "timings end at 2840 ms, the recitation at 3900 ms",
-  "89:24": "timings end at 2720 ms, the recitation at 4340 ms",
   "89:27": "first word +1200 ms from the voice"
  }
 }

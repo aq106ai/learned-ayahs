@@ -62,7 +62,8 @@ TAIL_TOLERANCE_MS = 300  # an ayah's last word often fades out below the loudnes
 SILENCE_MS = 600        # a word can't begin well inside a silence this long
 PAUSE_TOLERANCE_MS = 160
 MIN_SHIFT_MS = 150      # a smaller offset isn't worth correcting
-SLIVER_MS = 120         # a last word shorter than this, ending at the file's end, is QUL's artefact
+SLIVER_MS = 120         # a last word shorter than this, starting at the file's end, is QUL's artefact
+SLIVER_FROM_END_MS = 200
 EDGE_MS = 250           # the last word starts at least this far from the word before and the end
 
 def fetch(url, dest):
@@ -276,13 +277,13 @@ def verdict(row, found):
     total, start, end = row["duration_ms"], row["voice_start_ms"], row["voice_end_ms"]
     onsets = [s[0] for s in segs]
     last_end = segs[-1][1]
+    # QUL's segment ends are unreliable (a word's end is often just its onset + 100 ms), so an end
+    # short of the recording proves nothing; one past it does.
     if last_end > total + 500:
         return "drop", f"timings run to {last_end} ms on a {total} ms recording", {}
-    if last_end < row["faint_end_ms"] - 1000:
-        return "drop", f"timings end at {last_end} ms, the recitation at {row['faint_end_ms']} ms", {}
 
     fixes = {}
-    if len(segs) >= 2 and segs[-1][1] - segs[-1][0] < SLIVER_MS:
+    if len(segs) >= 2 and segs[-1][1] - segs[-1][0] < SLIVER_MS and total - segs[-1][0] <= SLIVER_FROM_END_MS:
         if found is None:
             return "drop", "last word timed in the trailing silence, and its start isn't clear in the recording", {}
         fixes["last_onset"] = {"from": onsets[-1], "to": found}

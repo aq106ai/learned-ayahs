@@ -376,9 +376,19 @@ class PlaybackService : MediaSessionService() {
      */
     private fun nextTickDelay(p: Player): Long {
         if (!ayahSeekActive()) return PROGRESS_INTERVAL_MS
-        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return PROGRESS_INTERVAL_MS
-        val untilEnd = nextOnset - WORD_END_LEAD_MS - p.currentPosition
+        val untilEnd = (wordCutAt() ?: return PROGRESS_INTERVAL_MS) - p.currentPosition
         return untilEnd.coerceIn(MIN_TICK_MS, PROGRESS_INTERVAL_MS)
+    }
+
+    /**
+     * Where [maybeParkAtWordEnd] cuts the current word: just before the next word's onset, but
+     * never before the word has played [MIN_WORD_PLAY_MS]. The ticker aims at this same point;
+     * aiming at the onset alone, it spun every [MIN_TICK_MS] through short words.
+     */
+    private fun wordCutAt(): Long? {
+        val seg = ayahSeekSegments.getOrNull(ayahSeekWordIndex) ?: return null
+        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return null
+        return maxOf(nextOnset - WORD_END_LEAD_MS, seg.first + MIN_WORD_PLAY_MS)
     }
 
     private fun startProgressTicker() {
@@ -577,11 +587,6 @@ class PlaybackService : MediaSessionService() {
     }
 
     /**
-     * Builds and loads the queue for [requestedMode]/[requestedRepeat]. [requestedSurah] selects
-     * the surah for surah-scoped queues (0 = derive from [startGlobal] / current ayah). Playback
-     * starts at [startGlobal] if that ayah exists in the queue, otherwise at the first item.
-     */
-    /**
      * Whether a queue has been loaded yet. The service registers with [PlayerStateHolder] in
      * onCreate but loads only when its first command arrives; until then the app keeps driving
      * its own preview, or a Next pressed in between would go to an empty player and be lost.
@@ -590,6 +595,11 @@ class PlaybackService : MediaSessionService() {
     var hasLoadedQueue = false
         private set
 
+    /**
+     * Builds and loads the queue for [requestedMode]/[requestedRepeat]. [requestedSurah] selects
+     * the surah for surah-scoped queues (0 = derive from [startGlobal] / current ayah). Playback
+     * starts at [startGlobal] if that ayah exists in the queue, otherwise at the first item.
+     */
     private fun loadForMode(
         requestedMode: PlaybackMode,
         requestedRepeat: RepeatMode,
@@ -1071,9 +1081,7 @@ class PlaybackService : MediaSessionService() {
      */
     private fun maybeParkAtWordEnd(p: Player) {
         if (!ayahSeekActive() || !p.isPlaying) return
-        val seg = ayahSeekSegments.getOrNull(ayahSeekWordIndex) ?: return
-        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return
-        val endAt = maxOf(nextOnset - WORD_END_LEAD_MS, seg.first + MIN_WORD_PLAY_MS)
+        val endAt = wordCutAt() ?: return
         if (p.currentPosition >= endAt) {
             onAyahSeekWordEnded()
         }

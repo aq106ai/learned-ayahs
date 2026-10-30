@@ -22,6 +22,9 @@ import java.util.Locale
  * sources go in the message it's shared with, as for a video.
  */
 object ShareImage {
+    /** How long a shared picture is kept for the app it went to. */
+    private const val KEEP_MS = 60 * 60 * 1000L
+
     /** The options the picture is drawn with: one ayah, looking like the player. */
     fun options(surah: Int, ayah: Int, aspect: VideoAspect): VideoOptions =
         VideoOptions(surah = surah, fromAyah = ayah, toAyah = ayah, aspect = aspect, opening = false).likeThePlayer(
@@ -39,7 +42,9 @@ object ShareImage {
         val font = ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF
         val bitmap = VideoExporter(context, font).still(options.toRequest(), options.aspect.width, atMs)
         val dir = File(context.cacheDir, "images").apply { mkdirs() }
-        dir.listFiles()?.forEach { it.delete() } // one at a time; the last one has been shared by now
+        // Clear out old pictures, but not recent ones: an app shared one may not have read it yet.
+        val stale = System.currentTimeMillis() - KEEP_MS
+        dir.listFiles()?.filter { it.lastModified() < stale }?.forEach { it.delete() }
         val file = File(
             dir,
             String.format(Locale.ROOT, "LearnedAyahs_%03d_%03d_%s.jpg", options.surah, options.fromAyah, options.aspect.ratio.replace(':', 'x')),

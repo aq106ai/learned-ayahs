@@ -127,13 +127,18 @@ fun PlayerBackground(
     }
     DisposableEffect(scenes) { onDispose { scenes?.release() } }
 
-    fun sceneFor(key: SceneKey): SceneSpec =
+    // Worked out once per scene, not per frame: it checks the photo's file on disk, which the
+    // draw block (on the main thread, ~30 times a second) shouldn't. A photo is only ever asked
+    // for once its file is there (see `ready` above), so the answer doesn't change.
+    val sceneSpecs = remember { HashMap<SceneKey, SceneSpec>() }
+    fun sceneFor(key: SceneKey): SceneSpec = sceneSpecs.getOrPut(key) {
         if (NaturePhotos.isPhoto(key.themeKey)) {
             photos.photo(key.themeKey, key.variant)?.takeIf { photos.file(it).exists() }?.let(photos::scene)
                 ?: VideoThemes.variant(null, key.variant)
         } else {
             VideoThemes.variant(key.themeKey, key.variant)
         }
+    }
 
     Canvas(modifier = modifier.onSizeChanged { size = it }.testTag(TAG_PLAYER_BACKGROUND)) {
         frame // redraw on each tick

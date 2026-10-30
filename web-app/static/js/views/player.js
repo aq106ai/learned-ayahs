@@ -408,10 +408,16 @@ export function playerView({ store, engine, server, go }) {
       draw();
     };
     const thumbs = new BackgroundScenes(72, 128);
+    // Drawn once each: every pick redraws the dialog, and repainting dozens of scenes each time
+    // stalled it on a slow phone. The same canvas is simply moved into the new row.
+    const drawnThumbs = new Map();
     const drawnThumb = (key) => {
-      const c = h('canvas', { width: 72, height: 128 });
-      thumbs.draw(c.getContext('2d'), variant(key, 0), 2000);
-      return c;
+      if (!drawnThumbs.has(key)) {
+        const c = h('canvas', { width: 72, height: 128 });
+        thumbs.draw(c.getContext('2d'), variant(key, 0), 2000);
+        drawnThumbs.set(key, c);
+      }
+      return drawnThumbs.get(key);
     };
     const body = h('div', { class: 'stack', 'data-testid': 'background-dialog' });
     function draw() {
@@ -449,8 +455,18 @@ export function playerView({ store, engine, server, go }) {
     const content = h('div', { class: 'stack', 'data-testid': 'share-dialog' },
       h('p', { class: 'small muted' }, 'A video of it recited, or a picture of it as it looks now.'),
       h('div', { class: 'small muted' }, 'Image shape'), shapes, status);
-    // The word being recited, unless an intro is playing or the ayah hasn't started.
-    const atMs = !engine.introLabel && engine.positionMs > 0 ? engine.positionMs : null;
+    // The word being recited, unless an intro is playing or the ayah hasn't started. With word
+    // clips the position is into the word's own file, not the ayah: use where the word starts.
+    let atMs = null;
+    if (!engine.introLabel) {
+      if (engine.mode === PlaybackMode.WORD_BY_WORD && engine.usesWordClips()) {
+        const start = engine.segments?.[engine.wordIndex]?.[0];
+        if (start != null) atMs = start + 1;
+      } else if (engine.positionMs > 0) {
+        atMs = engine.positionMs;
+      }
+    }
+    let drawing = false;
     const choice = await dialog({
       title: 'Share this ayah',
       content,
@@ -459,6 +475,8 @@ export function playerView({ store, engine, server, go }) {
         {
           label: 'Share image', value: 'image', primary: true,
           onClick: async () => {
+            if (drawing) return false; // a second tap while the first is still drawing
+            drawing = true;
             status.textContent = 'Drawing the image…';
             try {
               await shareImage(t, aspect, atMs);
@@ -466,6 +484,8 @@ export function playerView({ store, engine, server, go }) {
             } catch (e) {
               status.textContent = e.message || "The image couldn't be made.";
               return false;
+            } finally {
+              drawing = false;
             }
           },
         },
@@ -490,11 +510,17 @@ export function playerView({ store, engine, server, go }) {
     const name = fileName(request, 'jpg');
     const file = new File([blob], name, { type: 'image/jpeg' });
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], text: caption({ ...request, reciter: request.reciter.key }, request.reciter.displayName) }).catch(() => {});
-    } else {
-      download(blob, name);
-      toast('Image saved to your downloads.');
+      try {
+        await navigator.share({ files: [file], text: caption({ ...request, reciter: request.reciter.key }, request.reciter.displayName) });
+        return;
+      } catch (e) {
+        if (e?.name === 'AbortError') return; // closed the share sheet
+        // NotAllowedError: drawing took long enough that the browser no longer counts the share
+        // as following the tap. Save it instead of doing nothing.
+      }
     }
+    download(blob, name);
+    toast('Image saved to your downloads.');
   }
 
   // -- wake lock & keys --------------------------------------------------------------------

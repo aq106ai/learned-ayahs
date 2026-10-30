@@ -73,7 +73,12 @@ class PlayerBackgroundTest : BaseAppTest() {
         val deadline = System.currentTimeMillis() + 30_000
         while (System.currentTimeMillis() < deadline && images.listFiles().isNullOrEmpty()) Thread.sleep(250)
         val picture = images.listFiles()?.singleOrNull()
-        assertTrue("an image of the ayah is written to share", picture != null && picture.length() > 10_000)
+        val dialogUp = composeRule.onAllNodesWithTag(TAG_SHARE_DIALOG).fetchSemanticsNodes().isNotEmpty()
+        assertTrue(
+            "an image of the ayah is written to share; images/ holds " +
+                "${images.listFiles()?.map { "${it.name} (${it.length()} B)" }}, share dialog still up: $dialogUp",
+            picture != null && picture.length() > 10_000,
+        )
         assertTrue(picture!!.name.endsWith(".jpg"))
 
         // Close the system share sheet, so it isn't left over the next test's screen.

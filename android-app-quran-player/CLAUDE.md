@@ -116,7 +116,13 @@ single shared state flow.
   revision gap and surah-intro logic.
 - **`service/PlayerStateHolder.kt`** — a singleton `StateFlow<PlayerUiState>` that is the single
   source of truth bridging service ↔ UI. The service pushes updates; the ViewModel/UI observe.
-  `attachService`/`detachService` tracks whether the service is live (`isServiceReady()`).
+  `attachService`/`detachService` tracks whether the service is live; `isServiceReady()` is
+  true only once it has also *loaded a queue* (`PlaybackService.hasLoadedQueue`). It registers in
+  onCreate but loads when its first command arrives, and the launch-time load restores
+  `START_FROM_LAST_POSITION`, read when it loads: a Next pressed while the service starts moves
+  the preview (persisted at once), and the load then picks that up instead of undoing it.
+  `PlayerDefaultScreenTest.the_last_played_ayah_is_remembered_across_a_restart` taps Next twice
+  straight after launch and caught this, intermittently, as "Ayah 2".
 - **`player/PlayerViewModel.kt`** — `AndroidViewModel` the UI calls. When the service is ready it
   forwards to it via `PlayerStateHolder`; when not, it maintains a **preview** queue locally so the
   UI works before playback starts. It also drives library loading, offline downloads, and loading

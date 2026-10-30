@@ -21,7 +21,8 @@ object PlayerStateHolder {
         service = null
     }
 
-    fun isServiceReady(): Boolean = service != null
+    /** A service is running *and* has loaded a queue (see [PlaybackService.hasLoadedQueue]). */
+    fun isServiceReady(): Boolean = service?.hasLoadedQueue == true
 
     /** Hands [intent] straight to a running service; false when there is none. */
     fun deliverCommand(intent: android.content.Intent): Boolean {

@@ -41,6 +41,8 @@ Android 1.12.0 (versionCode 45), which includes 1.11.0 (43) and 1.11.1 (44).
   video shapes. The sources go in the message, as for videos.
 
 ### Fixed
+- **Android: Next pressed in the first moment after opening the app could be undone** when the
+  player finished starting up and reloaded the position from before the press.
 - **Word highlighting that never reached the last word, or started early or late** (all five
   reciters, Android and web app). Checked against every recording:
   - For about 900 ayahs per reciter the timing data put the last word in the silence after the

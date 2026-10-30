@@ -66,8 +66,23 @@ tap_away() {
   fail "'$1' stayed on screen"
 }
 
+# Taps $1 until $2 is on screen: a tap that lands while the screen is still settling (the
+# welcome closing, on a slow first launch) does nothing. The debug baseline once stayed on the
+# surah list after tapping Al-Fatihah, and waited in vain for the surah's page.
+tap_until() {
+  for _ in 1 2 3; do
+    tap "$1"
+    for _ in 1 2 3 4 5 6 7 8; do
+      on_screen "$2" && return 0
+      sleep 1
+    done
+    echo "'$2' not on screen after tapping '$1', tapping again"
+  done
+  fail "tapping '$1' never showed '$2'"
+}
+
 tap_away "Skip"
-tap "Al-Fatihah"
+tap_until "Al-Fatihah" "Mark learned"
 tap "Mark learned" 300   # the ayah row beside ayah 1's mark button plays it
 
 # Android 14 prints "state=PLAYING(3)", older versions "state=3".

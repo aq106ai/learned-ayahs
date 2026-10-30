@@ -60,7 +60,8 @@ export async function photoSubjects() {
     }
     subjects = [...groups.values()];
   } catch {
-    subjects = [];
+    // Not kept: offline now doesn't mean no photos for the rest of the visit.
+    return [];
   }
   return subjects;
 }

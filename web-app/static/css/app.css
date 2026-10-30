@@ -252,13 +252,18 @@ textarea {
 .app.scene .sidebar,
 .app.scene .tabbar {
   z-index: 25;
+  --bg: #0a1710;
   --bg-2: rgba(0, 0, 0, 0.45);
   --panel: rgba(255, 255, 255, 0.08);
   --panel-2: rgba(255, 255, 255, 0.14);
+  --panel-3: rgba(255, 255, 255, 0.18);
   --text: #e6f4eb;
   --muted: #b9d3c3;
+  --accent: #27ae60;
   --accent-2: #ffd666;
+  --accent-ink: #062012;
   --border: rgba(255, 236, 190, 0.12);
+  --highlight: rgba(255, 214, 102, 0.18);
   color: var(--text);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -1330,18 +1335,25 @@ details.group summary::-webkit-details-marker {
   z-index: -1;
   pointer-events: none;
 }
-/* Over a scene the player keeps the dark colours whatever the theme, as a shared video does. */
+/* Over a scene the player keeps the dark colours whatever the theme, as a shared video does.
+   Every colour variable is set here: one left out keeps the light theme's value under the dark
+   text (the mode badge's pale --panel-3 did, unreadable). */
 .player.with-bg {
+  --bg: #0a1710;
   --bg-2: rgba(0, 0, 0, 0.6);
   --panel: rgba(17, 42, 28, 0.85);
   --panel-2: rgba(22, 52, 35, 0.85);
+  --panel-3: rgba(27, 61, 42, 0.85);
   --text: #e6f4eb;
   --muted: #b9d3c3;
   --accent: #27ae60;
   --accent-2: #ffd666;
   --accent-ink: #062012;
   --border: rgba(255, 236, 190, 0.18);
+  --danger: #ff6b6b;
+  --warn: #f0b429;
   --highlight: rgba(255, 214, 102, 0.18);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   color: var(--text);
   background: #000;
 }

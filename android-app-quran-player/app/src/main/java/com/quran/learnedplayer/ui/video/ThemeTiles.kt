@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * The small pictures the background pickers show, made once per process and shared by the
@@ -68,11 +69,18 @@ object ThemeThumbnails {
             for (theme in VideoThemes.all) {
                 val bitmap = Bitmap.createBitmap(THUMB_W, THUMB_H, Bitmap.Config.ARGB_8888)
                 scenes.draw(Canvas(bitmap), theme.variants.first(), 2_000)
-                _drawn.update { it + (theme.key to bitmap) }
+                publish { _drawn.update { it + (theme.key to bitmap) } }
             }
             scenes.release()
         }
     }
+
+    /**
+     * Each picture is drawn or decoded off the main thread but handed over on it. Updating the
+     * flows from a worker let the instrumented tests' frame clock run a recomposition there
+     * ("Only the original thread that created a view hierarchy can touch its views").
+     */
+    private suspend fun publish(update: () -> Unit) = withContext(Dispatchers.Main) { update() }
 
     /** Keyed by subject key. Offline, the tiles simply stay blank; it tries again next time. */
     @Synchronized
@@ -85,7 +93,7 @@ object ThemeThumbnails {
                 if (subject.key in _photos.value) continue
                 val file = photos.thumbnail(subject) ?: continue
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: continue
-                _photos.update { it + (subject.key to bitmap) }
+                publish { _photos.update { it + (subject.key to bitmap) } }
             }
         }.invokeOnCompletion { synchronized(this) { photosStarted = _photos.value.size >= photos.subjects.size } }
     }

@@ -303,7 +303,14 @@ fun PlayerScreen(
             surah = track.surah,
             ayah = track.ayah,
             // The word being recited, unless an intro is playing or the ayah hasn't started.
-            atMs = state.positionMs.takeIf { state.introLabel == null && it > 0L },
+            // With Word clips on, the player holds one word's own file, so its position is into
+            // that word, not the ayah: use where the word starts in the ayah instead.
+            atMs = when {
+                state.introLabel != null -> null
+                state.mode == PlaybackMode.WORD_BY_WORD && PlayerSettings.useWordClips ->
+                    state.wordSegments.getOrNull(state.currentWordIndex)?.let { it.first + 1 }
+                else -> state.positionMs.takeIf { it > 0L }
+            },
             onShareVideo = {
                 showShare = false
                 onMakeVideo(track.surah, track.ayah)

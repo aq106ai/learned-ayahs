@@ -41,6 +41,17 @@ Android 1.12.0 (versionCode 45), which includes 1.11.0 (43) and 1.11.1 (44).
   video shapes. The sources go in the message, as for videos.
 
 ### Fixed
+- **Web app: the "Learned ayahs" label (and anything else using the light theme's colours) was
+  unreadable over a player background in the light theme.** The player's dark colours over a
+  scene now cover every colour, not most of them.
+- **Sharing an image in Word by word with Word clips on lit the wrong word** (Android and web).
+- **Web app: Share image did nothing when the browser stopped counting it as following the tap**
+  (a slow drawing, or Safari); it now saves the image instead, and a second tap while drawing is
+  ignored.
+- **Android: the previous ayah's translation could show for a moment under the next ayah**, and a
+  shared image could be deleted before the app it went to had read it.
+- **Android: Word by word used more battery than it needed on short words** (the progress
+  ticker spun every 15 ms through them).
 - **Android: Next pressed in the first moment after opening the app could be undone** when the
   player finished starting up and reloaded the position from before the press.
 - **Word highlighting that never reached the last word, or started early or late** (all five

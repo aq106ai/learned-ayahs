@@ -213,14 +213,15 @@ private fun rememberAyahTranslation(state: PlayerUiState): String? {
     val show by PlayerSettings.showAyahTranslationFlow.collectAsState()
     val track = state.currentTrack
     val context = LocalContext.current
-    val text by produceState<String?>(null, show, track?.surah, track?.ayah) {
-        value = if (show && track != null) {
-            withContext(Dispatchers.IO) { VideoTexts(context).translation(track.surah, track.ayah) }
-        } else {
-            null
+    val key = if (show && track != null) track.surah to track.ayah else null
+    // Kept with the ayah it belongs to: produceState holds its last value while it reloads, and
+    // without the key the previous ayah's translation showed under the new Arabic until then.
+    val loaded by produceState<Pair<Pair<Int, Int>, String?>?>(null, key) {
+        value = key?.let { (surah, ayah) ->
+            key to withContext(Dispatchers.IO) { VideoTexts(context).translation(surah, ayah) }
         }
     }
-    return text
+    return loaded?.takeIf { it.first == key }?.second
 }
 
 @Composable

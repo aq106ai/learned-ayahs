@@ -125,7 +125,7 @@ export async function openApp(browser, server, { path = '', seenIntro = true, le
     const profile = {
       learned: learned ?? [],
       bookmarks: [],
-      settings: { seenIntro, acceptedTermsVersion: 1, ...(settings ?? {}) },
+      settings: { seenIntro, ...(settings ?? {}) },
       progress: {},
     };
     await context.addInitScript((p) => {

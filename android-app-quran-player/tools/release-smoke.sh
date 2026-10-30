@@ -66,7 +66,6 @@ tap_away() {
   fail "'$1' stayed on screen"
 }
 
-tap_away "I agree"
 tap_away "Skip"
 tap "Al-Fatihah"
 tap "Mark learned" 300   # the ayah row beside ayah 1's mark button plays it

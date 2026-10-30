@@ -1,15 +1,16 @@
 // Sources and disclaimer (port of ui/common/SourcesAndDisclaimer.kt; keep the two in step).
-// Asked once per TERMS_VERSION, before the welcome; raise it when what people agree to changes.
+// Always in Settings, and a tap away from the welcome's last page; nobody is asked to agree to it
+// before using the app (the licences need the sources credited, not accepted).
 
 import { h } from '../lib/dom.js';
 import { RECITERS } from '../core/reciters.js';
-
-export const TERMS_VERSION = 1;
 
 const SOURCES = [
   ['Qur\'an text (Uthmani script) and English word-by-word meanings', 'Quran.com', 'https://quran.com'],
   [`Ayah recitations by ${RECITERS.map((r) => r.displayName).join(', ')}`, 'EveryAyah', 'https://everyayah.com'],
   ['Single-word recitations', 'Quran.com', 'https://quran.com'],
+  ['English translation of whole ayahs (player and shared videos)', 'Saheeh International, via Tanzil.net', 'https://tanzil.net'],
+  ['Nature photos for backgrounds (CC0)', 'Wikimedia Commons', 'https://commons.wikimedia.org'],
   ['Word timings used to highlight each word', 'Quranic Universal Library (QUL) by Tarteel', 'https://qul.tarteel.ai'],
   ['Arabic font Scheherazade New', 'SIL International', 'https://software.sil.org/scheherazade/'],
 ];
@@ -36,17 +37,15 @@ export function sourcesAndDisclaimer() {
       POINTS.map((p) => h('li', {}, p))));
 }
 
-export function showTerms(onAccept) {
-  const agree = h('button', { class: 'btn primary', type: 'button', 'data-testid': 'terms-accept' }, 'I agree');
+/** The sources and the disclaimer in a dialog, from the welcome. */
+export function showSources() {
+  const close = h('button', { class: 'btn primary', type: 'button', 'data-testid': 'sources-close' }, 'Close');
   const wrap = h('div', { class: 'dialog-wrap' },
-    h('div', { class: 'dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Sources and disclaimer', 'data-testid': 'terms' },
+    h('div', { class: 'dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Sources and disclaimer', 'data-testid': 'sources-dialog' },
       h('h2', {}, 'Sources and disclaimer'),
       h('div', { style: { maxHeight: '60vh', overflowY: 'auto' } }, sourcesAndDisclaimer()),
-      h('div', { class: 'actions' }, h('span', { class: 'spacer' }), agree)));
-  agree.addEventListener('click', () => {
-    wrap.remove();
-    onAccept();
-  });
+      h('div', { class: 'actions' }, h('span', { class: 'spacer' }), close)));
+  close.addEventListener('click', () => wrap.remove());
   document.body.append(wrap);
-  agree.focus();
+  close.focus();
 }

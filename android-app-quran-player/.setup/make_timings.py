@@ -164,13 +164,9 @@ def merge_split_words(key, segs):
     return out
 
 
-# Optional CLI filter: `python make_timings.py sudais shuraym` regenerates only those assets.
-# Without it every reciter is rebuilt, which costs ~570 QUL requests each.
-SELECTED = sys.argv[1:] or list(RECITERS)
-for unknown in [n for n in SELECTED if n not in RECITERS]:
-    sys.exit(f"unknown reciter '{unknown}'; known: {', '.join(RECITERS)}")
-
-for name in SELECTED:
+def generate(name):
+    """QUL's segments for [name], cleaned and validated: ({"s:a": {"segments": ...}}, dropped).
+    Before the audit's fixes; audit_timings.py judges exactly this."""
     rid = RECITERS[name]
     cache = f"raw_{name}.json"
     if os.path.exists(cache):
@@ -188,8 +184,10 @@ for name in SELECTED:
                 frm += PAGE
                 time.sleep(0.05)
             print(f"[{name}] surah {surah:3d}/114  ayahs={len(raw_all)}", flush=True)
-        with open(cache, "w", encoding="utf-8") as fh:
-            json.dump(raw_all, fh)
+        # Only a complete fetch is worth keeping: a partial one would be reused as if it were.
+        if len(raw_all) >= 6000:
+            with open(cache, "w", encoding="utf-8") as fh:
+                json.dump(raw_all, fh)
 
     out, dropped = {}, []
     for key, want in WORDS.items():
@@ -203,13 +201,43 @@ for name in SELECTED:
             dropped.append((key, f"{len(raw)} segs vs {spoken} spoken words"))
             continue
         out[key] = {"segments": merge_split_words(key, segs)}
+    return out, dropped
 
-    dest = os.path.join(ASSETS, f"word_timings_{name}.json")
-    with open(dest, "w", encoding="utf-8") as fh:
-        json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))
 
-    pct = 100 * len(out) / 6236
-    print(f"\n[{name}] VALID {len(out)}/6236 ({pct:.1f}%)   dropped {len(dropped)}")
-    for k, why in dropped[:8]:
-        print(f"    {k}: {why}")
-    print(f"[{name}] wrote {dest} ({os.path.getsize(dest)/1024:.0f} KB)\n")
+def main():
+    # Optional CLI filter: `python make_timings.py sudais shuraym` regenerates only those assets.
+    # Without it every reciter is rebuilt, which costs ~570 QUL requests each.
+    SELECTED = sys.argv[1:] or list(RECITERS)
+    for unknown in [n for n in SELECTED if n not in RECITERS]:
+        sys.exit(f"unknown reciter '{unknown}'; known: {', '.join(RECITERS)}")
+
+    for name in SELECTED:
+        out, dropped = generate(name)
+
+        # A run that couldn't reach QUL fetches nothing; don't replace a good asset with that.
+        if len(out) < 6000:
+            sys.exit(f"[{name}] only {len(out)}/6236 ayahs; not writing the asset")
+
+        # The audit's verdicts from the recordings themselves (audit_timings.py): repairs where
+        # QUL's timing is wrong in a way the recording shows, drops where it doesn't fit at all.
+        fixes_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "timing_fixes", f"{name}.json")
+        if os.path.exists(fixes_path):
+            import apply_timing_fixes
+            with open(fixes_path, encoding="utf-8") as fh:
+                counts = apply_timing_fixes.apply(out, json.load(fh))
+            print(f"[{name}] audio audit: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
+
+        dest = os.path.join(ASSETS, f"word_timings_{name}.json")
+        with open(dest, "w", encoding="utf-8") as fh:
+            json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))
+
+        pct = 100 * len(out) / 6236
+        print(f"\n[{name}] VALID {len(out)}/6236 ({pct:.1f}%)   dropped {len(dropped)}")
+        for k, why in dropped[:8]:
+            print(f"    {k}: {why}")
+        print(f"[{name}] wrote {dest} ({os.path.getsize(dest)/1024:.0f} KB)\n")
+
+
+# Behind a guard so inspect_timings.py can import the fetch and cleaning without regenerating.
+if __name__ == "__main__":
+    main()

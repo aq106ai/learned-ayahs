@@ -16,8 +16,8 @@ import { settingsView } from './views/settings.js';
 import { reciteView } from './views/recite.js';
 import { accountView } from './views/account.js';
 import { adminView } from './views/admin.js';
+import { videoView } from './views/video.js';
 import { showIntro } from './views/intro.js';
-import { showTerms, TERMS_VERSION } from './views/terms.js';
 
 const ROUTES = {
   player: playerView,
@@ -28,10 +28,11 @@ const ROUTES = {
   settings: settingsView,
   account: accountView,
   admin: adminView,
+  video: videoView,
 };
 
 // Views that live under a navigation item without having one of their own.
-const NAV_PARENT = { surah: 'surahs', add: 'surahs' };
+const NAV_PARENT = { surah: 'surahs', add: 'surahs', video: 'player' };
 
 const THEME_COLORS = { dark: '#0a1710', light: '#f1f8f3' };
 
@@ -39,6 +40,7 @@ const viewHost = document.getElementById('view');
 const nav = document.getElementById('nav');
 const tabbar = document.getElementById('tabbar');
 const sidebarFoot = document.getElementById('sidebar-foot');
+const sidebarToggle = document.getElementById('sidebar-toggle');
 const mini = document.getElementById('mini-player');
 
 let server = { available: false };
@@ -68,6 +70,7 @@ function renderNav() {
       href: `#/${item.route}`,
       'aria-current': item.route === active ? 'page' : undefined,
       'data-testid': `nav-${item.route}`,
+      title: item.label,
     }, icon(item.icon), h('span', {}, item.label));
   const items = navItems();
   nav.replaceChildren(...items.map(link));
@@ -144,6 +147,39 @@ function renderMini() {
   );
 }
 
+// -- sidebar ---------------------------------------------------------------------------------
+
+// Folding the sidebar down to its icons is a choice about this screen, so it is kept in this
+// browser rather than synced with the rest of the settings.
+const SIDEBAR_KEY = 'la.sidebarCollapsed';
+
+function readCollapsed() {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function applySidebar(collapsed) {
+  document.getElementById('app').classList.toggle('collapsed', collapsed);
+  sidebarToggle.replaceChildren(icon('sidebar'), h('span', {}, collapsed ? 'Expand' : 'Collapse'));
+  sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
+  sidebarToggle.setAttribute('aria-label', collapsed ? 'Expand the sidebar' : 'Collapse the sidebar');
+  sidebarToggle.title = collapsed ? 'Expand the sidebar' : 'Collapse the sidebar';
+}
+
+sidebarToggle.addEventListener('click', () => {
+  const collapsed = !document.getElementById('app').classList.contains('collapsed');
+  try {
+    localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
+  } catch {
+    // Private windows may refuse storage; the sidebar still folds for this visit.
+  }
+  applySidebar(collapsed);
+});
+applySidebar(readCollapsed());
+
 // -- theme -----------------------------------------------------------------------------------
 
 const systemDark = matchMedia('(prefers-color-scheme: dark)');
@@ -206,16 +242,7 @@ async function boot() {
   // Automated tests (?test) inspect the app's state through this handle.
   if (new URLSearchParams(location.search).has('test')) window.__app = { store, engine, server, go };
 
-  // The sources and disclaimer come first, and are asked again whenever their version rises.
-  const welcome = () => {
-    if (!store.settings.seenIntro) showIntro(() => store.setSetting('seenIntro', true));
-  };
-  if (store.settings.acceptedTermsVersion < TERMS_VERSION) {
-    showTerms(() => {
-      store.setSetting('acceptedTermsVersion', TERMS_VERSION);
-      welcome();
-    });
-  } else welcome();
+  if (!store.settings.seenIntro) showIntro(store, () => store.setSetting('seenIntro', true));
   registerServiceWorker();
 }
 

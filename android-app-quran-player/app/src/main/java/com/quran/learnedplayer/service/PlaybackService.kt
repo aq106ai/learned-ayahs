@@ -160,7 +160,7 @@ class PlaybackService : MediaSessionService() {
             maybeParkBeforeRevisionRepeat(current)
             maybeParkAtWordEnd(current)
             if (current.isPlaying) {
-                handler.postDelayed(this, PROGRESS_INTERVAL_MS)
+                handler.postDelayed(this, nextTickDelay(current))
             }
         }
     }
@@ -367,6 +367,30 @@ class PlaybackService : MediaSessionService() {
         )
     }
 
+    /**
+     * Normally a tick every [PROGRESS_INTERVAL_MS]. While words are cut from the ayah audio, the
+     * next tick lands on the current word's end instead: at a fixed 250 ms a word could run up
+     * to a quarter of a second into the next one before it was stopped, and a run of short
+     * words would leave the word counter (and the highlight, and the next press of Next) behind
+     * the recitation.
+     */
+    private fun nextTickDelay(p: Player): Long {
+        if (!ayahSeekActive()) return PROGRESS_INTERVAL_MS
+        val untilEnd = (wordCutAt() ?: return PROGRESS_INTERVAL_MS) - p.currentPosition
+        return untilEnd.coerceIn(MIN_TICK_MS, PROGRESS_INTERVAL_MS)
+    }
+
+    /**
+     * Where [maybeParkAtWordEnd] cuts the current word: just before the next word's onset, but
+     * never before the word has played [MIN_WORD_PLAY_MS]. The ticker aims at this same point;
+     * aiming at the onset alone, it spun every [MIN_TICK_MS] through short words.
+     */
+    private fun wordCutAt(): Long? {
+        val seg = ayahSeekSegments.getOrNull(ayahSeekWordIndex) ?: return null
+        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return null
+        return maxOf(nextOnset - WORD_END_LEAD_MS, seg.first + MIN_WORD_PLAY_MS)
+    }
+
     private fun startProgressTicker() {
         handler.removeCallbacks(progressTicker)
         handler.post(progressTicker)
@@ -525,7 +549,11 @@ class PlaybackService : MediaSessionService() {
                 val requestedMode = readMode(intent)
                 val requestedRepeat = readRepeat(intent)
                 val requestedSurah = intent.getIntExtra(EXTRA_SURAH, 0)
+                // Read the position now, not when the app sent this: a Next pressed while the
+                // service was starting has moved it since (PlayerStateHolder persists every move),
+                // and loading the position from before would undo the press.
                 val startGlobal = intent.getIntExtra(EXTRA_START_GLOBAL, 0)
+                    .let { if (it == START_FROM_LAST_POSITION) PlayerSettings.lastGlobalId else it }
                 // Full surah builds its queue from the surah, not the learned list, so it plays
                 // for someone who has marked nothing yet — tapping an ayah to hear its surah.
                 if (master.isNotEmpty() || requestedMode == PlaybackMode.FULL_SURAH) {
@@ -559,6 +587,20 @@ class PlaybackService : MediaSessionService() {
     }
 
     /**
+     * Whether a queue has been loaded yet. The service registers with [PlayerStateHolder] in
+     * onCreate but loads only when its first command arrives; until then the app keeps driving
+     * its own preview, or a Next pressed in between would go to an empty player and be lost.
+     */
+    @Volatile
+    var hasLoadedQueue = false
+        private set
+
+    /** See [PlayerStateHolder.forgetLoadedQueue]. */
+    internal fun forgetLoadedQueue() {
+        hasLoadedQueue = false
+    }
+
+    /**
      * Builds and loads the queue for [requestedMode]/[requestedRepeat]. [requestedSurah] selects
      * the surah for surah-scoped queues (0 = derive from [startGlobal] / current ayah). Playback
      * starts at [startGlobal] if that ayah exists in the queue, otherwise at the first item.
@@ -570,6 +612,7 @@ class PlaybackService : MediaSessionService() {
         startGlobal: Int,
         persistMode: Boolean = true,
     ) {
+        hasLoadedQueue = true
         cancelRevisionGap()
         clearIntroState()
         mode = requestedMode
@@ -991,11 +1034,14 @@ class PlaybackService : MediaSessionService() {
         val atEnd = wordItems.isEmpty() || current >= wordItems.lastIndex
         val atStart = wordItems.isEmpty() || current <= 0
         when {
+            // During a repeat pause the player is paused but the session is still going: a
+            // press that crosses into the next ayah must carry on playing there, as one within
+            // the ayah does, rather than leave the new ayah loaded and silent.
             forward && atEnd -> {
-                if (!advanceWordAyah(forward = true)) player?.pause()
+                if (!advanceWordAyah(forward = true)) player?.pause() else if (resumeAfterGap) play()
             }
             !forward && atStart -> {
-                if (!advanceWordAyah(forward = false)) player?.pause()
+                if (!advanceWordAyah(forward = false)) player?.pause() else if (resumeAfterGap) play()
             }
             else -> {
                 val target = if (forward) current + 1 else current - 1
@@ -1015,10 +1061,10 @@ class PlaybackService : MediaSessionService() {
         val atStart = ayahSeekWordIndex <= 0
         when {
             forward && atEnd -> {
-                if (!advanceWordAyah(forward = true)) player?.pause()
+                if (!advanceWordAyah(forward = true)) player?.pause() else if (resumeAfterGap) play()
             }
             !forward && atStart -> {
-                if (!advanceWordAyah(forward = false)) player?.pause()
+                if (!advanceWordAyah(forward = false)) player?.pause() else if (resumeAfterGap) play()
             }
             else -> {
                 playAyahSeekWord(
@@ -1040,9 +1086,7 @@ class PlaybackService : MediaSessionService() {
      */
     private fun maybeParkAtWordEnd(p: Player) {
         if (!ayahSeekActive() || !p.isPlaying) return
-        val seg = ayahSeekSegments.getOrNull(ayahSeekWordIndex) ?: return
-        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return
-        val endAt = maxOf(nextOnset - WORD_END_LEAD_MS, seg.first + MIN_WORD_PLAY_MS)
+        val endAt = wordCutAt() ?: return
         if (p.currentPosition >= endAt) {
             onAyahSeekWordEnded()
         }
@@ -1066,8 +1110,13 @@ class PlaybackService : MediaSessionService() {
                 val ended = player?.playbackState == Player.STATE_ENDED
                 if (!ended && ayahSeekWordIndex < last) {
                     // The recitation is already at the next word's onset: carry on through it
-                    // rather than pausing and seeking to where it already is.
-                    ayahSeekWordIndex++
+                    // rather than pausing and seeking to where it already is. Take the word from
+                    // where the audio is, not one step on from the last: if it has passed more
+                    // than one onset, the counter (and so the highlight, and the next press of
+                    // Next) must not be left behind it.
+                    val position = player?.currentPosition ?: 0L
+                    val heard = ayahSeekSegments.indexOfLast { position >= it.first }
+                    ayahSeekWordIndex = maxOf(ayahSeekWordIndex + 1, heard).coerceAtMost(last)
                     PlayerStateHolder.updateWordIndex(ayahSeekWordIndex, ayahSeekWordCount)
                 } else {
                     skipAyahSeekWord(forward = true)
@@ -1407,6 +1456,9 @@ class PlaybackService : MediaSessionService() {
         private const val DEMOTE_DELAY_MS = 1500L
         private const val PROGRESS_INTERVAL_MS = 250L
 
+        /** The shortest wait between ticks while timing a word's end. */
+        private const val MIN_TICK_MS = 15L
+
         /** Below this position an ayah counts as "not started" for intro replay purposes. */
         private const val INTRO_REPLAY_THRESHOLD_MS = 500L
 
@@ -1435,6 +1487,9 @@ class PlaybackService : MediaSessionService() {
         const val EXTRA_PERSIST_MODE = "extra_persist_mode"
         const val EXTRA_SURAH = "extra_surah"
         const val EXTRA_START_GLOBAL = "extra_start_global"
+
+        /** [EXTRA_START_GLOBAL]: wherever the user is when the service loads ([PlayerSettings.lastGlobalId]). */
+        const val START_FROM_LAST_POSITION = -1
         const val EXTRA_AUTO_PLAY = "extra_auto_play"
     }
 }

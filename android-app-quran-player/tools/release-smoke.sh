@@ -45,18 +45,27 @@ for node in re.findall(r"<node [^>]*>", sys.stdin.read()):
   fail "'$1' never appeared"
 }
 
+# Whether an element whose text or description is $1 is on screen now.
+on_screen() {
+  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 || true
+  (adb shell cat /sdcard/ui.xml 2>/dev/null || true) | grep -qE "(text|content-desc)=\"$1\""
+}
+
 # Taps $1 until it's gone: a tap that lands while a dialog is still settling can do nothing.
+# A dialog that did take the tap can still be on screen for a moment as it closes, so give it
+# a few seconds to go before tapping again.
 tap_away() {
   for _ in 1 2 3; do
     tap "$1"
-    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 || true
-    (adb shell cat /sdcard/ui.xml 2>/dev/null || true) | grep -qE "(text|content-desc)=\"$1\"" || return 0
+    for _ in 1 2 3 4 5; do
+      on_screen "$1" || return 0
+      sleep 1
+    done
     echo "'$1' still on screen, tapping again"
   done
   fail "'$1' stayed on screen"
 }
 
-tap_away "I agree"
 tap_away "Skip"
 tap "Al-Fatihah"
 tap "Mark learned" 300   # the ayah row beside ayah 1's mark button plays it

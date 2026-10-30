@@ -21,7 +21,22 @@ object PlayerStateHolder {
         service = null
     }
 
-    fun isServiceReady(): Boolean = service != null
+    /** A service is running *and* has loaded a queue (see [PlaybackService.hasLoadedQueue]). */
+    fun isServiceReady(): Boolean = service?.hasLoadedQueue == true
+
+    /** Whether a service is registered at all, loaded or not. For the instrumented tests' reset. */
+    @androidx.annotation.VisibleForTesting
+    fun hasService(): Boolean = service != null
+
+    /**
+     * Makes a running service count as not yet loaded, so the next launch's load restores the
+     * saved position instead of carrying on from wherever the service was. For the instrumented
+     * tests, whose reset rewrites that position under a service still running from the last test.
+     */
+    @androidx.annotation.VisibleForTesting
+    fun forgetLoadedQueue() {
+        service?.forgetLoadedQueue()
+    }
 
     /** Hands [intent] straight to a running service; false when there is none. */
     fun deliverCommand(intent: android.content.Intent): Boolean {

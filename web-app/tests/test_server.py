@@ -327,6 +327,19 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(c.request("GET", "/data/word_timings_maher.json")[0], 200)
         self.assertEqual(c.request("GET", "/data/../server.py")[0], 404)
         self.assertEqual(c.request("GET", "/data/secrets.json")[0], 404)
+        # What videos and player backgrounds read.
+        for name in ("translation_en_saheeh.json", "video_themes.json", "nature_photos.json"):
+            self.assertEqual(c.request("GET", f"/data/{name}")[0], 200, name)
+
+    def test_nature_photos_are_served_and_nothing_else_from_there(self):
+        c = Client(self.base)
+        status, headers, body = c.request("GET", "/backgrounds/nature/forest_1.jpg")
+        self.assertEqual(status, 200)
+        self.assertEqual(headers["Content-Type"], "image/jpeg")
+        self.assertEqual(body[:2], b"\xff\xd8")
+        self.assertEqual(c.request("GET", "/backgrounds/nature/forest_1_thumb.jpg")[0], 200)
+        self.assertEqual(c.request("GET", "/backgrounds/nature/photos.json")[0], 404)
+        self.assertEqual(c.request("GET", "/backgrounds/nature/../../README.md")[0], 404)
 
     def test_audio_is_fetched_once_cached_atomically_and_range_served(self):
         c = Client(self.base)
@@ -396,6 +409,12 @@ class ExportStaticTest(unittest.TestCase):
             self.assertTrue((out / "data" / "word_translations.json").is_file())
             self.assertTrue(list((out / "data").glob("word_timings_*.json")))
             self.assertTrue((out / "fonts" / "scheherazade_new.ttf").is_file())
+            # Videos and player backgrounds work from the static copy too.
+            self.assertTrue((out / "data" / "translation_en_saheeh.json").is_file())
+            self.assertTrue((out / "data" / "video_themes.json").is_file())
+            self.assertTrue((out / "data" / "nature_photos.json").is_file())
+            self.assertEqual(len(list((out / "backgrounds" / "nature").glob("*_thumb.jpg"))), 45)
+            self.assertTrue((out / "js" / "lib" / "mp4-muxer.mjs").is_file())
             # Refuses to write into a folder that already has files in it.
             self.assertEqual(server.main(["--export-static", str(out)]), 1)
 

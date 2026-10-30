@@ -5,8 +5,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -19,9 +17,9 @@ import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.player.PlayerSettings
-import com.quran.learnedplayer.video.BackgroundScenes
 import com.quran.learnedplayer.video.NaturePhotos
 import com.quran.learnedplayer.video.PhotoSubject
+import com.quran.learnedplayer.video.PlayerBackgrounds
 import com.quran.learnedplayer.video.VideoAspect
 import com.quran.learnedplayer.video.VideoExporter
 import com.quran.learnedplayer.video.VideoRequest
@@ -67,6 +65,17 @@ data class VideoOptions(
     val ayahCount: Int get() = toAyah - fromAyah + 1
 
     fun toRequest() = VideoRequest(surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey, photos, credits)
+
+    /**
+     * These options made to look like the player: its [background] (a plain player gets
+     * matched scenes, since a video always has one), the translation if it shows it, and the
+     * word meanings if it shows them.
+     */
+    fun likeThePlayer(background: String, translation: Boolean, wordMeanings: Boolean): VideoOptions = when (background) {
+        PlayerBackgrounds.PLAIN, PlayerBackgrounds.MATCHED -> copy(themeKey = null, photos = false)
+        PlayerBackgrounds.PHOTOS -> copy(themeKey = null, photos = true)
+        else -> copy(themeKey = background, photos = NaturePhotos.isPhoto(background))
+    }.copy(fullTranslation = translation, wordByWord = wordMeanings)
 }
 
 /**
@@ -84,9 +93,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
     /** The nature photo subjects, empty if the app has none listed. */
     val photoSubjects: List<PhotoSubject> get() = naturePhotos.subjects
 
-    private val _photoThumbnails = MutableStateFlow<Map<String, Bitmap>>(emptyMap())
-    val photoThumbnails: StateFlow<Map<String, Bitmap>> = _photoThumbnails.asStateFlow()
-    private var photoThumbnailsJob: Job? = null
+    val photoThumbnails: StateFlow<Map<String, Bitmap>> = ThemeThumbnails.photos
 
     /** Shown under the preview when it can't be drawn, such as a photo that couldn't download. */
     private val _previewError = MutableStateFlow<String?>(null)
@@ -95,15 +102,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
     /** Switches between drawn scenes and nature photos; the photos' small pictures download then. */
     fun setPhotos(on: Boolean) {
         update { it.copy(photos = on, themeKey = null) }
-        if (on && photoThumbnailsJob == null) {
-            photoThumbnailsJob = viewModelScope.launch(Dispatchers.IO) {
-                for (subject in naturePhotos.subjects) {
-                    val file = naturePhotos.thumbnail(subject) ?: continue
-                    val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: continue
-                    _photoThumbnails.update { it + (subject.key to bitmap) }
-                }
-            }
-        }
+        if (on) ThemeThumbnails.loadPhotos(context)
     }
 
     private val _options = MutableStateFlow(VideoOptions(surah = 1, fromAyah = 1, toAyah = 7))
@@ -119,14 +118,23 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
     private var exportJob: Job? = null
     private var started = false
 
-    /** Sets where the screen starts: one ayah from the player, or a whole surah (ayah 0). */
-    fun start(surah: Int, ayah: Int) {
+    /**
+     * Sets where the screen starts: one ayah, or a whole surah (ayah 0). [fromPlayer]: the user
+     * is sharing what the player shows, so the background and text start out the same.
+     */
+    fun start(surah: Int, ayah: Int, fromPlayer: Boolean = false) {
         if (started) return
         started = true
         val count = QuranConstants.VERSE_COUNTS[(surah - 1).coerceIn(0, 113)]
         val from = if (ayah in 1..count) ayah else 1
         val to = if (ayah in 1..count) ayah else minOf(count, DEFAULT_SURAH_AYAHS)
-        _options.value = VideoOptions(surah = surah.coerceIn(1, 114), fromAyah = from, toAyah = to)
+        val options = VideoOptions(surah = surah.coerceIn(1, 114), fromAyah = from, toAyah = to)
+        _options.value = if (!fromPlayer) options else options.likeThePlayer(
+            PlayerSettings.playerBackground,
+            PlayerSettings.showAyahTranslation,
+            PlayerSettings.showWordTranslations,
+        )
+        if (_options.value.photos) ThemeThumbnails.loadPhotos(context)
         refreshPreview()
     }
 
@@ -150,20 +158,11 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
     private val _matchedTheme = MutableStateFlow("")
     val matchedTheme: StateFlow<String> = _matchedTheme.asStateFlow()
 
-    /** A small picture of each theme's first background, for the theme picker; drawn off the main thread. */
-    private val _thumbnails = MutableStateFlow<Map<String, Bitmap>>(emptyMap())
-    val thumbnails: StateFlow<Map<String, Bitmap>> = _thumbnails.asStateFlow()
+    /** A small picture of each theme's first background, for the theme picker. */
+    val thumbnails: StateFlow<Map<String, Bitmap>> = ThemeThumbnails.drawn
 
     init {
-        viewModelScope.launch(Dispatchers.Default) {
-            val scenes = BackgroundScenes(THUMB_W, THUMB_H)
-            for (theme in VideoThemes.all) {
-                val bitmap = Bitmap.createBitmap(THUMB_W, THUMB_H, Bitmap.Config.ARGB_8888)
-                scenes.draw(Canvas(bitmap), theme.variants.first(), 2_000)
-                _thumbnails.update { it + (theme.key to bitmap) }
-            }
-            scenes.release()
-        }
+        ThemeThumbnails.loadDrawn()
     }
 
     private fun refreshPreview() {
@@ -270,8 +269,6 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
         /** A whole short surah, or the start of a long one; the user can widen it. */
         const val DEFAULT_SURAH_AYAHS = 10
         const val PREVIEW_W = 540
-        const val THUMB_W = 108
-        const val THUMB_H = 192
 
         fun fileName(options: VideoOptions): String = String.format(
             Locale.ROOT, "LearnedAyahs_%03d_%03d-%03d_%s.mp4",

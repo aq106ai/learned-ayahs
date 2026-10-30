@@ -6,7 +6,71 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
-Android 1.10.0 (versionCode 42).
+Android 1.12.0 (versionCode 45), which includes 1.11.0 (43) and 1.11.1 (44).
+
+### Added
+- **Choose the theme and the player's background while setting up** (Android and web app): the
+  welcome now has a "Make it yours" page, applied as you pick, and changeable any time after.
+- **Web app: the sidebar folds down to its icons** (the button at its foot; remembered in that
+  browser), and over a player background the scene fills the whole window, with the sidebar and
+  the phone tab bar translucent over it.
+- **Android: backgrounds in the player.** The background button (in the playback panel) puts
+  the video maker's scenes behind the ayah while it plays: matched to what each ayah is about,
+  drawn or as nature photos, or one chosen for every ayah. It's off unless chosen; the scene
+  moves only while the recitation plays, and the text stays light on it whatever the theme.
+- **Android: the whole ayah's translation in the player** (Saheeh International), under the
+  Arabic. Turned on with a background, or on its own in Settings → Reading.
+- **Web app: make videos.** The video maker runs in the browser (Make a video, or Share → Video
+  in the player): the same shapes, reciters, word meanings, translation, drawn scenes and nature
+  photos as the Android app, encoded on the device with WebCodecs to MP4 (or WebM where the
+  browser has no H.264). It works on the GitHub Pages site too.
+- **Web app: backgrounds in the player, the whole ayah's translation, and Share** (a video or an
+  image of the ayah as it looks now), as in the Android app.
+- **Word timing audit** (`.setup/audit_timings.py`, `timing-audit.yml`): checks a reciter's word
+  timings against everyayah's recordings, ayah by ayah, and writes which ayahs to shift and which
+  to drop to `.setup/timing_fixes/`, which `make_timings.py` applies.
+
+### Changed
+- **No agreement screen on first launch** (Android and web app). The sources and disclaimer no
+  longer stand between a new user and the app behind "I agree": they are linked from the
+  welcome's last page and always in Settings. The content's licences ask for the sources to be
+  credited, which that does, not agreed to.
+- **Android: one Share button in the player**, in place of the film icon. It offers a video,
+  which opens the video maker set up like the player (background, translation, word meanings),
+  or an image of the ayah as it looks now, with the word being recited lit up, in any of the
+  video shapes. The sources go in the message, as for videos.
+
+### Fixed
+- **Web app: the "Learned ayahs" label (and anything else using the light theme's colours) was
+  unreadable over a player background in the light theme.** The player's dark colours over a
+  scene now cover every colour, not most of them.
+- **Sharing an image in Word by word with Word clips on lit the wrong word** (Android and web).
+- **Web app: Share image did nothing when the browser stopped counting it as following the tap**
+  (a slow drawing, or Safari); it now saves the image instead, and a second tap while drawing is
+  ignored.
+- **Android: the previous ayah's translation could show for a moment under the next ayah**, and a
+  shared image could be deleted before the app it went to had read it.
+- **Android: Word by word used more battery than it needed on short words** (the progress
+  ticker spun every 15 ms through them).
+- **Android: Next pressed in the first moment after opening the app could be undone** when the
+  player finished starting up and reloaded the position from before the press.
+- **Word highlighting that never reached the last word, or started early or late** (all five
+  reciters, Android and web app). Checked against every recording:
+  - For about 900 ayahs per reciter the timing data put the last word in the silence after the
+    recitation, so the highlight never reached it and Word by word played the last two words as
+    one. Its start is now estimated from the recording and the words' lengths, which is within
+    0.15-0.3 s for half of ayahs, depending on the reciter.
+  - The first word no longer lights up over the silence before the recitation starts.
+  - Ayahs whose timings don't fit the recording at all (19 to 221 per reciter) show without
+    highlighting rather than with the wrong word lit.
+- **Android: words cut mid-word in Play → Word by word, and Next from a remote stepping from the
+  wrong word.** With words cut from the ayah recording, a word's end was checked only every
+  250 ms and each check moved the word counter on by one, so a word could run into the next and
+  the counter fell behind the recitation through a run of short words. The word now stops on
+  time, the counter follows the audio, and Next/Previous across an ayah during a repeat pause
+  carries on playing.
+
+## Android 1.10.0 (versionCode 42)
 
 ### Added
 - **Android: share ayahs as a video.** "Make a video" (the film icon in the player and on a

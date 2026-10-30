@@ -14,6 +14,7 @@ on:
       - web-app/static/**
       - android-app-quran-player/app/src/main/assets/**
       - android-app-quran-player/app/src/main/res/font/**
+      - backgrounds/nature/**
 
 permissions:
   contents: read

@@ -61,6 +61,10 @@ The table compares the web app with the Android app.
 | Offline: save learned ayahs and word clips | ✓ | ✓ (service worker) |
 | Recite & review (beta): mistake correction, recap | ✓ (Android 13+) | ✓ (Chrome, Edge, Safari) |
 | Dark / light / system theme, first-run introduction | ✓ | ✓ |
+| **Make a video** of an ayah, a passage or a surah (Shorts, post, square, YouTube shapes) | ✓ (MP4) | ✓ (MP4 in Chrome, Edge, Safari; WebM elsewhere) |
+| Backgrounds behind the player, matched to each ayah: drawn scenes or nature photos | ✓ | ✓ |
+| The whole ayah's translation (Saheeh International) under the Arabic | ✓ | ✓ |
+| Share an ayah as a video or an image | ✓ | ✓ (Web Share, or download) |
 | **Accounts, sync across devices, user management** | | ✓ (with `server.py`) |
 
 ### Accounts and user management
@@ -131,6 +135,10 @@ Upload the folder to GitHub Pages, Netlify or any web server. This repo publishe
 server behind it. It then hides accounts, keeps each browser's list locally, and streams audio
 straight from its sources. **Export** and **Import** still move lists between devices.
 
+Everything else works there too, video making included: the backgrounds' photos are part of the
+export (`backgrounds/nature/`), and everyayah.com and Quran.com's word clips let any site fetch
+their audio (they send `Access-Control-Allow-Origin: *`), which the video's soundtrack needs.
+
 ### Deploying
 
 `server.py` uses Python's threaded HTTP server, which suits a family, a class or a masjid.
@@ -190,6 +198,7 @@ Ayahs are global ids, 1 to 6236 across the whole Qur'an.
 ```
 web-app/
 ├── server.py                 HTTP server, accounts API, audio cache (stdlib only)
+├── tools/sync_video_themes.py  writes static/js/video/themes.js from VideoThemes.kt
 ├── static/
 │   ├── index.html            app shell
 │   ├── sw.js                 service worker (offline shell, data and saved audio)
@@ -206,7 +215,18 @@ web-app/
 │       ├── player/           playback engine (PlaybackService port), word clips
 │       ├── services/         API client, Qur'an data loader, offline, speech
 │       ├── state/store.js    the user's data: local-first, synced to the account
-│       └── views/            player, surahs, surah, add, settings, recite, account, admin
+│       ├── video/            "Make a video" and player backgrounds, ported from the Android
+│       │   │                 app's video/ package
+│       │   ├── themes.js         the drawn themes (generated: tools/sync_video_themes.py)
+│       │   ├── scenes.js         paints the backgrounds on a canvas
+│       │   ├── plan.js           timeline, background plan, live background (unit tested)
+│       │   ├── layout.js         right-to-left text layout and paging (unit tested)
+│       │   ├── renderer.js       draws one frame: background, card, text, highlight
+│       │   ├── exporter.js       decode, mix, encode with WebCodecs, mux (MP4 or WebM)
+│       │   └── data.js           translation, ayah→theme map, nature photos
+│       ├── lib/              dom helpers; mp4-muxer and webm-muxer (MIT, vendored)
+│       └── views/            player (+ playerBackground), surahs, surah, add, settings,
+│                             recite, video, account, admin
 └── tests/
     ├── unit/                 node:test, for core/ (no browser)
     ├── test_server.py        unittest, for server.py (real server, temp database)
@@ -217,7 +237,8 @@ web-app/
 npm test                 # core logic (node 18+)
 npm run test:server      # server
 npm install && npx playwright install chromium
-npm run test:e2e         # browser tests: guest, player, accounts/admin, recite, static build
+npm run test:e2e         # browser tests: guest, player, accounts/admin, recite, static build, video
+python3 tools/sync_video_themes.py --check   # themes.js matches the Android app's themes
 ```
 
 The browser tests need no network. They start `server.py` with a temporary database and an

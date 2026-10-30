@@ -14,21 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
 
-const val TAG_TERMS_DIALOG = "terms_dialog"
-const val TAG_TERMS_ACCEPT = "terms_accept"
+const val TAG_SOURCES_DIALOG = "sources_dialog"
 
 /**
  * Where every piece of Qur'an content in the app comes from, and what the app does and does not
- * answer for. The web app shows the same words (`web-app/static/js/views/terms.js`), less the
- * translation only the Android app's video export uses; keep the two in step. Changing what a user agrees to means raising [PlayerSettings.TERMS_VERSION] so that
- * everyone is asked again.
+ * answer for. The web app shows the same words (`web-app/static/js/views/terms.js`); keep the two
+ * in step. Always in Settings, and a tap away from the welcome's last page. Until 1.12.0 everyone
+ * had to tap "I agree" before using the app; the licences ask for the sources to be credited,
+ * not accepted, and a gate in front of a free Qur'an app only got in the way.
  */
 object SourcesAndDisclaimer {
     data class Source(val what: String, val from: String)
@@ -40,8 +39,8 @@ object SourcesAndDisclaimer {
             "EveryAyah · everyayah.com",
         ),
         Source("Single-word recitations", "Quran.com · audio.qurancdn.com"),
-        Source("English translation in shared videos", "Saheeh International · via tanzil.net"),
-        Source("Nature photos in shared videos (CC0)", "Wikimedia Commons · commons.wikimedia.org"),
+        Source("English translation of whole ayahs (player and shared videos)", "Saheeh International · via tanzil.net"),
+        Source("Nature photos for backgrounds (CC0)", "Wikimedia Commons · commons.wikimedia.org"),
         Source("Word timings used to highlight each word", "Quranic Universal Library (QUL) by Tarteel · qul.tarteel.ai"),
         Source("Arabic font Scheherazade New", "SIL International · software.sil.org"),
     )
@@ -81,18 +80,13 @@ fun SourcesAndDisclaimerText() {
     }
 }
 
-/**
- * Asked once per [PlayerSettings.TERMS_VERSION], before anything else, including by people
- * updating from a version that never showed it. It cannot be dismissed by tapping outside:
- * the only ways on are to agree or to leave the app.
- */
+/** The sources and the disclaimer on their own, from the welcome's last page. */
 @Composable
-fun TermsDialog(onAccept: () -> Unit, onExit: () -> Unit) {
+fun SourcesDialog(onDismiss: () -> Unit) {
     AlertDialog(
-        onDismissRequest = {},
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+        onDismissRequest = onDismiss,
         containerColor = Panel,
-        modifier = Modifier.testTag(TAG_TERMS_DIALOG),
+        modifier = Modifier.testTag(TAG_SOURCES_DIALOG),
         title = { Text("Sources and disclaimer", style = MaterialTheme.typography.titleMedium, color = TextPrimary) },
         text = {
             Column(Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState())) {
@@ -100,12 +94,7 @@ fun TermsDialog(onAccept: () -> Unit, onExit: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = onAccept, modifier = Modifier.testTag(TAG_TERMS_ACCEPT)) {
-                Text("I agree", color = AccentGreen)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onExit) { Text("Exit", color = TextMuted) }
+            TextButton(onClick = onDismiss) { Text("Close", color = AccentGreen) }
         },
     )
 }

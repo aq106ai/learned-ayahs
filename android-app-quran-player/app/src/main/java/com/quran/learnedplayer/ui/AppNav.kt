@@ -1,13 +1,11 @@
 package com.quran.learnedplayer.ui
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,7 +14,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerViewModel
-import com.quran.learnedplayer.ui.common.TermsDialog
 import com.quran.learnedplayer.ui.home.IntroDialog
 import com.quran.learnedplayer.ui.home.SurahListScreen
 import com.quran.learnedplayer.ui.settings.AddByDescriptionScreen
@@ -33,12 +30,12 @@ object Routes {
     const val ADD_BY_DESCRIPTION = "add_by_description"
     const val RECITATION = "recitation?globalId={globalId}"
     const val SURAH = "surah/{surah}"
-    const val VIDEO = "video?surah={surah}&ayah={ayah}"
+    const val VIDEO = "video?surah={surah}&ayah={ayah}&fromPlayer={fromPlayer}"
 
     fun surah(surah: Int) = "surah/$surah"
 
     /** "Make a video", starting on [ayah] of [surah], or on the surah's opening ayahs when 0. */
-    fun video(surah: Int, ayah: Int = 0) = "video?surah=$surah&ayah=$ayah"
+    fun video(surah: Int, ayah: Int = 0, fromPlayer: Boolean = false) = "video?surah=$surah&ayah=$ayah&fromPlayer=$fromPlayer"
     fun recitation(globalId: Int = 1) = "recitation?globalId=$globalId"
 }
 
@@ -66,16 +63,10 @@ fun AppNav(
     // happened to be on Home. Now that the player is the default destination — and a restored
     // back stack can put the player up even on a launch where the intro hasn't been seen — the
     // dialog is hoisted here, above the NavHost, so it shows over whatever is on screen.
-    // The sources and disclaimer come first, and are asked again whenever their version rises.
+    // The sources and disclaimer are linked from the intro's last page and always in Settings;
+    // nothing has to be agreed to before using the app.
     val seenIntro by PlayerSettings.seenIntroFlow.collectAsState()
-    val acceptedTerms by PlayerSettings.acceptedTermsVersionFlow.collectAsState()
-    val activity = LocalContext.current as? Activity
-    if (acceptedTerms < PlayerSettings.TERMS_VERSION) {
-        TermsDialog(
-            onAccept = { PlayerSettings.acceptedTermsVersion = PlayerSettings.TERMS_VERSION },
-            onExit = { activity?.finish() },
-        )
-    } else if (!seenIntro) {
+    if (!seenIntro) {
         IntroDialog(onDismiss = { PlayerSettings.seenIntro = true })
     }
 
@@ -131,7 +122,7 @@ fun AppNav(
                 onBrowseSurahs = { navController.navigate(Routes.HOME) { launchSingleTop = true } },
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onOpenRecitation = { globalId -> navController.navigate(Routes.recitation(globalId)) },
-                onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah)) },
+                onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah, fromPlayer = true)) },
             )
         }
 
@@ -140,11 +131,13 @@ fun AppNav(
             arguments = listOf(
                 navArgument("surah") { type = NavType.IntType; defaultValue = 1 },
                 navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
+                navArgument("fromPlayer") { type = NavType.BoolType; defaultValue = false },
             ),
         ) { entry ->
             VideoMakerScreen(
                 surah = entry.arguments?.getInt("surah") ?: 1,
                 ayah = entry.arguments?.getInt("ayah") ?: 0,
+                fromPlayer = entry.arguments?.getBoolean("fromPlayer") ?: false,
                 onBack = { navController.popBackStack() },
             )
         }

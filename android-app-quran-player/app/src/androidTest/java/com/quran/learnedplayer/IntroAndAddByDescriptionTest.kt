@@ -14,18 +14,22 @@ import com.quran.learnedplayer.data.AyahMapping
 import com.quran.learnedplayer.data.LearnedAyahsStore
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.ui.TAG_EMPTY_BROWSE
-import com.quran.learnedplayer.ui.common.TAG_TERMS_ACCEPT
-import com.quran.learnedplayer.ui.common.TAG_TERMS_DIALOG
+import com.quran.learnedplayer.data.AppTheme
+import com.quran.learnedplayer.ui.common.TAG_SOURCES_DIALOG
 import com.quran.learnedplayer.ui.home.TAG_ADD_BY_DESCRIPTION
 import com.quran.learnedplayer.ui.home.TAG_INTRO_DIALOG
 import com.quran.learnedplayer.ui.home.TAG_INTRO_DISMISS
 import com.quran.learnedplayer.ui.home.TAG_INTRO_NEXT
+import com.quran.learnedplayer.ui.home.TAG_INTRO_SOURCES
+import com.quran.learnedplayer.ui.home.introBackgroundTag
+import com.quran.learnedplayer.ui.home.introThemeTag
 import com.quran.learnedplayer.ui.home.TAG_SURAH_LIST
 import com.quran.learnedplayer.ui.home.surahRowTag
 import com.quran.learnedplayer.ui.settings.TAG_DESCRIPTION_APPLY
 import com.quran.learnedplayer.ui.settings.TAG_DESCRIPTION_FIELD
 import com.quran.learnedplayer.ui.settings.TAG_DESCRIPTION_PREVIEW
 import com.quran.learnedplayer.ui.surah.markLearnedTag
+import com.quran.learnedplayer.video.PlayerBackgrounds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -107,13 +111,18 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
     }
 
     @Test
-    fun the_first_run_guide_walks_three_pages_and_then_never_shows_again() {
+    fun the_first_run_guide_walks_four_pages_and_then_never_shows_again() {
         // BaseAppTest pre-dismisses the intro for every other test; opt back in here.
         PlayerSettings.seenIntro = false
         composeRule.activityRule.scenario.recreate()
 
+        // Nothing has to be agreed to first: the guide is the first thing shown.
         awaitTag(TAG_INTRO_DIALOG)
         composeRule.onNodeWithText("Sahih al-Bukhari 5033", substring = true).assertIsDisplayed()
+
+        composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Make it yours").assertIsDisplayed()
 
         composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
         composeRule.waitForIdle()
@@ -127,6 +136,8 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
         composeRule.waitForIdle()
         composeRule.onNodeWithTag(TAG_INTRO_DIALOG).assertDoesNotExist()
         assertTrue(PlayerSettings.seenIntro)
+        // Left as they were.
+        assertEquals(PlayerBackgrounds.PLAIN, PlayerSettings.playerBackground)
 
         // A relaunch must not show it again — and now that onboarding is done, it opens
         // straight on the player (empty here, since nothing was marked) rather than the picker.
@@ -137,25 +148,38 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
     }
 
     @Test
-    fun the_sources_and_disclaimer_are_agreed_to_before_the_guide_and_only_once() {
-        PlayerSettings.acceptedTermsVersion = 0
+    fun the_guide_sets_the_theme_and_background_and_links_the_sources() {
         PlayerSettings.seenIntro = false
         composeRule.activityRule.scenario.recreate()
 
-        awaitTag(TAG_TERMS_DIALOG)
-        composeRule.onNodeWithText("everyayah.com", substring = true).assertIsDisplayed()
-        composeRule.onNodeWithTag(TAG_INTRO_DIALOG).assertDoesNotExist()
-
-        composeRule.onNodeWithTag(TAG_TERMS_ACCEPT).performClick()
-        composeRule.waitForIdle()
-        composeRule.onNodeWithTag(TAG_TERMS_DIALOG).assertDoesNotExist()
-        assertEquals(PlayerSettings.TERMS_VERSION, PlayerSettings.acceptedTermsVersion)
         awaitTag(TAG_INTRO_DIALOG)
+        composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(introThemeTag(AppTheme.LIGHT)).performClick()
+        composeRule.onNodeWithTag(introBackgroundTag(PlayerBackgrounds.MATCHED)).performClick()
+        composeRule.waitForIdle()
+        // Applied as they are picked.
+        assertEquals(AppTheme.LIGHT, PlayerSettings.appTheme)
+        assertEquals(PlayerBackgrounds.MATCHED, PlayerSettings.playerBackground)
+        assertTrue("a background brings the translation", PlayerSettings.showAyahTranslation)
 
-        composeRule.onNodeWithText("Skip").performClick()
+        composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
+        composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(TAG_INTRO_SOURCES).performClick()
+        awaitTag(TAG_SOURCES_DIALOG)
+        composeRule.onNodeWithText("everyayah.com", substring = true).assertIsDisplayed()
+        composeRule.onNodeWithText("Close").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(TAG_SOURCES_DIALOG).assertDoesNotExist()
+        // Closing the sources leaves the guide where it was.
+        composeRule.onNodeWithText("Revise and read").assertIsDisplayed()
+
+        composeRule.onNodeWithTag(TAG_INTRO_DISMISS).performClick()
         composeRule.activityRule.scenario.recreate()
         awaitTag(TAG_EMPTY_BROWSE)
-        composeRule.onNodeWithTag(TAG_TERMS_DIALOG).assertDoesNotExist()
+        assertEquals(AppTheme.LIGHT, PlayerSettings.appTheme)
+        assertEquals(PlayerBackgrounds.MATCHED, PlayerSettings.playerBackground)
     }
 
     @Test

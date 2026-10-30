@@ -52,18 +52,30 @@ val LightGreenPalette = Palette(
 // changes — which lets the 190-odd existing `Bg` / `Panel` / … call sites stay untouched.
 private val activePalette = mutableStateOf(DarkGreenPalette)
 
+/** Set while the player shows a background, whatever the theme: see [overridePalette]. */
+private val paletteOverride = mutableStateOf<Palette?>(null)
+
 /** The full active palette, for the places that need more than one role (Theme.kt). */
-val currentPalette: Palette get() = activePalette.value
+val currentPalette: Palette get() = paletteOverride.value ?: activePalette.value
 
 /** Applies [theme] app-wide. Called by [com.quran.learnedplayer.player.PlayerSettings]. */
 fun applyAppTheme(theme: AppTheme) {
     activePalette.value = if (theme == AppTheme.LIGHT) LightGreenPalette else DarkGreenPalette
 }
 
-val Bg: Color get() = activePalette.value.bg
-val Panel: Color get() = activePalette.value.panel
-val TextPrimary: Color get() = activePalette.value.textPrimary
-val TextMuted: Color get() = activePalette.value.textMuted
-val Accent: Color get() = activePalette.value.accent
-val AccentGreen: Color get() = activePalette.value.accentGreen
-val Border: Color get() = activePalette.value.border
+/**
+ * Puts [palette] in place of the chosen theme until it's called again with null. The player uses
+ * it while a background is showing: light text on a dark scene reads whatever the theme, and
+ * the light theme's dark text would not.
+ */
+fun overridePalette(palette: Palette?) {
+    paletteOverride.value = palette
+}
+
+val Bg: Color get() = currentPalette.bg
+val Panel: Color get() = currentPalette.panel
+val TextPrimary: Color get() = currentPalette.textPrimary
+val TextMuted: Color get() = currentPalette.textMuted
+val Accent: Color get() = currentPalette.accent
+val AccentGreen: Color get() = currentPalette.accentGreen
+val Border: Color get() = currentPalette.border

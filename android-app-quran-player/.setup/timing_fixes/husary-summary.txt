@@ -1,0 +1,81 @@
+[husary] loaded 6236 ayahs from cache
+6217 recordings
+last word: voice end - onset = 1001 ms + 304 ms per letter (fitted)
+
+Finding the last word's start, scored on ayahs whose last word QUL timed (error in ms):
+       letters: {'found': 1.0, 'p50': 320, 'p90': 760, 'within150': 0.247, 'within300': 0.493, 'useful': 0.247, 'of': 679}
+  fit-snap-gap2-end-120: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.193, 'within300': 0.359, 'useful': 0.193, 'of': 679}
+  fit-snap-gap2-end-200: {'found': 1.0, 'p50': 420, 'p90': 1020, 'within150': 0.193, 'within300': 0.356, 'useful': 0.193, 'of': 679}
+           fit: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.191, 'within300': 0.359, 'useful': 0.191, 'of': 679}
+  fit-snap-gap2-mid-60: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.191, 'within300': 0.359, 'useful': 0.191, 'of': 679}
+  fit-snap-gap2-mid-200: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.191, 'within300': 0.359, 'useful': 0.191, 'of': 679}
+  fit-snap-gap2-end-60: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.191, 'within300': 0.359, 'useful': 0.191, 'of': 679}
+  fit-snap-gap2-mid-120: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.19, 'within300': 0.356, 'useful': 0.19, 'of': 679}
+  fit-snap-dip3-60: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.187, 'within300': 0.362, 'useful': 0.187, 'of': 679}
+  fit-snap-dip6-60: {'found': 1.0, 'p50': 420, 'p90': 1000, 'within150': 0.187, 'within300': 0.361, 'useful': 0.187, 'of': 679}
+  fit-snap-dip3-120: {'found': 1.0, 'p50': 420, 'p90': 1020, 'within150': 0.183, 'within300': 0.356, 'useful': 0.183, 'of': 679}
+  fit-snap-dip6-120: {'found': 1.0, 'p50': 420, 'p90': 1020, 'within150': 0.181, 'within300': 0.358, 'useful': 0.181, 'of': 679}
+  fit-snap-dip3-200: {'found': 1.0, 'p50': 420, 'p90': 1020, 'within150': 0.168, 'within300': 0.362, 'useful': 0.168, 'of': 679}
+  fit-snap-dip6-200: {'found': 1.0, 'p50': 420, 'p90': 1020, 'within150': 0.168, 'within300': 0.359, 'useful': 0.168, 'of': 679}
+  near-dip3-35: {'found': 0.973, 'p50': 380, 'p90': 980, 'within150': 0.098, 'within300': 0.386, 'useful': 0.096, 'of': 679}
+  near-dip3-50: {'found': 0.984, 'p50': 380, 'p90': 1000, 'within150': 0.097, 'within300': 0.382, 'useful': 0.096, 'of': 679}
+  near-gap2-mid-35: {'found': 0.49, 'p50': 620, 'p90': 1430, 'within150': 0.093, 'within300': 0.27, 'useful': 0.046, 'of': 679}
+  near-gap2-mid-50: {'found': 0.649, 'p50': 820, 'p90': 2250, 'within150': 0.07, 'within300': 0.204, 'useful': 0.046, 'of': 679}
+  near-dip6-35: {'found': 0.828, 'p50': 440, 'p90': 1180, 'within150': 0.05, 'within300': 0.343, 'useful': 0.041, 'of': 679}
+  near-dip6-50: {'found': 0.872, 'p50': 480, 'p90': 1340, 'within150': 0.047, 'within300': 0.326, 'useful': 0.041, 'of': 679}
+  near-gap2-end-35: {'found': 0.485, 'p50': 620, 'p90': 1420, 'within150': 0.052, 'within300': 0.237, 'useful': 0.025, 'of': 679}
+  near-gap2-end-50: {'found': 0.639, 'p50': 860, 'p90': 2280, 'within150': 0.039, 'within300': 0.18, 'useful': 0.025, 'of': 679}
+        sliver: {'found': 1.0, 'p50': 3910, 'p90': 5990, 'within150': 0.0, 'within300': 0.001, 'useful': 0.0, 'of': 679}
+chosen: letters
+
+husary: 6217 ayahs: 1410 fine, 4788 repaired (930 last words, 4586 first words), 0 shifted, 19 dropped
+
+Dropped, by reason:
+     17  first word ms:  3:65 (first word +2090 ms from the voice); 3:66 (first word +1660 ms from the voice); 3:70 (first word +2330 ms from the voice); 3:71 (first word +2270 ms from the voice)
+      1  words start inside:  2:230 (1 words start inside a silence)
+      1  last word starts at:  55:45 (last word starts at 15480 ms, voice ends 12720 ms)
+
+Shifted:
+
+Last words moved (largest first):
+      6:20  35490 -> 26320 ms
+      7:70  34690 -> 25780 ms
+     33:60  39410 -> 30740 ms
+     27:90  32090 -> 23780 ms
+     33:20  39330 -> 31140 ms
+     28:13  38010 -> 29900 ms
+     28:10  37810 -> 29880 ms
+     33:40  37050 -> 29300 ms
+     41:22  35930 -> 28280 ms
+     24:50  30930 -> 23300 ms
+     22:60  32610 -> 25000 ms
+     66:11  55970 -> 48360 ms
+     42:40  35290 -> 27700 ms
+     24:20  22210 -> 14640 ms
+     6:160  36570 -> 29200 ms
+     28:50  46290 -> 39020 ms
+     3:133  26930 -> 19680 ms
+      2:30  55530 -> 48440 ms
+      9:23  51410 -> 44320 ms
+     51:30  21970 -> 14900 ms
+
+Dropped:
+     2:230  1 words start inside a silence
+      3:65  first word +2090 ms from the voice
+      3:66  first word +1660 ms from the voice
+      3:70  first word +2330 ms from the voice
+      3:71  first word +2270 ms from the voice
+     3:119  first word +1660 ms from the voice
+     4:109  first word +1600 ms from the voice
+     4:171  first word +2470 ms from the voice
+      5:15  first word +2470 ms from the voice
+      5:19  first word +2350 ms from the voice
+     6:145  first word +2560 ms from the voice
+     10:84  first word +1610 ms from the voice
+     11:76  first word +1890 ms from the voice
+     19:43  first word +1720 ms from the voice
+     19:44  first word +1560 ms from the voice
+     19:45  first word +1700 ms from the voice
+     20:83  first word +2120 ms from the voice
+     25:30  first word +2020 ms from the voice
+     55:45  last word starts at 15480 ms, voice ends 12720 ms

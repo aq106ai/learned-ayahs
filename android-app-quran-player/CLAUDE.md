@@ -29,8 +29,10 @@ those files (stream or `filesDir/audio/wbw/<folder>/`); Word-by-word playback pl
 out of the ayah reciter's MP3 (see Playback modes). Do not mix word files with ayah reciters —
 they are different recordings. Only add a WordReciter that has a complete word-file set.
 
-**The ayah reciter list is short on purpose, and there is no estimated word timing.** Highlighting
-inside an ayah MP3 is only honest with real per-word segments for that exact recording, so an
+**The ayah reciter list is short on purpose, and word timings are QUL's, checked against the
+recording** (the one exception, an ayah's last word, is measured and scored — see the timing
+audit under `assets/`). Highlighting inside an ayah MP3 is only honest with real per-word segments
+for that exact recording, so an
 ayah reciter may only be added if QUL has segment data for it *and* everyayah's audio is the audio
 those timings describe. Five ship: Maher, Abdul Basit, Al-Husary, and — added in 1.9.0 — Sudais
 and Shuraym.
@@ -114,7 +116,13 @@ single shared state flow.
   revision gap and surah-intro logic.
 - **`service/PlayerStateHolder.kt`** — a singleton `StateFlow<PlayerUiState>` that is the single
   source of truth bridging service ↔ UI. The service pushes updates; the ViewModel/UI observe.
-  `attachService`/`detachService` tracks whether the service is live (`isServiceReady()`).
+  `attachService`/`detachService` tracks whether the service is live; `isServiceReady()` is
+  true only once it has also *loaded a queue* (`PlaybackService.hasLoadedQueue`). It registers in
+  onCreate but loads when its first command arrives, and the launch-time load restores
+  `START_FROM_LAST_POSITION`, read when it loads: a Next pressed while the service starts moves
+  the preview (persisted at once), and the load then picks that up instead of undoing it.
+  `PlayerDefaultScreenTest.the_last_played_ayah_is_remembered_across_a_restart` taps Next twice
+  straight after launch and caught this, intermittently, as "Ayah 2".
 - **`player/PlayerViewModel.kt`** — `AndroidViewModel` the UI calls. When the service is ready it
   forwards to it via `PlayerStateHolder`; when not, it maintains a **preview** queue locally so the
   UI works before playback starts. It also drives library loading, offline downloads, and loading
@@ -153,15 +161,26 @@ single shared state flow.
 ### Sources and disclaimer
 
 `ui/common/SourcesAndDisclaimer.kt` lists where every piece of Qur'an content comes from and
-holds the disclaimer. `AppNav` shows it as `TermsDialog` before the intro whenever
-`PlayerSettings.acceptedTermsVersion < TERMS_VERSION`, so raising `TERMS_VERSION` asks everyone
-again. The web app shows the same text (`web-app/static/js/views/terms.js`): change both together.
-`AppReset` pre-accepts it for the instrumented tests.
+holds the disclaimer. It is always in Settings (Sources and disclaimer) and a tap away from the
+intro's last page (`SourcesDialog`). The web app shows the same text
+(`web-app/static/js/views/terms.js`): change both together.
+
+**Nothing has to be agreed to before using the app.** Until 1.12.0 a `TermsDialog` blocked the
+app behind "I agree" (re-asked whenever a `TERMS_VERSION` rose). It was removed on purpose: the
+content's licences (Tanzil, Quran.com, QUL, SIL OFL; the photos are CC0) require the sources to be
+*credited*, which an always-reachable Sources screen does, not accepted; and a click-through gate
+in front of a free Qur'an app put a legal-looking wall before the first ayah for no protection
+the disclaimer in Settings, the store listing and the repository licence don't already give.
+Don't bring it back without a concrete reason (a licence that requires assent, say).
+
+**The intro lets the user choose how the app looks** (`IntroDialog` page 2: theme and player
+background, applied as they are picked). Both are ordinary settings, changeable later in Settings
+and the player's background sheet.
 
 ### Share as video (`video/`, `ui/video/`)
 
 "Make a video" turns a range of ayahs into an MP4, entirely on the phone: `VideoMakerScreen` (from
-the film icon in the player header and on a surah's page) → `VideoExporter`. The pieces:
+the player's Share button → Video, and the film icon on a surah's page) → `VideoExporter`. The pieces:
 
 - **Audio first, and the timeline comes from it.** `AudioPipeline` decodes each clip (the chosen
   reciter's everyayah MP3, cached in the player's own `filesDir/audio/<folder>/`), converts it to
@@ -194,18 +213,33 @@ the film icon in the player header and on a surah's page) → `VideoExporter`. T
   slow zoom (`BackgroundScenes`).
 - **The translation** in videos is Saheeh International (`assets/translation_en_saheeh.json`, from
   Tanzil.net via the `quran-json` npm package, written by the same script). It is named in the
-  sources dialog; adding it raised `TERMS_VERSION` to 2.
+  sources and disclaimer.
 - **Credits** (reciter, translation, word meanings, photographer) are off the picture by default:
   the video shows only the surah:ayah reference, and the sources travel in the text it's shared
   with (`VideoMakerViewModel.caption`). The "Credits on video" toggle (`VideoRequest.credits`)
   prints them under the card again, with "Made with Learned Ayahs" at the foot.
 - **Saving needs no storage permission**: MediaStore (Movies/Learned Ayahs) on Android 10+, the
   SAF "save as" picker below that; sharing goes through the `FileProvider` (`res/xml/shared_files.xml`,
-  cache `videos/` only).
+  cache `videos/` and `images/` only).
+
+**The player shows the same backgrounds** (`ui/PlayerBackground.kt`), opt-in from the background
+button in its playback panel (`ui/player/BackgroundSheet.kt`); `PlayerSettings.playerBackground` is
+`plain` (the default: the player looks as it always did), `matched`, `photos`, or one theme key.
+`LiveBackground` (pure, unit-tested) applies `BackgroundPlan`'s hold and crossfade on a running
+clock. The scene is drawn by `BackgroundScenes` at half resolution and scaled up (a full-screen
+still is ~10 MB), moves only while playing, and only asks for a photo once it's downloaded. While a
+background shows, `overridePalette` makes the player's colours the dark palette whatever the theme,
+so the text stays light on the scene. The whole-ayah translation (`showAyahTranslation`, off by
+default, turned on by choosing a background) sits under the Arabic in `WholeAyahReader`.
+**Share** in the player header offers Video (the maker set up like the player, via
+`VideoOptions.likeThePlayer` and the route's `fromPlayer`) or an image (`ui/player/ShareImage.kt`:
+`VideoExporter.still` at the current position, cache `images/`, shared with the same caption).
 
 `VideoExportTest` makes a real MP4 from the test suite's own Al-Ikhlas recordings (no network) and
 checks its tracks, length and frame count. `VideoSamples` (not a test; `video-samples.yml` runs it)
-draws every background and a real video for a person to review, into `store/raw/video-maker/`.
+draws every background and a real video for a person to review, into `store/raw/video-maker/`, and
+`PlayerBackgroundShots` adds screenshots of the player with each kind of background.
+`PlayerBackgroundTest` covers the sheet, the translation and both Share paths.
 
 ### Navigation
 
@@ -252,6 +286,41 @@ that ayah isn't in the learned list.
   unaffected (`WordSync` asks which word is active at time *t*), but anything that *cuts* audio on
   a segment has to use the next word's onset as the boundary, which is what
   `.setup/make_recitation_corpus.py` does when it splices a deliberate mistake.
+
+  **QUL's timings can be well-formed and still wrong for everyayah's recording**, which the
+  shape checks above can't see. `.setup/audit_timings.py <reciter>` measures every recording's
+  loudness and judges QUL's cleaned timings (`make_timings.generate`, not the asset, so re-running
+  it gives the same verdicts) into `.setup/timing_fixes/<reciter>.json`. `timing-audit.yml` runs
+  it for all five reciters (this environment can't reach everyayah or QUL), regenerates each
+  asset with `make_timings.py`, which applies the verdicts, and commits both; CI fails if an asset
+  doesn't carry its verdicts (`apply_timing_fixes.py --check`). What it found, every reciter:
+
+  - **The last word timed in the trailing silence** — the "highlight never reaches the last word"
+    bug, ~900 ayahs per reciter. QUL's last segment is a 20-110 ms sliver ~50 ms before the end of
+    the file, with the real last word inside the segment before it, so Word by word also played
+    the last two words as one. Its start is *estimated*: the span between the word before's onset
+    and the measured end of the voice, split by the two words' letters (or, where it scores
+    better, the reciter's fitted last-word duration snapped to a loudness dip). **This is the one
+    place a word boundary is not QUL's.** Every candidate is scored on the ayahs whose last word
+    QUL did time, with that onset hidden, against simply leaving the sliver; the run fails rather
+    than write repairs unless the best beats it clearly. Measured: Maher within 160 ms for half,
+    460 ms for nine in ten (Husary, the slowest, 320/760 ms) where the sliver is out by ~1.5 s
+    (Husary ~4 s). Splitting at loudness dips alone scored *worse* than the letters — stops and
+    nasals inside a word dip as deeply as the gap between words — so don't "improve" it that way
+    without the scores.
+  - **The first word over the opening silence** — QUL starts it at 0, or as a 70 ms blip there,
+    or a little after the voice; it is moved to where the voice starts (more than 1.5 s late,
+    e.g. Maher's 4:175 or 3:4, means the opening is misaligned, and the ayah is dropped).
+  - **A constant offset** — shifted, only when both ends agree.
+  - **Timings that don't fit** — a recording of another length (2:220), a word starting deep
+    inside a long silence — dropped: 19 (Husary) to 221 (Shuraym) ayahs, which is why the
+    coverage floor is 5900.
+
+  Loudness is weak evidence, and the audit's own rules were wrong three times before the counts
+  made sense; look at `inspect_timings.py` output for a few dropped ayahs before believing a new
+  rule. In particular **QUL's segment ends are not evidence** (see above), a click before the
+  recitation is not the voice starting, and a word QUL starts a few hundred ms before the voice
+  returns from a pause is slack, not a misfit.
 
 ### Recite & review
 
@@ -512,7 +581,12 @@ Two independent axes:
   service plays the ayah reciter's MP3 and cuts each word at the *next* word's onset
   (`loadAyahWordSeek` / `maybeParkAtWordEnd` — QUL's segment ends are too early to cut on); with
   *Word clips* on, ExoPlayer instead holds that ayah's **word files** (`loadWordPlaylist`). An
-  ayah without validated timings has nothing to cut on and plays whole. The reader is
+  ayah without validated timings has nothing to cut on and plays whole. **While cutting words the
+  progress ticker wakes at the current word's cut point** (`nextTickDelay`), not every 250 ms,
+  and carrying on to the next word takes the word from the audio position, not `index + 1`: with
+  a fixed tick a word ran up to a quarter second into the next, and through a run of short words
+  the counter fell behind the audio, so the highlight lagged and a remote's Next stepped from a
+  stale word ("words stuck in the middle"). The reader is
   `WordByWordView` only (no whole-ayah toggle). Next/Previous step words; running off either end
   of the ayah loads the next/previous ayah's words. Surah intros are skipped. Recite & review
   plays word files via `WordAudioPlayer` regardless.

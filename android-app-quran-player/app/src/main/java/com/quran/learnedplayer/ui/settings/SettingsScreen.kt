@@ -69,6 +69,7 @@ import kotlinx.coroutines.withContext
 
 const val TAG_SETTINGS_SCREEN = "settings_screen"
 const val TAG_WORD_TRANSLATIONS_TOGGLE = "word_translations_toggle"
+const val TAG_SETTINGS_AYAH_TRANSLATION = "settings_ayah_translation_toggle"
 const val TAG_SWIPE_TO_NAVIGATE_TOGGLE = "swipe_to_navigate_toggle"
 const val TAG_TAP_TO_ADVANCE_TOGGLE = "tap_to_advance_toggle"
 const val TAG_DOWNLOAD_OFFLINE = "download_offline"
@@ -91,6 +92,7 @@ fun SettingsScreen(
     val state by viewModel.uiState.collectAsState()
     val reciter by viewModel.reciter.collectAsState()
     val showTranslations by viewModel.showWordTranslations.collectAsState()
+    val showAyahTranslation by PlayerSettings.showAyahTranslationFlow.collectAsState()
     val appTheme by PlayerSettings.appThemeFlow.collectAsState()
     val swipeToNavigate by viewModel.swipeToNavigate.collectAsState()
     val tapToAdvance by viewModel.tapToAdvance.collectAsState()
@@ -231,6 +233,31 @@ fun SettingsScreen(
                 Switch(
                     checked = showTranslations,
                     onCheckedChange = { viewModel.setShowWordTranslations(it) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Panel,
+                        checkedTrackColor = AccentGreen,
+                    ),
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { PlayerSettings.showAyahTranslation = !showAyahTranslation }
+                    .padding(top = 12.dp)
+                    .testTag(TAG_SETTINGS_AYAH_TRANSLATION),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Ayah translation", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = "Show the whole ayah's English meaning (Saheeh International) under it in the player.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted,
+                    )
+                }
+                Switch(
+                    checked = showAyahTranslation,
+                    onCheckedChange = { PlayerSettings.showAyahTranslation = it },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Panel,
                         checkedTrackColor = AccentGreen,

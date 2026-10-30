@@ -455,7 +455,8 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         // position with no surah override is what actually restores it — regardless of mode, and
         // even if that ayah isn't in the learned list. Passing uiState's own (possibly wrong,
         // best-effort) surah here would override that derivation with the wrong surah.
-        startPlaybackService(autoPlay = false, startGlobal = PlayerSettings.lastGlobalId, surah = 0)
+        // Resolved by the service when it loads, so a Next pressed while it starts isn't undone.
+        startPlaybackService(autoPlay = false, startGlobal = PlaybackService.START_FROM_LAST_POSITION, surah = 0)
     }
 
     private fun playWithService() {
@@ -522,7 +523,10 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             PlayerStateHolder.next()
             return
         }
-        val state = uiState.value
+        // The holder's own state, not this ViewModel's copy of it: the copy catches up
+        // asynchronously, so a second quick press could read the index from before the first
+        // and step to the same ayah again — two taps of Next would move only one ayah.
+        val state = PlayerStateHolder.uiState.value
         if (state.tracks.isEmpty()) return
         // Next always steps one ayah — matching swipe/tap. FULL_SURAH is the one case a queue
         // can run out mid-traversal (repeat SURAH wraps below instead); running past the last
@@ -567,7 +571,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             PlayerStateHolder.previous()
             return
         }
-        val state = uiState.value
+        val state = PlayerStateHolder.uiState.value // see next()
         if (state.tracks.isEmpty()) return
         if (state.mode == PlaybackMode.FULL_SURAH && state.repeatMode != RepeatMode.SURAH &&
             state.currentIndex <= 0
@@ -587,7 +591,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
      *  ayah going forward, or the last ayah going backward, same convention as the service. */
     private fun navigateSurahPreview(forward: Boolean) {
         val master = PlaylistStore.latest?.tracks ?: return
-        val state = uiState.value
+        val state = PlayerStateHolder.uiState.value // see next()
         val curSurah = state.currentTrack?.surah
             ?: QueueBuilder.learnedSurahs(master).firstOrNull()
             ?: return

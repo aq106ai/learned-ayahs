@@ -1,7 +1,7 @@
 // The player: an immersive ayah reader with playback controls, the surah navigator and the
 // playlist as side panels. Port of ui/PlayerScreen.kt, ui/PlaylistScreen.kt and ui/AyahTextSection.kt.
 
-import { formatTime, h, icon } from '../lib/dom.js';
+import { dialog, formatTime, h, icon, toast } from '../lib/dom.js';
 import {
   PLAYBACK_MODE_LABELS,
   PlaybackMode,
@@ -12,12 +12,18 @@ import {
   surahName,
   trackTitle,
 } from '../core/quran.js';
-import { RECITERS } from '../core/reciters.js';
+import { RECITERS, reciterFromKey } from '../core/reciters.js';
 import { REVISION_DELAY_CHOICES } from '../state/store.js';
 import { learnedCountsBySurah, matchSurahs } from './common.js';
 import { wordReader } from './wordReader.js';
+import { playerBackground } from './playerBackground.js';
+import { download } from './video.js';
+import { photoSubjects, thumbUrl, translation } from '../video/data.js';
+import { ASPECTS, VideoExporter, caption, fileName } from '../video/exporter.js';
+import { PlayerBackgrounds } from '../video/plan.js';
+import { BackgroundScenes, THEMES, variant } from '../video/scenes.js';
 
-export function playerView({ store, engine, go }) {
+export function playerView({ store, engine, server, go }) {
   let overlay = false; // word-by-word overlay in the whole-ayah modes
   let reader = null;
   let expanded = false;
@@ -42,7 +48,10 @@ export function playerView({ store, engine, go }) {
     meta,
     h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Playlist', 'data-testid': 'open-playlist', onClick: () => openPlaylistPanel() }, icon('layers')),
     wordToggle,
+    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Background', 'data-testid': 'open-background', onClick: () => openBackgroundDialog() }, icon('image')),
+    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Share this ayah', 'data-testid': 'share', onClick: () => openShareDialog() }, icon('share')),
   );
+  const background = playerBackground({ engine, store });
 
   // -- reader ------------------------------------------------------------------------------
 
@@ -87,11 +96,15 @@ export function playerView({ store, engine, go }) {
       }),
     );
     const t = engine.track;
+    // The whole ayah's meaning (Saheeh International), when it's on.
+    const meaning = t && store.settings.showAyahTranslation ? h('p', { class: 'ayah-translation', 'data-testid': 'ayah-translation' }) : null;
+    if (meaning) translation(t.surah, t.ayah).then((text) => { meaning.textContent = text ?? ''; fitAyah(); }).catch(() => {});
     return h(
       'div',
       {},
       engine.introLabel ? h('div', { class: 'intro-label', 'data-testid': 'intro-label' }, engine.introLabel) : null,
       words.length ? flow : h('p', { class: 'muted', style: { textAlign: 'center' } }, 'Loading ayah text…'),
+      meaning,
       t ? h('div', { class: 'ayah-caption' }, `${surahName(t.surah)} · Ayah ${t.ayah}`) : null,
     );
   }
@@ -382,6 +395,134 @@ export function playerView({ store, engine, go }) {
     openPanel('end', 'Playlist', body);
   }
 
+  // -- background and share -----------------------------------------------------------------
+
+  async function openBackgroundDialog() {
+    const subjects = await photoSubjects();
+    const current = () => store.settings.playerBackground;
+    const pick = (value) => {
+      // A background is the look of a shared video, translation included; turning one on brings
+      // the translation with it. It can be switched off again just below.
+      if (current() === PlayerBackgrounds.PLAIN && value !== PlayerBackgrounds.PLAIN) store.setSetting('showAyahTranslation', true);
+      store.setSetting('playerBackground', value);
+      draw();
+    };
+    const thumbs = new BackgroundScenes(72, 128);
+    // Drawn once each: every pick redraws the dialog, and repainting dozens of scenes each time
+    // stalled it on a slow phone. The same canvas is simply moved into the new row.
+    const drawnThumbs = new Map();
+    const drawnThumb = (key) => {
+      if (!drawnThumbs.has(key)) {
+        const c = h('canvas', { width: 72, height: 128 });
+        thumbs.draw(c.getContext('2d'), variant(key, 0), 2000);
+        drawnThumbs.set(key, c);
+      }
+      return drawnThumbs.get(key);
+    };
+    const body = h('div', { class: 'stack', 'data-testid': 'background-dialog' });
+    function draw() {
+      const tile = (title, value, image) => h('button', {
+        class: `theme-tile small${current() === value ? ' selected' : ''}`, type: 'button', 'aria-pressed': String(current() === value),
+        'data-testid': `background-${value}`, onClick: () => pick(value),
+      }, h('span', { class: 'theme-pic' }, image), h('span', { class: 'theme-name' }, title));
+      body.replaceChildren(
+        h('div', { class: 'chips' },
+          chip('Plain', current() === PlayerBackgrounds.PLAIN, () => pick(PlayerBackgrounds.PLAIN), 'background-plain'),
+          chip('Matched scenes', current() === PlayerBackgrounds.MATCHED, () => pick(PlayerBackgrounds.MATCHED), 'background-matched'),
+          subjects.length ? chip('Matched photos', current() === PlayerBackgrounds.PHOTOS, () => pick(PlayerBackgrounds.PHOTOS), 'background-photos') : null),
+        h('p', { class: 'small muted' }, 'Matched follows what each ayah is about, as in a shared video. Or choose one for every ayah:'),
+        h('div', { class: 'theme-row' }, THEMES.map((t) => tile(t.title, t.key, drawnThumb(t.key)))),
+        subjects.length ? h('div', { class: 'theme-row' }, subjects.map((s) => tile(s.title, s.themeKey, h('img', { src: thumbUrl(s), alt: '', loading: 'lazy' })))) : null,
+        h('label', { class: 'toggle-row' },
+          h('span', { class: 'text' }, h('strong', {}, 'Translation'), h('span', {}, 'Saheeh International, under the whole ayah')),
+          h('input', { class: 'switch', type: 'checkbox', checked: store.settings.showAyahTranslation, 'data-testid': 'background-translation', onChange: (e) => store.setSetting('showAyahTranslation', e.target.checked) })),
+        h('p', { class: 'small muted' }, 'Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons, never people or animals. A moving background uses a little more battery.'),
+      );
+    }
+    draw();
+    await dialog({ title: 'Background', content: body, actions: [{ label: 'Done', value: true, primary: true }] });
+    thumbs.release();
+  }
+
+  async function openShareDialog() {
+    const t = engine.track;
+    if (!t) return;
+    let aspect = 'PORTRAIT';
+    const shapes = h('div', { class: 'chips' });
+    const drawShapes = () => shapes.replaceChildren(...ASPECTS.map((a) => chip(a.ratio, a.key === aspect, () => { aspect = a.key; drawShapes(); }, `share-aspect-${a.key}`)));
+    drawShapes();
+    const status = h('p', { class: 'small muted', 'data-testid': 'share-status' });
+    const content = h('div', { class: 'stack', 'data-testid': 'share-dialog' },
+      h('p', { class: 'small muted' }, 'A video of it recited, or a picture of it as it looks now.'),
+      h('div', { class: 'small muted' }, 'Image shape'), shapes, status);
+    // The word being recited, unless an intro is playing or the ayah hasn't started. With word
+    // clips the position is into the word's own file, not the ayah: use where the word starts.
+    let atMs = null;
+    if (!engine.introLabel) {
+      if (engine.mode === PlaybackMode.WORD_BY_WORD && engine.usesWordClips()) {
+        const start = engine.segments?.[engine.wordIndex]?.[0];
+        if (start != null) atMs = start + 1;
+      } else if (engine.positionMs > 0) {
+        atMs = engine.positionMs;
+      }
+    }
+    let drawing = false;
+    const choice = await dialog({
+      title: 'Share this ayah',
+      content,
+      actions: [
+        { label: 'Video…', value: 'video' },
+        {
+          label: 'Share image', value: 'image', primary: true,
+          onClick: async () => {
+            if (drawing) return false; // a second tap while the first is still drawing
+            drawing = true;
+            status.textContent = 'Drawing the image…';
+            try {
+              await shareImage(t, aspect, atMs);
+              return true;
+            } catch (e) {
+              status.textContent = e.message || "The image couldn't be made.";
+              return false;
+            } finally {
+              drawing = false;
+            }
+          },
+        },
+      ],
+    });
+    if (choice === 'video') go(`/video/${t.surah}/${t.ayah}/player`);
+  }
+
+  async function shareImage(t, aspect, atMs) {
+    const s = store.settings;
+    const bg = s.playerBackground;
+    const request = {
+      surah: t.surah, fromAyah: t.ayah, toAyah: t.ayah, reciter: reciterFromKey(s.reciter), aspect,
+      wordByWord: s.showWordTranslations, fullTranslation: s.showAyahTranslation, opening: false, credits: false,
+      themeKey: bg === PlayerBackgrounds.PLAIN || bg === PlayerBackgrounds.MATCHED || bg === PlayerBackgrounds.PHOTOS ? null : bg,
+      photos: bg === PlayerBackgrounds.PHOTOS || bg.startsWith('photo:'),
+    };
+    const exporter = new VideoExporter({ proxy: Boolean(server?.available) && !s.streamDirect });
+    const shape = ASPECTS.find((a) => a.key === aspect);
+    const canvas = await exporter.still(request, shape.width, atMs);
+    const blob = await (canvas.convertToBlob ? canvas.convertToBlob({ type: 'image/jpeg', quality: 0.92 }) : new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.92)));
+    const name = fileName(request, 'jpg');
+    const file = new File([blob], name, { type: 'image/jpeg' });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], text: caption({ ...request, reciter: request.reciter.key }, request.reciter.displayName) });
+        return;
+      } catch (e) {
+        if (e?.name === 'AbortError') return; // closed the share sheet
+        // NotAllowedError: drawing took long enough that the browser no longer counts the share
+        // as following the tap. Save it instead of doing nothing.
+      }
+    }
+    download(blob, name);
+    toast('Image saved to your downloads.');
+  }
+
   // -- wake lock & keys --------------------------------------------------------------------
 
   async function keepAwake() {
@@ -419,7 +560,14 @@ export function playerView({ store, engine, go }) {
 
   // -- wiring ------------------------------------------------------------------------------
 
-  const el = h('div', { class: 'player' }, head, readerEl, controls);
+  const el = h('div', { class: 'player' }, background.el, head, readerEl, controls);
+  function applyBackground() {
+    const on = store.settings.playerBackground !== PlayerBackgrounds.PLAIN;
+    el.classList.toggle('with-bg', on);
+    // The scene fills the window, and the sidebar and tab bar go translucent over it.
+    document.getElementById('app')?.classList.toggle('scene', on);
+    background.refresh();
+  }
   const offs = [
     engine.on('track', () => {
       lastActive = -2;
@@ -432,8 +580,9 @@ export function playerView({ store, engine, go }) {
       renderState();
     }),
     engine.on('tick', renderTick),
-    store.on((what) => { if (what === 'settings' || what === 'all') { renderReader(); renderState(); } }),
+    store.on((what) => { if (what === 'settings' || what === 'all') { applyBackground(); renderReader(); renderState(); } }),
   ];
+  applyBackground();
   renderReader();
   renderState();
   renderMore();
@@ -447,6 +596,8 @@ export function playerView({ store, engine, go }) {
     destroy() {
       offs.forEach((off) => off());
       reader?.destroy();
+      background.destroy();
+      document.getElementById('app')?.classList.remove('scene');
       closePanel();
       document.removeEventListener('visibilitychange', onVisible);
       document.removeEventListener('keydown', onKey);

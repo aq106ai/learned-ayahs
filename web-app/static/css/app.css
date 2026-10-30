@@ -201,6 +201,74 @@ textarea {
   display: none;
 }
 
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.sidebar-toggle:hover {
+  background: var(--panel);
+  color: var(--text);
+}
+.sidebar-toggle .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Folded down to its icons (main.js applySidebar). */
+.app.collapsed {
+  grid-template-columns: 72px 1fr;
+}
+.app.collapsed .sidebar {
+  padding: 20px 10px;
+  align-items: center;
+}
+.app.collapsed .brand {
+  padding: 4px 0 16px;
+}
+.app.collapsed .brand-name,
+.app.collapsed .nav a span,
+.app.collapsed .sidebar-toggle span,
+.app.collapsed .sidebar-foot {
+  display: none;
+}
+.app.collapsed .nav a {
+  justify-content: center;
+}
+.app.collapsed .sidebar-toggle {
+  margin-top: auto;
+}
+
+/* Over a player background (views/player.js) the scene fills the window, and the sidebar and the
+   tab bar go translucent over it, in the dark colours whatever the theme. */
+.app.scene .sidebar,
+.app.scene .tabbar {
+  z-index: 25;
+  --bg: #0a1710;
+  --bg-2: rgba(0, 0, 0, 0.45);
+  --panel: rgba(255, 255, 255, 0.08);
+  --panel-2: rgba(255, 255, 255, 0.14);
+  --panel-3: rgba(255, 255, 255, 0.18);
+  --text: #e6f4eb;
+  --muted: #b9d3c3;
+  --accent: #27ae60;
+  --accent-2: #ffd666;
+  --accent-ink: #062012;
+  --border: rgba(255, 236, 190, 0.12);
+  --highlight: rgba(255, 214, 102, 0.18);
+  color: var(--text);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
 @media (max-width: 860px) {
   .app {
     grid-template-columns: 1fr;
@@ -1252,4 +1320,184 @@ details.group summary::-webkit-details-marker {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* -- player backgrounds (views/playerBackground.js) --------------------------------------------- */
+.player {
+  position: relative;
+  isolation: isolate;
+}
+.player-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+/* Over a scene the player keeps the dark colours whatever the theme, as a shared video does.
+   Every colour variable is set here: one left out keeps the light theme's value under the dark
+   text (the mode badge's pale --panel-3 did, unreadable). */
+.player.with-bg {
+  --bg: #0a1710;
+  --bg-2: rgba(0, 0, 0, 0.6);
+  --panel: rgba(17, 42, 28, 0.85);
+  --panel-2: rgba(22, 52, 35, 0.85);
+  --panel-3: rgba(27, 61, 42, 0.85);
+  --text: #e6f4eb;
+  --muted: #b9d3c3;
+  --accent: #27ae60;
+  --accent-2: #ffd666;
+  --accent-ink: #062012;
+  --border: rgba(255, 236, 190, 0.18);
+  --danger: #ff6b6b;
+  --warn: #f0b429;
+  --highlight: rgba(255, 214, 102, 0.18);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  background: #000;
+}
+.player.with-bg .player-head,
+.player.with-bg .controls {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: transparent;
+}
+.player.with-bg .reader {
+  margin: 12px;
+  border-radius: 24px;
+  background: rgba(4, 8, 10, 0.46);
+  border: 1px solid rgba(255, 236, 190, 0.18);
+}
+.ayah-translation {
+  max-width: 46em;
+  margin: 18px auto 0;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--text);
+  opacity: 0.92;
+}
+
+/* -- background and video pickers ------------------------------------------------------------- */
+.theme-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+}
+.theme-tile {
+  flex: none;
+  width: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+.theme-tile.small {
+  width: 64px;
+}
+.theme-pic {
+  width: 68px;
+  height: 104px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: 600;
+  border: 3px solid transparent;
+}
+.theme-tile.small .theme-pic {
+  width: 56px;
+  height: 92px;
+}
+.theme-pic img,
+.theme-pic canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.theme-tile.selected .theme-pic {
+  border-color: var(--accent-2);
+}
+.theme-tile.selected .theme-name {
+  color: var(--accent-2);
+}
+.theme-name,
+.theme-sub {
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.theme-sub {
+  color: var(--muted);
+}
+
+/* -- video maker (views/video.js) --------------------------------------------------------------- */
+.video-page .page-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.video-preview {
+  max-height: 420px;
+  max-width: 100%;
+  margin: 0 auto 16px;
+  aspect-ratio: 9 / 16;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.video-preview canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.field.inline {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 120px;
+}
+.btn.block {
+  width: 100%;
+  justify-content: center;
+}
+.caption-text {
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 0.85rem;
+  background: var(--panel-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0;
+}
+
+/* -- welcome (views/intro.js) ----------------------------------------------------------------- */
+.plain-swatch {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(var(--bg-2), var(--bg));
+}
+button.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--accent-2);
+  text-decoration: underline;
+  cursor: pointer;
 }

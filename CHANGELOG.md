@@ -32,11 +32,15 @@ Android 1.11.1 (versionCode 44), which includes 1.11.0 (versionCode 43).
   video shapes. The sources go in the message, as for videos.
 
 ### Fixed
-- **Word highlighting that started early or late, or never reached the last word.** For Maher
-  Al Muaiqly, some ayahs' timings didn't match everyayah's recording: the highlight ran ahead of
-  or behind the voice by up to several seconds, or the last word was timed after the recitation
-  ended. Ayahs out by a constant amount are now shifted to the voice; those that can't be put
-  right show without highlighting rather than with the wrong word lit (Android and web app).
+- **Word highlighting that never reached the last word, or started early or late** (all five
+  reciters, Android and web app). Checked against every recording:
+  - For about 900 ayahs per reciter the timing data put the last word in the silence after the
+    recitation, so the highlight never reached it and Word by word played the last two words as
+    one. Its start is now estimated from the recording and the words' lengths, which is within
+    0.15-0.3 s for half of ayahs, depending on the reciter.
+  - The first word no longer lights up over the silence before the recitation starts.
+  - Ayahs whose timings don't fit the recording at all (19 to 221 per reciter) show without
+    highlighting rather than with the wrong word lit.
 - **Android: words cut mid-word in Play → Word by word, and Next from a remote stepping from the
   wrong word.** With words cut from the ayah recording, a word's end was checked only every
   250 ms and each check moved the word counter on by one, so a word could run into the next and

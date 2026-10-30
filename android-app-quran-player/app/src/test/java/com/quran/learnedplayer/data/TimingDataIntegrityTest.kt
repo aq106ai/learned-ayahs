@@ -44,7 +44,7 @@ class TimingDataIntegrityTest {
                     checked++
                 }
             }
-            assertTrue("${reciter.displayName} shipped almost no timings", checked > 6000)
+            assertTrue("${reciter.displayName} shipped almost no timings", checked > 5900)
         }
     }
 
@@ -104,8 +104,10 @@ class TimingDataIntegrityTest {
 
     @Test
     fun coverage_is_effectively_complete() {
-        // Approximation is gone, so an ayah without timings simply doesn't highlight. Track how
-        // many that is — it should be a rounding error, not a feature gap.
+        // An ayah without timings simply doesn't highlight. Track how many that is — it should be
+        // a rounding error, not a feature gap. Below QUL's own coverage by the ayahs the timing
+        // audit drops because they don't fit everyayah's recording (timing_fixes/; at most 221,
+        // Shuraym, when this was written).
         Reciter.entries.forEach { reciter ->
             var have = 0
             for (surah in 1..114) {
@@ -115,7 +117,7 @@ class TimingDataIntegrityTest {
             }
             assertTrue(
                 "${reciter.displayName} covers only $have/6236 ayahs",
-                have >= 6100,
+                have >= 5900,
             )
         }
     }

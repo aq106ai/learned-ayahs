@@ -29,8 +29,10 @@ those files (stream or `filesDir/audio/wbw/<folder>/`); Word-by-word playback pl
 out of the ayah reciter's MP3 (see Playback modes). Do not mix word files with ayah reciters —
 they are different recordings. Only add a WordReciter that has a complete word-file set.
 
-**The ayah reciter list is short on purpose, and there is no estimated word timing.** Highlighting
-inside an ayah MP3 is only honest with real per-word segments for that exact recording, so an
+**The ayah reciter list is short on purpose, and word timings are QUL's, checked against the
+recording** (the one exception, an ayah's last word, is measured and scored — see the timing
+audit under `assets/`). Highlighting inside an ayah MP3 is only honest with real per-word segments
+for that exact recording, so an
 ayah reciter may only be added if QUL has segment data for it *and* everyayah's audio is the audio
 those timings describe. Five ship: Maher, Abdul Basit, Al-Husary, and — added in 1.9.0 — Sudais
 and Shuraym.
@@ -269,19 +271,39 @@ that ayah isn't in the learned list.
   `.setup/make_recitation_corpus.py` does when it splices a deliberate mistake.
 
   **QUL's timings can be well-formed and still wrong for everyayah's recording**, which the
-  shape checks above can't see: for Maher, some ayahs' first onset sits seconds away from where
-  the voice starts (4:175 by almost 5 s), and some last words are timed after the recitation has
-  ended, so the highlight runs early or late, or never reaches the last word.
-  `.setup/audit_timings.py <reciter>` (run on CI by `timing-audit.yml`, since it downloads every
-  ayah MP3; it commits its verdicts back to the branch) measures each recording's loudness and
-  writes `.setup/timing_fixes/<reciter>.json`: ayahs out by a constant amount get **shifted** to
-  the voice, ayahs that don't fit at all get **dropped**. `make_timings.py` applies the file on
-  every regeneration, and `.setup/apply_timing_fixes.py <reciter>` applies it to the asset as it
-  stands (a shift only while the first onset is still the measured one, so it is never applied
-  twice). Loudness is weak evidence inside an ayah — a stop or a nasal dips like a pause — so the
-  audit only judges where the voice starts and ends and words that begin inside a long silence;
-  don't tighten it into dropping on pause alignment alone (an earlier version dropped two thirds
-  of the Qur'an that way).
+  shape checks above can't see. `.setup/audit_timings.py <reciter>` measures every recording's
+  loudness and judges QUL's cleaned timings (`make_timings.generate`, not the asset, so re-running
+  it gives the same verdicts) into `.setup/timing_fixes/<reciter>.json`. `timing-audit.yml` runs
+  it for all five reciters (this environment can't reach everyayah or QUL), regenerates each
+  asset with `make_timings.py`, which applies the verdicts, and commits both; CI fails if an asset
+  doesn't carry its verdicts (`apply_timing_fixes.py --check`). What it found, every reciter:
+
+  - **The last word timed in the trailing silence** — the "highlight never reaches the last word"
+    bug, ~900 ayahs per reciter. QUL's last segment is a 20-110 ms sliver ~50 ms before the end of
+    the file, with the real last word inside the segment before it, so Word by word also played
+    the last two words as one. Its start is *estimated*: the span between the word before's onset
+    and the measured end of the voice, split by the two words' letters (or, where it scores
+    better, the reciter's fitted last-word duration snapped to a loudness dip). **This is the one
+    place a word boundary is not QUL's.** Every candidate is scored on the ayahs whose last word
+    QUL did time, with that onset hidden, against simply leaving the sliver; the run fails rather
+    than write repairs unless the best beats it clearly. Measured: Maher within 160 ms for half,
+    460 ms for nine in ten (Husary, the slowest, 320/760 ms) where the sliver is out by ~1.5 s
+    (Husary ~4 s). Splitting at loudness dips alone scored *worse* than the letters — stops and
+    nasals inside a word dip as deeply as the gap between words — so don't "improve" it that way
+    without the scores.
+  - **The first word over the opening silence** — QUL starts it at 0, or as a 70 ms blip there,
+    or a little after the voice; it is moved to where the voice starts (more than 1.5 s late,
+    e.g. Maher's 4:175 or 3:4, means the opening is misaligned, and the ayah is dropped).
+  - **A constant offset** — shifted, only when both ends agree.
+  - **Timings that don't fit** — a recording of another length (2:220), a word starting deep
+    inside a long silence — dropped: 19 (Husary) to 221 (Shuraym) ayahs, which is why the
+    coverage floor is 5900.
+
+  Loudness is weak evidence, and the audit's own rules were wrong three times before the counts
+  made sense; look at `inspect_timings.py` output for a few dropped ayahs before believing a new
+  rule. In particular **QUL's segment ends are not evidence** (see above), a click before the
+  recitation is not the voice starting, and a word QUL starts a few hundred ms before the voice
+  returns from a pause is slack, not a misfit.
 
 ### Recite & review
 

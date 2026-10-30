@@ -1,6 +1,7 @@
 package com.quran.learnedplayer
 
 import android.accessibilityservice.AccessibilityService
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick

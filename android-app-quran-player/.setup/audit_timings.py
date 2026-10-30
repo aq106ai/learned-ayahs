@@ -64,6 +64,8 @@ PAUSE_TOLERANCE_MS = 160
 MIN_SHIFT_MS = 150      # a smaller offset isn't worth correcting
 SLIVER_MS = 120         # a last word shorter than this, starting at the file's end, is QUL's artefact
 SLIVER_FROM_END_MS = 200
+IN_SILENCE_MS = 500     # a word starting this far inside a long silence doesn't fit the recording
+FIRST_LATE_MAX_MS = 1500  # a first word later than this after the voice isn't moved
 EDGE_MS = 250           # the last word starts at least this far from the word before and the end
 
 def fetch(url, dest):
@@ -136,7 +138,9 @@ def judge(onsets, voice_start, voice_end, pauses):
     """How well a set of word onsets fits the recording. Pauses are only evidence here, never a
     reason on their own: a dip in loudness inside a word (a stop, a nasal) looks like one too."""
     matched = sum(1 for _, e in pauses if any(abs(o - e) <= PAUSE_TOLERANCE_MS for o in onsets))
-    in_pause = sum(1 for o in onsets[1:] if any(s + 250 < o < e - 250 and e - s >= SILENCE_MS for s, e in pauses))
+    # QUL often starts a word a few hundred ms before the voice comes back after a pause; that is
+    # slack, not a misfit. Deep inside a long silence is.
+    in_pause = sum(1 for o in onsets[1:] if any(s + IN_SILENCE_MS < o < e - IN_SILENCE_MS and e - s >= SILENCE_MS for s, e in pauses))
     lead = onsets[0] - voice_start
     ok = abs(lead) <= LEAD_TOLERANCE_MS and onsets[-1] < voice_end + TAIL_TOLERANCE_MS and in_pause == 0
     return ok, matched, in_pause, lead
@@ -145,6 +149,21 @@ def judge(onsets, voice_start, voice_end, pauses):
 def letters(word):
     """How many letters a word is written with (harakat and Quranic marks don't count)."""
     return max(1, sum(1 for c in word if "\u0621" <= c <= "\u064a" or c in "\u0670\u0671"))
+
+
+def runs_of(mask):
+    """(first frame, end frame) of each run of True in [mask]."""
+    out, i = [], 0
+    while i < len(mask):
+        if mask[i]:
+            j = i
+            while j < len(mask) and mask[j]:
+                j += 1
+            out.append((i, j))
+            i = j
+        else:
+            i += 1
+    return out
 
 
 def gaps_of(mask, start_ms, end_ms, min_frames):
@@ -252,10 +271,14 @@ def measure(key, segments, words, path):
     total = len(db) * FRAME_MS
     # Where the voice starts and ends is taken with a gentler threshold: recitation often fades
     # in and out more quietly than it is recited.
-    gentle = np.flatnonzero(speech_mask(db, share=0.15))
-    if len(gentle) == 0:
+    # A click or a breath before the recitation (a 140 ms blip at 0.1 s opens Abdul Basit's 1:2) is
+    # not the voice starting, so the first stretch has to last 200 ms; the last, 100 ms.
+    stretches = runs_of(speech_mask(db, share=0.15))
+    opening = [r for r in stretches if r[1] - r[0] >= 10]
+    closing = [r for r in stretches if r[1] - r[0] >= 5]
+    if not opening or not closing:
         return {"ayah": key, "segments": segments, "duration_ms": total, "silent": True}
-    first, last = int(gentle[0]), int(gentle[-1]) + 1
+    first, last = opening[0][0], closing[-1][1]
     voice_start, voice_end = first * FRAME_MS, last * FRAME_MS
     faint = np.flatnonzero(speech_mask(db, share=0.05))
     row = {
@@ -288,8 +311,13 @@ def verdict(row, found):
             return "drop", "last word timed in the trailing silence, and its start isn't clear in the recording", {}
         fixes["last_onset"] = {"from": onsets[-1], "to": found}
         onsets[-1] = found
-    if len(segs) >= 2 and onsets[0] == 0 and start > LEAD_TOLERANCE_MS and start < min(onsets[1] - 100, segs[0][1]):
-        fixes["first_onset"] = {"from": 0, "to": start}
+    # The first word starts when the voice does. QUL often starts it at 0 over the recording's
+    # opening silence, or as a 70 ms blip there, and sometimes a little late; much later than the
+    # voice (4:175, 3:4: seconds) means the opening words are misaligned, which this can't mend.
+    lead = onsets[0] - start
+    room = onsets[1] - 100 if len(segs) >= 2 else segs[0][1]
+    if abs(lead) > LEAD_TOLERANCE_MS and lead <= FIRST_LATE_MAX_MS and start < room:
+        fixes["first_onset"] = {"from": onsets[0], "to": start}
         onsets[0] = start
 
     pauses = row["pauses"]

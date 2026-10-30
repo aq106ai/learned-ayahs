@@ -7,8 +7,8 @@
 audit_timings.py compares QUL's timings with everyayah's recording, ayah by ayah, and writes:
 
 - shift: the whole ayah is out by a constant amount (both ends agree); move every segment.
-- first_onset: QUL starts the first word at 0 on a recording that opens with silence; move it to
-  where the voice starts.
+- first_onset: QUL starts the first word over the recording's opening silence (at 0, or as a 70 ms
+  blip there) or a little after the voice; move it to where the voice starts.
 - last_onset: QUL put the last word in the final ~50 ms of the file, after the recitation ended;
   move it to where the recording shows the last word beginning (and end the word before there).
 - drop: the timings don't fit the recording; the ayah shows without highlighting.
@@ -39,9 +39,11 @@ def apply(timings, fixes):
     for key, fix in fixes.get("first_onset", {}).items():
         entry = timings.get(key)
         segs = entry and entry["segments"]
-        if not segs or segs[0][0] != fix["from"] or not fix["to"] < segs[0][1]:
+        room = segs[1][0] if segs and len(segs) > 1 else (segs[0][1] if segs else 0)
+        if not segs or segs[0][0] != fix["from"] or not fix["to"] < room:
             continue
-        segs[0][0] = fix["to"]
+        # A 70 ms blip at 0 moves with its onset; a segment that already ends later keeps its end.
+        segs[0] = [fix["to"], max(segs[0][1], min(fix["to"] + 100, room))]
         counts["first onsets"] += 1
     for key, fix in fixes.get("last_onset", {}).items():
         entry = timings.get(key)

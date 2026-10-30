@@ -1,7 +1,6 @@
 package com.quran.learnedplayer
 
 import android.accessibilityservice.AccessibilityService
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -71,12 +70,14 @@ class PlayerBackgroundTest : BaseAppTest() {
 
         // Drawn off the main thread; then the system's share sheet opens over the app.
         val deadline = System.currentTimeMillis() + 30_000
-        while (System.currentTimeMillis() < deadline && images.listFiles().isNullOrEmpty()) Thread.sleep(250)
-        val picture = images.listFiles()?.singleOrNull()
-        val dialogUp = composeRule.onAllNodesWithTag(TAG_SHARE_DIALOG).fetchSemanticsNodes().isNotEmpty()
+        // The finished picture: it is written under a .part name and renamed when complete.
+        fun finished() = images.listFiles()?.filter { it.name.endsWith(".jpg") }.orEmpty()
+        while (System.currentTimeMillis() < deadline && finished().isEmpty()) Thread.sleep(250)
+        val picture = finished().singleOrNull()
+        // Only files here: once the share sheet is up, the app's screen can't be inspected.
         assertTrue(
             "an image of the ayah is written to share; images/ holds " +
-                "${images.listFiles()?.map { "${it.name} (${it.length()} B)" }}, share dialog still up: $dialogUp",
+                "${images.listFiles()?.map { "${it.name} (${it.length()} B)" }}",
             picture != null && picture.length() > 10_000,
         )
         assertTrue(picture!!.name.endsWith(".jpg"))

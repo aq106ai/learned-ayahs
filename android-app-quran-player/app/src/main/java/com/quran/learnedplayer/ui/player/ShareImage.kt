@@ -49,10 +49,17 @@ object ShareImage {
             dir,
             String.format(Locale.ROOT, "LearnedAyahs_%03d_%03d_%s.jpg", options.surah, options.fromAyah, options.aspect.ratio.replace(':', 'x')),
         )
+        // Written under another name and renamed when complete, so the picture never exists
+        // half-written under the name that is shared.
+        val partial = File(dir, file.name + ".part")
         try {
-            file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, 92, it) }
+            partial.outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, 92, it) }
         } finally {
             bitmap.recycle()
+        }
+        if (!partial.renameTo(file)) {
+            partial.delete()
+            throw java.io.IOException("Couldn't save the picture")
         }
         file
     }

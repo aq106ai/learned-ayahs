@@ -55,6 +55,24 @@ internal object AppReset {
         BookmarksStore.clear()
         PlaylistStore.latest = null
         PlayerStateHolder.resetState()
+        stopPlaybackService(context)
+    }
+
+    /**
+     * The playback service outlives the activity, so one left running by the previous test still
+     * holds that test's queue and position. A Next sent to it steps from there, not from the
+     * position this reset just wrote: PlayerDefaultScreenTest saw two taps go from Ayah 2 to
+     * Ayah 4. Stop it, as a fresh launch would find it; if it won't go in time, at least make
+     * it load again rather than carry on.
+     */
+    private fun stopPlaybackService(context: android.content.Context) {
+        if (!PlayerStateHolder.hasService()) return
+        context.stopService(android.content.Intent(context, com.quran.learnedplayer.service.PlaybackService::class.java))
+        val deadline = android.os.SystemClock.uptimeMillis() + 5_000
+        while (PlayerStateHolder.hasService() && android.os.SystemClock.uptimeMillis() < deadline) {
+            Thread.sleep(50)
+        }
+        PlayerStateHolder.forgetLoadedQueue()
     }
 
     fun wakeAndUnlock() {

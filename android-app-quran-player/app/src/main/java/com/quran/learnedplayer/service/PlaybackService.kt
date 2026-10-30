@@ -595,6 +595,11 @@ class PlaybackService : MediaSessionService() {
     var hasLoadedQueue = false
         private set
 
+    /** See [PlayerStateHolder.forgetLoadedQueue]. */
+    internal fun forgetLoadedQueue() {
+        hasLoadedQueue = false
+    }
+
     /**
      * Builds and loads the queue for [requestedMode]/[requestedRepeat]. [requestedSurah] selects
      * the surah for surah-scoped queues (0 = derive from [startGlobal] / current ayah). Playback

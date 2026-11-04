@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntSize
 import com.quran.learnedplayer.data.AyahMapping
+import com.quran.learnedplayer.ui.theme.applyShownScene
 import com.quran.learnedplayer.video.BackgroundFrame
 import com.quran.learnedplayer.video.BackgroundScenes
 import com.quran.learnedplayer.video.LiveBackground
@@ -86,46 +87,9 @@ fun PlayerBackground(
     var sceneMs by remember { mutableLongStateOf(0L) }
     // Bumped to redraw: read in the draw block, so only drawing is repeated, not composition.
     var frame by remember { mutableLongStateOf(0L) }
-
-    LaunchedEffect(Unit) {
-        var last = SystemClock.uptimeMillis()
-        var shownChoice: String? = null
-        var drawn: BackgroundFrame? = null
-        while (true) {
-            val now = SystemClock.uptimeMillis()
-            wantedNow?.let { (forChoice, key) ->
-                // A background the user has just picked shows at once; the ayahs' own changes wait.
-                live.want(key, now, immediately = shownChoice != null && forChoice != shownChoice)
-                shownChoice = forChoice
-            }
-            val fading = live.at(now)?.let { it.fade < 1f } == true
-            if (animatingNow || fading) {
-                withFrameMillis { }
-                val t = SystemClock.uptimeMillis()
-                if (t - last >= FRAME_MS) {
-                    if (animatingNow) sceneMs += t - last
-                    last = t
-                    drawn = live.at(t)
-                    frame = t
-                }
-            } else {
-                // Paused and settled: redraw only when there's something new to show.
-                val shown = live.at(now)
-                if (shown != drawn) {
-                    drawn = shown
-                    frame = now
-                }
-                delay(IDLE_CHECK_MS)
-                last = SystemClock.uptimeMillis()
-            }
-        }
-    }
-
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    val scenes = remember(size) {
-        if (size.width > 1 && size.height > 1) BackgroundScenes(size.width / 2, size.height / 2) else null
-    }
-    DisposableEffect(scenes) { onDispose { scenes?.release() } }
+    // The last picture, so a moment with nothing new to draw keeps the scene up instead of the
+    // flat page colour. The published key is the scene whose colours the rest of the app follows.
+    val held = remember { HeldScene() }
 
     // Worked out once per scene, not per frame: it checks the photo's file on disk, which the
     // draw block (on the main thread, ~30 times a second) shouldn't. A photo is only ever asked
@@ -140,17 +104,73 @@ fun PlayerBackground(
         }
     }
 
+    LaunchedEffect(Unit) {
+        var last = SystemClock.uptimeMillis()
+        var shownChoice: String? = null
+        var drawn: BackgroundFrame? = null
+        while (true) {
+            val now = SystemClock.uptimeMillis()
+            wantedNow?.let { (forChoice, key) ->
+                // A background the user has just picked shows at once; the ayahs' own changes wait.
+                live.want(key, now, immediately = shownChoice != null && forChoice != shownChoice)
+                shownChoice = forChoice
+            }
+            val shownNow = live.at(now)
+            if (shownNow != null) {
+                held.frame = shownNow
+                if (shownNow.current != held.key) {
+                    val crossfade = held.key != null
+                    held.key = shownNow.current
+                    applyShownScene(sceneFor(shownNow.current), crossfade)
+                }
+            }
+            val fading = shownNow?.let { it.fade < 1f } == true
+            if (animatingNow || fading) {
+                withFrameMillis { }
+                val t = SystemClock.uptimeMillis()
+                if (t - last >= FRAME_MS) {
+                    if (animatingNow) sceneMs += t - last
+                    last = t
+                    drawn = live.at(t) ?: held.frame
+                    frame = t
+                }
+            } else {
+                // Paused and settled: redraw only when there's something new to show.
+                if (shownNow != drawn) {
+                    drawn = shownNow
+                    frame = now
+                }
+                delay(IDLE_CHECK_MS)
+                last = SystemClock.uptimeMillis()
+            }
+        }
+    }
+
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    val sceneW = (size.width / 2).coerceAtLeast(1)
+    val sceneH = (size.height / 2).coerceAtLeast(1)
+    val scenes = remember(sceneW, sceneH, size) {
+        if (size.width > 1 && size.height > 1) BackgroundScenes(sceneW, sceneH) else null
+    }
+    DisposableEffect(scenes) { onDispose { scenes?.release() } }
+
     Canvas(modifier = modifier.onSizeChanged { size = it }.testTag(TAG_PLAYER_BACKGROUND)) {
         frame // redraw on each tick
         val drawer = scenes ?: return@Canvas
-        val shown = live.at(SystemClock.uptimeMillis()) ?: return@Canvas
+        val shown = live.at(SystemClock.uptimeMillis()) ?: held.frame ?: return@Canvas
         drawIntoCanvas { canvas ->
             val native = canvas.nativeCanvas
             native.save()
-            native.scale(size.width.toFloat() / (size.width / 2), size.height.toFloat() / (size.height / 2))
+            native.scale(size.width / sceneW.toFloat(), size.height / sceneH.toFloat())
             shown.previous?.let { drawer.draw(native, sceneFor(it), sceneMs) }
             drawer.draw(native, sceneFor(shown.current), sceneMs, (shown.fade * 255).toInt())
             native.restore()
         }
     }
+}
+
+/** The picture left on screen, and the scene key already handed to the app palette. */
+private class HeldScene {
+    var frame: BackgroundFrame? = null
+    var key: SceneKey? = null
 }

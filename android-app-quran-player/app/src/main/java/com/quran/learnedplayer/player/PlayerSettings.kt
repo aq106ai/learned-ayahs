@@ -8,6 +8,8 @@ import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.data.WordReciter
 import com.quran.learnedplayer.ui.theme.applyAppTheme
+import com.quran.learnedplayer.ui.theme.applyPlayerBackground
+import com.quran.learnedplayer.ui.theme.snapAppearance
 import com.quran.learnedplayer.video.PlayerBackgrounds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -156,7 +158,6 @@ object PlayerSettings {
         _reciter.value = Reciter.fromKey(prefs?.getString(KEY_RECITER, null))
         _showWordTranslations.value = prefs?.getBoolean(KEY_WORD_TRANSLATIONS, true) ?: true
         _appTheme.value = AppTheme.fromKey(prefs?.getString(KEY_APP_THEME, null))
-        applyAppTheme(_appTheme.value)
         _swipeToNavigate.value = prefs?.getBoolean(KEY_SWIPE_TO_NAVIGATE, true) ?: true
         _tapToAdvance.value = prefs?.getBoolean(KEY_TAP_TO_ADVANCE, true) ?: true
         _mode.value = PlaybackMode.fromKey(prefs?.getString(KEY_PLAYBACK_MODE, null))
@@ -172,6 +173,7 @@ object PlayerSettings {
         _seekInsideAyahAudio.value = prefs?.getBoolean(KEY_SEEK_INSIDE_AYAH_AUDIO, false) ?: false
         _useWordClips.value = prefs?.getBoolean(KEY_USE_WORD_CLIPS, false) ?: false
         _playerBackground.value = prefs?.getString(KEY_PLAYER_BACKGROUND, null) ?: PlayerBackgrounds.PLAIN
+        snapAppearance(_appTheme.value, _playerBackground.value)
         _showAyahTranslation.value = prefs?.getBoolean(KEY_AYAH_TRANSLATION, false) ?: false
     }
 
@@ -395,6 +397,7 @@ object PlayerSettings {
         get() = _playerBackground.value
         set(value) {
             _playerBackground.value = value
+            applyPlayerBackground(value)
             prefs?.edit()?.putString(KEY_PLAYER_BACKGROUND, value)?.apply()
         }
 

@@ -3,6 +3,8 @@ package com.quran.learnedplayer.ui
 import android.os.SystemClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,11 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -27,12 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.quran.learnedplayer.data.AyahWord
 import com.quran.learnedplayer.data.WordSync
@@ -45,7 +47,10 @@ import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
 import com.quran.learnedplayer.ui.theme.quranArabicStyle
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 const val TAG_WORD_PAGER = "word_by_word_pager"
 const val TAG_WORD_ARABIC = "word_arabic"
@@ -60,6 +65,12 @@ private const val EDGE_SETTLE_GRACE_MS = 600L
 
 /** How long after a user's swipe to stop the playback-follow from overriding their choice. */
 private const val FOLLOW_GRACE_MS = 800L
+
+/**
+ * A page this close to its snap point is at rest. Anything larger is still between words,
+ * which is the "clipped at the side" state a cancelled snap leaves behind.
+ */
+private const val OFFSET_AT_REST = 0.001f
 
 /**
  * Focused word-by-word reader: one word at a time with its English meaning.
@@ -144,9 +155,13 @@ fun WordByWordView(
         initialPage = firstWordPage,
         pageCount = { contentWords.size + 2 },
     )
-    val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
+    val isDraggedState = pagerState.interactionSource.collectIsDraggedAsState()
+    val isDragged = isDraggedState.value
     var userDragged by remember { mutableStateOf(false) }
-    var followSuppressedUntilMs by remember { mutableLongStateOf(0L) }
+    // Long.MAX_VALUE while the finger owns the pager (including the snap after it lifts).
+    // A finite value is the grace after that snap has actually finished.
+    val followHold = remember { mutableLongStateOf(0L) }
+    val settleGate = remember { SettleGate() }
 
     // A new ayah resets the focus: arriving forwards lands on its first word, backwards on its
     // last, so swiping to and fro across a boundary reads continuously.
@@ -155,11 +170,68 @@ fun WordByWordView(
         val target = if (pendingEdge == EdgeIntent.PREVIOUS) lastWordPage else firstWordPage
         pendingEdge = null
         userDragged = false
+        followHold.longValue = 0L
         pagerState.scrollToPage(target)
     }
 
+    // Keyed only on the finger, never on scroll position: a key that flipped when the snap
+    // started would cancel the very animation that finishes a stuck page.
     LaunchedEffect(isDragged) {
-        if (isDragged) userDragged = true
+        if (isDragged) {
+            userDragged = true
+            followHold.longValue = Long.MAX_VALUE
+            return@LaunchedEffect
+        }
+        if (followHold.longValue != Long.MAX_VALUE) return@LaunchedEffect
+        try {
+            if (!settleGate.busy) {
+                settleGate.busy = true
+                try {
+                    // One frame, then the pager's own fling. Only a snap that stopped short
+                    // is finished here, onto whatever page is already nearest.
+                    pagerState.finishAtNearestPage { !isDraggedState.value }
+                } finally {
+                    settleGate.busy = false
+                }
+            } else {
+                snapshotFlow {
+                    !pagerState.isScrollInProgress &&
+                        abs(pagerState.currentPageOffsetFraction) <= OFFSET_AT_REST
+                }.first { it }
+            }
+        } finally {
+            // Cancelled when the finger goes down again, or when the reader leaves the screen
+            // (an ayah change tears this down). A state write in that second case crashes.
+            if (isActive && !isDraggedState.value && followHold.longValue == Long.MAX_VALUE) {
+                followHold.longValue = SystemClock.elapsedRealtime() + FOLLOW_GRACE_MS
+            }
+        }
+    }
+
+    // A follow scroll cancelled by the next playback tick can leave the same open offset.
+    // This only runs once the finger has let go and nothing else is scrolling.
+    LaunchedEffect(pagerState) {
+        while (isActive) {
+            snapshotFlow {
+                !isDraggedState.value &&
+                    followHold.longValue != Long.MAX_VALUE &&
+                    !settleGate.busy &&
+                    !pagerState.isScrollInProgress &&
+                    abs(pagerState.currentPageOffsetFraction) > OFFSET_AT_REST
+            }.first { it }
+            if (settleGate.busy || isDraggedState.value || pagerState.isScrollInProgress) continue
+            if (abs(pagerState.currentPageOffsetFraction) <= OFFSET_AT_REST) continue
+            settleGate.busy = true
+            try {
+                pagerState.finishAtNearestPage {
+                    !isDraggedState.value && followHold.longValue != Long.MAX_VALUE
+                }
+            } finally {
+                settleGate.busy = false
+            }
+            // The snap did not take. Back off so a no-op recovery cannot spin this loop.
+            if (abs(pagerState.currentPageOffsetFraction) > OFFSET_AT_REST) delay(32)
+        }
     }
 
     val highlightEnabled = state.introLabel == null && (state.isPlaying || state.positionMs > 0L)
@@ -168,21 +240,6 @@ fun WordByWordView(
         highlightEnabled ->
             WordSync.activeWordIndex(state.positionMs, segments, contentWords.size)
         else -> -1
-    }
-
-    // Follow the recitation, but only while it is actually playing: when paused the user is
-    // the one navigating, and chasing a static position would drag them back. The grace window
-    // covers the same race during playback — a swipe seeks, but `activeIndex` still describes
-    // the previous word until the player reports its new position, and without this the reader
-    // would be yanked back to the word it just left.
-    LaunchedEffect(activeIndex, isDragged, state.isPlaying, wordFileMode) {
-        if (isDragged) return@LaunchedEffect
-        if (!wordFileMode && !state.isPlaying) return@LaunchedEffect
-        if (SystemClock.elapsedRealtime() < followSuppressedUntilMs) return@LaunchedEffect
-        val targetPage = if (wordFileMode) state.currentWordIndex + 1 else activeIndex + 1
-        if (targetPage in firstWordPage..lastWordPage && targetPage != pagerState.currentPage) {
-            pagerState.animateScrollToPage(targetPage)
-        }
     }
 
     LaunchedEffect(pagerState.settledPage) {
@@ -210,12 +267,37 @@ fun WordByWordView(
             // Seek / play only for a settle the user caused, so following playback can't re-seek in a loop.
             userDragged -> {
                 userDragged = false
-                followSuppressedUntilMs = SystemClock.elapsedRealtime() + FOLLOW_GRACE_MS
+                followHold.longValue = SystemClock.elapsedRealtime() + FOLLOW_GRACE_MS
                 val wordIndex = page - 1
                 if (wordFileMode) {
                     onPlayWord(wordIndex)
                 }
             }
+        }
+    }
+
+    // Follow stays out from finger-down until the pager is resting, then for [FOLLOW_GRACE_MS].
+    // The snap is still running when the finger lifts, and starting a scroll then cancels it —
+    // the word is left clipped at the side of the page. After the rest, the grace covers the
+    // playback race: a swipe seeks, but the active word still describes the previous word until
+    // the player reports the new position. Keyed on the settled page and the audio word, not on
+    // the offset, so it retries when a settle finishes and does not restart on every frame.
+    // `isDragged` is a key only so a grab cancels an in-flight follow; the hold is still max
+    // at that moment, so the restart does not begin a scroll of its own.
+    LaunchedEffect(activeIndex, pagerState.settledPage, isDragged, state.isPlaying, wordFileMode) {
+        if (isDragged || pagerState.isScrollInProgress) return@LaunchedEffect
+        if (!wordFileMode && !state.isPlaying) return@LaunchedEffect
+        if (pagerState.currentPage == 0 || pagerState.currentPage == edgePage) return@LaunchedEffect
+        val hold = followHold.longValue
+        if (hold == Long.MAX_VALUE) return@LaunchedEffect
+        val wait = hold - SystemClock.elapsedRealtime()
+        if (wait > 0) delay(wait)
+        if (isDraggedState.value || pagerState.isScrollInProgress) return@LaunchedEffect
+        if (SystemClock.elapsedRealtime() < followHold.longValue) return@LaunchedEffect
+        if (pagerState.currentPage == 0 || pagerState.currentPage == edgePage) return@LaunchedEffect
+        val targetPage = if (wordFileMode) state.currentWordIndex + 1 else activeIndex + 1
+        if (targetPage in firstWordPage..lastWordPage && targetPage != pagerState.currentPage) {
+            pagerState.animateScrollToPage(targetPage)
         }
     }
 
@@ -241,41 +323,62 @@ fun WordByWordView(
     val tapToAdvance by PlayerSettings.tapToAdvanceFlow.collectAsState()
 
     Column(modifier = modifier.fillMaxSize()) {
-        // The next word lies to the left, so the pager is laid out RTL and a rightward swipe
-        // advances — the way an Arabic book turns. The page indices are unchanged; only the
-        // direction of travel flips, which also puts the "previous" edge page on the right
-        // where it belongs.
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .testTag(TAG_WORD_PAGER)
-                    .advanceOnTap(enabled = tapToAdvance, label = "Next word") {
-                        stepPage.value?.invoke(1)
-                    },
-            ) {
-                HorizontalPager(
-                    state = pagerState,
-                    userScrollEnabled = swipeToNavigate,
-                    modifier = Modifier.fillMaxSize(),
-                ) { page ->
-                    when (page) {
-                        0 -> EdgePage("Previous ayah →")
-                        edgePage -> EdgePage("← Next ayah")
-                        else -> WordPage(
-                            word = contentWords[page - 1],
-                            isActive = page - 1 == activeIndex,
-                            onSelect = if (!tapToAdvance && wordFileMode) {
-                                {
-                                    val wordIndex = page - 1
-                                    onPlayWord(wordIndex)
-                                }
-                            } else {
-                                null
-                            },
-                        )
+        // The next word lies to the left, so pages run in reverse and a rightward swipe
+        // advances — the way an Arabic book turns. reverseLayout does that without putting the
+        // pager in a right-to-left layout: under RTL the fling velocity keeps the opposite sign
+        // from the finger, so a slow drag past halfway snaps back and a short one jumps ahead.
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .testTag(TAG_WORD_PAGER)
+                .advanceOnTap(enabled = tapToAdvance, label = "Next word") {
+                    stepPage.value?.invoke(1)
+                },
+        ) {
+            // Where the finger lets go decides the page. The default fling treats the finger's
+            // direction as a backward velocity once the page index has flipped, so a drag past
+            // halfway returns to the word it left and a shorter one jumps ahead.
+            val fling = rememberSnapFlingBehavior(remember(pagerState) {
+                object : SnapLayoutInfoProvider {
+                    override fun calculateApproachOffset(velocity: Float) = 0f
+                    override fun calculateSnappingOffset(velocity: Float): Float {
+                        val fraction = pagerState.currentPageOffsetFraction
+                        val page = pagerState.layoutInfo.pageSize.toFloat().coerceAtLeast(1f)
+                        val steps = when {
+                            fraction > 0.5f -> 1
+                            fraction < -0.5f -> -1
+                            else -> 0
+                        }
+                        return (steps - fraction) * page
                     }
+                }
+            })
+            HorizontalPager(
+                state = pagerState,
+                reverseLayout = true,
+                flingBehavior = fling,
+                // The incoming word stays composed. With the default of 0 a slow drag can
+                // drop that page and the snap stops halfway across the screen.
+                beyondBoundsPageCount = 1,
+                userScrollEnabled = swipeToNavigate,
+                modifier = Modifier.fillMaxSize(),
+            ) { page ->
+                when (page) {
+                    0 -> EdgePage("Previous ayah →")
+                    edgePage -> EdgePage("← Next ayah")
+                    else -> WordPage(
+                        word = contentWords[page - 1],
+                        isActive = page - 1 == activeIndex,
+                        onSelect = if (!tapToAdvance && wordFileMode) {
+                            {
+                                val wordIndex = page - 1
+                                onPlayWord(wordIndex)
+                            }
+                        } else {
+                            null
+                        },
+                    )
                 }
             }
         }
@@ -290,6 +393,52 @@ fun WordByWordView(
                 .padding(bottom = 8.dp)
                 .testTag(TAG_WORD_COUNTER),
         )
+    }
+}
+
+/**
+ * One recovery scroll at a time, so a second waiter cannot cancel it and leave the offset open.
+ * A plain flag, not snapshot state: the gesture effect clears it from a `finally` that also
+ * runs while the reader is leaving the screen, and a state write there crashes.
+ */
+private class SettleGate {
+    var busy: Boolean = false
+}
+
+/**
+ * Lets the pager's own fling take the scroll, then finishes on [PagerState.currentPage] if that
+ * fling stopped short. [currentPage] is already the nearest page, so a short drag returns to the
+ * word on screen and a drag past halfway lands fully on the next one.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+private suspend fun PagerState.finishAtNearestPage(stillIdle: () -> Boolean) {
+    // Pointer-up and the pager's own fling are not the same frame. Snapping on the first
+    // idle frame cancels that fling, so a drag that had already passed the next word falls
+    // back to the one it just left, and a short drag can be left wherever the cancelled
+    // fling stopped.
+    var sawScroll = isScrollInProgress
+    withFrameNanos { }
+    if (isScrollInProgress) sawScroll = true
+    if (!sawScroll) {
+        withFrameNanos { }
+        if (isScrollInProgress) sawScroll = true
+    }
+    if (!stillIdle()) return
+    if (sawScroll || isScrollInProgress) {
+        snapshotFlow { isScrollInProgress }.first { !it }
+    }
+    if (!stillIdle() || isScrollInProgress) return
+    val page = currentPage
+    val offset = currentPageOffsetFraction
+    if (abs(offset) > OFFSET_AT_REST) {
+        // currentPage lags the finger until the halfway point. Past that, the nearest page
+        // is the neighbour the offset is already pointing at.
+        val nearest = when {
+            offset > 0.5f -> page + 1
+            offset < -0.5f -> page - 1
+            else -> page
+        }.coerceIn(0, pageCount - 1)
+        animateScrollToPage(nearest)
     }
 }
 
@@ -315,7 +464,7 @@ private fun WordPage(word: AyahWord, isActive: Boolean, onSelect: (() -> Unit)? 
             color = if (isActive) AccentGreen else TextPrimary,
             textAlign = TextAlign.Center,
             // The style already carries RTL direction, so a single word shapes correctly
-            // without flipping the pager itself (which swipes left-to-right).
+            // while the pager itself stays left-to-right and only reverses page order.
             style = quranArabicStyle(64f),
             modifier = Modifier.fillMaxWidth().testTag(TAG_WORD_ARABIC),
         )

@@ -231,6 +231,7 @@ fun VideoMakerScreen(
                         selected = options.themeKey == null,
                         image = null,
                         enabled = !working,
+                        placeholder = tileColor(VideoThemes.theme(VideoThemes.FALLBACK)),
                     ) { viewModel.update { it.copy(themeKey = null) } }
                     if (options.photos) {
                         viewModel.photoSubjects.forEach { subject ->
@@ -240,6 +241,7 @@ fun VideoMakerScreen(
                                 selected = options.themeKey == subject.themeKey,
                                 image = photoThumbnails[subject.key],
                                 enabled = !working,
+                                placeholder = photoTileColor,
                             ) { viewModel.update { it.copy(themeKey = subject.themeKey) } }
                         }
                     } else {
@@ -250,6 +252,7 @@ fun VideoMakerScreen(
                                 selected = options.themeKey == theme.key,
                                 image = thumbnails[theme.key],
                                 enabled = !working,
+                                placeholder = tileColor(theme),
                             ) { viewModel.update { it.copy(themeKey = theme.key) } }
                         }
                     }

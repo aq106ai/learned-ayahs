@@ -80,9 +80,8 @@ import com.quran.learnedplayer.ui.common.SidePanelEdge
 import com.quran.learnedplayer.ui.player.BackgroundSheet
 import com.quran.learnedplayer.ui.player.ShareDialog
 import com.quran.learnedplayer.ui.theme.AccentGreen
-import com.quran.learnedplayer.ui.theme.DarkGreenPalette
-import com.quran.learnedplayer.ui.theme.overridePalette
 import com.quran.learnedplayer.video.PlayerBackgrounds
+import com.quran.learnedplayer.ui.theme.Bg
 import com.quran.learnedplayer.ui.theme.Border
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
@@ -135,21 +134,15 @@ fun PlayerScreen(
     val background by PlayerSettings.playerBackgroundFlow.collectAsState()
     val withBackground = background != PlayerBackgrounds.PLAIN
 
-    // Over a scene the text is light whatever the theme, as in a shared video: the light
-    // theme's dark text would be lost on it. Only while this screen shows.
-    DisposableEffect(withBackground) {
-        overridePalette(if (withBackground) DarkGreenPalette else null)
-        onDispose { overridePalette(null) }
-    }
-    // The header and controls let the scene show through.
-    val chrome = if (withBackground) Color.Black.copy(alpha = 0.6f) else Border
+    // The scene palette is already the app's colours. The bars let the picture show through them.
+    val chrome = if (withBackground) Panel.copy(alpha = 0.75f) else Border
 
     ImmersiveSystemBars()
     // Keep the screen on for as long as there's something to read, not only while playing —
     // this screen is now always the reader, so a paused reading session should not sleep either.
     KeepScreenOn(enabled = state.isPlaying || state.tracks.isNotEmpty())
 
-    Box(modifier = Modifier.fillMaxSize().background(Panel)) {
+    Box(modifier = Modifier.fillMaxSize().background(if (withBackground) Bg else Panel)) {
         if (withBackground) {
             PlayerBackground(
                 choice = background,
@@ -187,7 +180,7 @@ fun PlayerScreen(
                             if (withBackground) {
                                 Modifier
                                     .padding(12.dp)
-                                    .background(Color(0x76040810), RoundedCornerShape(24.dp))
+                                    .background(Panel.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
                                     .testTag(TAG_READER_CARD)
                             } else {
                                 Modifier

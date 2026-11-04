@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
 import com.quran.learnedplayer.video.BackgroundScenes
 import com.quran.learnedplayer.video.NaturePhotos
+import com.quran.learnedplayer.video.VideoTheme
 import com.quran.learnedplayer.video.VideoThemes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -99,6 +101,12 @@ object ThemeThumbnails {
     }
 }
 
+/** The scene's own middle colour, shown until its picture is ready so the tile doesn't sit on the app border. */
+fun tileColor(theme: VideoTheme): Color = Color(theme.variants.first().colors[1])
+
+/** Photos share one neutral dark, the same spec the app chrome uses before a file is on screen. */
+val photoTileColor = Color(0xFF101418.toInt())
+
 /** One choice in a background picker: a small picture of it, its name, and a ring when chosen. */
 @Composable
 fun ThemeTile(
@@ -108,6 +116,7 @@ fun ThemeTile(
     image: Bitmap?,
     enabled: Boolean,
     modifier: Modifier = Modifier,
+    placeholder: Color = Border,
     onClick: () -> Unit,
 ) {
     Column(
@@ -118,7 +127,7 @@ fun ThemeTile(
             modifier = Modifier
                 .size(width = 68.dp, height = 104.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Border)
+                .background(placeholder)
                 .border(if (selected) 3.dp else 0.dp, if (selected) AccentGreen else Border, RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center,
         ) {

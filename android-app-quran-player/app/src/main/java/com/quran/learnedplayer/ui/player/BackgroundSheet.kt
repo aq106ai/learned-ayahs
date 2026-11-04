@@ -36,6 +36,8 @@ import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
 import com.quran.learnedplayer.ui.video.ThemeThumbnails
 import com.quran.learnedplayer.ui.video.ThemeTile
+import com.quran.learnedplayer.ui.video.photoTileColor
+import com.quran.learnedplayer.ui.video.tileColor
 import com.quran.learnedplayer.video.NaturePhotos
 import com.quran.learnedplayer.video.PlayerBackgrounds
 import com.quran.learnedplayer.video.VideoThemes
@@ -103,6 +105,7 @@ fun BackgroundSheet(onDismiss: () -> Unit) {
                         image = drawnThumbs[theme.key],
                         enabled = true,
                         modifier = Modifier.testTag(backgroundChoiceTag(theme.key)),
+                        placeholder = tileColor(theme),
                     ) { pick(theme.key) }
                 }
             }
@@ -116,6 +119,7 @@ fun BackgroundSheet(onDismiss: () -> Unit) {
                             image = photoThumbs[subject.key],
                             enabled = true,
                             modifier = Modifier.testTag(backgroundChoiceTag(subject.themeKey)),
+                            placeholder = photoTileColor,
                         ) { pick(subject.themeKey) }
                     }
                 }

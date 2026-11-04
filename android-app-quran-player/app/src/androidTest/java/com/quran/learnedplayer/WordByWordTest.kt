@@ -1,6 +1,8 @@
 package com.quran.learnedplayer
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ComposeTimeoutException
+import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -10,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.printToString
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,6 +30,7 @@ import com.quran.learnedplayer.ui.TAG_WORD_COUNTER
 import com.quran.learnedplayer.ui.TAG_WORD_PAGER
 import com.quran.learnedplayer.ui.TAG_WORD_TRANSLATION
 import com.quran.learnedplayer.ui.playbackModeTag
+import kotlin.math.abs
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -120,6 +124,67 @@ class WordByWordTest : BaseAppTest() {
         composeRule.onNodeWithTag(TAG_WORD_PAGER).performTouchInput { swipeLeft() }
 
     /**
+     * A straight drag of [fraction] of the pager width, slow enough to stay under the fling
+     * threshold (~50 dp/s). Only the distance decides: under half a page snaps back, past half
+     * commits. Forward is a rightward swipe, matching Arabic reading order.
+     */
+    private fun slowSwipe(forward: Boolean, fraction: Float) {
+        composeRule.onNodeWithTag(TAG_WORD_PAGER).performTouchInput {
+            val margin = width * 0.05f
+            val distance = width * fraction
+            val startX = if (forward) margin else width - margin
+            val endX = if (forward) startX + distance else startX - distance
+            val duration = (distance / 40f * 1_000f).toLong().coerceIn(3_000L, 20_000L)
+            swipe(Offset(startX, center.y), Offset(endX, center.y), durationMillis = duration)
+        }
+    }
+
+    /**
+     * The counter can already show the nearest word while that word is still clipped at the
+     * side of the page. [assertIsDisplayed] passes in that state, so this waits until the
+     * visible translation's layout size is actually on screen, inside the pager.
+     */
+    private fun assertWordFullyOnPage(position: String) {
+        try {
+            composeRule.waitUntil(10_000) {
+                val counterShown = composeRule.onAllNodes(
+                    hasTestTag(TAG_WORD_COUNTER) and hasText(position, substring = true),
+                ).fetchSemanticsNodes().isNotEmpty()
+                counterShown && wordFullyInsidePager()
+            }
+        } catch (e: ComposeTimeoutException) {
+            throw AssertionError(
+                "\"$position\" is not resting fully on the page. Word reader:\n" +
+                    composeRule.onNodeWithTag(TAG_WORD_PAGER, useUnmergedTree = true).printToString(),
+                e,
+            )
+        }
+    }
+
+    private fun wordFullyInsidePager(): Boolean {
+        val pagerBounds = composeRule.onNodeWithTag(TAG_WORD_PAGER).fetchSemanticsNode().boundsInRoot
+        val nodes = composeRule.onAllNodes(hasTestTag(TAG_WORD_TRANSLATION), useUnmergedTree = true)
+        return nodes.fetchSemanticsNodes().any { node ->
+            val visible = node.boundsInRoot
+            val fullWidth = node.size.width.toFloat()
+            val fullHeight = node.size.height.toFloat()
+            visible.width > 0f &&
+                abs(visible.width - fullWidth) < 2f &&
+                abs(visible.height - fullHeight) < 2f &&
+                visible.left >= pagerBounds.left - 1f &&
+                visible.right <= pagerBounds.right + 1f
+        }
+    }
+
+    /** True when [label] is actually on screen, not merely composed on a neighbouring page. */
+    private fun edgeLabelDisplayed(label: String): Boolean {
+        val nodes: SemanticsNodeInteractionCollection = composeRule.onAllNodesWithText(label)
+        return nodes.fetchSemanticsNodes().indices.any { i ->
+            runCatching { nodes[i].assertIsDisplayed() }.isSuccess
+        }
+    }
+
+    /**
      * Waits for the counter to show [position] rather than asserting instantly: the ayah's words
      * load on the IO dispatcher, which `waitForIdle` does not cover, so right after an ayah
      * change the reader can briefly still display the previous ayah's count.
@@ -147,6 +212,48 @@ class WordByWordTest : BaseAppTest() {
         swipeBackward()
         composeRule.waitForIdle()
         assertWord("1 / 3")
+    }
+
+    @Test
+    fun a_slow_short_swipe_rests_back_on_the_same_word() {
+        openFullscreenReader()
+        advanceToAyah(3) // 36:3 — three words.
+        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        awaitTag(TAG_WORD_PAGER)
+        assertWord("1 / 3")
+
+        // Under half a page, and slow enough not to fling: the word must return fully,
+        // not sit clipped at the side.
+        slowSwipe(forward = true, fraction = 0.35f)
+        assertWordFullyOnPage("1 / 3")
+    }
+
+    @Test
+    fun a_slow_long_swipe_rests_fully_on_the_next_word() {
+        openFullscreenReader()
+        advanceToAyah(3)
+        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        awaitTag(TAG_WORD_PAGER)
+        assertWord("1 / 3")
+
+        slowSwipe(forward = true, fraction = 0.75f)
+        assertWordFullyOnPage("2 / 3")
+    }
+
+    @Test
+    fun a_slow_swipe_back_from_the_first_word_does_not_stick_on_the_edge() {
+        openFullscreenReader()
+        advanceToAyah(3)
+        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        awaitTag(TAG_WORD_PAGER)
+        assertWord("1 / 3")
+
+        slowSwipe(forward = false, fraction = 0.35f)
+        assertWordFullyOnPage("1 / 3")
+        assertFalse(
+            "the previous-ayah edge stayed on screen",
+            edgeLabelDisplayed("Previous ayah →"),
+        )
     }
 
     @Test

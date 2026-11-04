@@ -33,7 +33,7 @@ internal tailrec fun Context.findActivity(): Activity? = when (this) {
 
 @Composable
 fun LearnedAyahsTheme(content: @Composable () -> Unit) {
-    val palette = currentPalette
+    val palette = animatedPalette()
     val colorScheme = if (palette.isLight) {
         lightColorScheme(
             primary = palette.accent,
@@ -81,8 +81,8 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
         // explicit color are readable on the background instead of falling back to black.
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Bg,
-            contentColor = TextPrimary,
+            color = palette.bg,
+            contentColor = palette.textPrimary,
         ) {
             // Android 15+ draws apps targeting 35+ edge to edge, under the status and navigation
             // bars. The Surface fills the whole window — so the bars sit on the app's background —

@@ -39,6 +39,9 @@ import com.quran.learnedplayer.ui.theme.TextPrimary
 import com.quran.learnedplayer.ui.theme.quranArabicStyle
 import com.quran.learnedplayer.ui.video.ThemeThumbnails
 import com.quran.learnedplayer.ui.video.ThemeTile
+import com.quran.learnedplayer.ui.video.photoTileColor
+import com.quran.learnedplayer.ui.video.tileColor
+import com.quran.learnedplayer.video.VideoThemes
 import com.quran.learnedplayer.video.NaturePhotos
 import com.quran.learnedplayer.video.PlayerBackgrounds
 
@@ -196,13 +199,25 @@ private fun LookPage() {
             ThemeTile("Plain", null, background == PlayerBackgrounds.PLAIN, null, true, Modifier.testTag(introBackgroundTag(PlayerBackgrounds.PLAIN))) {
                 pick(PlayerBackgrounds.PLAIN)
             }
-            ThemeTile("Scenes", null, background == PlayerBackgrounds.MATCHED, drawnThumbs["mercy"], true, Modifier.testTag(introBackgroundTag(PlayerBackgrounds.MATCHED))) {
-                pick(PlayerBackgrounds.MATCHED)
-            }
+            ThemeTile(
+                "Scenes",
+                null,
+                background == PlayerBackgrounds.MATCHED,
+                drawnThumbs["mercy"],
+                true,
+                Modifier.testTag(introBackgroundTag(PlayerBackgrounds.MATCHED)),
+                tileColor(VideoThemes.theme("mercy")),
+            ) { pick(PlayerBackgrounds.MATCHED) }
             if (firstSubject != null) {
-                ThemeTile("Nature photos", null, background == PlayerBackgrounds.PHOTOS, photoThumbs[firstSubject.key], true, Modifier.testTag(introBackgroundTag(PlayerBackgrounds.PHOTOS))) {
-                    pick(PlayerBackgrounds.PHOTOS)
-                }
+                ThemeTile(
+                    "Nature photos",
+                    null,
+                    background == PlayerBackgrounds.PHOTOS,
+                    photoThumbs[firstSubject.key],
+                    true,
+                    Modifier.testTag(introBackgroundTag(PlayerBackgrounds.PHOTOS)),
+                    photoTileColor,
+                ) { pick(PlayerBackgrounds.PHOTOS) }
             }
         }
         Text(

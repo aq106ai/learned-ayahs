@@ -28,8 +28,8 @@ android {
         // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
         // every screen inside the safe area.
         targetSdk = 36
-        versionCode = 45
-        versionName = "1.12.0"
+        versionCode = 46
+        versionName = "1.12.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -117,6 +117,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.media3:media3-exoplayer:1.2.1")
     implementation("androidx.media3:media3-session:1.2.1")
+    // QR code on the video's closing card. Encode only — no camera.
+    implementation("com.google.zxing:core:3.5.3")
 
     // Local JVM unit tests (Robolectric supplies SharedPreferences + org.json off-device).
     testImplementation("junit:junit:4.13.2")

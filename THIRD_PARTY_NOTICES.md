@@ -32,6 +32,12 @@ corrected promptly.
 | Isolated word pronunciation MP3s | [Quran.com](https://quran.com/) word audio CDN (`audio.qurancdn.com/wbw`) |
 | Web player only: ayah text and word timings | Quran.com API and QUL API |
 
+## QR code generation
+
+The web app bundles Kazuhiko Arase's QR Code Generator for JavaScript in
+`web-app/static/js/lib/qrcode.js`, under the MIT license (copyright notice retained in the file).
+Android uses ZXing Core 3.5.3 under Apache License 2.0 to encode the same Play Store URL.
+
 ## Software dependencies
 
 The Android app is built with open-source libraries resolved by Gradle, including AndroidX,

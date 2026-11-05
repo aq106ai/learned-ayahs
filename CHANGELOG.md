@@ -6,7 +6,17 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
-Android 1.12.0 (versionCode 45), which includes 1.11.0 (43) and 1.11.1 (44).
+Android 1.12.1 (versionCode 46), including the previous unreleased 1.12.0 changes.
+
+### Sharing and review fixes
+- Independent Bismillah and A'udhu options, plus an optional closing video card with a Play Store QR code.
+- Share media without an automatic caption; share or copy Arabic, English, or both separately.
+  Text ranges can be shared without creating a video first.
+- Web word gestures suppress playback-follow while dragging, recover on cancellation and lost
+  capture, and do not mistake a returning or disabled swipe for a tap.
+- Clear scene colors when leaving the web player; close web-server database connections when
+  request threads finish. Browser tests support Python on Windows.
+- Content expansion and remaining device release checks are tracked in [docs/TODO.md](docs/TODO.md).
 
 ### Added
 - **Choose the theme and the player's background while setting up** (Android and web app): the

@@ -22,8 +22,15 @@ class VideoPlanTest {
         // Al-Fatihah's first ayah is the Bismillah; At-Tawbah has none.
         assertEquals(listOf(ClipKind.AUDHU, ClipKind.AYAH), request(1, 1, 1).clips().map { it.first })
         assertEquals(listOf(ClipKind.AUDHU, ClipKind.AYAH), request(9, 1, 1).clips().map { it.first })
-        // Starting mid-surah, there is no Bismillah.
+        // Starting mid-surah, Bismillah is off unless asked for.
         assertEquals(listOf(ClipKind.AUDHU, ClipKind.AYAH), request(67, 5, 5).clips().map { it.first })
+        assertEquals(
+            listOf(ClipKind.AUDHU, ClipKind.BISMILLAH, ClipKind.AYAH),
+            request(67, 5, 5).copy(bismillah = true).clips().map { it.first },
+        )
+        // Asked for on Al-Fatihah 1 or At-Tawbah, it is still left out.
+        assertEquals(listOf(ClipKind.AYAH), request(1, 1, 1, opening = false).copy(bismillah = true).clips().map { it.first })
+        assertEquals(listOf(ClipKind.AYAH), request(9, 5, 5, opening = false).copy(bismillah = true).clips().map { it.first })
         assertEquals(listOf(ClipKind.AYAH), request(67, 1, 1, opening = false).clips().map { it.first })
     }
 
@@ -42,6 +49,13 @@ class VideoPlanTest {
         assertEquals(VideoTimeline.LEAD_IN_MS, a.startMs)
         assertEquals(a.endMs + VideoTimeline.GAP_MS, b.startMs)
         assertEquals(b.endMs + VideoTimeline.TAIL_MS, timeline.totalMs)
+        val withCard = VideoTimeline.Builder().apply {
+            add(ClipKind.AYAH, 1, 1, 3000)
+        }.build(VideoTimeline.END_CARD_MS)
+        assertEquals(VideoTimeline.END_CARD_MS, withCard.endCardMs)
+        assertEquals(withCard.clips.single().endMs + VideoTimeline.TAIL_MS + VideoTimeline.END_CARD_MS, withCard.totalMs)
+        assertTrue(withCard.showsEndCard(withCard.totalMs - 1))
+        assertTrue(!withCard.showsEndCard(withCard.totalMs - VideoTimeline.END_CARD_MS - 1))
         assertEquals(a, timeline.clipAt(0))
         assertEquals(a, timeline.clipAt(a.endMs + 10)) // in the gap
         assertEquals(b, timeline.clipAt(timeline.totalMs))

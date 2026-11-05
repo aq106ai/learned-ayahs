@@ -4,6 +4,10 @@
 export const LEAD_IN_MS = 500;
 export const GAP_MS = 400;
 export const TAIL_MS = 1800;
+/** How long the closing card stays up after the tail. */
+export const END_CARD_MS = 4000;
+/** The app's page on Google Play, drawn on a video's closing card. */
+export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.quran.learnedayahs';
 export const MIN_HOLD_MS = 12_000;
 export const CROSSFADE_MS = 900;
 
@@ -12,7 +16,7 @@ export const CROSSFADE_MS = 900;
  * first word isn't lost, and [TAIL_MS] after the last so it doesn't end on the final syllable.
  * Clips: {kind: 'AUDHU'|'BISMILLAH'|'AYAH', surah, ayah, startMs, durationMs}.
  */
-export function buildTimeline(entries) {
+export function buildTimeline(entries, endCardMs = 0) {
   const clips = [];
   let cursor = LEAD_IN_MS;
   for (const e of entries) {
@@ -20,7 +24,12 @@ export function buildTimeline(entries) {
     clips.push({ ...e, startMs: cursor, endMs: cursor + e.durationMs });
     cursor += e.durationMs;
   }
-  return { clips, totalMs: cursor + TAIL_MS };
+  return { clips, totalMs: cursor + TAIL_MS + endCardMs, endCardMs };
+}
+
+/** True while [ms] falls on the closing card, after the recitation and its tail. */
+export function showsEndCard(timeline, ms) {
+  return timeline.endCardMs > 0 && ms >= timeline.totalMs - timeline.endCardMs;
 }
 
 /** Between clips the screen keeps showing the clip that just finished. */

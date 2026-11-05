@@ -215,9 +215,15 @@ the player's Share button → Video, and the film icon on a surah's page) → `V
   Tanzil.net via the `quran-json` npm package, written by the same script). It is named in the
   sources and disclaimer.
 - **Credits** (reciter, translation, word meanings, photographer) are off the picture by default:
-  the video shows only the surah:ayah reference, and the sources travel in the text it's shared
-  with (`VideoMakerViewModel.caption`). The "Credits on video" toggle (`VideoRequest.credits`)
-  prints them under the card again, with "Made with Learned Ayahs" at the foot.
+  the video shows only the surah:ayah reference, and since 1.12.1 a shared video or image goes
+  out with **no caption** (the sources stay in Settings → Sources and disclaimer). The "Credits on
+  video" toggle (`VideoRequest.credits`) prints them under the card, with "Made with Learned
+  Ayahs" at the foot. The words themselves are a separate share (`ui/AyahShareText.kt`: Arabic,
+  English or both, then the reference).
+- **Bismillah and the end card** are their own options (`VideoRequest.bismillah`, `endCard`).
+  `VideoRequest.bismillahAllowed` refuses At-Tawbah and Al-Fatihah 1 (that ayah *is* the
+  Bismillah). The end card adds `VideoTimeline.END_CARD_MS` of silence with a ZXing QR code for
+  `VideoRequest.PLAY_STORE_URL`; the web app's `video/renderer.js` draws the same card.
 - **Saving needs no storage permission**: MediaStore (Movies/Learned Ayahs) on Android 10+, the
   SAF "save as" picker below that; sharing goes through the `FileProvider` (`res/xml/shared_files.xml`,
   cache `videos/` and `images/` only).
@@ -228,12 +234,14 @@ button in its playback panel (`ui/player/BackgroundSheet.kt`); `PlayerSettings.p
 `LiveBackground` (pure, unit-tested) applies `BackgroundPlan`'s hold and crossfade on a running
 clock. The scene is drawn by `BackgroundScenes` at half resolution and scaled up (a full-screen
 still is ~10 MB), moves only while playing, and only asks for a photo once it's downloaded. While a
-background shows, `overridePalette` makes the player's colours the dark palette whatever the theme,
-so the text stays light on the scene. The whole-ayah translation (`showAyahTranslation`, off by
+background is chosen, the app's colours come from the scene on screen (`ui/theme/Color.kt`:
+`paletteFor`, `applyShownScene`, eased by `animatedPalette`) on every screen, whatever the theme;
+plain brings the Dark or Light theme back. The web app applies the scene palette only in the
+player and its sidebar, and clears it on leaving — a deliberate difference, tested on both sides. The whole-ayah translation (`showAyahTranslation`, off by
 default, turned on by choosing a background) sits under the Arabic in `WholeAyahReader`.
 **Share** in the player header offers Video (the maker set up like the player, via
 `VideoOptions.likeThePlayer` and the route's `fromPlayer`) or an image (`ui/player/ShareImage.kt`:
-`VideoExporter.still` at the current position, cache `images/`, shared with the same caption).
+`VideoExporter.still` at the current position, cache `images/`, shared on its own), or the ayah as text.
 
 `VideoExportTest` makes a real MP4 from the test suite's own Al-Ikhlas recordings (no network) and
 checks its tracks, length and frame count. `VideoSamples` (not a test; `video-samples.yml` runs it)

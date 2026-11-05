@@ -51,6 +51,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,9 +64,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.widget.Toast
+import kotlinx.coroutines.CancellationException
+import com.quran.learnedplayer.ui.AyahShareText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.data.SurahNames
+import com.quran.learnedplayer.ui.player.TextChoices
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.ui.theme.Bg
 import com.quran.learnedplayer.ui.theme.Border
@@ -73,6 +81,7 @@ import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
 import com.quran.learnedplayer.video.VideoAspect
+import com.quran.learnedplayer.video.VideoRequest
 import com.quran.learnedplayer.video.VideoExporter
 import com.quran.learnedplayer.video.VideoThemes
 
@@ -80,6 +89,7 @@ const val TAG_VIDEO_SCREEN = "video_screen"
 const val TAG_VIDEO_CREATE = "video_create"
 const val TAG_VIDEO_PREVIEW = "video_preview"
 const val TAG_VIDEO_SHARE = "video_share"
+const val TAG_VIDEO_SHARE_TEXT = "video_share_text"
 const val TAG_VIDEO_SAVE = "video_save"
 
 /**
@@ -103,7 +113,44 @@ fun VideoMakerScreen(
     val photoThumbnails by viewModel.photoThumbnails.collectAsState()
     val previewError by viewModel.previewError.collectAsState()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var pickingSurah by remember { mutableStateOf(false) }
+    var sharingText by remember { mutableStateOf(false) }
+    var textArabic by remember { mutableStateOf(true) }
+    var textEnglish by remember { mutableStateOf(true) }
+    var textWorking by remember { mutableStateOf(false) }
+    var textError by remember { mutableStateOf<String?>(null) }
+
+    fun shareText(copy: Boolean) {
+        textWorking = true
+        textError = null
+        val snapshot = options
+        val arabic = textArabic
+        val english = textEnglish
+        scope.launch {
+            try {
+                if (copy) {
+                    val text = withContext(Dispatchers.IO) {
+                        AyahShareText.of(context, snapshot.surah, snapshot.fromAyah, snapshot.toAyah, arabic, english)
+                    }
+                    AyahShareText.copy(context, text)
+                    Toast.makeText(context, "Text copied", Toast.LENGTH_SHORT).show()
+                } else {
+                    val send = withContext(Dispatchers.IO) {
+                        AyahShareText.intent(context, snapshot.surah, snapshot.fromAyah, snapshot.toAyah, arabic, english)
+                    }
+                    context.startActivity(send)
+                }
+                sharingText = false
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                textError = e.message ?: "The text couldn't be shared."
+            } finally {
+                textWorking = false
+            }
+        }
+    }
 
     // Making a video takes a while; the screen must not sleep part-way.
     val view = LocalView.current
@@ -168,7 +215,11 @@ fun VideoMakerScreen(
                 Stepper("From ayah", options.fromAyah, 1..count, enabled = !working) { v -> viewModel.update { it.copy(fromAyah = v, toAyah = maxOf(v, it.toAyah)) } }
                 Stepper("To ayah", options.toAyah, options.fromAyah..count, enabled = !working) { v -> viewModel.update { it.copy(toAyah = v) } }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = { viewModel.update { it.copy(fromAyah = 1, toAyah = count, opening = true) } }, enabled = !working) {
+                    TextButton(onClick = {
+                        viewModel.update {
+                            it.copy(fromAyah = 1, toAyah = count, opening = true, bismillah = VideoRequest.bismillahAllowed(it.surah, 1))
+                        }
+                    }, enabled = !working) {
                         Text("Whole surah", color = AccentGreen)
                     }
                 }
@@ -201,11 +252,22 @@ fun VideoMakerScreen(
                 Toggle("Translation", "Saheeh International", options.fullTranslation, !working) { on ->
                     viewModel.update { it.copy(fullTranslation = on) }
                 }
-                val bismillah = options.fromAyah == 1 && options.surah !in QuranConstants.NO_BISMILLAH_INTRO_SURAHS
-                Toggle(if (bismillah) "Begin with A'udhu and Bismillah" else "Begin with A'udhu", "Recited before the first ayah", options.opening, !working) { on ->
+                Toggle("Begin with A'udhu", "Recited before the ayahs", options.opening, !working) { on ->
                     viewModel.update { it.copy(opening = on) }
                 }
-                Toggle("Credits on video", "Sources in small print under the text. Off, they go in the share message", options.credits, !working) { on ->
+                val bismillahAllowed = VideoRequest.bismillahAllowed(options.surah, options.fromAyah)
+                val bismillahNote = when {
+                    options.surah == 9 -> "At-Tawbah is recited without it"
+                    options.surah == 1 && options.fromAyah == 1 -> "This ayah is the Bismillah"
+                    else -> "Recited before the ayahs"
+                }
+                Toggle("Include Bismillah", bismillahNote, options.bismillah && bismillahAllowed, !working && bismillahAllowed) { on ->
+                    viewModel.update { it.copy(bismillah = on) }
+                }
+                Toggle("End card", "A closing page with the Play Store link", options.endCard, !working) { on ->
+                    viewModel.update { it.copy(endCard = on) }
+                }
+                Toggle("Credits on video", "Sources in small print under the text", options.credits, !working) { on ->
                     viewModel.update { it.copy(credits = on) }
                 }
             }
@@ -268,6 +330,14 @@ fun VideoMakerScreen(
                     color = TextMuted,
                     style = MaterialTheme.typography.bodySmall,
                 )
+            }
+
+            Section("Share text") {
+                OutlinedButton(
+                    onClick = { textError = null; sharingText = true },
+                    enabled = !working,
+                    modifier = Modifier.fillMaxWidth().testTag(TAG_VIDEO_SHARE_TEXT),
+                ) { Text("Share or copy text") }
             }
 
             Section("Video") {
@@ -353,6 +423,31 @@ fun VideoMakerScreen(
                 }
             },
             confirmButton = { TextButton(onClick = { pickingSurah = false }) { Text("Close", color = TextMuted) } },
+        )
+    }
+
+    if (sharingText) {
+        AlertDialog(
+            onDismissRequest = { if (!textWorking) sharingText = false },
+            containerColor = Panel,
+            title = { Text("Share text") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("The selected ayahs, as words only.", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                    TextChoices(textArabic, textEnglish, enabled = !textWorking, onArabic = { textArabic = it }, onEnglish = { textEnglish = it })
+                    OutlinedButton(onClick = { shareText(true) }, enabled = !textWorking, modifier = Modifier.testTag("video_copy_text")) {
+                        Text("Copy text")
+                    }
+                    textError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { shareText(false) },
+                    enabled = !textWorking && (textArabic || textEnglish),
+                ) { Text("Share", color = AccentGreen) }
+            },
+            dismissButton = { TextButton(onClick = { sharingText = false }, enabled = !textWorking) { Text("Close", color = TextMuted) } },
         )
     }
 }

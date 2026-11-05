@@ -265,6 +265,7 @@ textarea {
   --border: rgba(255, 236, 190, 0.12);
   --highlight: rgba(255, 214, 102, 0.18);
   color: var(--text);
+  transition: color 0.9s ease, background-color 0.9s ease, border-color 0.9s ease;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -926,13 +927,21 @@ textarea.input:focus {
 }
 
 .word-reader {
+  overflow: hidden;
+  width: 100%;
+  user-select: none;
+  touch-action: pan-y;
+}
+.word-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 18px;
+  width: 100%;
   text-align: center;
-  user-select: none;
-  touch-action: pan-y;
+}
+.word-stage.settle {
+  transition: transform 0.22s ease;
 }
 .word-reader .big {
   font-family: 'Scheherazade New', 'Amiri Quran', 'Noto Naskh Arabic', serif;
@@ -1335,7 +1344,7 @@ details.group summary::-webkit-details-marker {
   z-index: -1;
   pointer-events: none;
 }
-/* Over a scene the player keeps the dark colours whatever the theme, as a shared video does.
+/* Over a scene these are the fallback colours until the scene's own palette is applied.
    Every colour variable is set here: one left out keeps the light theme's value under the dark
    text (the mode badge's pale --panel-3 did, unreadable). */
 .player.with-bg {
@@ -1356,11 +1365,13 @@ details.group summary::-webkit-details-marker {
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   color: var(--text);
   background: #000;
+  transition: color 0.9s ease, background-color 0.9s ease, border-color 0.9s ease;
 }
 .player.with-bg .player-head,
 .player.with-bg .controls {
-  background: rgba(0, 0, 0, 0.6);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
   border-color: transparent;
+  transition: color 0.9s ease, background-color 0.9s ease, border-color 0.9s ease;
 }
 .player.with-bg .reader {
   margin: 12px;
@@ -1474,15 +1485,6 @@ details.group summary::-webkit-details-marker {
 .btn.block {
   width: 100%;
   justify-content: center;
-}
-.caption-text {
-  white-space: pre-wrap;
-  font: inherit;
-  font-size: 0.85rem;
-  background: var(--panel-2);
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin: 0;
 }
 
 /* -- welcome (views/intro.js) ----------------------------------------------------------------- */

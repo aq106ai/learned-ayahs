@@ -189,6 +189,12 @@ class Store:
             self.local.conn = conn
         return conn
 
+    def close_current_thread(self) -> None:
+        conn = getattr(self.local, "conn", None)
+        if conn is not None:
+            conn.close()
+            del self.local.conn
+
     def query(self, sql: str, params: tuple = ()) -> List[sqlite3.Row]:
         return self.conn.execute(sql, params).fetchall()
 
@@ -549,6 +555,12 @@ def make_handler(app: App):
         protocol_version = "HTTP/1.1"
 
         # -- plumbing ---------------------------------------------------------------------
+
+        def finish(self):
+            try:
+                super().finish()
+            finally:
+                app.store.close_current_thread()
 
         def log_message(self, fmt, *args):  # noqa: N802 - stdlib signature
             if not config.quiet:
@@ -1029,6 +1041,7 @@ def make_handler(app: App):
 
 def make_server(config: Config) -> ThreadingHTTPServer:
     app = App(config)
+    app.store.close_current_thread()
     server = ThreadingHTTPServer((config.host, config.port), make_handler(app))
     server.daemon_threads = True
     server.app = app  # type: ignore[attr-defined]

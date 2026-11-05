@@ -142,6 +142,20 @@ test('word by word steps one word at a time, rolls into the next ayah, and never
   await page.waitForSelector('[data-testid=word-reader]');
   assert.match(await page.textContent('[data-testid=word-counter]'), /^1 \/ 4/);
   assert.equal(await page.textContent('[data-testid=word-meaning]'), 'Say');
+  const word = await page.textContent('[data-testid=word-current]');
+  const box = await page.locator('[data-testid=word-reader]').boundingBox();
+  const y = box.y + box.height / 2;
+  await page.mouse.move(box.x + box.width * 0.25, y);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.45, y, { steps: 6 });
+  await page.mouse.up();
+  assert.equal(await page.textContent('[data-testid=word-current]'), word, 'a short swipe snaps back');
+  await page.mouse.move(box.x + box.width * 0.1, y);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.85, y, { steps: 8 });
+  await page.mouse.up();
+  assert.match(await page.textContent('[data-testid=word-counter]'), /^2 \/ 4/, 'past halfway the next word settles on screen');
+  await page.click('[data-testid=prev]');
   await page.click('[data-testid=next]');
   assert.match(await page.textContent('[data-testid=word-counter]'), /^2 \/ 4/);
   await page.click('[data-testid=prev]');
@@ -193,5 +207,91 @@ test('audio that cannot load says so, with a Retry, instead of stalling', async 
   await page.waitForSelector('[data-testid=player-error]:not([hidden])', { timeout: 15000 });
   // The page itself reported nothing unexpected (failed media loads are expected here).
   assert.deepEqual(errors.filter((e) => !/audio|media|NotSupportedError/i.test(e)), []);
+  await context.close();
+});
+
+
+test('word drags hold playback focus and cancel cleanly without turning into taps', async () => {
+  const { page, context, errors } = await playerWith([[112, 1]]);
+  const result = await page.evaluate(async () => {
+    const { wordReader } = await import('./js/views/wordReader.js');
+    const handlers = new Map();
+    let seeks = 0;
+    const engine = {
+      mode: 'REVISE', playing: true, activeWord: 0, track: { surah: 112, ayah: 1 },
+      contentWords: [{ text: 'first' }, { text: 'second' }],
+      on: (event, fn) => { handlers.set(event, fn); return () => handlers.delete(event); },
+      seekToWord: () => seeks++, stepAyah: () => {},
+    };
+    const settings = { swipeToNavigate: true, tapToAdvance: true };
+    const reader = wordReader({ engine, store: { settings } });
+    document.body.append(reader.el);
+    reader.el.style.width = '400px';
+    const stage = reader.el.querySelector('.word-stage');
+    const fire = (type, x, y = 20) => reader.el.dispatchEvent(new PointerEvent(type, { pointerId: 99, button: 0, clientX: x, clientY: y }));
+    // Synthetic pointers cannot take browser capture; lost capture is tested explicitly below.
+    reader.el.setPointerCapture = () => {};
+    fire('pointerdown', 10);
+    fire('pointermove', 150);
+    engine.activeWord = 1;
+    handlers.get('tick')();
+    const held = reader.el.querySelector('.big').textContent;
+    fire('pointermove', 10); // returning to the start is still a drag, not a tap
+    fire('pointerup', 10);
+    await new Promise((r) => setTimeout(r, 300));
+    const afterReturn = [seeks, stage.style.transform];
+    fire('pointerdown', 10);
+    fire('pointermove', 190);
+    fire('lostpointercapture', 190);
+    await new Promise((r) => setTimeout(r, 300));
+    const afterCancel = [seeks, stage.style.transform];
+    settings.swipeToNavigate = false;
+    fire('pointerdown', 10);
+    fire('pointermove', 40);
+    fire('pointerup', 40);
+    const afterDisabled = seeks;
+    fire('pointerdown', 10);
+    fire('pointermove', 10, 100);
+    fire('pointerup', 10, 100);
+    const afterVertical = seeks;
+    reader.destroy();
+    reader.el.remove();
+    return { held, afterReturn, afterCancel, afterDisabled, afterVertical };
+  });
+  assert.deepEqual(result, { held: 'first', afterReturn: [0, ''], afterCancel: [0, ''], afterDisabled: 0, afterVertical: 0 });
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('leaving the player clears its scene colors from navigation', async () => {
+  const { page, context, errors } = await playerWith([[112, 1]], { playerBackground: 'matched' });
+  await page.waitForFunction(() => document.querySelector('.sidebar').style.getPropertyValue('--panel'));
+  await page.click('[data-testid=nav-surahs]');
+  assert.equal(await page.locator('.sidebar').evaluate((el) => el.style.getPropertyValue('--panel')), '');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+
+test('whole-ayah swipes keep the short threshold and vertical or cancelled drags do not advance', async () => {
+  const { page, context, errors } = await playerWith([[112, 1], [112, 2]]);
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-testid=reader]');
+    const fire = (type, x, y) => el.dispatchEvent(new PointerEvent(type, { pointerId: 1, button: 0, clientX: x, clientY: y }));
+    fire('pointerdown', 20, 20);
+    fire('pointermove', 20, 100);
+    fire('pointerup', 20, 100);
+    fire('pointerdown', 20, 20);
+    fire('pointercancel', 20, 20);
+    fire('pointerup', 20, 20);
+  });
+  assert.equal((await state(page)).ref, '112:1');
+  const box = await page.locator('[data-testid=reader]').boundingBox();
+  await page.mouse.move(box.x + 20, box.y + 50);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 100, box.y + 50, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForFunction(() => window.__app.engine.track.ayah === 2);
+  assert.deepEqual(errors, []);
   await context.close();
 });

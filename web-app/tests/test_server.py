@@ -117,6 +117,7 @@ class ServerTest(unittest.TestCase):
     def tearDownClass(cls):
         cls.httpd.shutdown()
         cls.httpd.server_close()
+        cls.httpd.app.store.close_current_thread()
         cls.upstream.shutdown()
         cls.upstream.server_close()
         cls.tmp.cleanup()

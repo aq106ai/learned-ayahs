@@ -2,6 +2,11 @@ package com.quran.learnedplayer
 
 import android.graphics.Typeface
 import android.media.MediaExtractor
+import android.media.MediaMetadataRetriever
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.qrcode.QRCodeReader
 import android.media.MediaFormat
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,6 +18,7 @@ import com.quran.learnedplayer.video.PcmResampler
 import com.quran.learnedplayer.video.VideoAspect
 import com.quran.learnedplayer.video.VideoExporter
 import com.quran.learnedplayer.video.VideoRequest
+import com.quran.learnedplayer.video.VideoTimeline
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -81,7 +87,8 @@ class VideoExportTest {
 
         // The opening, Bismillah and four ayahs, at a known length: the picture lasts as long as the sound.
         val clips = request.clips().map { (kind, s, a) -> PcmResampler.durationMs(AudioPipeline.decode(source(kind, s, a)).size) }
-        val expectedMs = 500 + clips.sum() + 400L * (clips.size - 1) + 1800
+        val endCard = if (request.endCard) VideoTimeline.END_CARD_MS else 0L
+        val expectedMs = 500 + clips.sum() + 400L * (clips.size - 1) + 1800 + endCard
         val videoMs = video.getLong(MediaFormat.KEY_DURATION) / 1000
         val audioMs = audio!!.getLong(MediaFormat.KEY_DURATION) / 1000
         assertTrue("video ${videoMs}ms, expected about ${expectedMs}ms", kotlin.math.abs(videoMs - expectedMs) < 300)
@@ -101,7 +108,52 @@ class VideoExportTest {
         extractor.release()
         val expectedFrames = expectedMs * fps / 1000
         assertTrue("$frames frames, expected about $expectedFrames", kotlin.math.abs(frames - expectedFrames) <= fps)
+        assertEndCardQr(output, expectedMs)
         output.delete()
+    }
+
+    private fun assertEndCardQr(file: File, durationMs: Long) {
+        val retriever = MediaMetadataRetriever()
+        try {
+            retriever.setDataSource(file.absolutePath)
+            val frame = retriever.getFrameAtTime((durationMs - 1500) * 1000, MediaMetadataRetriever.OPTION_CLOSEST)
+                ?: error("No closing frame in ${file.name}")
+            try {
+                val pixels = IntArray(frame.width * frame.height)
+                frame.getPixels(pixels, 0, frame.width, 0, 0, frame.width, frame.height)
+                val source = RGBLuminanceSource(frame.width, frame.height, pixels)
+                val result = QRCodeReader().decode(BinaryBitmap(HybridBinarizer(source)))
+                assertEquals("The encoded closing card opens the app listing", VideoRequest.PLAY_STORE_URL, result.text)
+            } finally {
+                frame.recycle()
+            }
+        } finally {
+            retriever.release()
+        }
+    }
+
+    @Test
+    fun closing_qr_survives_video_encoding_in_every_shape() = runBlocking<Unit> {
+        for (aspect in VideoAspect.entries) {
+            val request = VideoRequest(
+                112, 1, 1, Reciter.DEFAULT, aspect, wordByWord = true, fullTranslation = true,
+                opening = false, themeKey = "night", bismillah = false, endCard = true,
+            )
+            val output = File(context.cacheDir, "videos/test-qr-${aspect.name}.mp4").apply { parentFile?.mkdirs() }
+            try {
+                VideoExporter(context, font).export(request, output, scale = 0.5f, fps = 10, sources = ::source)
+                val retriever = MediaMetadataRetriever()
+                val duration = try {
+                    retriever.setDataSource(output.absolutePath)
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toLong()
+                } finally {
+                    retriever.release()
+                }
+                assertEndCardQr(output, duration)
+            } finally {
+                output.delete()
+            }
+        }
     }
 
     @Test

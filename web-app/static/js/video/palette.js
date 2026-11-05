@@ -1,0 +1,122 @@
+// Chrome colours taken from a scene, matching ui/theme/Color.kt paletteFor: the sky, darkened,
+// for the page and panels, and the scene's light colour for text. Photos share one neutral dark.
+
+const TEXT_CONTRAST = 4.5;
+const WHITE = [255, 255, 255];
+const BLACK = [0, 0, 0];
+const GREEN = [0x45, 0xd4, 0x83];
+
+function channel(v) {
+  const s = v / 255;
+  return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+}
+
+/** Relative luminance of an sRGB colour, 0–1. */
+export function luminance(c) {
+  return 0.2126 * channel(c[0]) + 0.7152 * channel(c[1]) + 0.0722 * channel(c[2]);
+}
+
+/** WCAG contrast of [foreground] against [background]. 4.5 is the body-text minimum. */
+export function contrastRatio(foreground, background) {
+  const a = luminance(foreground);
+  const b = luminance(background);
+  const lighter = Math.max(a, b);
+  const darker = Math.min(a, b);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function mix(a, b, t) {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+}
+
+function darkenUntil(color, against, minContrast) {
+  if (contrastRatio(against, color) >= minContrast) return color;
+  let t = 0;
+  let current = color;
+  while (contrastRatio(against, current) < minContrast && t < 1) {
+    t = Math.min(t + 0.04, 1);
+    current = mix(color, BLACK, t);
+  }
+  return current;
+}
+
+function contrastingAccent(panel, candidates) {
+  let best = candidates[0];
+  let bestRatio = -1;
+  for (const candidate of candidates) {
+    const ratio = contrastRatio(candidate, panel);
+    if (ratio > bestRatio) {
+      best = candidate;
+      bestRatio = ratio;
+    }
+  }
+  if (bestRatio >= TEXT_CONTRAST) return best;
+  const aim = luminance(panel) > 0.4 ? BLACK : WHITE;
+  let t = 0;
+  let color = best;
+  while (contrastRatio(color, panel) < TEXT_CONTRAST && t < 1) {
+    t = Math.min(t + 0.05, 1);
+    color = mix(best, aim, t);
+  }
+  return color;
+}
+
+/**
+ * A palette for [scene] ({colors: [[r,g,b,a] x4]}): bg, panel, text, muted, accent, border.
+ * Panels stay dark so light text still reads on the picture.
+ */
+export function paletteFor(scene) {
+  const sky = scene.colors[0];
+  const mid = scene.colors[1];
+  const rawLight = scene.colors[3] ?? WHITE;
+  const text = luminance(rawLight) >= 0.7 ? rawLight : WHITE;
+  const bg = darkenUntil(sky, text, 7.5);
+  let panel = mix(bg, WHITE, 0.08);
+  if (contrastRatio(text, panel) < TEXT_CONTRAST) panel = darkenUntil(panel, text, TEXT_CONTRAST);
+  const accent = contrastingAccent(panel, [rawLight, mid, GREEN, WHITE]);
+  return {
+    bg,
+    panel,
+    text,
+    muted: mix(text, panel, 0.42),
+    accent,
+    border: mix(panel, text, 0.18),
+    isLight: false,
+  };
+}
+
+function byte(v) {
+  return Math.round(Math.min(255, Math.max(0, v)));
+}
+
+function hex(c) {
+  const n = (v) => byte(v).toString(16).padStart(2, '0');
+  return `#${n(c[0])}${n(c[1])}${n(c[2])}`;
+}
+
+function rgba(c, a) {
+  return `rgba(${byte(c[0])},${byte(c[1])},${byte(c[2])},${a})`;
+}
+
+const ROLES = ['--bg', '--bg-2', '--panel', '--panel-2', '--panel-3', '--text', '--muted', '--accent', '--accent-2', '--accent-ink', '--border', '--highlight'];
+
+/** Puts [palette] on [el] so it wins over the stylesheet. Null clears it. */
+export function applyPalette(el, palette) {
+  if (!el) return;
+  if (!palette) {
+    for (const name of ROLES) el.style.removeProperty(name);
+    return;
+  }
+  el.style.setProperty('--bg', hex(palette.bg));
+  el.style.setProperty('--bg-2', rgba(palette.bg, 0.72));
+  el.style.setProperty('--panel', hex(palette.panel));
+  el.style.setProperty('--panel-2', hex(mix(palette.panel, WHITE, 0.06)));
+  el.style.setProperty('--panel-3', hex(mix(palette.panel, WHITE, 0.12)));
+  el.style.setProperty('--text', hex(palette.text));
+  el.style.setProperty('--muted', hex(palette.muted));
+  el.style.setProperty('--accent', hex(palette.accent));
+  el.style.setProperty('--accent-2', hex(palette.accent));
+  el.style.setProperty('--accent-ink', hex(palette.panel));
+  el.style.setProperty('--border', hex(palette.border));
+  el.style.setProperty('--highlight', rgba(palette.accent, 0.18));
+}

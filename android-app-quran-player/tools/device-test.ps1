@@ -38,7 +38,7 @@ $root = Split-Path -Parent $PSScriptRoot
 # bump silently breaks this script with a "missing APK" that looks like a build failure.
 $appApkDir = Join-Path $root "app/build/outputs/apk/debug"
 $testApk = Join-Path $root "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
-$runner = "com.quran.learnedplayer.test/androidx.test.runner.AndroidJUnitRunner"
+$runner = "com.quran.learnedayahs.test/androidx.test.runner.AndroidJUnitRunner"
 
 # -Install always rebuilds first. Compiling is not packaging: `compileDebugAndroidTestKotlin`
 # leaves the APK untouched, so installing after it silently ships the *previous* build and the
@@ -69,7 +69,7 @@ if ($Install) {
 
 # Fail early and clearly rather than letting `am instrument` report a confusing missing-runner error.
 $installed = & adb shell pm list packages 2>&1 | Out-String
-if ($installed -notmatch "com\.quran\.learnedplayer\.test") {
+if ($installed -notmatch "com\.quran\.learnedayahs\.test") {
     throw "test APK is not installed - re-run with -Install (Gradle's connectedAndroidTest uninstalls it when it finishes)"
 }
 
@@ -104,7 +104,10 @@ try {
     $args += $runner
 
     Write-Host "==> am instrument $Class" -ForegroundColor Cyan
-    & adb @args
+    & adb @args | Tee-Object -Variable testOutput
+    if ($LASTEXITCODE -ne 0 -or ($testOutput -join "`n") -notmatch 'OK \(\d+ tests?\)') {
+        throw "instrumented tests failed or did not complete; see the output above"
+    }
 } finally {
     # Restored even when the run throws or is interrupted; leaving a phone on a 2-hour screen
     # timeout is a rude thing to do to someone's device.

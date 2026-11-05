@@ -19,9 +19,11 @@ import { wordReader } from './wordReader.js';
 import { playerBackground } from './playerBackground.js';
 import { download } from './video.js';
 import { photoSubjects, thumbUrl, translation } from '../video/data.js';
-import { ASPECTS, VideoExporter, caption, fileName } from '../video/exporter.js';
+import { ASPECTS, VideoExporter, fileName } from '../video/exporter.js';
+import { applyPalette, paletteFor } from '../video/palette.js';
 import { PlayerBackgrounds } from '../video/plan.js';
 import { BackgroundScenes, THEMES, variant } from '../video/scenes.js';
+import { copyPlain, sharePlain, shareTextOf } from '../video/shareText.js';
 
 export function playerView({ store, engine, server, go }) {
   let overlay = false; // word-by-word overlay in the whole-ayah modes
@@ -165,22 +167,33 @@ export function playerView({ store, engine, server, go }) {
     });
   }
 
-  // Tap and swipe on the whole-ayah reader.
-  let startX = null;
+  // Whole-ayah navigation uses a short swipe, as on Android. Only the paged word reader
+  // uses a halfway threshold. Scrolling vertically or returning a drag is never a tap.
+  let ayahDrag = null;
   readerEl.addEventListener('pointerdown', (e) => {
-    startX = e.clientX;
+    if (reader || e.button !== 0 || ayahDrag || e.target.closest('a, button')) return;
+    ayahDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+  });
+  readerEl.addEventListener('pointermove', (e) => {
+    if (!ayahDrag || e.pointerId !== ayahDrag.id) return;
+    ayahDrag.moved ||= Math.hypot(e.clientX - ayahDrag.x, e.clientY - ayahDrag.y) > 10;
   });
   readerEl.addEventListener('pointerup', (e) => {
-    if (reader || startX == null || !engine.track) return;
-    const dx = e.clientX - startX;
-    startX = null;
-    if (e.target.closest('a, button')) return;
-    if (Math.abs(dx) > 60) {
+    if (!ayahDrag || e.pointerId !== ayahDrag.id) return;
+    const { x, y, moved } = ayahDrag;
+    ayahDrag = null;
+    if (reader || !engine.track || e.target.closest('a, button')) return;
+    const dx = e.clientX - x;
+    const dy = e.clientY - y;
+    if (Math.abs(dx) >= 56 && Math.abs(dx) > Math.abs(dy)) {
       if (store.settings.swipeToNavigate) (dx > 0 ? engine.next() : engine.prev());
-    } else if (store.settings.tapToAdvance) {
+    } else if (!moved && Math.hypot(dx, dy) <= 10 && store.settings.tapToAdvance) {
       engine.next();
     }
   });
+  const cancelAyahDrag = () => { ayahDrag = null; };
+  readerEl.addEventListener('pointercancel', cancelAyahDrag);
+  readerEl.addEventListener('pointerleave', cancelAyahDrag);
 
   // -- controls ----------------------------------------------------------------------------
 
@@ -451,10 +464,38 @@ export function playerView({ store, engine, server, go }) {
     const shapes = h('div', { class: 'chips' });
     const drawShapes = () => shapes.replaceChildren(...ASPECTS.map((a) => chip(a.ratio, a.key === aspect, () => { aspect = a.key; drawShapes(); }, `share-aspect-${a.key}`)));
     drawShapes();
+    let arabic = true;
+    let english = true;
+    const languages = h('div', { class: 'chips' });
+    const drawLanguages = () => languages.replaceChildren(
+      chip('Arabic', arabic, () => { if (arabic && !english) return; arabic = !arabic; drawLanguages(); }, 'share-text-arabic'),
+      chip('English', english, () => { if (english && !arabic) return; english = !english; drawLanguages(); }, 'share-text-english'),
+    );
+    drawLanguages();
     const status = h('p', { class: 'small muted', 'data-testid': 'share-status' });
     const content = h('div', { class: 'stack', 'data-testid': 'share-dialog' },
-      h('p', { class: 'small muted' }, 'A video of it recited, or a picture of it as it looks now.'),
-      h('div', { class: 'small muted' }, 'Image shape'), shapes, status);
+      h('p', { class: 'small muted' }, 'A video of it recited, a picture of it as it looks now, or the words themselves.'),
+      h('div', { class: 'small muted' }, 'Image shape'), shapes,
+      h('div', { class: 'small muted' }, 'Text'), languages,
+      h('button', {
+        class: 'btn', type: 'button', 'data-testid': 'share-text',
+        onClick: async () => {
+          status.textContent = '';
+          try {
+            await sharePlain(await shareTextOf(t.surah, t.ayah, t.ayah, arabic, english));
+          } catch (e) {
+            status.textContent = e.message || "The text couldn't be shared.";
+          }
+        },
+      }, 'Share text'),
+      h('button', {
+        class: 'btn', type: 'button', 'data-testid': 'copy-text',
+        onClick: async () => {
+          try { await copyPlain(shareTextOf(t.surah, t.ayah, t.ayah, arabic, english)); }
+          catch (e) { status.textContent = e.message || "The text couldn't be copied."; }
+        },
+      }, 'Copy text'),
+      status);
     // The word being recited, unless an intro is playing or the ayah hasn't started. With word
     // clips the position is into the word's own file, not the ayah: use where the word starts.
     let atMs = null;
@@ -511,7 +552,7 @@ export function playerView({ store, engine, server, go }) {
     const file = new File([blob], name, { type: 'image/jpeg' });
     if (navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], text: caption({ ...request, reciter: request.reciter.key }, request.reciter.displayName) });
+        await navigator.share({ files: [file] });
         return;
       } catch (e) {
         if (e?.name === 'AbortError') return; // closed the share sheet
@@ -561,6 +602,14 @@ export function playerView({ store, engine, server, go }) {
   // -- wiring ------------------------------------------------------------------------------
 
   const el = h('div', { class: 'player' }, background.el, head, readerEl, controls);
+  background.hooks.onScene = (spec) => {
+    const source = spec?.kind === 'PHOTO'
+      ? { colors: [[16, 20, 24, 255], [16, 20, 24, 255], [16, 20, 24, 255], [255, 255, 255, 255]] }
+      : spec;
+    const palette = source ? paletteFor(source) : null;
+    applyPalette(el, palette);
+    for (const node of document.querySelectorAll('.sidebar, .tabbar')) applyPalette(node, palette);
+  };
   function applyBackground() {
     const on = store.settings.playerBackground !== PlayerBackgrounds.PLAIN;
     el.classList.toggle('with-bg', on);
@@ -597,6 +646,7 @@ export function playerView({ store, engine, server, go }) {
       offs.forEach((off) => off());
       reader?.destroy();
       background.destroy();
+      for (const node of document.querySelectorAll('.sidebar, .tabbar')) applyPalette(node, null);
       document.getElementById('app')?.classList.remove('scene');
       closePanel();
       document.removeEventListener('visibilitychange', onVisible);

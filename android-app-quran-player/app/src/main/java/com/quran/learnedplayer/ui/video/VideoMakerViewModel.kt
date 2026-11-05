@@ -15,7 +15,6 @@ import androidx.lifecycle.viewModelScope
 import com.quran.learnedplayer.R
 import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.Reciter
-import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.video.NaturePhotos
 import com.quran.learnedplayer.video.PhotoSubject
@@ -61,10 +60,17 @@ data class VideoOptions(
     val photos: Boolean = false,
     /** Sources and "Made with Learned Ayahs" printed on the video. */
     val credits: Boolean = false,
+    /** Recite Bismillah before the ayahs. On for a range that starts at ayah 1, when the surah has one. */
+    val bismillah: Boolean = fromAyah == 1 && VideoRequest.bismillahAllowed(surah, fromAyah),
+    /** A closing page with the Play Store link. */
+    val endCard: Boolean = true,
 ) {
     val ayahCount: Int get() = toAyah - fromAyah + 1
 
-    fun toRequest() = VideoRequest(surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey, photos, credits)
+    fun toRequest() = VideoRequest(
+        surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey,
+        photos, credits, bismillah, endCard,
+    )
 
     /**
      * These options made to look like the player: its [background] (a plain player gets
@@ -143,7 +149,8 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             val new = change(old)
             val count = QuranConstants.VERSE_COUNTS[new.surah - 1]
             val from = new.fromAyah.coerceIn(1, count)
-            new.copy(fromAyah = from, toAyah = new.toAyah.coerceIn(from, count))
+            val allowed = VideoRequest.bismillahAllowed(new.surah, from)
+            new.copy(fromAyah = from, toAyah = new.toAyah.coerceIn(from, count), bismillah = new.bismillah && allowed)
         }
         if (_export.value !is ExportState.Working) _export.value = ExportState.Idle
         refreshPreview()
@@ -151,7 +158,13 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
 
     fun setSurah(surah: Int) = update {
         val count = QuranConstants.VERSE_COUNTS[surah - 1]
-        it.copy(surah = surah, fromAyah = 1, toAyah = minOf(count, DEFAULT_SURAH_AYAHS), opening = true)
+        it.copy(
+            surah = surah,
+            fromAyah = 1,
+            toAyah = minOf(count, DEFAULT_SURAH_AYAHS),
+            opening = true,
+            bismillah = VideoRequest.bismillahAllowed(surah, 1),
+        )
     }
 
     /** The theme the first ayah is matched to, shown under the "Matched" choice. */
@@ -255,7 +268,6 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "video/mp4"
             putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_TEXT, caption(_options.value))
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         return Intent.createChooser(send, "Share video")
@@ -274,24 +286,5 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             Locale.ROOT, "LearnedAyahs_%03d_%03d-%03d_%s.mp4",
             options.surah, options.fromAyah, options.toAyah, options.aspect.ratio.replace(':', 'x'),
         )
-
-        fun reference(options: VideoOptions): String {
-            val range = if (options.fromAyah == options.toAyah) "${options.fromAyah}" else "${options.fromAyah}-${options.toAyah}"
-            return "${SurahNames.name(options.surah)} ${options.surah}:$range · ${options.reciter.displayName}"
-        }
-
-        /**
-         * The text shared with the video: what it is, then its sources. The video itself carries
-         * no credits unless asked for, so this is where they travel with it.
-         */
-        fun caption(options: VideoOptions): String = buildList {
-            add(reference(options))
-            add("")
-            add("Recitation: ${options.reciter.displayName} (everyayah.com)")
-            if (options.fullTranslation) add("Translation: Saheeh International (tanzil.net)")
-            if (options.wordByWord) add("Word meanings: Quran.com")
-            if (options.photos || NaturePhotos.isPhoto(options.themeKey)) add("Background photos: Wikimedia Commons (CC0)")
-            add("Made with Learned Ayahs")
-        }.joinToString("\n")
     }
 }

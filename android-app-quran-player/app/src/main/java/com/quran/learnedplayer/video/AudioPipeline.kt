@@ -30,6 +30,7 @@ object AudioPipeline {
     fun build(
         clips: List<ClipSource>,
         scratch: File,
+        endCardMs: Long = 0,
         onClipDone: (Int) -> Unit = {},
         checkCancelled: () -> Unit = {},
     ): Pair<VideoTimeline, EncodedAudio> {
@@ -55,7 +56,7 @@ object AudioPipeline {
                 writer.write(pcm)
                 onClipDone(index)
             }
-            val built = timeline.build()
+            val built = timeline.build(endCardMs)
             writer.silenceUntil(built.totalMs)
             writer.finish()
             return built to EncodedAudio(writer.outputFormat ?: error("The audio encoder gave no format"), scratch, writer.samples)

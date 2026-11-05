@@ -39,3 +39,6 @@ Thumbs.db
 
 /graphify-out/
 /.cursor/
+
+# Kotlin compiler daemon session data and crash logs
+.kotlin/

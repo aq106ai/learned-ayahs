@@ -4,9 +4,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CROSSFADE_MS, LiveBackground, MIN_HOLD_MS, PlayerBackgrounds, backgroundAt, buildTimeline, clipAt, planBackgrounds } from '../../static/js/video/plan.js';
+import { CROSSFADE_MS, END_CARD_MS, LiveBackground, MIN_HOLD_MS, PlayerBackgrounds, backgroundAt, buildTimeline, clipAt, planBackgrounds, showsEndCard } from '../../static/js/video/plan.js';
 import { activeWordIndex, layoutAyah, pageAt, splitTranslation } from '../../static/js/video/layout.js';
 import { FALLBACK, THEMES } from '../../static/js/video/themes.js';
+import { variant } from '../../static/js/video/scenes.js';
+import { contrastRatio, paletteFor } from '../../static/js/video/palette.js';
+import { bismillahAllowed, clipsOf } from '../../static/js/video/exporter.js';
+import { formatShareText } from '../../static/js/video/shareText.js';
 
 const ASSETS = new URL('../../../android-app-quran-player/app/src/main/assets/', import.meta.url);
 
@@ -14,6 +18,12 @@ test('the timeline lays clips end to end with a lead-in, gaps and a tail', () =>
   const t = buildTimeline([{ kind: 'AUDHU', durationMs: 600 }, { kind: 'AYAH', surah: 112, ayah: 1, durationMs: 1200 }]);
   assert.deepEqual(t.clips.map((c) => [c.startMs, c.endMs]), [[500, 1100], [1500, 2700]]);
   assert.equal(t.totalMs, 2700 + 1800);
+  assert.equal(t.endCardMs, 0);
+  assert.equal(showsEndCard(t, t.totalMs - 1), false);
+  const withCard = buildTimeline([{ kind: 'AYAH', surah: 112, ayah: 1, durationMs: 1200 }], END_CARD_MS);
+  assert.equal(withCard.totalMs, 500 + 1200 + 1800 + END_CARD_MS);
+  assert.equal(showsEndCard(withCard, withCard.totalMs - END_CARD_MS), true);
+  assert.equal(showsEndCard(withCard, withCard.totalMs - END_CARD_MS - 1), false);
   assert.equal(clipAt(t, 0).kind, 'AUDHU');
   assert.equal(clipAt(t, 1300).kind, 'AUDHU', 'between clips the last one stays on screen');
   assert.equal(clipAt(t, 1500).kind, 'AYAH');
@@ -83,6 +93,35 @@ test('the word being recited, and translations split for pages', () => {
   assert.deepEqual(splitTranslation('a', 3), ['a', '', '']);
 });
 
+test('a scene palette keeps text readable, and Bismillah follows the same rules as the app', () => {
+  const photo = { colors: [[16, 20, 24, 255], [16, 20, 24, 255], [16, 20, 24, 255], [255, 255, 255, 255]] };
+  for (const theme of THEMES) {
+    for (let i = 0; i < theme.variants.length; i++) {
+      const palette = paletteFor(variant(theme.key, i));
+      assert.ok(contrastRatio(palette.text, palette.panel) >= 4.5, theme.key);
+      assert.ok(contrastRatio(palette.text, palette.bg) >= 4.5, theme.key);
+      assert.ok(contrastRatio(palette.accent, palette.panel) >= 4.5, theme.key);
+      assert.equal(palette.isLight, false);
+    }
+  }
+  const photos = paletteFor(photo);
+  assert.ok(contrastRatio(photos.text, photos.panel) >= 4.5);
+  assert.equal(photos.isLight, false);
+  assert.equal(bismillahAllowed(9, 1), false);
+  assert.equal(bismillahAllowed(1, 1), false);
+  assert.equal(bismillahAllowed(112, 2), true);
+  assert.deepEqual(clipsOf({ surah: 112, fromAyah: 2, toAyah: 2, opening: false, bismillah: true }).map((c) => c.kind), ['BISMILLAH', 'AYAH']);
+  assert.deepEqual(clipsOf({ surah: 9, fromAyah: 1, toAyah: 1, opening: true, bismillah: true }).map((c) => c.kind), ['AUDHU', 'AYAH']);
+  assert.equal(
+    formatShareText('Al-Ikhlas', 112, [{ number: 1, arabic: 'قُلْ هُوَ ٱللَّهُ أَحَدٌ', english: 'Say, He is Allah, One.' }], true, true),
+    'قُلْ هُوَ ٱللَّهُ أَحَدٌ\nSay, He is Allah, One.\n\nAl-Ikhlas 112:1',
+  );
+  assert.equal(
+    formatShareText('Al-Ikhlas', 112, [{ number: 1, arabic: 'قُلْ هُوَ ٱللَّهُ أَحَدٌ', english: 'Say, He is Allah, One.' }], true, false),
+    'قُلْ هُوَ ٱللَّهُ أَحَدٌ\n\nAl-Ikhlas 112:1',
+  );
+});
+
 test("the web app's themes match the ayah map the Android app ships", () => {
   const map = JSON.parse(readFileSync(new URL('video_themes.json', ASSETS), 'utf8'));
   const keys = new Set(THEMES.map((t) => t.key));
@@ -90,4 +129,10 @@ test("the web app's themes match the ayah map the Android app ships", () => {
   for (const k of map.themes) assert.ok(keys.has(k), `theme ${k} from video_themes.json`);
   assert.ok(keys.has(FALLBACK));
   for (const t of THEMES) for (const [, colors] of t.variants) assert.equal(colors.length, 4);
+});
+
+
+test('text sharing rejects an empty range or no selected language', () => {
+  assert.throws(() => formatShareText('Al-Ikhlas', 112, [], true, true), /at least one ayah/);
+  assert.throws(() => formatShareText('Al-Ikhlas', 112, [{ number: 1, arabic: 'text' }], false, false), /at least the Arabic/);
 });

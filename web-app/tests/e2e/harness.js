@@ -68,7 +68,7 @@ export async function startServer({ registration = 'open', audio = DEFAULT_AUDIO
   const cache = join(dir, 'audio-cache');
   seedAudio(cache, audio);
   const proc = spawn(
-    'python3',
+    (process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3')),
     ['server.py', '--port', '0', '--db', join(dir, 'test.db'), '--audio-cache', cache, '--no-fetch-audio', '--registration', registration],
     { cwd: WEB_APP, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PYTHONUNBUFFERED: '1' } },
   );
@@ -85,7 +85,8 @@ export async function startServer({ registration = 'open', audio = DEFAULT_AUDIO
         resolve(`http://127.0.0.1:${m[1]}/`);
       }
     });
-    proc.on('exit', (code) => reject(new Error(`server exited (${code}):\n${stderr}`)));
+    proc.on('exit', (code) => { clearTimeout(timer); reject(new Error(`server exited (${code}):\n${stderr}`)); });
+    proc.on('error', (error) => { clearTimeout(timer); reject(error); });
   });
   return {
     url,

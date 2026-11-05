@@ -15,12 +15,14 @@ export function wordReader({ engine, store }) {
   const wordFileMode = () => engine.mode === PlaybackMode.WORD_BY_WORD;
   let local = 0; // overlay position
   let followUntil = 0;
+  let drag = null;
 
   const big = h('div', { class: 'big', lang: 'ar', 'data-testid': 'word-current' });
   const meaning = h('div', { class: 'meaning', 'data-testid': 'word-meaning' });
   const counter = h('div', { class: 'counter', 'data-testid': 'word-counter' });
   const dots = h('div', { class: 'word-dots', 'aria-hidden': 'true' });
-  const el = h('div', { class: 'word-reader', 'data-testid': 'word-reader' }, big, meaning, counter, dots);
+  const stage = h('div', { class: 'word-stage' }, big, meaning, counter, dots);
+  const el = h('div', { class: 'word-reader', 'data-testid': 'word-reader' }, stage);
 
   const words = () => engine.contentWords;
   const position = () => (wordFileMode() ? engine.wordIndex : local);
@@ -69,7 +71,7 @@ export function wordReader({ engine, store }) {
 
   // Follow playback (overlay only, and not straight after the user moved the reader).
   const offTick = engine.on('tick', () => {
-    if (wordFileMode() || !engine.playing || performance.now() < followUntil) return;
+    if (drag || wordFileMode() || !engine.playing || performance.now() < followUntil) return;
     const active = engine.activeWord;
     if (active >= 0 && active !== local) {
       local = active;
@@ -87,23 +89,71 @@ export function wordReader({ engine, store }) {
   // Every controller's Next/Previous steps words while the overlay is open.
   if (!wordFileMode()) engine.stepWordHook = (delta) => step(delta);
 
-  // Swipe (RTL) and tap.
-  let startX = null;
-  el.addEventListener('pointerdown', (e) => {
-    startX = e.clientX;
-  });
-  el.addEventListener('pointerup', (e) => {
-    if (startX == null) return;
-    const dx = e.clientX - startX;
-    startX = null;
-    if (Math.abs(dx) > 50) {
-      if (!store.settings.swipeToNavigate) return;
-      step(dx > 0 ? 1 : -1); // a rightward swipe advances, the way an Arabic book turns
-    } else if (store.settings.tapToAdvance) {
-      step(1);
-    } else if (wordFileMode()) {
-      engine.loadWord(engine.wordIndex, { autoplay: true });
+  // The word follows the finger. Past half the width it settles on the next word (a rightward
+  // swipe advances, the way an Arabic book turns); short of that it snaps back. A drag is not a tap.
+  let settleToken = 0;
+  function snapHome() {
+    const token = ++settleToken;
+    stage.classList.add('settle');
+    stage.style.transform = 'translateX(0px)';
+    const finish = () => {
+      stage.removeEventListener('transitionend', finish);
+      if (token !== settleToken) return;
+      settleToken++;
+      stage.classList.remove('settle');
+      stage.style.transform = '';
+    };
+    stage.addEventListener('transitionend', finish);
+    setTimeout(finish, 280);
+  }
+  function endDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x;
+    const moved = drag.moved || Math.abs(dx) > 10 || Math.abs(e.clientY - drag.y) > 10;
+    drag = null;
+    followUntil = performance.now() + 1500;
+    if (el.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    const width = el.clientWidth || 1;
+    const swipe = store.settings.swipeToNavigate;
+    if (swipe && Math.abs(dx) > width * 0.5) {
+      stage.classList.remove('settle');
+      stage.style.transform = '';
+      step(dx > 0 ? 1 : -1);
+      return;
     }
+    if (moved) {
+      if (stage.style.transform) snapHome();
+      return;
+    }
+    stage.style.transform = '';
+    if (store.settings.tapToAdvance) step(1);
+    else if (wordFileMode()) engine.loadWord(engine.wordIndex, { autoplay: true });
+  }
+  el.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || drag) return;
+    settleToken++;
+    drag = { x: e.clientX, y: e.clientY, id: e.pointerId, moved: false };
+    stage.style.transform = '';
+    stage.classList.remove('settle');
+    if (store.settings.swipeToNavigate) el.setPointerCapture?.(e.pointerId);
+  });
+  el.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x;
+    drag.moved ||= Math.abs(dx) > 10 || Math.abs(e.clientY - drag.y) > 10;
+    if (store.settings.swipeToNavigate && drag.moved) stage.style.transform = `translateX(${dx}px)`;
+  });
+  el.addEventListener('pointerup', endDrag);
+  function cancelDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag = null;
+    followUntil = performance.now() + 1500;
+    if (stage.style.transform) snapHome();
+  }
+  el.addEventListener('pointercancel', cancelDrag);
+  el.addEventListener('lostpointercapture', cancelDrag);
+  el.addEventListener('pointerleave', (e) => {
+    if (!el.hasPointerCapture?.(e.pointerId)) cancelDrag(e);
   });
 
   render();
@@ -111,6 +161,8 @@ export function wordReader({ engine, store }) {
     el,
     step,
     destroy() {
+      settleToken++;
+      drag = null;
       offTick();
       offTrack();
       offWord();

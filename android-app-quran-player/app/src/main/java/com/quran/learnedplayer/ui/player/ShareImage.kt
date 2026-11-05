@@ -7,7 +7,6 @@ import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import com.quran.learnedplayer.R
 import com.quran.learnedplayer.player.PlayerSettings
-import com.quran.learnedplayer.ui.video.VideoMakerViewModel
 import com.quran.learnedplayer.ui.video.VideoOptions
 import com.quran.learnedplayer.video.VideoAspect
 import com.quran.learnedplayer.video.VideoExporter
@@ -18,8 +17,8 @@ import java.util.Locale
 
 /**
  * "Share → Image": the ayah playing now as a picture, drawn exactly like a frame of a shared
- * video (same background, card, text and highlighted word), in the shape the user picked. The
- * sources go in the message it's shared with, as for a video.
+ * video (same background, card, text and highlighted word), in the shape the user picked.
+ * The picture goes out on its own; the words are a separate share.
  */
 object ShareImage {
     /** How long a shared picture is kept for the app it went to. */
@@ -64,12 +63,11 @@ object ShareImage {
         file
     }
 
-    fun shareIntent(context: Context, file: File, options: VideoOptions): Intent {
+    fun shareIntent(context: Context, file: File): Intent {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "image/jpeg"
             putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_TEXT, VideoMakerViewModel.caption(options))
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         return Intent.createChooser(send, "Share image")

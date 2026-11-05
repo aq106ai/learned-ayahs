@@ -8,10 +8,11 @@
 import { h, icon, toast } from '../lib/dom.js';
 import { SURAH_COUNT, surahName, verseCount } from '../core/quran.js';
 import { RECITERS, reciterFromKey } from '../core/reciters.js';
-import { ASPECTS, VideoExporter, aspectFromKey, caption, fileName, supportedFormat } from '../video/exporter.js';
+import { ASPECTS, VideoExporter, aspectFromKey, bismillahAllowed, fileName, supportedFormat } from '../video/exporter.js';
 import { isPhoto, photoSubjects, thumbUrl, themeKey } from '../video/data.js';
 import { PlayerBackgrounds } from '../video/plan.js';
 import { BackgroundScenes, THEMES, theme, variant } from '../video/scenes.js';
+import { copyPlain, sharePlain, shareTextOf } from '../video/shareText.js';
 
 const DEFAULT_SURAH_AYAHS = 10;
 const PREVIEW_W = 540;
@@ -30,19 +31,24 @@ export function videoView({ store, engine, server, go, params }) {
   const surah = Math.min(Math.max(Number(params[0]) || 1, 1), SURAH_COUNT);
   const ayah = Number(params[1]) || 0;
   const count = verseCount(surah);
+  const fromAyah = ayah >= 1 && ayah <= count ? ayah : 1;
   let options = {
     surah,
-    fromAyah: ayah >= 1 && ayah <= count ? ayah : 1,
+    fromAyah,
     toAyah: ayah >= 1 && ayah <= count ? ayah : Math.min(count, DEFAULT_SURAH_AYAHS),
     reciter: store.settings.reciter,
     aspect: 'PORTRAIT',
     wordByWord: true,
     fullTranslation: true,
     opening: !(ayah > 1),
+    bismillah: fromAyah === 1 && bismillahAllowed(surah, fromAyah),
+    endCard: true,
     themeKey: null,
     photos: false,
     credits: false,
   };
+  let textArabic = true;
+  let textEnglish = true;
   if (params[2] === 'player') options = likeThePlayer(options, store.settings);
 
   const exporter = new VideoExporter({ proxy: Boolean(server.available) && !store.settings.streamDirect });
@@ -85,6 +91,7 @@ export function videoView({ store, engine, server, go, params }) {
     const max = verseCount(options.surah);
     options.fromAyah = Math.min(Math.max(options.fromAyah, 1), max);
     options.toAyah = Math.min(Math.max(options.toAyah, options.fromAyah), max);
+    if (!bismillahAllowed(options.surah, options.fromAyah)) options.bismillah = false;
     result = null;
     render();
     refreshPreview();
@@ -141,7 +148,7 @@ export function videoView({ store, engine, server, go, params }) {
     const max = verseCount(options.surah);
     const surahSelect = h('select', { class: 'select', disabled: working, 'data-testid': 'video-surah', onChange: (e) => {
       const s = Number(e.target.value);
-      update({ surah: s, fromAyah: 1, toAyah: Math.min(verseCount(s), DEFAULT_SURAH_AYAHS), opening: true });
+      update({ surah: s, fromAyah: 1, toAyah: Math.min(verseCount(s), DEFAULT_SURAH_AYAHS), opening: true, bismillah: bismillahAllowed(s, 1) });
       refreshMatched();
     } }, Array.from({ length: SURAH_COUNT }, (_, i) => h('option', { value: i + 1, selected: i + 1 === options.surah }, `${i + 1} · ${surahName(i + 1)}`)));
 
@@ -150,17 +157,29 @@ export function videoView({ store, engine, server, go, params }) {
       h('div', { class: 'row' },
         stepper('From ayah', options.fromAyah, 1, max, (v) => { update({ fromAyah: v, toAyah: Math.max(v, options.toAyah) }); refreshMatched(); }, 'video-from'),
         stepper('To ayah', options.toAyah, options.fromAyah, max, (v) => update({ toAyah: v }), 'video-to'),
-        h('button', { class: 'btn small', type: 'button', disabled: working, onClick: () => update({ fromAyah: 1, toAyah: max, opening: true }) }, 'Whole surah')),
+        h('button', { class: 'btn small', type: 'button', disabled: working, onClick: () => update({ fromAyah: 1, toAyah: max, opening: true, bismillah: bismillahAllowed(options.surah, 1) }) }, 'Whole surah')),
       h('p', { class: 'small muted' }, `${max} ayahs in ${surahName(options.surah)}`));
 
     const shape = section('Shape', h('div', { class: 'chips' }, ASPECTS.map((a) => chip(`${a.ratio} · ${a.label}`, options.aspect === a.key, () => update({ aspect: a.key }), `video-aspect-${a.key}`))));
     const reciter = section('Reciter', h('div', { class: 'chips' }, RECITERS.map((r) => chip(r.displayName, options.reciter === r.key, () => update({ reciter: r.key }), `video-reciter-${r.key}`))));
-    const bismillah = options.fromAyah === 1 && options.surah !== 1 && options.surah !== 9;
+    const allowed = bismillahAllowed(options.surah, options.fromAyah);
+    const bismillahNote = options.surah === 9
+      ? 'At-Tawbah is recited without it'
+      : options.surah === 1 && options.fromAyah === 1
+        ? 'This ayah is the Bismillah'
+        : 'Recited before the ayahs';
     const text = section('Text',
       toggle('wordByWord', 'Word-by-word meanings', 'Under each Arabic word'),
       toggle('fullTranslation', 'Translation', 'Saheeh International'),
-      toggle('opening', bismillah ? "Begin with A'udhu and Bismillah" : "Begin with A'udhu", 'Recited before the first ayah'),
-      toggle('credits', 'Credits on video', 'Sources in small print under the text. Off, they go in the share message'));
+      toggle('opening', "Begin with A'udhu", 'Recited before the ayahs'),
+      h('label', { class: 'toggle-row' },
+        h('span', { class: 'text' }, h('strong', {}, 'Include Bismillah'), h('span', {}, bismillahNote)),
+        h('input', {
+          class: 'switch', type: 'checkbox', checked: options.bismillah && allowed, disabled: working || !allowed,
+          'data-testid': 'video-bismillah', onChange: (e) => update({ bismillah: e.target.checked }),
+        })),
+      toggle('endCard', 'End card', 'A closing page with the Play Store link'),
+      toggle('credits', 'Credits on video', 'Sources in small print under the text'));
 
     const tiles = h('div', { class: 'theme-row' },
       tile('Matched', matchedTitle, options.themeKey === null, null, () => update({ themeKey: null }), 'video-theme-matched'),
@@ -177,7 +196,7 @@ export function videoView({ store, engine, server, go, params }) {
         ? 'Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. Videos carry no music, only the recitation.'
         : 'Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation.'));
 
-    body.replaceChildren(ayahs, shape, reciter, text, background, videoSection());
+    body.replaceChildren(ayahs, shape, reciter, text, background, textSection(), videoSection());
   }
 
   // -- making it -----------------------------------------------------------------------------
@@ -200,10 +219,8 @@ export function videoView({ store, engine, server, go, params }) {
         h('p', {}, `Your video is ready (${mb} MB, ${result.format.ext.toUpperCase()}).`),
         h('div', { class: 'row' },
           h('button', { class: 'btn primary', type: 'button', 'data-testid': 'video-download', onClick: () => download(result.blob, name) }, icon('download'), 'Download'),
-          canShare ? h('button', { class: 'btn', type: 'button', 'data-testid': 'video-share', onClick: () => navigator.share({ files: [file], text: caption(options, r.displayName) }).catch(() => {}) }, icon('share'), 'Share') : null,
-          h('button', { class: 'btn ghost', type: 'button', onClick: () => { result = null; render(); } }, 'Make another')),
-        h('p', { class: 'small muted' }, 'When you post it, the sources go in the text:'),
-        h('pre', { class: 'caption-text', 'data-testid': 'video-caption' }, caption(options, r.displayName)));
+          canShare ? h('button', { class: 'btn', type: 'button', 'data-testid': 'video-share', onClick: () => navigator.share({ files: [file] }).catch(() => {}) }, icon('share'), 'Share') : null,
+          h('button', { class: 'btn ghost', type: 'button', onClick: () => { result = null; render(); } }, 'Make another')));
     }
     return section('Video',
       h('p', { class: 'small muted' }, `${n} ayah${n === 1 ? '' : 's'} · ${r.displayName}. It's made in this browser; keep this page open until it's done.`),
@@ -217,6 +234,38 @@ export function videoView({ store, engine, server, go, params }) {
       ? (f.container === 'mp4' ? 'Saved as MP4.' : 'Saved as WebM (this browser can’t write MP4; YouTube and most players take WebM).')
       : 'This browser can’t make videos. Use a recent Chrome, Edge or Safari.';
   });
+
+  function textSection() {
+    return section('Share text',
+      h('div', { class: 'chips' },
+        chip('Arabic', textArabic, () => setTextLang(true), 'video-text-arabic'),
+        chip('English', textEnglish, () => setTextLang(false), 'video-text-english')),
+      h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-share-text', onClick: () => shareRangeText(false) }, 'Share text'),
+      h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-copy-text', onClick: () => shareRangeText(true) }, 'Copy text'));
+  }
+
+  function setTextLang(arabic) {
+    setTimeout(() => {
+      if (arabic) {
+        if (textArabic && !textEnglish) return;
+        textArabic = !textArabic;
+      } else {
+        if (textEnglish && !textArabic) return;
+        textEnglish = !textEnglish;
+      }
+      render();
+    });
+  }
+
+  async function shareRangeText(copy = false) {
+    try {
+      const text = shareTextOf(options.surah, options.fromAyah, options.toAyah, textArabic, textEnglish);
+      // Copy hands the clipboard the pending text inside the tap; sharing needs the words first.
+      await (copy ? copyPlain(text) : sharePlain(await text));
+    } catch (e) {
+      toast(e.message || "The text couldn't be shared.", { error: true });
+    }
+  }
 
   async function create() {
     job = new AbortController();

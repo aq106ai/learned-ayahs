@@ -1,0 +1,211 @@
+[abdulbasit_mujawwad] surah   1/114  ayahs=7
+[abdulbasit_mujawwad] surah   2/114  ayahs=293
+[abdulbasit_mujawwad] surah   3/114  ayahs=493
+[abdulbasit_mujawwad] surah   4/114  ayahs=669
+[abdulbasit_mujawwad] surah   5/114  ayahs=789
+[abdulbasit_mujawwad] surah   6/114  ayahs=954
+[abdulbasit_mujawwad] surah   7/114  ayahs=1160
+[abdulbasit_mujawwad] surah   8/114  ayahs=1235
+[abdulbasit_mujawwad] surah   9/114  ayahs=1364
+[abdulbasit_mujawwad] surah  10/114  ayahs=1473
+[abdulbasit_mujawwad] surah  11/114  ayahs=1596
+[abdulbasit_mujawwad] surah  12/114  ayahs=1707
+[abdulbasit_mujawwad] surah  13/114  ayahs=1750
+[abdulbasit_mujawwad] surah  14/114  ayahs=1802
+[abdulbasit_mujawwad] surah  15/114  ayahs=1901
+[abdulbasit_mujawwad] surah  16/114  ayahs=2029
+[abdulbasit_mujawwad] surah  17/114  ayahs=2140
+[abdulbasit_mujawwad] surah  18/114  ayahs=2250
+[abdulbasit_mujawwad] surah  19/114  ayahs=2348
+[abdulbasit_mujawwad] surah  20/114  ayahs=2483
+[abdulbasit_mujawwad] surah  21/114  ayahs=2595
+[abdulbasit_mujawwad] surah  22/114  ayahs=2673
+[abdulbasit_mujawwad] surah  23/114  ayahs=2791
+[abdulbasit_mujawwad] surah  24/114  ayahs=2855
+[abdulbasit_mujawwad] surah  25/114  ayahs=2932
+[abdulbasit_mujawwad] surah  26/114  ayahs=3159
+[abdulbasit_mujawwad] surah  27/114  ayahs=3252
+[abdulbasit_mujawwad] surah  28/114  ayahs=3340
+[abdulbasit_mujawwad] surah  29/114  ayahs=3409
+[abdulbasit_mujawwad] surah  30/114  ayahs=3469
+[abdulbasit_mujawwad] surah  31/114  ayahs=3503
+[abdulbasit_mujawwad] surah  32/114  ayahs=3533
+[abdulbasit_mujawwad] surah  33/114  ayahs=3606
+[abdulbasit_mujawwad] surah  34/114  ayahs=3660
+[abdulbasit_mujawwad] surah  35/114  ayahs=3705
+[abdulbasit_mujawwad] surah  36/114  ayahs=3788
+[abdulbasit_mujawwad] surah  37/114  ayahs=3970
+[abdulbasit_mujawwad] surah  38/114  ayahs=4058
+[abdulbasit_mujawwad] surah  39/114  ayahs=4133
+[abdulbasit_mujawwad] surah  40/114  ayahs=4218
+[abdulbasit_mujawwad] surah  41/114  ayahs=4272
+[abdulbasit_mujawwad] surah  42/114  ayahs=4325
+[abdulbasit_mujawwad] surah  43/114  ayahs=4414
+[abdulbasit_mujawwad] surah  44/114  ayahs=4473
+[abdulbasit_mujawwad] surah  45/114  ayahs=4510
+[abdulbasit_mujawwad] surah  46/114  ayahs=4545
+[abdulbasit_mujawwad] surah  47/114  ayahs=4583
+[abdulbasit_mujawwad] surah  48/114  ayahs=4612
+[abdulbasit_mujawwad] surah  49/114  ayahs=4630
+[abdulbasit_mujawwad] surah  50/114  ayahs=4675
+[abdulbasit_mujawwad] surah  51/114  ayahs=4735
+[abdulbasit_mujawwad] surah  52/114  ayahs=4784
+[abdulbasit_mujawwad] surah  53/114  ayahs=4846
+[abdulbasit_mujawwad] surah  54/114  ayahs=4901
+[abdulbasit_mujawwad] surah  55/114  ayahs=4979
+[abdulbasit_mujawwad] surah  56/114  ayahs=5075
+[abdulbasit_mujawwad] surah  57/114  ayahs=5104
+[abdulbasit_mujawwad] surah  58/114  ayahs=5126
+[abdulbasit_mujawwad] surah  59/114  ayahs=5150
+[abdulbasit_mujawwad] surah  60/114  ayahs=5163
+[abdulbasit_mujawwad] surah  61/114  ayahs=5177
+[abdulbasit_mujawwad] surah  62/114  ayahs=5188
+[abdulbasit_mujawwad] surah  63/114  ayahs=5199
+[abdulbasit_mujawwad] surah  64/114  ayahs=5217
+[abdulbasit_mujawwad] surah  65/114  ayahs=5229
+[abdulbasit_mujawwad] surah  66/114  ayahs=5241
+[abdulbasit_mujawwad] surah  67/114  ayahs=5271
+[abdulbasit_mujawwad] surah  68/114  ayahs=5323
+[abdulbasit_mujawwad] surah  69/114  ayahs=5375
+[abdulbasit_mujawwad] surah  70/114  ayahs=5419
+[abdulbasit_mujawwad] surah  71/114  ayahs=5447
+[abdulbasit_mujawwad] surah  72/114  ayahs=5475
+[abdulbasit_mujawwad] surah  73/114  ayahs=5495
+[abdulbasit_mujawwad] surah  74/114  ayahs=5551
+[abdulbasit_mujawwad] surah  75/114  ayahs=5591
+[abdulbasit_mujawwad] surah  76/114  ayahs=5622
+[abdulbasit_mujawwad] surah  77/114  ayahs=5672
+[abdulbasit_mujawwad] surah  78/114  ayahs=5712
+[abdulbasit_mujawwad] surah  79/114  ayahs=5758
+[abdulbasit_mujawwad] surah  80/114  ayahs=5800
+[abdulbasit_mujawwad] surah  81/114  ayahs=5829
+[abdulbasit_mujawwad] surah  82/114  ayahs=5848
+[abdulbasit_mujawwad] surah  83/114  ayahs=5884
+[abdulbasit_mujawwad] surah  84/114  ayahs=5909
+[abdulbasit_mujawwad] surah  85/114  ayahs=5931
+[abdulbasit_mujawwad] surah  86/114  ayahs=5948
+[abdulbasit_mujawwad] surah  87/114  ayahs=5967
+[abdulbasit_mujawwad] surah  88/114  ayahs=5993
+[abdulbasit_mujawwad] surah  89/114  ayahs=6023
+[abdulbasit_mujawwad] surah  90/114  ayahs=6043
+[abdulbasit_mujawwad] surah  91/114  ayahs=6058
+[abdulbasit_mujawwad] surah  92/114  ayahs=6079
+[abdulbasit_mujawwad] surah  93/114  ayahs=6090
+[abdulbasit_mujawwad] surah  94/114  ayahs=6098
+[abdulbasit_mujawwad] surah  95/114  ayahs=6106
+[abdulbasit_mujawwad] surah  96/114  ayahs=6125
+[abdulbasit_mujawwad] surah  97/114  ayahs=6130
+[abdulbasit_mujawwad] surah  98/114  ayahs=6138
+[abdulbasit_mujawwad] surah  99/114  ayahs=6146
+[abdulbasit_mujawwad] surah 100/114  ayahs=6157
+[abdulbasit_mujawwad] surah 101/114  ayahs=6168
+[abdulbasit_mujawwad] surah 102/114  ayahs=6176
+[abdulbasit_mujawwad] surah 103/114  ayahs=6179
+[abdulbasit_mujawwad] surah 104/114  ayahs=6188
+[abdulbasit_mujawwad] surah 105/114  ayahs=6193
+[abdulbasit_mujawwad] surah 106/114  ayahs=6197
+[abdulbasit_mujawwad] surah 107/114  ayahs=6204
+[abdulbasit_mujawwad] surah 108/114  ayahs=6207
+[abdulbasit_mujawwad] surah 109/114  ayahs=6213
+[abdulbasit_mujawwad] surah 110/114  ayahs=6216
+[abdulbasit_mujawwad] surah 111/114  ayahs=6221
+[abdulbasit_mujawwad] surah 112/114  ayahs=6225
+[abdulbasit_mujawwad] surah 113/114  ayahs=6230
+[abdulbasit_mujawwad] surah 114/114  ayahs=6236
+6212 recordings
+last word: voice end - onset = 1714 ms + 432 ms per letter (fitted)
+
+Finding the last word's start, scored on ayahs whose last word QUL timed (error in ms):
+       letters: {'found': 1.0, 'p50': 560, 'p90': 1420, 'within150': 0.112, 'within300': 0.259, 'useful': 0.112, 'of': 116}
+           fit: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-gap2-mid-60: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-gap2-mid-120: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-gap2-mid-200: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-gap2-end-60: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-gap2-end-120: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-gap2-end-200: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-dip3-60: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-dip6-60: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.086, 'within300': 0.207, 'useful': 0.086, 'of': 116}
+  fit-snap-dip6-200: {'found': 1.0, 'p50': 620, 'p90': 1460, 'within150': 0.086, 'within300': 0.216, 'useful': 0.086, 'of': 116}
+  fit-snap-dip3-120: {'found': 1.0, 'p50': 600, 'p90': 1480, 'within150': 0.078, 'within300': 0.216, 'useful': 0.078, 'of': 116}
+  fit-snap-dip6-120: {'found': 1.0, 'p50': 620, 'p90': 1480, 'within150': 0.078, 'within300': 0.216, 'useful': 0.078, 'of': 116}
+  fit-snap-dip3-200: {'found': 1.0, 'p50': 600, 'p90': 1460, 'within150': 0.069, 'within300': 0.25, 'useful': 0.069, 'of': 116}
+  near-dip3-35: {'found': 0.991, 'p50': 600, 'p90': 1400, 'within150': 0.035, 'within300': 0.313, 'useful': 0.034, 'of': 116}
+  near-dip3-50: {'found': 0.991, 'p50': 600, 'p90': 1400, 'within150': 0.035, 'within300': 0.313, 'useful': 0.034, 'of': 116}
+  near-dip6-35: {'found': 0.724, 'p50': 600, 'p90': 1580, 'within150': 0.024, 'within300': 0.321, 'useful': 0.017, 'of': 116}
+  near-dip6-50: {'found': 0.793, 'p50': 620, 'p90': 1700, 'within150': 0.022, 'within300': 0.293, 'useful': 0.017, 'of': 116}
+  near-gap2-end-35: {'found': 0.181, 'p50': 1180, 'p90': 2000, 'within150': 0.048, 'within300': 0.095, 'useful': 0.009, 'of': 116}
+  near-gap2-end-50: {'found': 0.353, 'p50': 2220, 'p90': 4160, 'within150': 0.024, 'within300': 0.049, 'useful': 0.009, 'of': 116}
+        sliver: {'found': 1.0, 'p50': 4830, 'p90': 6750, 'within150': 0.0, 'within300': 0.0, 'useful': 0.0, 'of': 116}
+  near-gap2-mid-35: {'found': 0.164, 'p50': 1150, 'p90': 3000, 'within150': 0.0, 'within300': 0.158, 'useful': 0.0, 'of': 116}
+  near-gap2-mid-50: {'found': 0.371, 'p50': 2680, 'p90': 4360, 'within150': 0.0, 'within300': 0.07, 'useful': 0.0, 'of': 116}
+chosen: letters
+
+abdulbasit_mujawwad: 6212 ayahs: 244 fine, 5931 repaired (927 last words, 5894 first words), 0 shifted, 37 dropped
+
+Dropped, by reason:
+     34  first word ms:  2:30 (first word -1460 ms from the voice); 2:55 (first word -1480 ms from the voice); 2:67 (first word -2640 ms from the voice); 2:83 (first word -3780 ms from the voice)
+      3  words start inside:  4:12 (1 words start inside a silence); 4:95 (1 words start inside a silence); 45:21 (1 words start inside a silence)
+
+Shifted:
+
+Last words moved (largest first):
+      5:29  38970 -> 30520 ms
+     7:105  42130 -> 34320 ms
+     10:68  64250 -> 56440 ms
+     26:17  14630 -> 7040 ms
+     43:59  26730 -> 19160 ms
+     49:11  132850 -> 125300 ms
+    10:103  30450 -> 23100 ms
+      24:9  22610 -> 15260 ms
+     26:59  18330 -> 11000 ms
+      7:52  31130 -> 23860 ms
+      7:70  41210 -> 34020 ms
+      9:26  50570 -> 43400 ms
+      3:68  40850 -> 33700 ms
+     26:22  24050 -> 16900 ms
+      60:9  67410 -> 60260 ms
+     39:34  27610 -> 20540 ms
+      15:7  21570 -> 14600 ms
+     10:82  20930 -> 14020 ms
+      41:3  26610 -> 19700 ms
+     32:23  35170 -> 28340 ms
+
+Dropped:
+      2:30  first word -1460 ms from the voice
+      2:55  first word -1480 ms from the voice
+      2:67  first word -2640 ms from the voice
+      2:83  first word -3780 ms from the voice
+     2:283  first word +50920 ms from the voice
+      3:65  first word +1890 ms from the voice
+      3:66  first word +1820 ms from the voice
+      3:70  first word +1930 ms from the voice
+      3:71  first word +2210 ms from the voice
+      4:12  1 words start inside a silence
+      4:92  first word +1900 ms from the voice
+      4:95  1 words start inside a silence
+     4:171  first word +2110 ms from the voice
+      5:15  first word +2250 ms from the voice
+      5:19  first word +2210 ms from the voice
+      7:54  first word +1820 ms from the voice
+     7:104  first word +1510 ms from the voice
+      8:32  first word -1780 ms from the voice
+     9:120  first word +2360 ms from the voice
+     11:31  first word +2000 ms from the voice
+     11:76  first word +3050 ms from the voice
+     19:44  first word +1740 ms from the voice
+     19:45  first word +1520 ms from the voice
+     20:83  first word +1820 ms from the voice
+     25:30  first word +2180 ms from the voice
+     29:56  first word +3260 ms from the voice
+      33:7  first word -1660 ms from the voice
+     33:10  first word -3600 ms from the voice
+    37:152  first word +4560 ms from the voice
+     39:16  first word +1850 ms from the voice
+     45:21  1 words start inside a silence
+     47:38  first word +2200 ms from the voice
+      57:7  first word +4140 ms from the voice
+     79:41  first word +2810 ms from the voice
+     84:18  first word +2280 ms from the voice
+     89:27  first word +2880 ms from the voice
+     100:9  first word +3080 ms from the voice

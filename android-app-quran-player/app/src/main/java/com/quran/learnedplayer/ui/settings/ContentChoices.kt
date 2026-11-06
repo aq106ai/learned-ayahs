@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.settings
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.border
@@ -124,20 +125,20 @@ fun ContentChoices(
 
     LaunchedEffect(edition.id) {
         if (edition.bundled) {
-            status = "Included with the app — works offline."
+            status = tx("Included with the app — works offline.")
             return@LaunchedEffect
         }
-        status = "Downloading ${edition.name}…"
+        status = tx("Downloading {0}…", edition.name)
         val result = withContext(Dispatchers.IO) { ContentRepository.prepare(edition.id) }
         status = result.fold(
-            onSuccess = { "${edition.name} is saved for offline use." },
-            onFailure = { "${it.message ?: "The download failed."} Saheeh International is shown until it downloads." },
+            onSuccess = { tx("{0} is saved for offline use.", edition.name) },
+            onFailure = { "${it.message ?: tx("The download failed.")} ${tx("Saheeh International is shown until it downloads.")}" },
         )
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (catalog.mushafStyles.size > 1) {
-            Text("Mushaf style", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+            Text(tx("Mushaf style"), style = MaterialTheme.typography.labelMedium, color = TextMuted)
             val chosen = catalog.mushafStyle(mushaf)?.id
             Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 catalog.mushafStyles.forEach { style ->
@@ -147,14 +148,14 @@ fun ContentChoices(
                 }
             }
         }
-        ChoiceRow("Translation language", catalog.languageName(edition.language, native = true), TAG_CONTENT_LANGUAGE) { picking = Picking.LANGUAGE }
-        ChoiceRow("Translation", edition.label, TAG_CONTENT_EDITION) { picking = Picking.EDITION }
+        ChoiceRow(tx("Translation language"), catalog.languageName(edition.language, native = true), TAG_CONTENT_LANGUAGE) { picking = Picking.LANGUAGE }
+        ChoiceRow(tx("Translation"), edition.label, TAG_CONTENT_EDITION) { picking = Picking.EDITION }
         Text(status, style = MaterialTheme.typography.bodySmall, color = TextMuted, modifier = Modifier.testTag(TAG_CONTENT_STATUS))
         if (includeStyle) {
-            Text("Show", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+            Text(tx("Show"), style = MaterialTheme.typography.labelMedium, color = TextMuted)
             Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TranslationStyle.entries.forEach { option ->
-                    Chip(option.label, style == option, Modifier.testTag(contentStyleTag(option))) {
+                    Chip(tx(option.label), style == option, Modifier.testTag(contentStyleTag(option))) {
                         PlayerSettings.showWordTranslations = option.showWordTranslations
                         PlayerSettings.showAyahTranslation = option.showAyahTranslation
                     }
@@ -162,24 +163,24 @@ fun ContentChoices(
             }
         }
         if (style != TranslationStyle.AYAH) {
-            ChoiceRow("Word meanings in", catalog.languageName(words.language, native = true), TAG_CONTENT_WORD_LANGUAGE) { picking = Picking.WORDS }
+            ChoiceRow(tx("Word meanings in"), catalog.languageName(words.language, native = true), TAG_CONTENT_WORD_LANGUAGE) { picking = Picking.WORDS }
         }
-        ChoiceRow("Tafsir (optional)", tafsir?.let { "${catalog.languageName(it.language)} · ${it.label}" } ?: "None", TAG_CONTENT_TAFSIR) { picking = Picking.TAFSIR }
+        ChoiceRow(tx("Tafsir (optional)"), tafsir?.let { "${catalog.languageName(it.language)} · ${it.label}" } ?: tx("None"), TAG_CONTENT_TAFSIR) { picking = Picking.TAFSIR }
         Text(
-            tafsir?.let { "${it.name} by ${it.author}, from ${it.source}. Opens from the Tafsir button in the player." }
-                ?: "Commentary on the current ayah, from the Tafsir button in the player.",
+            tafsir?.let { tx("{0} by {1}, from {2}. Opens from the Tafsir button in the player.", it.name, it.author, it.source) }
+                ?: tx("Commentary on the current ayah, from the Tafsir button in the player."),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
         )
         if (onReciter != null) {
-            Text("Reciter", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+            Text(tx("Reciter"), style = MaterialTheme.typography.labelMedium, color = TextMuted)
             Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Reciter.entries.forEach { r ->
                     Chip(r.displayName, reciter == r, Modifier.testTag(contentReciterTag(r))) { onReciter(r) }
                 }
             }
             Text(
-                "Every reciter here has checked word timings, so each word lights up as it is recited.",
+                tx("Every reciter here has checked word timings, so each word lights up as it is recited."),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -188,7 +189,7 @@ fun ContentChoices(
 
     when (picking) {
         Picking.LANGUAGE -> ChoiceDialog(
-            title = "Translation language",
+            title = tx("Translation language"),
             choices = catalog.translationLanguages().map { it to catalog.languageName(it, native = true) },
             selected = edition.language,
             onDismiss = { picking = null },
@@ -198,7 +199,7 @@ fun ContentChoices(
         }
         Picking.EDITION -> ChoiceDialog(
             title = catalog.languageName(edition.language),
-            choices = catalog.translationsIn(edition.language).map { it.id to it.label + if (it.bundled) " (offline)" else "" },
+            choices = catalog.translationsIn(edition.language).map { it.id to it.label + if (it.bundled) tx(" (offline)") else "" },
             selected = edition.id,
             rtl = catalog.isRtl(edition.language),
             onDismiss = { picking = null },
@@ -207,7 +208,7 @@ fun ContentChoices(
             picking = null
         }
         Picking.WORDS -> ChoiceDialog(
-            title = "Word meanings in",
+            title = tx("Word meanings in"),
             choices = catalog.wordMeanings.map { it.id to catalog.languageName(it.language, native = true) },
             selected = words.id,
             onDismiss = { picking = null },
@@ -216,8 +217,8 @@ fun ContentChoices(
             picking = null
         }
         Picking.TAFSIR -> ChoiceDialog(
-            title = "Tafsir",
-            choices = listOf("" to "None") + catalog.tafsirsFor(edition.language).map { it.id to "${catalog.languageName(it.language)} · ${it.label}" },
+            title = tx("Tafsir"),
+            choices = listOf("" to tx("None")) + catalog.tafsirsFor(edition.language).map { it.id to "${catalog.languageName(it.language)} · ${it.label}" },
             selected = tafsir?.id.orEmpty(),
             onDismiss = { picking = null },
         ) { id ->
@@ -307,7 +308,7 @@ private fun ChoiceDialog(
                         value = query,
                         onValueChange = { query = it },
                         singleLine = true,
-                        placeholder = { Text("Search") },
+                        placeholder = { Text(tx("Search")) },
                         modifier = Modifier.fillMaxWidth().testTag(TAG_CHOICE_SEARCH),
                     )
                 }
@@ -327,11 +328,11 @@ private fun ChoiceDialog(
                                 color = TextPrimary,
                                 modifier = Modifier.weight(1f),
                             )
-                            if (id == selected) Icon(Icons.Default.Check, contentDescription = "Chosen", tint = AccentGreen)
+                            if (id == selected) Icon(Icons.Default.Check, contentDescription = tx("Chosen"), tint = AccentGreen)
                         }
                     }
                 }
-                TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Close", color = AccentGreen) }
+                TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text(tx("Close"), color = AccentGreen) }
             }
         }
     }

@@ -15,6 +15,7 @@ import { BackgroundScenes, THEMES, theme, variant } from '../video/scenes.js';
 import { copyPlain, sharePlain, shareTextOf } from '../video/shareText.js';
 import { editionNameSync, translationLanguageSync } from '../services/content.js';
 
+import { tx } from '../core/i18n.js';
 const DEFAULT_SURAH_AYAHS = 10;
 const PREVIEW_W = 540;
 const STAGES = { DOWNLOADING: 'Downloading the recitation…', AUDIO: 'Preparing the audio…', VIDEO: 'Drawing the video…' };
@@ -62,7 +63,7 @@ export function videoView({ store, engine, server, go, params }) {
 
   // -- preview -------------------------------------------------------------------------------
 
-  const previewBox = h('div', { class: 'video-preview', 'data-testid': 'video-preview' }, h('p', { class: 'muted small' }, 'Preparing preview…'));
+  const previewBox = h('div', { class: 'video-preview', 'data-testid': 'video-preview' }, h('p', { class: 'muted small' }, tx('Preparing preview…')));
   function refreshPreview() {
     clearTimeout(previewTimer);
     previewTimer = setTimeout(async () => {
@@ -72,7 +73,7 @@ export function videoView({ store, engine, server, go, params }) {
       try {
         const canvas = await exporter.still(request(), PREVIEW_W);
         if (token !== previewToken) return;
-        const img = h('canvas', { width: canvas.width, height: canvas.height, 'aria-label': 'Preview of the first ayah' });
+        const img = h('canvas', { width: canvas.width, height: canvas.height, 'aria-label': tx('Preview of the first ayah') });
         img.getContext('2d').drawImage(canvas, 0, 0);
         previewBox.replaceChildren(img);
       } catch (e) {
@@ -123,7 +124,7 @@ export function videoView({ store, engine, server, go, params }) {
   }
   const tile = (title, sub, selected, image, onClick, testid) =>
     h('button', { class: `theme-tile${selected ? ' selected' : ''}`, type: 'button', disabled: Boolean(job), 'aria-pressed': String(selected), 'data-testid': testid, onClick },
-      h('span', { class: 'theme-pic' }, image ? h('img', { src: image, alt: '', loading: 'lazy' }) : h('span', {}, 'Auto')),
+      h('span', { class: 'theme-pic' }, image ? h('img', { src: image, alt: '', loading: 'lazy' }) : h('span', {}, tx('Auto'))),
       h('span', { class: 'theme-name' }, title),
       sub ? h('span', { class: 'theme-sub' }, sub) : null);
 
@@ -132,8 +133,8 @@ export function videoView({ store, engine, server, go, params }) {
   const body = h('div', { class: 'stack' });
   const el = h('div', { class: 'page video-page', 'data-testid': 'video-screen' },
     h('div', { class: 'page-head' },
-      h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Back', onClick: () => history.length > 1 ? history.back() : go('/player') }, icon('chevronLeft')),
-      h('h1', {}, 'Make a video')),
+      h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Back'), onClick: () => history.length > 1 ? history.back() : go('/player') }, icon('chevronLeft')),
+      h('h1', {}, tx('Make a video'))),
     previewBox,
     body);
 
@@ -153,49 +154,49 @@ export function videoView({ store, engine, server, go, params }) {
       refreshMatched();
     } }, Array.from({ length: SURAH_COUNT }, (_, i) => h('option', { value: i + 1, selected: i + 1 === options.surah }, `${i + 1} · ${surahName(i + 1)}`)));
 
-    const ayahs = section('Ayahs',
+    const ayahs = section(tx('Ayahs'),
       surahSelect,
       h('div', { class: 'row' },
         stepper('From ayah', options.fromAyah, 1, max, (v) => { update({ fromAyah: v, toAyah: Math.max(v, options.toAyah) }); refreshMatched(); }, 'video-from'),
         stepper('To ayah', options.toAyah, options.fromAyah, max, (v) => update({ toAyah: v }), 'video-to'),
-        h('button', { class: 'btn small', type: 'button', disabled: working, onClick: () => update({ fromAyah: 1, toAyah: max, opening: true, bismillah: bismillahAllowed(options.surah, 1) }) }, 'Whole surah')),
-      h('p', { class: 'small muted' }, `${max} ayahs in ${surahName(options.surah)}`));
+        h('button', { class: 'btn small', type: 'button', disabled: working, onClick: () => update({ fromAyah: 1, toAyah: max, opening: true, bismillah: bismillahAllowed(options.surah, 1) }) }, tx('Whole surah'))),
+      h('p', { class: 'small muted' }, tx('{n} ayahs in {surah}', { n: max, surah: surahName(options.surah) })));
 
-    const shape = section('Shape', h('div', { class: 'chips' }, ASPECTS.map((a) => chip(`${a.ratio} · ${a.label}`, options.aspect === a.key, () => update({ aspect: a.key }), `video-aspect-${a.key}`))));
-    const reciter = section('Reciter', h('div', { class: 'chips' }, RECITERS.map((r) => chip(r.displayName, options.reciter === r.key, () => update({ reciter: r.key }), `video-reciter-${r.key}`))));
+    const shape = section(tx('Shape'), h('div', { class: 'chips' }, ASPECTS.map((a) => chip(`${a.ratio} · ${a.label}`, options.aspect === a.key, () => update({ aspect: a.key }), `video-aspect-${a.key}`))));
+    const reciter = section(tx('Reciter'), h('div', { class: 'chips' }, RECITERS.map((r) => chip(r.displayName, options.reciter === r.key, () => update({ reciter: r.key }), `video-reciter-${r.key}`))));
     const allowed = bismillahAllowed(options.surah, options.fromAyah);
     const bismillahNote = options.surah === 9
       ? 'At-Tawbah is recited without it'
       : options.surah === 1 && options.fromAyah === 1
         ? 'This ayah is the Bismillah'
         : 'Recited before the ayahs';
-    const text = section('Text',
-      toggle('wordByWord', 'Word-by-word meanings', 'Under each Arabic word'),
-      toggle('fullTranslation', 'Translation', editionNameSync()),
-      toggle('opening', "Begin with A'udhu", 'Recited before the ayahs'),
+    const text = section(tx('Text'),
+      toggle('wordByWord', tx('Word-by-word meanings'), tx('Under each Arabic word')),
+      toggle('fullTranslation', tx('Translation'), editionNameSync()),
+      toggle('opening', tx("Begin with A'udhu"), tx('Recited before the ayahs')),
       h('label', { class: 'toggle-row' },
-        h('span', { class: 'text' }, h('strong', {}, 'Include Bismillah'), h('span', {}, bismillahNote)),
+        h('span', { class: 'text' }, h('strong', {}, tx('Include Bismillah')), h('span', {}, bismillahNote)),
         h('input', {
           class: 'switch', type: 'checkbox', checked: options.bismillah && allowed, disabled: working || !allowed,
           'data-testid': 'video-bismillah', onChange: (e) => update({ bismillah: e.target.checked }),
         })),
-      toggle('endCard', 'End card', 'A closing page with the Play Store link'),
-      toggle('credits', 'Credits on video', 'Sources in small print under the text'));
+      toggle('endCard', tx('End card'), tx('A closing page with the Play Store link')),
+      toggle('credits', tx('Credits on video'), tx('Sources in small print under the text')));
 
     const tiles = h('div', { class: 'theme-row' },
-      tile('Matched', matchedTitle, options.themeKey === null, null, () => update({ themeKey: null }), 'video-theme-matched'),
+      tile(tx('Matched'), matchedTitle, options.themeKey === null, null, () => update({ themeKey: null }), 'video-theme-matched'),
       ...(options.photos
         ? subjects.map((s) => tile(s.title, null, options.themeKey === s.themeKey, thumbUrl(s), () => update({ themeKey: s.themeKey }), `video-theme-${s.themeKey}`))
         : THEMES.map((t) => tile(t.title, null, options.themeKey === t.key, drawnThumb(t.key), () => update({ themeKey: t.key }), `video-theme-${t.key}`))));
-    const background = section('Background',
+    const background = section(tx('Background'),
       subjects.length ? h('div', { class: 'chips' },
-        chip('Drawn scenes', !options.photos, () => { update({ photos: false, themeKey: null }); refreshMatched(); }, 'video-drawn'),
-        chip('Nature photos', options.photos, () => { update({ photos: true, themeKey: null }); refreshMatched(); }, 'video-photos')) : null,
-      h('p', { class: 'small muted' }, 'Matched picks a background for each ayah from what it is about. Or choose one for the whole video.'),
+        chip(tx('Drawn scenes'), !options.photos, () => { update({ photos: false, themeKey: null }); refreshMatched(); }, 'video-drawn'),
+        chip(tx('Nature photos'), options.photos, () => { update({ photos: true, themeKey: null }); refreshMatched(); }, 'video-photos')) : null,
+      h('p', { class: 'small muted' }, tx('Matched picks a background for each ayah from what it is about. Or choose one for the whole video.')),
       tiles,
       h('p', { class: 'small muted' }, options.photos
-        ? 'Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. Videos carry no music, only the recitation.'
-        : 'Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation.'));
+        ? tx('Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. Videos carry no music, only the recitation.')
+        : tx('Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation.')));
 
     body.replaceChildren(ayahs, shape, reciter, text, background, textSection(), videoSection());
   }
@@ -208,41 +209,41 @@ export function videoView({ store, engine, server, go, params }) {
     const n = options.toAyah - options.fromAyah + 1;
     const r = reciterFromKey(options.reciter);
     if (job) {
-      return section('Video', progressText, progressBar,
-        h('button', { class: 'btn', type: 'button', onClick: () => job?.abort() }, 'Cancel'));
+      return section(tx('Video'), progressText, progressBar,
+        h('button', { class: 'btn', type: 'button', onClick: () => job?.abort() }, tx('Cancel')));
     }
     if (result) {
       const mb = (result.blob.size / (1024 * 1024)).toFixed(1);
       const name = fileName(options, result.format.ext);
       const file = new File([result.blob], name, { type: result.format.mime });
       const canShare = navigator.canShare?.({ files: [file] });
-      return section('Video',
-        h('p', {}, `Your video is ready (${mb} MB, ${result.format.ext.toUpperCase()}).`),
+      return section(tx('Video'),
+        h('p', {}, tx('Your video is ready ({size} MB, {format}).', { size: mb, format: result.format.ext.toUpperCase() })),
         h('div', { class: 'row' },
-          h('button', { class: 'btn primary', type: 'button', 'data-testid': 'video-download', onClick: () => download(result.blob, name) }, icon('download'), 'Download'),
-          canShare ? h('button', { class: 'btn', type: 'button', 'data-testid': 'video-share', onClick: () => navigator.share({ files: [file] }).catch(() => {}) }, icon('share'), 'Share') : null,
-          h('button', { class: 'btn ghost', type: 'button', onClick: () => { result = null; render(); } }, 'Make another')));
+          h('button', { class: 'btn primary', type: 'button', 'data-testid': 'video-download', onClick: () => download(result.blob, name) }, icon('download'), tx('Download')),
+          canShare ? h('button', { class: 'btn', type: 'button', 'data-testid': 'video-share', onClick: () => navigator.share({ files: [file] }).catch(() => {}) }, icon('share'), tx('Share')) : null,
+          h('button', { class: 'btn ghost', type: 'button', onClick: () => { result = null; render(); } }, tx('Make another'))));
     }
-    return section('Video',
-      h('p', { class: 'small muted' }, `${n} ayah${n === 1 ? '' : 's'} · ${r.displayName}. It's made in this browser; keep this page open until it's done.`),
+    return section(tx('Video'),
+      h('p', { class: 'small muted' }, `${n === 1 ? tx('1 ayah') : tx('{n} ayahs', { n })} · ${r.displayName}. ${tx("It's made in this browser; keep this page open until it's done.")}`),
       formatNote,
-      h('button', { class: 'btn primary block', type: 'button', 'data-testid': 'video-create', onClick: create }, icon('film'), 'Create video'));
+      h('button', { class: 'btn primary block', type: 'button', 'data-testid': 'video-create', onClick: create }, icon('film'), tx('Create video')));
   }
 
   const formatNote = h('p', { class: 'small muted', 'data-testid': 'video-format' });
   supportedFormat(aspectFromKey('PORTRAIT')).then((f) => {
     formatNote.textContent = f
       ? (f.container === 'mp4' ? 'Saved as MP4.' : 'Saved as WebM (this browser can’t write MP4; YouTube and most players take WebM).')
-      : 'This browser can’t make videos. Use a recent Chrome, Edge or Safari.';
+      : tx('This browser can’t make videos. Use a recent Chrome, Edge or Safari.');
   });
 
   function textSection() {
-    return section('Share text',
+    return section(tx('Share text'),
       h('div', { class: 'chips' },
-        chip('Arabic', textArabic, () => setTextLang(true), 'video-text-arabic'),
+        chip(tx('Arabic'), textArabic, () => setTextLang(true), 'video-text-arabic'),
         chip(translationLanguageSync(), textEnglish, () => setTextLang(false), 'video-text-english')),
-      h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-share-text', onClick: () => shareRangeText(false) }, 'Share text'),
-      h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-copy-text', onClick: () => shareRangeText(true) }, 'Copy text'));
+      h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-share-text', onClick: () => shareRangeText(false) }, tx('Share text')),
+      h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-copy-text', onClick: () => shareRangeText(true) }, tx('Copy text')));
   }
 
   function setTextLang(arabic) {
@@ -302,7 +303,7 @@ export function videoView({ store, engine, server, go, params }) {
   render();
   refreshMatched();
   refreshPreview();
-  return { el, title: 'Make a video', destroy };
+  return { el, title: tx('Make a video'), destroy };
 }
 
 export function download(blob, name) {

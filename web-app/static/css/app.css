@@ -14,6 +14,10 @@
 /* The mushaf style (content_catalog.json "mushafStyles"), set by main.js from the settings. */
 :root {
   --quran-font: 'Scheherazade New';
+  --inline-sign: 1;
+}
+:root[dir='rtl'] {
+  --inline-sign: -1;
 }
 
 :root,
@@ -95,12 +99,15 @@ textarea {
   display: none !important;
 }
 
+/* Logical (inline-start/end) properties throughout, so Urdu and Arabic mirror the layout. A skip
+   link pushed off with left: -999px widened the page by 999px in right-to-left. */
 .skip-link {
   position: absolute;
-  left: -999px;
+  inset-inline-start: 12px;
+  transform: translateY(-200%);
 }
 .skip-link:focus {
-  left: 12px;
+  transform: none;
   top: 12px;
   z-index: 100;
   background: var(--panel);
@@ -132,7 +139,7 @@ textarea {
   gap: 8px;
   padding: 20px 14px;
   background: var(--bg-2);
-  border-right: 1px solid var(--border);
+  border-inline-end: 1px solid var(--border);
 }
 
 .brand {
@@ -536,13 +543,13 @@ textarea.input:focus {
 }
 .search .icon {
   position: absolute;
-  left: 12px;
+  inset-inline-start: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
 }
 .search .input {
-  padding-left: 40px;
+  padding-inline-start: 40px;
 }
 
 .toggle-row {
@@ -583,7 +590,7 @@ textarea.input:focus {
   content: '';
   position: absolute;
   top: 2px;
-  left: 2px;
+  inset-inline-start: 2px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -595,7 +602,7 @@ textarea.input:focus {
   border-color: var(--accent);
 }
 .switch:checked::after {
-  transform: translateX(18px);
+  transform: translateX(calc(18px * var(--inline-sign, 1)));
   background: #fff;
 }
 
@@ -1142,7 +1149,7 @@ textarea.input:focus {
   background: transparent;
   border: 0;
   width: 100%;
-  text-align: left;
+  text-align: start;
 }
 .list-row:hover {
   background: var(--panel-2);
@@ -1155,7 +1162,7 @@ textarea.input:focus {
 .list-row .sub {
   color: var(--muted);
   font-size: 0.8rem;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 details.group {
   border-bottom: 1px solid var(--border);
@@ -1316,7 +1323,7 @@ details.group summary::-webkit-details-marker {
 }
 .table th,
 .table td {
-  text-align: left;
+  text-align: start;
   padding: 10px 8px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;

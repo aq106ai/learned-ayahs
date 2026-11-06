@@ -5,12 +5,13 @@ import { h, icon } from '../lib/dom.js';
 import { VERSE_COUNTS, surahAyahToGlobal, surahName } from '../core/quran.js';
 import { exportFlow, importFlow, learnedCountsBySurah, matchSurahs } from './common.js';
 
+import { tx } from '../core/i18n.js';
 export function surahsView({ store, go }) {
   let query = '';
   const count = h('span', { class: 'count', 'data-testid': 'learned-count' });
   const countLabel = h('div', { class: 'muted small' });
   const list = h('div', { class: 'surah-list', 'data-testid': 'surah-list' });
-  const proceed = h('a', { class: 'btn primary', href: '#/player' }, icon('headphones'), 'Go to player');
+  const proceed = h('a', { class: 'btn primary', href: '#/player' }, icon('headphones'), tx('Go to player'));
 
   const banner = h(
     'section',
@@ -20,17 +21,17 @@ export function surahsView({ store, go }) {
     h(
       'div',
       { class: 'row wrap' },
-      h('a', { class: 'btn', href: '#/add', 'data-testid': 'add-by-description' }, icon('plus'), 'Add by description'),
-      h('button', { class: 'btn', type: 'button', onClick: () => exportFlow(store), 'data-testid': 'export' }, icon('download'), 'Export'),
-      h('button', { class: 'btn', type: 'button', onClick: () => importFlow(store), 'data-testid': 'import' }, icon('upload'), 'Import'),
+      h('a', { class: 'btn', href: '#/add', 'data-testid': 'add-by-description' }, icon('plus'), tx('Add by description')),
+      h('button', { class: 'btn', type: 'button', onClick: () => exportFlow(store), 'data-testid': 'export' }, icon('download'), tx('Export')),
+      h('button', { class: 'btn', type: 'button', onClick: () => importFlow(store), 'data-testid': 'import' }, icon('upload'), tx('Import')),
     ),
   );
 
   const search = h('input', {
     class: 'input',
     type: 'search',
-    placeholder: 'Search surah by name or number',
-    'aria-label': 'Search surah',
+    placeholder: tx('Search surah by name or number'),
+    'aria-label': tx('Search surah'),
     onInput: (e) => {
       query = e.target.value;
       renderList();
@@ -42,8 +43,8 @@ export function surahsView({ store, go }) {
     count.textContent = String(n);
     const surahs = learnedCountsBySurah(store.learned).size;
     countLabel.textContent = n
-      ? `ayahs marked learned, in ${surahs} surah${surahs === 1 ? '' : 's'}`
-      : 'ayahs marked — open a surah and tick the ayahs you know';
+      ? (surahs === 1 ? tx('ayahs marked learned, in 1 surah') : tx('ayahs marked learned, in {n} surahs', { n: surahs }))
+      : tx('ayahs marked — open a surah and tick the ayahs you know');
     proceed.hidden = n === 0;
   }
 
@@ -60,8 +61,8 @@ export function surahsView({ store, go }) {
             class: `check-btn${learned && !all ? ' partial' : ''}`,
             type: 'button',
             'aria-pressed': String(all),
-            'aria-label': all ? `Unmark all of ${surahName(s)}` : `Mark all of ${surahName(s)} learned`,
-            title: all ? 'Unmark all' : 'Mark all learned',
+            'aria-label': all ? tx('Unmark all of {surah}', { surah: surahName(s) }) : tx('Mark all of {surah} learned', { surah: surahName(s) }),
+            title: all ? tx('Unmark all') : tx('Mark all learned'),
             onClick: (e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -80,13 +81,13 @@ export function surahsView({ store, go }) {
             'span',
             { class: 'meta' },
             h('div', { class: 'name' }, surahName(s)),
-            h('div', { class: 'sub' }, `${total} ayahs`, learned ? ` · ${learned} learned` : ''),
+            h('div', { class: 'sub' }, tx('{n} ayahs', { n: total }), learned ? ` · ${tx('{n} learned', { n: learned })}` : ''),
           ),
           check,
         );
       }),
     );
-    if (!list.children.length) list.append(h('p', { class: 'muted' }, 'No surah matches that search.'));
+    if (!list.children.length) list.append(h('p', { class: 'muted' }, tx('No surah matches that search.')));
   }
 
   const el = h(
@@ -95,7 +96,7 @@ export function surahsView({ store, go }) {
     h(
       'header',
       { class: 'page-head' },
-      h('div', {}, h('h1', {}, 'Surahs'), h('p', { class: 'muted' }, 'Mark the ayahs you have memorised. Your revision plays exactly these.')),
+      h('div', {}, h('h1', {}, tx('Surahs')), h('p', { class: 'muted' }, tx('Mark the ayahs you have memorised. Your revision plays exactly these.'))),
       proceed,
     ),
     banner,
@@ -112,5 +113,5 @@ export function surahsView({ store, go }) {
     }
   });
   void go;
-  return { el, destroy: off, title: 'Surahs' };
+  return { el, destroy: off, title: tx('Surahs') };
 }

@@ -20,6 +20,7 @@ import { adminView } from './views/admin.js';
 import { videoView } from './views/video.js';
 import { showIntro } from './views/intro.js';
 
+import { applyDocumentLanguage, tx } from './core/i18n.js';
 const ROUTES = {
   player: playerView,
   surahs: surahsView,
@@ -52,14 +53,14 @@ let current = null; // { name, params, view }
 
 function navItems() {
   const items = [
-    { route: 'player', label: 'Player', icon: 'headphones' },
-    { route: 'surahs', label: 'Surahs', icon: 'book' },
+    { route: 'player', label: tx('Player'), icon: 'headphones' },
+    { route: 'surahs', label: tx('Surahs'), icon: 'book' },
   ];
-  if (store.settings.reciteBetaEnabled) items.push({ route: 'recite', label: 'Recite', icon: 'mic' });
-  items.push({ route: 'settings', label: 'Settings', icon: 'settings' });
+  if (store.settings.reciteBetaEnabled) items.push({ route: 'recite', label: tx('Recite'), icon: 'mic' });
+  items.push({ route: 'settings', label: tx('Settings'), icon: 'settings' });
   if (server.available) {
-    items.push({ route: 'account', label: store.user ? 'Account' : 'Sign in', icon: 'user' });
-    if (store.user?.role === 'admin') items.push({ route: 'admin', label: 'Users', icon: 'users' });
+    items.push({ route: 'account', label: store.user ? tx('Account') : tx('Sign in'), icon: 'user' });
+    if (store.user?.role === 'admin') items.push({ route: 'admin', label: tx('Users'), icon: 'users' });
   }
   return items;
 }
@@ -77,11 +78,11 @@ function renderNav() {
   nav.replaceChildren(...items.map(link));
   tabbar.replaceChildren(...items.map(link));
 
-  const learned = `${store.learned.size} learned ayah${store.learned.size === 1 ? '' : 's'}`;
+  const learned = store.learned.size === 1 ? tx('1 learned ayah') : tx('{n} learned ayahs', { n: store.learned.size });
   sidebarFoot.replaceChildren(
     store.user
       ? h('div', {}, h('strong', { style: { color: 'var(--text)' } }, store.user.displayName), h('div', {}, learned))
-      : h('div', {}, h('div', {}, learned), h('div', { class: 'tiny' }, server.available ? 'Not signed in — saved in this browser' : 'Saved in this browser')),
+      : h('div', {}, h('div', {}, learned), h('div', { class: 'tiny' }, server.available ? tx('Not signed in — saved in this browser') : tx('Saved in this browser'))),
   );
 }
 
@@ -115,7 +116,7 @@ function mount(name, params, { focus = true } = {}) {
   const view = ROUTES[name]({ store, engine, server, go, params });
   current = { name, params, view };
   viewHost.replaceChildren(view.el);
-  document.title = view.title && view.title !== 'Learned Ayahs' ? `${view.title} · Learned Ayahs` : 'Learned Ayahs';
+  document.title = view.title && view.title !== 'Learned Ayahs' ? `${view.title} · ${tx('Learned Ayahs')}` : tx('Learned Ayahs');
   renderNav();
   renderMini();
   window.scrollTo(0, 0);
@@ -137,14 +138,14 @@ function renderMini() {
     h('button', {
       class: 'btn icon-only primary',
       type: 'button',
-      'aria-label': engine.playing ? 'Pause' : 'Play',
+      'aria-label': engine.playing ? tx('Pause') : tx('Play'),
       'data-testid': 'mini-toggle',
       onClick: () => engine.toggle(),
     }, icon(engine.playing ? 'pause' : 'play', { filled: true })),
     h('div', { class: 'title', role: 'link', tabindex: '0', onClick: () => go('/player'), onKeydown: (e) => e.key === 'Enter' && go('/player') },
       engine.introLabel ?? trackTitle(t.surah, t.ayah),
       h('span', {}, engine.modeLabel)),
-    h('button', { class: 'btn icon-only ghost', type: 'button', 'aria-label': 'Next', onClick: () => engine.next() }, icon('next')),
+    h('button', { class: 'btn icon-only ghost', type: 'button', 'aria-label': tx('Next'), onClick: () => engine.next() }, icon('next')),
   );
 }
 
@@ -164,10 +165,10 @@ function readCollapsed() {
 
 function applySidebar(collapsed) {
   document.getElementById('app').classList.toggle('collapsed', collapsed);
-  sidebarToggle.replaceChildren(icon('sidebar'), h('span', {}, collapsed ? 'Expand' : 'Collapse'));
+  sidebarToggle.replaceChildren(icon('sidebar'), h('span', {}, collapsed ? tx('Expand') : tx('Collapse')));
   sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
   sidebarToggle.setAttribute('aria-label', collapsed ? 'Expand the sidebar' : 'Collapse the sidebar');
-  sidebarToggle.title = collapsed ? 'Expand the sidebar' : 'Collapse the sidebar';
+  sidebarToggle.title = collapsed ? tx('Expand the sidebar') : tx('Collapse the sidebar');
 }
 
 sidebarToggle.addEventListener('click', () => {
@@ -198,12 +199,13 @@ function applyTheme() {
 
 function bootError(message) {
   viewHost.replaceChildren(h('div', { class: 'page page-narrow' }, h('section', { class: 'card empty' },
-    h('h2', {}, 'Could not start'),
+    h('h2', {}, tx('Could not start')),
     h('p', {}, message),
-    h('button', { class: 'btn primary', type: 'button', onClick: () => location.reload() }, icon('refresh'), 'Try again'))));
+    h('button', { class: 'btn primary', type: 'button', onClick: () => location.reload() }, icon('refresh'), tx('Try again')))));
 }
 
 async function boot() {
+  applyDocumentLanguage();
   server = await probeServer();
   await store.init(server);
   applyTheme();

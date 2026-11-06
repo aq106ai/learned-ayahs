@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.home
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.quran.learnedplayer.data.AppTheme
 import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.ui.settings.ContentChoices
+import com.quran.learnedplayer.ui.settings.UiLanguagePicker
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.ui.common.SourcesDialog
 import com.quran.learnedplayer.ui.theme.AccentGreen
@@ -79,11 +81,11 @@ fun IntroDialog(onDismiss: () -> Unit, onReciter: (Reciter) -> Unit = { PlayerSe
         title = {
             Text(
                 text = when (page) {
-                    0 -> "Keep what you have learned"
-                    1 -> "Make it yours"
-                    2 -> "Read and listen"
-                    3 -> "Mark what you know"
-                    else -> "Revise and read"
+                    0 -> tx("Keep what you have learned")
+                    1 -> tx("Make it yours")
+                    2 -> tx("Read and listen")
+                    3 -> tx("Mark what you know")
+                    else -> tx("Revise and read")
                 },
                 style = MaterialTheme.typography.titleMedium,
                 color = TextPrimary,
@@ -110,18 +112,18 @@ fun IntroDialog(onDismiss: () -> Unit, onReciter: (Reciter) -> Unit = { PlayerSe
         confirmButton = {
             if (page < PAGE_COUNT - 1) {
                 TextButton(onClick = { page++ }, modifier = Modifier.testTag(TAG_INTRO_NEXT)) {
-                    Text("Next", color = AccentGreen)
+                    Text(tx("Next"), color = AccentGreen)
                 }
             } else {
                 TextButton(onClick = onDismiss, modifier = Modifier.testTag(TAG_INTRO_DISMISS)) {
-                    Text("Begin", color = AccentGreen)
+                    Text(tx("Begin"), color = AccentGreen)
                 }
             }
         },
         dismissButton = {
             if (page < PAGE_COUNT - 1) {
                 TextButton(onClick = onDismiss) {
-                    Text("Skip", color = TextMuted)
+                    Text(tx("Skip"), color = TextMuted)
                 }
             }
         },
@@ -140,20 +142,19 @@ private fun HadithPage() {
             modifier = Modifier.fillMaxWidth(),
         )
         Text(
-            text = "\"Keep refreshing your knowledge of the Qur'an, for by Him in Whose " +
-                "Hand my soul is, it is more liable to escape than camels which are tied.\"",
+            text = tx("\"Keep refreshing your knowledge of the Qur'an, for by Him in Whose Hand my soul is, it is more liable to escape than camels which are tied.\""),
             style = MaterialTheme.typography.bodyMedium,
             color = TextPrimary,
             modifier = Modifier.padding(top = 16.dp),
         )
         Text(
-            text = "Sahih al-Bukhari 5033 · Sahih Muslim 791",
+            text = tx("Sahih al-Bukhari 5033 · Sahih Muslim 791"),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
             modifier = Modifier.padding(top = 8.dp),
         )
         Text(
-            text = "Mark the ayahs you have memorised, and this app will help you revise them.",
+            text = tx("Mark the ayahs you have memorised, and this app will help you revise them."),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
             modifier = Modifier.padding(top = 16.dp),
@@ -181,17 +182,19 @@ private fun LookPage() {
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            "You can change these any time in Settings, or from the background button in the player.",
+            tx("You can change these any time in Settings, or from the background button in the player."),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
         )
-        Text("Theme", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+        Text(tx("App language"), style = MaterialTheme.typography.labelMedium, color = TextMuted)
+        UiLanguagePicker()
+        Text(tx("Theme"), style = MaterialTheme.typography.labelMedium, color = TextMuted)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             AppTheme.entries.forEach { option ->
                 FilterChip(
                     selected = theme == option,
                     onClick = { PlayerSettings.appTheme = option },
-                    label = { Text(option.label) },
+                    label = { Text(tx(option.label)) },
                     modifier = Modifier.testTag(introThemeTag(option)),
                     colors = FilterChipDefaults.filterChipColors(
                         containerColor = Border,
@@ -202,13 +205,13 @@ private fun LookPage() {
                 )
             }
         }
-        Text("Behind the ayah while it plays", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+        Text(tx("Behind the ayah while it plays"), style = MaterialTheme.typography.labelMedium, color = TextMuted)
         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             ThemeTile("Plain", null, background == PlayerBackgrounds.PLAIN, null, true, Modifier.testTag(introBackgroundTag(PlayerBackgrounds.PLAIN))) {
                 pick(PlayerBackgrounds.PLAIN)
             }
             ThemeTile(
-                "Scenes",
+                tx("Scenes"),
                 null,
                 background == PlayerBackgrounds.MATCHED,
                 drawnThumbs["mercy"],
@@ -218,7 +221,7 @@ private fun LookPage() {
             ) { pick(PlayerBackgrounds.MATCHED) }
             if (firstSubject != null) {
                 ThemeTile(
-                    "Nature photos",
+                    tx("Nature photos"),
                     null,
                     background == PlayerBackgrounds.PHOTOS,
                     photoThumbs[firstSubject.key],
@@ -229,7 +232,7 @@ private fun LookPage() {
             }
         }
         Text(
-            "Scenes and photos follow what each ayah is about, with its translation underneath.",
+            tx("Scenes and photos follow what each ayah is about, with its translation underneath."),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
         )
@@ -244,7 +247,7 @@ private fun ContentPage(onReciter: (Reciter) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            "What to read beside the Arabic, and who recites. All of it can be changed later in Settings.",
+            tx("What to read beside the Arabic, and who recites. All of it can be changed later in Settings."),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
         )
@@ -255,10 +258,9 @@ private fun ContentPage(onReciter: (Reciter) -> Unit) {
 @Composable
 private fun MarkingPage() {
     TipList(
-        "Open any surah and tap the circle beside an ayah you have memorised.",
-        "Adding a lot at once? “Add by description” at the bottom of the surah list takes " +
-            "refs like 2:255, 36:1-83, or whole surahs like 112.",
-        "Already used this app? “Import”, beside it, restores an exported backup.",
+        tx("Open any surah and tap the circle beside an ayah you have memorised."),
+        tx("Adding a lot at once? “Add by description” at the bottom of the surah list takes refs like 2:255, 36:1-83, or whole surahs like 112."),
+        tx("Already used this app? “Import”, beside it, restores an exported backup."),
     )
 }
 
@@ -267,21 +269,18 @@ private fun RevisingPage() {
     var showSources by remember { mutableStateOf(false) }
     Column {
         TipList(
-            "Press play and your learned ayahs recite in order — turn on “Repeat ayah” to have " +
-                "each one repeat so it settles in.",
-            "The player reads along with you: each word lights up as it is recited. Swipe or tap " +
-                "to move between ayahs.",
-            "Try “Word by word” in the player header — one word at a time with its meaning, " +
-                "and Next/Previous (even on headsets) step word by word.",
+            tx("Press play and your learned ayahs recite in order — turn on “Repeat ayah” to have each one repeat so it settles in."),
+            tx("The player reads along with you: each word lights up as it is recited. Swipe or tap to move between ayahs."),
+            tx("Try “Word by word” in the player header — one word at a time with its meaning, and Next/Previous (even on headsets) step word by word."),
         )
         Text(
-            "The Qur'an text, meanings and recitations come from public sources, also listed in Settings.",
+            tx("The Qur'an text, meanings and recitations come from public sources, also listed in Settings."),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
             modifier = Modifier.padding(top = 14.dp),
         )
         TextButton(onClick = { showSources = true }, modifier = Modifier.testTag(TAG_INTRO_SOURCES)) {
-            Text("Sources and disclaimer", color = AccentGreen)
+            Text(tx("Sources and disclaimer"), color = AccentGreen)
         }
     }
     if (showSources) SourcesDialog(onDismiss = { showSources = false })

@@ -1,5 +1,6 @@
 package com.quran.learnedplayer
 
+import android.content.Context
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.ClipData
@@ -29,6 +30,11 @@ import com.quran.learnedplayer.ui.theme.LearnedAyahsTheme
 import java.io.File
 
 class MainActivity : ComponentActivity() {
+    // The interface language's locale (and so right-to-left layout for Urdu and Arabic).
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(com.quran.learnedplayer.ui.i18n.UiStrings.wrap(newBase))
+    }
+
     private val viewModel: PlayerViewModel by viewModels()
     private var pendingAfterNotification: (() -> Unit)? = null
     private var autoLoadedThisSession = false

@@ -37,5 +37,14 @@ npm run test:e2e         # Playwright, against server.py with seeded audio; no n
 - Mushaf style: `main.js` sets `--quran-font` from `content.mushafFamilySync()`; Arabic CSS uses
   `var(--quran-font)`, video frames `request.arabicFont`. Fonts are served from the Android app's
   `res/font` (`QURAN_FONTS` in server.py, also copied by `--export-static`).
+- App language (`core/i18n.js`, `views/uiLanguage.js`): every shown string is `tx('English', {name})`.
+  The local variable `t` is the current track all over the views, which is why the function is
+  `tx`. The language is read synchronously when i18n.js loads (localStorage `la.uiLanguage`, else
+  the browser's) so module-level labels are already translated; changing it reloads the page.
+  `<html lang dir>` is set at boot, and the CSS uses logical properties (`inset-inline-start`,
+  `padding-inline-start`, `text-align: start`) — a physical `left`/`right` breaks right to left
+  (a skip link at `left: -999px` widened the page by 999 px). Tables are generated:
+  `android-app-quran-player/.setup/make_ui_strings.py`. `surahName` is Arabic script in Urdu and
+  Arabic; `surahNameLatin` is for the ref parser and search.
 - `views/contentChoices.js` is the picker the intro and Settings share (Android:
   `ui/settings/ContentChoices.kt`).

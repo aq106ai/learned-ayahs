@@ -218,6 +218,18 @@ style, word-meaning language, tafsir and reciter (through `PlayerViewModel.setRe
   to bundle **and** draws our text correctly: render real ayahs (1:7's صِرَٰطَ, 2:181, 112) and
   check every codepoint of quran_text.json is in its cmap (fontTools). The rejected candidates and
   why are in `make_content_catalog.py` above MUSHAF_STYLES.
+- **App language** (`ui/i18n/UiStrings.kt`, `PlayerSettings.uiLanguage`, `ui/settings/UiLanguagePicker.kt`):
+  every interface string is `tx("English text", args…)` — the English is the key, `{0}`… are its
+  arguments — looked up in `assets/ui_strings_<code>.json`, generated with the web's tables from
+  `.setup/ui_strings.json` by `make_ui_strings.py`. Not strings.xml: `stringResource` only works in
+  composition, and much text here is built in handlers, effects and view models; one table also
+  keeps Android and web word for word the same. **Rules**: wrap new text in `tx(…)` and add it to
+  ui_strings.json (CI's `make_ui_strings.py --check` fails otherwise); never wrap data — routes,
+  file paths, MediaStore folders, pref keys, enum values — only what is shown; `object` properties
+  holding text must be getters (`val x get() =`), since a language change recreates the Activity
+  in the same process. `MainActivity.attachBaseContext` applies the locale, so Compose's
+  LayoutDirection is RTL for Urdu/Arabic; the reader's header stays LTR on purpose.
+  `SurahNames.name` is Arabic script in those languages; parsing and search use `SurahNames.latin`.
 - **JVM tests**: `ContentCatalogTest`, `ContentRepositoryTest` (stubbed `ContentRepository.fetcher`,
   no network) and `ContentChoicesTest` (Compose on Robolectric). **Robolectric never settles
   with a Compose `Dialog` open** ("Compose did not get idle"), so the picker's list dialogs are

@@ -128,9 +128,9 @@ object AyahRef {
     private fun surahByName(raw: String): Int? {
         val needle = normalise(raw)
         if (needle.isEmpty()) return null
-        val exact = (1..114).firstOrNull { normalise(SurahNames.name(it)) == needle }
+        val exact = (1..114).firstOrNull { normalise(SurahNames.latin(it)) == needle }
         if (exact != null) return exact
-        val matches = (1..114).filter { normalise(SurahNames.name(it)).contains(needle) }
+        val matches = (1..114).filter { normalise(SurahNames.latin(it)).contains(needle) }
         return matches.singleOrNull()
     }
 

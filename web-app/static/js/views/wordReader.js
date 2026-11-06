@@ -11,6 +11,7 @@
 import { h } from '../lib/dom.js';
 import { PlaybackMode } from '../core/quran.js';
 
+import { tx } from '../core/i18n.js';
 export function wordReader({ engine, store }) {
   const wordFileMode = () => engine.mode === PlaybackMode.WORD_BY_WORD;
   let local = 0; // overlay position
@@ -32,14 +33,14 @@ export function wordReader({ engine, store }) {
     if (!ws.length) {
       big.textContent = '';
       meaning.textContent = '';
-      counter.textContent = engine.track ? 'Loading ayah text…' : '';
+      counter.textContent = engine.track ? tx('Loading ayah text…') : '';
       dots.replaceChildren();
       return;
     }
     const i = Math.min(position(), ws.length - 1);
     big.textContent = ws[i].text;
     meaning.textContent = store.settings.showWordTranslations ? ws[i].translation ?? '' : '';
-    counter.textContent = `${i + 1} / ${ws.length}   ·   swipe or tap for the next word`;
+    counter.textContent = `${i + 1} / ${ws.length}   ·   ${tx('swipe or tap for the next word')}`;
     if (dots.children.length !== ws.length) {
       dots.replaceChildren(...ws.map(() => h('span')));
     }

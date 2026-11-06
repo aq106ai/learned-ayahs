@@ -5,6 +5,7 @@
 // one, carrying the words already heard as a prefix. Every hypothesis the engine offers for the
 // latest phrase is passed on, because the right reading is sometimes not the first one.
 
+import { tx } from '../core/i18n.js';
 const Recognition = globalThis.SpeechRecognition ?? globalThis.webkitSpeechRecognition;
 
 export const speechSupported = () => Boolean(Recognition);
@@ -35,7 +36,7 @@ export class SpeechSession {
 
   start() {
     if (!Recognition) {
-      this.onError('Speech recognition is not available in this browser. Try Chrome, Edge or Safari.');
+      this.onError(tx('Speech recognition is not available in this browser. Try Chrome, Edge or Safari.'));
       return;
     }
     this.want = true;
@@ -112,7 +113,7 @@ export class SpeechSession {
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         this.want = false;
         this.onListening(false);
-        this.onError('Microphone access was blocked. Allow it in your browser to use Recite & review.');
+        this.onError(tx('Microphone access was blocked. Allow it in your browser to use Recite & review.'));
         return;
       }
       this.failures++;
@@ -121,8 +122,8 @@ export class SpeechSession {
         this.onListening(false);
         this.onError(
           event.error === 'network'
-            ? 'Speech recognition needs an internet connection in this browser.'
-            : `Speech recognition stopped (${event.error}).`,
+            ? tx('Speech recognition needs an internet connection in this browser.')
+            : tx('Speech recognition stopped ({error}).', { error: event.error }),
         );
       }
     };

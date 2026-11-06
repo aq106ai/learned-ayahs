@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.service
 
+import com.quran.learnedplayer.ui.i18n.tx
 import com.quran.learnedplayer.data.PlaylistSnapshot
 import com.quran.learnedplayer.player.PlayerSettings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,7 +97,7 @@ object PlayerStateHolder {
                 tracks = snapshot.tracks,
                 currentIndex = safeIndex,
                 downloadProgress = null,
-                loadingMessage = "Ready",
+                loadingMessage = tx("Ready"),
             )
         }
         snapshot.tracks.getOrNull(safeIndex)?.let { PlayerSettings.lastGlobalId = it.globalId }

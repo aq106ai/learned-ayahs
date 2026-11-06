@@ -11,10 +11,11 @@ import {
 import { RECITERS } from '../core/reciters.js';
 import { loadCatalog, prepareEdition } from '../services/content.js';
 
+import { tx } from '../core/i18n.js';
 const STYLES = [
-  [TRANSLATION_STYLES.WORDS, 'Word meanings', 'Under each Arabic word'],
-  [TRANSLATION_STYLES.AYAH, 'Full translation', 'The whole ayah, under the Arabic'],
-  [TRANSLATION_STYLES.BOTH, 'Both', 'Word meanings and the whole ayah'],
+  [TRANSLATION_STYLES.WORDS, tx('Word meanings'), tx('Under each Arabic word')],
+  [TRANSLATION_STYLES.AYAH, tx('Full translation'), tx('The whole ayah, under the Arabic')],
+  [TRANSLATION_STYLES.BOTH, tx('Both'), tx('Word meanings and the whole ayah')],
 ];
 
 const editionLabel = (t) => (t.author && t.author !== t.name && !t.name.includes(t.author) ? `${t.name} — ${t.author}` : t.name);
@@ -30,25 +31,25 @@ function select(testid, label, options, value, onChange, { dir } = {}) {
  * it; Settings keeps its own card). Re-renders itself as choices change.
  */
 export function contentChoices(store, { reciter = false } = {}) {
-  const el = h('div', { class: 'stack content-choices', 'data-testid': 'content-choices' }, h('p', { class: 'small muted' }, 'Loading…'));
+  const el = h('div', { class: 'stack content-choices', 'data-testid': 'content-choices' }, h('p', { class: 'small muted' }, tx('Loading…')));
   const status = h('p', { class: 'tiny muted', 'data-testid': 'content-status', 'aria-live': 'polite' });
   let catalog = null;
   let lastPrepared = null;
 
   function prepare(edition) {
     if (edition.bundled) {
-      status.textContent = 'Included with the app — works offline.';
+      status.textContent = tx('Included with the app — works offline.');
       return;
     }
     if (lastPrepared === edition.id) return;
     lastPrepared = edition.id;
     status.textContent = `Downloading ${edition.name}…`;
     prepareEdition(edition.id)
-      .then(() => { if (lastPrepared === edition.id) status.textContent = `${edition.name} is saved for offline use.`; })
+      .then(() => { if (lastPrepared === edition.id) status.textContent = tx('{name} is saved for offline use.', { name: edition.name }); })
       .catch((err) => {
         if (lastPrepared !== edition.id) return;
         lastPrepared = null;
-        status.textContent = `${err.message} Saheeh International is shown until it downloads.`;
+        status.textContent = `${err.message} ${tx('Saheeh International is shown until it downloads.')}`;
       });
   }
 
@@ -68,13 +69,13 @@ export function contentChoices(store, { reciter = false } = {}) {
     const languageOptions = translationLanguages(catalog).map((code) => [code, languageName(catalog, code, { native: true })]);
     const editionOptions = translationsIn(catalog, lang).map((t) => [t.id, `${editionLabel(t)}${t.bundled ? ' (offline)' : ''}`]);
     const wordOptions = catalog.wordMeanings.map((w) => [w.id, languageName(catalog, w.language, { native: true })]);
-    const tafsirOptions = [['', 'None'], ...tafsirsFor(catalog, lang).map((t) => [t.id, `${languageName(catalog, t.language)} · ${editionLabel(t)}`])];
+    const tafsirOptions = [['', tx('None')], ...tafsirsFor(catalog, lang).map((t) => [t.id, `${languageName(catalog, t.language)} · ${editionLabel(t)}`])];
 
     const styles = catalog.mushafStyles ?? [];
     const chosenStyle = (styles.find((m) => m.id === s.mushafStyle) ?? styles[0])?.id;
     el.replaceChildren(
-      styles.length > 1 ? h('div', { class: 'small muted' }, 'Mushaf style') : null,
-      styles.length > 1 ? h('div', { class: 'theme-row', role: 'radiogroup', 'aria-label': 'Mushaf style' }, styles.map((m) => h('button', {
+      styles.length > 1 ? h('div', { class: 'small muted' }, tx('Mushaf style')) : null,
+      styles.length > 1 ? h('div', { class: 'theme-row', role: 'radiogroup', 'aria-label': tx('Mushaf style') }, styles.map((m) => h('button', {
         class: `theme-tile mushaf-tile${m.id === chosenStyle ? ' selected' : ''}`, type: 'button', role: 'radio',
         'aria-checked': String(m.id === chosenStyle), 'aria-pressed': String(m.id === chosenStyle), title: `${m.name} — ${m.author}, ${m.licence}`,
         'data-testid': `content-mushaf-${m.id}`, onClick: () => set('mushafStyle', m.id),
@@ -89,8 +90,8 @@ export function contentChoices(store, { reciter = false } = {}) {
       }),
       select('content-translation', 'Translation', editionOptions, edition.id, (id) => set('translationEdition', id), { dir: isRtl(catalog, lang) ? 'rtl' : 'auto' }),
       status,
-      h('div', { class: 'small muted' }, 'Show'),
-      h('div', { class: 'chips', role: 'radiogroup', 'aria-label': 'Translation style' }, STYLES.map(([value, label, sub]) => h('button', {
+      h('div', { class: 'small muted' }, tx('Show')),
+      h('div', { class: 'chips', role: 'radiogroup', 'aria-label': tx('Translation style') }, STYLES.map(([value, label, sub]) => h('button', {
         class: 'chip', type: 'button', role: 'radio', title: sub,
         'aria-checked': String(style === value), 'aria-pressed': String(style === value),
         'data-testid': `content-style-${value}`,
@@ -105,24 +106,24 @@ export function contentChoices(store, { reciter = false } = {}) {
         : null,
       select('content-tafsir', 'Tafsir (optional)', tafsirOptions, tafsir?.id ?? '', (id) => set('tafsirEdition', id)),
       h('p', { class: 'tiny muted', style: { margin: 0 } },
-        tafsir ? `${tafsir.name} by ${tafsir.author}, from ${tafsir.source}. Opens from the Tafsir button in the player.` : 'Commentary on the current ayah, from the Tafsir button in the player.'),
+        tafsir ? tx('{name} by {author}, from {source}. Opens from the Tafsir button in the player.', { name: tafsir.name, author: tafsir.author, source: tafsir.source }) : tx('Commentary on the current ayah, from the Tafsir button in the player.')),
       reciter
         ? h('div', { class: 'stack' },
-          h('div', { class: 'small muted' }, 'Reciter'),
-          h('div', { class: 'chips', role: 'radiogroup', 'aria-label': 'Reciter' }, RECITERS.map((r) => h('button', {
+          h('div', { class: 'small muted' }, tx('Reciter')),
+          h('div', { class: 'chips', role: 'radiogroup', 'aria-label': tx('Reciter') }, RECITERS.map((r) => h('button', {
             class: 'chip', type: 'button', role: 'radio',
             'aria-checked': String(s.reciter === r.key), 'aria-pressed': String(s.reciter === r.key),
             'data-testid': `content-reciter-${r.key}`,
             onClick: () => set('reciter', r.key),
           }, r.displayName))),
-          h('p', { class: 'tiny muted', style: { margin: 0 } }, 'Every reciter here has checked word timings, so each word lights up as it is recited.'))
+          h('p', { class: 'tiny muted', style: { margin: 0 } }, tx('Every reciter here has checked word timings, so each word lights up as it is recited.')))
         : null,
     );
     prepare(edition);
   }
 
   loadCatalog().then((c) => { catalog = c; draw(); }).catch(() => {
-    el.replaceChildren(h('p', { class: 'small muted' }, 'The list of translations could not be loaded. Saheeh International is used for now.'));
+    el.replaceChildren(h('p', { class: 'small muted' }, tx('The list of translations could not be loaded. Saheeh International is used for now.')));
   });
   return el;
 }

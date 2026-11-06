@@ -34,9 +34,16 @@ language-aware pickers. Do not promise every translation or recording worldwide.
   English (`make_content_catalog.py --verify-words`). Find a complete source or leave them out.
 - [ ] Refresh `content_catalog.json` on a schedule (a workflow, like `nature-photos.yml`), and
   add `retired` entries when Quran.com withdraws an edition.
-- [ ] UI languages: almost every Android string is hard-coded in Compose (strings.xml has 3) and
-  the web's are in the views. Move them to resources/message tables, then add an app-language
-  choice to the intro and Settings, starting with English, Urdu and Arabic, with RTL layout tests.
+- [x] App languages: English, Urdu and Arabic, chosen in the intro ("Make it yours") and Settings,
+  or following the phone/browser. Every interface string goes through tx("English") on both apps,
+  backed by one table (`.setup/ui_strings.json` → `make_ui_strings.py`); CI fails on a missing or
+  placeholder-breaking translation. Urdu and Arabic mirror the layout (web CSS uses logical
+  properties; Android sets the Activity's locale). Surah names show in Arabic script for both.
+- [ ] Have fluent Urdu and Arabic readers review the translations (written for this change), and
+  check the Android screens right to left on a device or emulator (only the web was looked at).
+- [ ] More app languages: add a code to UI_LANGUAGES / UiStrings.languages and a column to
+  ui_strings.json; Indonesian, Bengali, Turkish and Persian would match the content languages.
+- [ ] Server error messages (web `services/api.js`, server.py) are still English.
 - [x] Tafsir reader: the player's Tafsir button opens a popup (web `views/tafsir.js`) / bottom
   sheet (Android `ui/player/TafsirSheet.kt`) with the chosen edition, its name, author and source,
   and the ayahs the entry covers. The provider's HTML becomes plain blocks (`tafsirText.js` /

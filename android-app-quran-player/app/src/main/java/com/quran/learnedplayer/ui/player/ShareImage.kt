@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -58,7 +59,7 @@ object ShareImage {
         }
         if (!partial.renameTo(file)) {
             partial.delete()
-            throw java.io.IOException("Couldn't save the picture")
+            throw java.io.IOException(tx("Couldn't save the picture"))
         }
         file
     }
@@ -70,6 +71,6 @@ object ShareImage {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return Intent.createChooser(send, "Share image")
+        return Intent.createChooser(send, tx("Share image"))
     }
 }

@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import com.quran.learnedplayer.ui.settings.rememberEditionName
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -86,14 +87,14 @@ fun BackgroundSheet(onDismiss: () -> Unit) {
                 .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Background", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextPrimary)
+            Text(tx("Background"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextPrimary)
             Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Choice("Plain", PlayerBackgrounds.PLAIN, choice, ::pick)
-                Choice("Matched scenes", PlayerBackgrounds.MATCHED, choice, ::pick)
-                if (subjects.isNotEmpty()) Choice("Matched photos", PlayerBackgrounds.PHOTOS, choice, ::pick)
+                Choice(tx("Plain"), PlayerBackgrounds.PLAIN, choice, ::pick)
+                Choice(tx("Matched scenes"), PlayerBackgrounds.MATCHED, choice, ::pick)
+                if (subjects.isNotEmpty()) Choice(tx("Matched photos"), PlayerBackgrounds.PHOTOS, choice, ::pick)
             }
             Text(
-                "Matched follows what each ayah is about, as in a shared video. Or choose one for every ayah:",
+                tx("Matched follows what each ayah is about, as in a shared video. Or choose one for every ayah:"),
                 color = TextMuted,
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -127,8 +128,8 @@ fun BackgroundSheet(onDismiss: () -> Unit) {
             }
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Translation", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
-                    Text("${rememberEditionName()}, under the whole ayah", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                    Text(tx("Translation"), color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
+                    Text(tx("{0}, under the whole ayah", rememberEditionName()), color = TextMuted, style = MaterialTheme.typography.bodySmall)
                 }
                 Switch(
                     checked = translation,
@@ -138,8 +139,7 @@ fun BackgroundSheet(onDismiss: () -> Unit) {
                 )
             }
             Text(
-                "Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons " +
-                    "(downloaded when first used), never people or animals. A moving background uses a little more battery.",
+                tx("Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons (downloaded when first used), never people or animals. A moving background uses a little more battery."),
                 color = TextMuted,
                 style = MaterialTheme.typography.bodySmall,
             )

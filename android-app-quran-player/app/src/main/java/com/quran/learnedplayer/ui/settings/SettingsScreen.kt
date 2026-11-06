@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.settings
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
@@ -106,7 +107,7 @@ fun SettingsScreen(
     val reciteSupported = remember { DeviceRecognition.isSupported }
     var showBetaConfirm by remember { mutableStateOf(false) }
     var arabicPackInstalled by remember { mutableStateOf(false) }
-    var arabicPackStatus by remember { mutableStateOf("Checking Arabic speech support…") }
+    var arabicPackStatus by remember { mutableStateOf(tx("Checking Arabic speech support…")) }
     /** The Arabic tag this phone answered for, so the download asks for one it recognises. */
     var arabicPackLanguage by remember { mutableStateOf<String?>(null) }
     var arabicPackOffered by remember { mutableStateOf(false) }
@@ -119,7 +120,7 @@ fun SettingsScreen(
     // the user to discover on a train.
     LaunchedEffect(reciteBetaEnabled, reciteSupported) {
         if (!reciteSupported) {
-            arabicPackStatus = "Offline Arabic needs Android 13 or newer."
+            arabicPackStatus = tx("Offline Arabic needs Android 13 or newer.")
             return@LaunchedEffect
         }
         DeviceRecognition.queryArabicSupport(context, mainExecutor) { support ->
@@ -130,15 +131,13 @@ fun SettingsScreen(
             arabicPackOffered = support?.canDownloadArabic == true
             arabicPackStatus = when {
                 support == null ->
-                    "Could not check offline Arabic on this phone — Recite will use online " +
-                        "recognition."
+                    tx("Could not check offline Arabic on this phone — Recite will use online recognition.")
                 support.hasOfflineArabic ->
-                    "Arabic is available offline (${support.installedOnDevice.joinToString()})."
+                    tx("Arabic is available offline ({0}).", support.installedOnDevice.joinToString())
                 support.canDownloadArabic ->
-                    "Arabic is not downloaded yet, so Recite needs a connection."
+                    tx("Arabic is not downloaded yet, so Recite needs a connection.")
                 else ->
-                    "Your phone's speech service does not offer Arabic offline, so Recite needs " +
-                        "a connection. That is a limit of the speech service, not of Recite."
+                    tx("Your phone's speech service does not offer Arabic offline, so Recite needs a connection. That is a limit of the speech service, not of Recite.")
             }
         }
     }
@@ -162,15 +161,24 @@ fun SettingsScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextMuted)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tx("Back"), tint = TextMuted)
             }
-            Text("Settings", style = MaterialTheme.typography.titleLarge)
+            Text(tx("Settings"), style = MaterialTheme.typography.titleLarge)
         }
 
-        Section("Ayah reciter") {
+        Section(tx("App language")) {
             Text(
-                text = "Whole-ayah recitations stream from everyayah.com. Each one ships exact " +
-                    "word timings for optional highlight-while-playing.",
+                text = tx("The language of the app's menus and messages. The Qur'an, translations and tafsir have their own choices below."),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+            UiLanguagePicker()
+        }
+
+        Section(tx("Ayah reciter")) {
+            Text(
+                text = tx("Whole-ayah recitations stream from everyayah.com. Each one ships exact word timings for optional highlight-while-playing."),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -202,14 +210,14 @@ fun SettingsScreen(
             }
         }
 
-        Section("Theme") {
+        Section(tx("Theme")) {
             Row(
                 modifier = Modifier.padding(top = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 AppTheme.entries.forEach { option ->
                     Choice(
-                        label = option.label,
+                        label = tx(option.label),
                         selected = appTheme == option,
                         tag = appThemeTag(option),
                     ) { PlayerSettings.appTheme = option }
@@ -217,11 +225,9 @@ fun SettingsScreen(
             }
         }
 
-        Section("Translation and tafsir") {
+        Section(tx("Translation and tafsir")) {
             Text(
-                text = "Shown beside the Arabic in the player, the surah pages, shared text and videos. " +
-                    "Saheeh International and the English word meanings come with the app; other " +
-                    "editions download from Quran.com when chosen and are kept for offline use.",
+                text = tx("Shown beside the Arabic in the player, the surah pages, shared text and videos. Saheeh International and the English word meanings come with the app; other editions download from Quran.com when chosen and are kept for offline use."),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
                 modifier = Modifier.padding(bottom = 8.dp),
@@ -234,19 +240,19 @@ fun SettingsScreen(
                     scope.launch {
                         val bytes = withContext(Dispatchers.IO) { ContentRepository.downloadedBytes() }
                         if (bytes == 0L) {
-                            cleared = "Nothing is downloaded. The bundled translation and meanings always stay."
+                            cleared = tx("Nothing is downloaded. The bundled translation and meanings always stay.")
                         } else {
                             withContext(Dispatchers.IO) { ContentRepository.clearDownloaded() }
-                            cleared = "Downloaded translations removed (${bytes / 1024} KB). They download again when shown."
+                            cleared = tx("Downloaded translations removed ({0} KB). They download again when shown.", bytes / 1024)
                         }
                     }
                 },
                 modifier = Modifier.testTag(TAG_SETTINGS_CLEAR_CONTENT),
-            ) { Text("Remove downloaded translations", color = AccentGreen) }
+            ) { Text(tx("Remove downloaded translations"), color = AccentGreen) }
             cleared?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = TextMuted) }
         }
 
-        Section("Reading") {
+        Section(tx("Reading")) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -256,9 +262,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Word-by-word translation", style = MaterialTheme.typography.bodyMedium)
+                    Text(tx("Word-by-word translation"), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = "Show each word's meaning beneath it in the ayah views.",
+                        text = tx("Show each word's meaning beneath it in the ayah views."),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )
@@ -281,9 +287,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Ayah translation", style = MaterialTheme.typography.bodyMedium)
+                    Text(tx("Ayah translation"), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = "Show the whole ayah's translation (${rememberEditionName()}) under it in the player.",
+                        text = tx("Show the whole ayah's translation ({0}) under it in the player.", rememberEditionName()),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )
@@ -298,7 +304,7 @@ fun SettingsScreen(
                 )
             }
             Text(
-                text = "When whole ayah is too long to fit on screen while playing:",
+                text = tx("When whole ayah is too long to fit on screen while playing:"),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
                 modifier = Modifier.padding(top = 16.dp),
@@ -309,7 +315,7 @@ fun SettingsScreen(
             ) {
                 AyahOverflowMode.entries.forEach { option ->
                     Choice(
-                        label = option.label,
+                        label = tx(option.label),
                         selected = ayahOverflowMode == option,
                         tag = ayahOverflowModeTag(option),
                     ) { PlayerSettings.ayahOverflowMode = option }
@@ -317,9 +323,9 @@ fun SettingsScreen(
             }
         }
 
-        Section("Gestures") {
+        Section(tx("Gestures")) {
             Text(
-                text = "Swipe or tap on the player to move between ayahs.",
+                text = tx("Swipe or tap on the player to move between ayahs."),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -332,9 +338,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Swipe to navigate", style = MaterialTheme.typography.bodyMedium)
+                    Text(tx("Swipe to navigate"), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = "Swipe left/right on the player to move between ayahs.",
+                        text = tx("Swipe left/right on the player to move between ayahs."),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )
@@ -357,9 +363,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Tap to advance", style = MaterialTheme.typography.bodyMedium)
+                    Text(tx("Tap to advance"), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = "Tap the player to move to the next ayah.",
+                        text = tx("Tap the player to move to the next ayah."),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )
@@ -375,7 +381,7 @@ fun SettingsScreen(
             }
         }
 
-        Section("Recitation & AI Review") {
+        Section(tx("Recitation & AI Review")) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -384,9 +390,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Auto-play audio on mistake", style = MaterialTheme.typography.bodyMedium)
+                    Text(tx("Auto-play audio on mistake"), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = "Play reciter audio when a mistake is detected and pause for user to re-recite.",
+                        text = tx("Play reciter audio when a mistake is detected and pause for user to re-recite."),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )
@@ -408,9 +414,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Auto-advance on success", style = MaterialTheme.typography.bodyMedium)
+                    Text(tx("Auto-advance on success"), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = "Automatically move to next ayah when recitation is 100% correct.",
+                        text = tx("Automatically move to next ayah when recitation is 100% correct."),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )
@@ -436,9 +442,9 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text("Recite & review", style = MaterialTheme.typography.titleMedium)
+                    Text(tx("Recite & review"), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "Beta",
+                        tx("Beta"),
                         style = MaterialTheme.typography.labelSmall,
                         color = AccentGreen,
                         modifier = Modifier
@@ -448,13 +454,9 @@ fun SettingsScreen(
                 }
                 Text(
                     text = if (!reciteSupported) {
-                        "Needs Android 13 or newer. Recite listens through your phone's speech " +
-                            "recognition, and the way it keeps the microphone open without " +
-                            "switching it on and off is only available on newer Android versions."
+                        tx("Needs Android 13 or newer. Recite listens through your phone's speech recognition, and the way it keeps the microphone open without switching it on and off is only available on newer Android versions.")
                     } else {
-                        "Listens while you recite a learned ayah and plays the correct word back " +
-                            "when you slip. Uses your phone's Arabic speech recognition — offline " +
-                            "when a voice pack is installed, otherwise online."
+                        tx("Listens while you recite a learned ayah and plays the correct word back when you slip. Uses your phone's Arabic speech recognition — offline when a voice pack is installed, otherwise online.")
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = TextMuted,
@@ -469,7 +471,7 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "Enable Recite & review",
+                        text = tx("Enable Recite & review"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (reciteSupported) TextPrimary else TextMuted,
                     )
@@ -503,38 +505,38 @@ fun SettingsScreen(
                     if (!arabicPackInstalled && arabicPackOffered) {
                         TextButton(
                             onClick = {
-                                arabicPackStatus = "Asking your phone to download Arabic…"
+                                arabicPackStatus = tx("Asking your phone to download Arabic…")
                                 DeviceRecognition.downloadArabicModel(
                                     context = context,
                                     executor = mainExecutor,
                                     preferredLanguage = arabicPackLanguage,
                                     onProgress = { percent ->
-                                        arabicPackStatus = "Downloading Arabic… $percent%"
+                                        arabicPackStatus = tx("Downloading Arabic… {0}%", percent)
                                     },
                                     onDone = { ok ->
                                         arabicPackStatus = if (ok) {
                                             PlayerSettings.preferOfflineDeviceSpeech = true
-                                            "Arabic is available offline — Recite will use it."
+                                            tx("Arabic is available offline — Recite will use it.")
                                         } else {
-                                            "Your phone's speech service would not download " +
-                                                "Arabic${arabicPackLanguage?.let { " ($it)" }.orEmpty()}. " +
-                                                "Recite will use online recognition, which needs " +
-                                                "a connection but is often the more accurate of " +
-                                                "the two anyway."
+                                            tx(
+                                                "Your phone's speech service would not download Arabic{0}. Recite will use " +
+                                                    "online recognition, which needs a connection but is often the more " +
+                                                    "accurate of the two anyway.",
+                                                arabicPackLanguage?.let { " ($it)" }.orEmpty(),
+                                            )
                                         }
                                     },
                                 )
                             },
                             modifier = Modifier.testTag(TAG_DOWNLOAD_ARABIC_PACK),
                         ) {
-                            Text("Download Arabic for offline use", color = AccentGreen)
+                            Text(tx("Download Arabic for offline use"), color = AccentGreen)
                         }
                     }
                 }
             }
             Text(
-                text = "Word clips are played back when a wrong word is detected — they are a " +
-                    "separate download from the speech engine.",
+                text = tx("Word clips are played back when a wrong word is detected — they are a separate download from the speech engine."),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
                 modifier = Modifier.padding(top = 16.dp),
@@ -551,13 +553,13 @@ fun SettingsScreen(
                     .padding(top = 12.dp)
                     .testTag(TAG_DOWNLOAD_WORD_CLIPS),
             ) {
-                Text("Save word clips for Recite & review")
+                Text(tx("Save word clips for Recite & review"))
             }
             Text(
                 text = if (wordClipsCached > 0) {
-                    "$wordClipsCached word clips saved for learned ayahs"
+                    tx("{0} word clips saved for learned ayahs", wordClipsCached)
                 } else {
-                    "Not downloaded — mistake playback will stream"
+                    tx("Not downloaded — mistake playback will stream")
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
@@ -565,7 +567,7 @@ fun SettingsScreen(
             )
         }
 
-        Section("Offline") {
+        Section(tx("Offline")) {
             // Reports on whatever queue is currently active (it can be a full-surah stream
             // rather than the whole learned list), same as when this lived on the player.
             val queueIsMaster = (state.mode == PlaybackMode.REVISE || state.mode == PlaybackMode.WORD_BY_WORD) &&
@@ -578,11 +580,11 @@ fun SettingsScreen(
             val statusText = when {
                 state.downloadProgress != null -> state.downloadProgress
                 total == 0 -> null
-                wordMode -> "Offline: word clips for your learned ayahs (stream otherwise)"
-                queueIsMaster && introsCached -> "Offline: $cached/$total · A'udhu + Bismillah"
-                queueIsMaster -> "Offline: $cached/$total · intro clips stream online"
-                state.mode == PlaybackMode.FULL_SURAH -> "Offline: $cached/$total (your learned ayahs only)"
-                else -> "Offline: $cached/$total"
+                wordMode -> tx("Offline: word clips for your learned ayahs (stream otherwise)")
+                queueIsMaster && introsCached -> tx("Offline: {0}/{1} · A'udhu + Bismillah", cached, total)
+                queueIsMaster -> tx("Offline: {0}/{1} · intro clips stream online", cached, total)
+                state.mode == PlaybackMode.FULL_SURAH -> tx("Offline: {0}/{1} (your learned ayahs only)", cached, total)
+                else -> tx("Offline: {0}/{1}", cached, total)
             }
 
             Button(
@@ -596,9 +598,9 @@ fun SettingsScreen(
             ) {
                 Text(
                     when {
-                        wordMode -> "Save word audio for offline"
-                        allCached -> "Saved offline"
-                        else -> "Save learned ayahs for offline"
+                        wordMode -> tx("Save word audio for offline")
+                        allCached -> tx("Saved offline")
+                        else -> tx("Save learned ayahs for offline")
                     },
                 )
             }
@@ -612,21 +614,20 @@ fun SettingsScreen(
             }
         }
 
-        Section("About") {
+        Section(tx("About")) {
             Text(
-                text = "Learned Ayahs Player v${BuildConfig.VERSION_NAME}",
+                text = tx("Learned Ayahs Player v{0}", BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
             Text(
-                text = "Recitation: ${reciter.displayName} (everyayah.com)\n" +
-                    "Arabic: Scheherazade New (SIL OFL)",
+                text = tx("Recitation: {0} (everyayah.com)\nArabic: Scheherazade New (SIL OFL)", reciter.displayName),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
         }
 
-        Section("Sources and disclaimer") {
+        Section(tx("Sources and disclaimer")) {
             SourcesAndDisclaimerText()
         }
     }
@@ -635,17 +636,10 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showBetaConfirm = false },
             containerColor = Panel,
-            title = { Text("Turn on Recite & review?") },
+            title = { Text(tx("Turn on Recite & review?")) },
             text = {
                 Text(
-                    text = "This is a beta feature.\n\n" +
-                        "It listens through your phone's Arabic speech recognition, which is " +
-                        "built for everyday speech rather than Qur'anic recitation. It will " +
-                        "sometimes miss a real mistake, and it can occasionally flag a word you " +
-                        "recited correctly.\n\n" +
-                        "Treat it as practice help, never as a check on whether your recitation " +
-                        "is correct. Your microphone is only used while you are on the Recite " +
-                        "screen and have started listening.",
+                    text = tx("This is a beta feature.\n\nIt listens through your phone's Arabic speech recognition, which is built for everyday speech rather than Qur'anic recitation. It will sometimes miss a real mistake, and it can occasionally flag a word you recited correctly.\n\nTreat it as practice help, never as a check on whether your recitation is correct. Your microphone is only used while you are on the Recite screen and have started listening."),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextMuted,
                 )
@@ -655,12 +649,12 @@ fun SettingsScreen(
                     PlayerSettings.reciteBetaEnabled = true
                     showBetaConfirm = false
                 }) {
-                    Text("I understand, turn it on", color = AccentGreen)
+                    Text(tx("I understand, turn it on"), color = AccentGreen)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showBetaConfirm = false }) {
-                    Text("Cancel", color = TextMuted)
+                    Text(tx("Cancel"), color = TextMuted)
                 }
             },
         )

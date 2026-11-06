@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -86,7 +87,7 @@ fun TafsirSheet(surah: Int, ayah: Int, onDismiss: () -> Unit) {
         loaded = Loaded.Loading
         loaded = withContext(Dispatchers.IO) {
             runCatching { ContentRepository.ayahTafsir(surah, ayah, edition.id) }
-                .fold({ Loaded.Done(it) }, { Loaded.Failed(it.message ?: "The download failed.") })
+                .fold({ Loaded.Done(it) }, { Loaded.Failed(it.message ?: tx("The download failed.")) })
         }
     }
 
@@ -102,7 +103,7 @@ fun TafsirSheet(surah: Int, ayah: Int, onDismiss: () -> Unit) {
         ) {
             item {
                 Text(
-                    "Tafsir · ${SurahNames.name(surah)} $surah:$ayah",
+                    tx("Tafsir · {0} {1}:{2}", SurahNames.name(surah), surah, ayah),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary,
@@ -112,9 +113,9 @@ fun TafsirSheet(surah: Int, ayah: Int, onDismiss: () -> Unit) {
                 item {
                     Text(
                         if (edition == null) {
-                            "Choose a tafsir to read commentary on this ayah. It downloads from Quran.com and is kept for offline use. You can change it later in Settings."
+                            tx("Choose a tafsir to read commentary on this ayah. It downloads from Quran.com and is kept for offline use. You can change it later in Settings.")
                         } else {
-                            "Choose a tafsir:"
+                            tx("Choose a tafsir:")
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextMuted,
@@ -141,27 +142,27 @@ fun TafsirSheet(surah: Int, ayah: Int, onDismiss: () -> Unit) {
                 item {
                     Column {
                         Text(
-                            "${edition.name} by ${edition.author}, from ${edition.source}.",
+                            tx("{0} by {1}, from {2}.", edition.name, edition.author, edition.source),
                             style = MaterialTheme.typography.bodySmall,
                             color = TextMuted,
                             modifier = Modifier.testTag(TAG_TAFSIR_SOURCE),
                         )
                         TextButton(onClick = { choosing = true }, modifier = Modifier.testTag(TAG_TAFSIR_CHANGE)) {
-                            Text("Change tafsir", color = AccentGreen)
+                            Text(tx("Change tafsir"), color = AccentGreen)
                         }
                     }
                 }
                 when (val state = loaded) {
-                    Loaded.Loading -> item { Text("Loading ${edition.name}…", color = TextMuted) }
+                    Loaded.Loading -> item { Text(tx("Loading {0}…", edition.name), color = TextMuted) }
                     is Loaded.Failed -> item {
                         Column {
                             Text(
-                                "${edition.name} could not be loaded. ${state.message}",
+                                tx("{0} could not be loaded. {1}", edition.name, state.message),
                                 color = TextPrimary,
                                 modifier = Modifier.testTag(TAG_TAFSIR_ERROR),
                             )
                             TextButton(onClick = { attempt++ }, modifier = Modifier.testTag(TAG_TAFSIR_RETRY)) {
-                                Text("Try again", color = AccentGreen)
+                                Text(tx("Try again"), color = AccentGreen)
                             }
                         }
                     }
@@ -170,7 +171,7 @@ fun TafsirSheet(surah: Int, ayah: Int, onDismiss: () -> Unit) {
                         if (range.isNotEmpty() && range != "$surah:$ayah") {
                             item {
                                 Text(
-                                    "This commentary covers $range together.",
+                                    tx("This commentary covers {0} together.", range),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = TextPrimary,
                                     modifier = Modifier.testTag(TAG_TAFSIR_RANGE),
@@ -179,7 +180,7 @@ fun TafsirSheet(surah: Int, ayah: Int, onDismiss: () -> Unit) {
                         }
                         val rtl = catalog.isRtl(edition.language)
                         if (state.tafsir.blocks.isEmpty()) {
-                            item { Text("This tafsir has no commentary on this ayah.", color = TextMuted) }
+                            item { Text(tx("This tafsir has no commentary on this ayah."), color = TextMuted) }
                         }
                         items(state.tafsir.blocks) { block ->
                             CompositionLocalProvider(LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {

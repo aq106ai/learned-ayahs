@@ -16,7 +16,7 @@ import {
   VERSE_COUNTS,
   globalToSurahAyah,
   surahAyahToGlobal,
-  surahName,
+  surahNameLatin,
 } from './quran.js';
 
 const NUMERIC_AYAH = /^(\d{1,3})\s*:\s*(\d{1,3})(?:\s*-\s*(\d{1,3}))?$/;
@@ -75,7 +75,7 @@ function normaliseName(name) {
   return key;
 }
 
-const NORMALISED_NAMES = Array.from({ length: 114 }, (_, i) => normaliseName(surahName(i + 1)));
+const NORMALISED_NAMES = Array.from({ length: 114 }, (_, i) => normaliseName(surahNameLatin(i + 1)));
 
 function surahByName(raw) {
   const needle = normaliseName(raw);

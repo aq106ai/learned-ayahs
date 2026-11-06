@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.os.SystemClock
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -114,7 +115,7 @@ fun AyahReaderContent(
                 onAdvance = onNext,
                 onGoBack = onPrevious,
             )
-            .advanceOnTap(enabled = tapAdvances, label = "Next ayah", onTap = onNext),
+            .advanceOnTap(enabled = tapAdvances, label = tx("Next ayah"), onTap = onNext),
     ) {
         if (wordByWord) {
             WordByWordView(
@@ -347,7 +348,7 @@ private fun AyahWordsContent(
     val showTranslations by PlayerSettings.showWordTranslationsFlow.collectAsState()
     when {
         state.ayahTextLoading -> Text(
-            text = "Loading text…",
+            text = tx("Loading text…"),
             color = TextMuted,
             modifier = modifier,
             textAlign = TextAlign.Center,

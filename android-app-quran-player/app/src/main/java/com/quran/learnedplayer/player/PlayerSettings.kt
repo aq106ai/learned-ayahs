@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.content.Context
 import android.content.SharedPreferences
 import com.quran.learnedplayer.data.AppTheme
@@ -33,9 +34,9 @@ enum class PlaybackMode {
 
     val label: String
         get() = when (this) {
-            REVISE -> "Learned ayahs"
-            FULL_SURAH -> "Full surah"
-            WORD_BY_WORD -> "Word by word"
+            REVISE -> tx("Learned ayahs")
+            FULL_SURAH -> tx("Full surah")
+            WORD_BY_WORD -> tx("Word by word")
         }
 
     companion object {
@@ -62,13 +63,13 @@ enum class RepeatMode {
 
     val label: String
         get() = when (this) {
-            OFF -> "Off"
-            SURAH -> "Surah"
-            AYAH -> "Ayah"
+            OFF -> tx("Off")
+            SURAH -> tx("Surah")
+            AYAH -> tx("Ayah")
         }
 
     fun labelFor(playbackMode: PlaybackMode): String =
-        if (playbackMode == PlaybackMode.WORD_BY_WORD && this == AYAH) "Word" else label
+        if (playbackMode == PlaybackMode.WORD_BY_WORD && this == AYAH) tx("Word") else label
 
     companion object {
         val DEFAULT = OFF
@@ -91,8 +92,8 @@ enum class AyahOverflowMode {
 
     val label: String
         get() = when (this) {
-            AUTO_SCROLL -> "Auto scroll"
-            FIT_TO_SCREEN -> "Fit to screen"
+            AUTO_SCROLL -> tx("Auto scroll")
+            FIT_TO_SCREEN -> tx("Fit to screen")
         }
 
     companion object {
@@ -106,19 +107,19 @@ enum class AyahOverflowMode {
 /** The label shown wherever the active mode is surfaced (notification, mini bar, playlist headers). */
 fun playbackModeLabel(mode: PlaybackMode, repeatMode: RepeatMode): String = when (mode) {
     PlaybackMode.FULL_SURAH -> when (repeatMode) {
-        RepeatMode.OFF -> "Full surah"
-        RepeatMode.SURAH -> "Full surah · repeat"
-        RepeatMode.AYAH -> "Full surah · repeat ayah"
+        RepeatMode.OFF -> tx("Full surah")
+        RepeatMode.SURAH -> tx("Full surah · repeat")
+        RepeatMode.AYAH -> tx("Full surah · repeat ayah")
     }
     PlaybackMode.REVISE -> when (repeatMode) {
-        RepeatMode.OFF -> "Learned ayahs"
-        RepeatMode.SURAH -> "Learned ayahs · repeat surah"
-        RepeatMode.AYAH -> "Learned ayahs · repeat ayah"
+        RepeatMode.OFF -> tx("Learned ayahs")
+        RepeatMode.SURAH -> tx("Learned ayahs · repeat surah")
+        RepeatMode.AYAH -> tx("Learned ayahs · repeat ayah")
     }
     PlaybackMode.WORD_BY_WORD -> when (repeatMode) {
-        RepeatMode.OFF -> "Word by word"
-        RepeatMode.SURAH -> "Word by word"
-        RepeatMode.AYAH -> "Word by word · repeat word"
+        RepeatMode.OFF -> tx("Word by word")
+        RepeatMode.SURAH -> tx("Word by word")
+        RepeatMode.AYAH -> tx("Word by word · repeat word")
     }
 }
 
@@ -148,6 +149,7 @@ object PlayerSettings {
     private const val KEY_WORD_MEANING_LANGUAGE = "word_meaning_language"
     private const val KEY_TAFSIR_EDITION = "tafsir_edition"
     private const val KEY_MUSHAF_STYLE = "mushaf_style"
+    private const val KEY_UI_LANGUAGE = "ui_language"
 
     /** Catalog ids (`data/ContentCatalog.kt`). A saved id the catalog no longer has falls back there. */
     const val DEFAULT_TRANSLATION_EDITION = "en-saheeh"
@@ -191,6 +193,7 @@ object PlayerSettings {
         _wordMeaningLanguage.value = prefs?.getString(KEY_WORD_MEANING_LANGUAGE, null) ?: DEFAULT_WORD_MEANING_LANGUAGE
         _tafsirEdition.value = prefs?.getString(KEY_TAFSIR_EDITION, null).orEmpty()
         _mushafStyle.value = prefs?.getString(KEY_MUSHAF_STYLE, null) ?: DEFAULT_MUSHAF_STYLE
+        _uiLanguage.value = prefs?.getString(KEY_UI_LANGUAGE, null).orEmpty()
     }
 
     private val _mode = MutableStateFlow(PlaybackMode.DEFAULT)
@@ -473,6 +476,20 @@ object PlayerSettings {
         set(value) {
             _mushafStyle.value = value
             prefs?.edit()?.putString(KEY_MUSHAF_STYLE, value)?.apply()
+        }
+
+    private val _uiLanguage = MutableStateFlow("")
+    val uiLanguageFlow: StateFlow<String> = _uiLanguage.asStateFlow()
+
+    /**
+     * The interface language (`ui/i18n/UiStrings.kt`): "" follows the phone, else "en", "ur", "ar".
+     * Set it through [com.quran.learnedplayer.ui.i18n.UiStrings] callers that recreate the Activity.
+     */
+    var uiLanguage: String
+        get() = _uiLanguage.value
+        set(value) {
+            _uiLanguage.value = value
+            prefs?.edit()?.putString(KEY_UI_LANGUAGE, value)?.commit()
         }
 
     private val _seekInsideAyahAudio = MutableStateFlow(false)

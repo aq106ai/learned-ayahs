@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.os.Build
 import android.annotation.SuppressLint
 import android.content.Context
@@ -135,7 +136,7 @@ class RecitationSpeechManager(private val context: Context) {
 
     fun startListening() {
         if (!isAvailable) {
-            _errorState.value = "Recite needs Android 13 or newer on this phone."
+            _errorState.value = tx("Recite needs Android 13 or newer on this phone.")
             _isListening.value = false
             return
         }
@@ -261,7 +262,7 @@ class RecitationSpeechManager(private val context: Context) {
                 bufSize,
             )
             if (record.state != AudioRecord.STATE_INITIALIZED) {
-                _errorState.value = "Could not open the microphone."
+                _errorState.value = tx("Could not open the microphone.")
                 _isListening.value = false
                 return
             }
@@ -299,7 +300,7 @@ class RecitationSpeechManager(private val context: Context) {
         } catch (_: InterruptedException) {
             // stopListening
         } catch (e: Exception) {
-            _errorState.value = "Microphone error: ${e.localizedMessage}"
+            _errorState.value = tx("Microphone error: {0}", e.localizedMessage)
         } finally {
             runCatching { record?.stop() }
             runCatching { record?.release() }
@@ -345,7 +346,7 @@ class RecitationSpeechManager(private val context: Context) {
             previousReadSide = readSide
             _isListening.value = true
         } catch (e: Exception) {
-            noteDeadStart("Could not start speech recognition: ${e.localizedMessage}")
+            noteDeadStart(tx("Could not start speech recognition: {0}", e.localizedMessage))
         }
     }
 
@@ -429,7 +430,7 @@ class RecitationSpeechManager(private val context: Context) {
             if (error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
                 wantListening = false
                 _isListening.value = false
-                _errorState.value = "Microphone permission required"
+                _errorState.value = tx("Microphone permission required")
                 return
             }
             // The microphone is ours and still open, so a failed recogniser session is invisible to
@@ -445,8 +446,7 @@ class RecitationSpeechManager(private val context: Context) {
                 wantListening = false
                 _isListening.value = false
                 _errorState.value =
-                    "Arabic speech recognition is not available on this phone. Add Arabic in your " +
-                        "phone's voice input settings and try again."
+                    tx("Arabic speech recognition is not available on this phone. Add Arabic in your phone's voice input settings and try again.")
                 return
             }
 
@@ -458,7 +458,7 @@ class RecitationSpeechManager(private val context: Context) {
             }
 
             if (error == SpeechRecognizer.ERROR_CLIENT || error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY) {
-                noteDeadStart("Speech recognition error ($error)")
+                noteDeadStart(tx("Speech recognition error ({0})", error))
                 return
             }
 
@@ -476,7 +476,7 @@ class RecitationSpeechManager(private val context: Context) {
                 return
             }
             if (networkFailure) {
-                _errorState.value = "No connection, and no offline Arabic model on this phone."
+                _errorState.value = tx("No connection, and no offline Arabic model on this phone.")
                 restartSession(RESTART_DELAY_MS)
                 return
             }

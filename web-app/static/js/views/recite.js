@@ -10,26 +10,27 @@ import * as quran from '../services/quranData.js';
 import { SpeechSession, speechSupported } from '../services/speech.js';
 import { WordPlayer } from '../player/wordPlayer.js';
 
+import { tx } from '../core/i18n.js';
 export function reciteView({ store, engine, params, go }) {
   if (!store.settings.reciteBetaEnabled) {
     return {
-      title: 'Recite & review',
+      title: tx('Recite & review'),
       el: h('div', { class: 'page page-narrow' },
         h('section', { class: 'card empty' },
-          h('h2', {}, 'Recite & review is a beta'),
-          h('p', {}, 'Turn it on in Settings to practise reciting your learned ayahs from memory while the app listens.'),
-          h('a', { class: 'btn primary', href: '#/settings' }, icon('settings'), 'Open Settings'))),
+          h('h2', {}, tx('Recite & review is a beta')),
+          h('p', {}, tx('Turn it on in Settings to practise reciting your learned ayahs from memory while the app listens.')),
+          h('a', { class: 'btn primary', href: '#/settings' }, icon('settings'), tx('Open Settings')))),
     };
   }
 
   const learned = [...store.learned].sort((a, b) => a - b);
   if (!learned.length) {
     return {
-      title: 'Recite & review',
+      title: tx('Recite & review'),
       el: h('div', { class: 'page page-narrow' }, h('section', { class: 'card empty' },
-        h('h2', {}, 'Nothing to recite yet'),
-        h('p', {}, 'Mark the ayahs you have memorised first; Recite & review walks through them.'),
-        h('a', { class: 'btn primary', href: '#/surahs' }, icon('book'), 'Browse surahs'))),
+        h('h2', {}, tx('Nothing to recite yet')),
+        h('p', {}, tx('Mark the ayahs you have memorised first; Recite & review walks through them.')),
+        h('a', { class: 'btn primary', href: '#/surahs' }, icon('book'), tx('Browse surahs')))),
     };
   }
 
@@ -70,7 +71,7 @@ export function reciteView({ store, engine, params, go }) {
   // -- layout ------------------------------------------------------------------------------
 
   const title = h('h2', { 'data-testid': 'recite-title' });
-  const select = h('select', { class: 'select', 'aria-label': 'Ayah to recite', style: { maxWidth: '260px' } },
+  const select = h('select', { class: 'select', 'aria-label': tx('Ayah to recite'), style: { maxWidth: '260px' } },
     learned.map((id) => {
       const [s, a] = globalToSurahAyah(id);
       return h('option', { value: String(id) }, `${s}:${a} · ${surahName(s)}`);
@@ -88,18 +89,18 @@ export function reciteView({ store, engine, params, go }) {
 
   const el = h('div', { class: 'page', 'data-testid': 'recite-screen' },
     h('header', { class: 'page-head' },
-      h('div', {}, h('h1', {}, 'Recite & review'), h('p', { class: 'muted' }, 'Recite from memory. You are only interrupted for a word you really got wrong.')),
-      h('span', { class: 'badge warn' }, 'Beta')),
+      h('div', {}, h('h1', {}, tx('Recite & review')), h('p', { class: 'muted' }, tx('Recite from memory. You are only interrupted for a word you really got wrong.'))),
+      h('span', { class: 'badge warn' }, tx('Beta'))),
     h('section', { class: 'card stack' },
       h('div', { class: 'row wrap' },
-        h('button', { class: 'btn icon-only', type: 'button', 'aria-label': 'Previous ayah', 'data-testid': 'recite-prev', onClick: () => coach.previousAyah(listening) }, icon('chevronLeft')),
+        h('button', { class: 'btn icon-only', type: 'button', 'aria-label': tx('Previous ayah'), 'data-testid': 'recite-prev', onClick: () => coach.previousAyah(listening) }, icon('chevronLeft')),
         title,
         h('span', { class: 'spacer' }),
         select,
-        h('button', { class: 'btn', type: 'button', 'data-testid': 'recite-next', onClick: () => coach.nextAyah(listening) }, 'Next ayah', icon('next'))),
+        h('button', { class: 'btn', type: 'button', 'data-testid': 'recite-next', onClick: () => coach.nextAyah(listening) }, tx('Next ayah'), icon('next'))),
       h('label', { class: 'row small muted' },
         h('input', { type: 'checkbox', onChange: (e) => { hideUpcoming = e.target.checked; render(); } }),
-        'Hide words until I recite them'),
+        tx('Hide words until I recite them')),
       h('div', { style: { padding: '12px 0' } }, wordsBox),
       accuracy,
     ),
@@ -111,7 +112,7 @@ export function reciteView({ store, engine, params, go }) {
       status,
       heard,
       h('div', { class: 'row' },
-        h('button', { class: 'btn small', type: 'button', 'data-testid': 'recite-retry', onClick: () => coach.retryCurrentAyah() }, icon('refresh'), 'Recite again')),
+        h('button', { class: 'btn small', type: 'button', 'data-testid': 'recite-retry', onClick: () => coach.retryCurrentAyah() }, icon('refresh'), tx('Recite again'))),
     ),
   );
 
@@ -137,7 +138,7 @@ export function reciteView({ store, engine, params, go }) {
         h('span', { class: 'ar' }, w.text));
     }));
     const r = st.evaluationResult;
-    accuracy.textContent = r?.totalContentWords ? `${r.correctCount} of ${r.totalContentWords} words recited` : '';
+    accuracy.textContent = r?.totalContentWords ? tx('{n} of {total} words recited', { n: r.correctCount, total: r.totalContentWords }) : '';
     heard.textContent = st.recognizedText ? `“${st.recognizedText}”` : '';
 
     // Only a corroborated mistake is shown — the evaluation alone is not believed.
@@ -145,17 +146,17 @@ export function reciteView({ store, engine, params, go }) {
     mistakeCard.hidden = !m;
     if (m) {
       mistakeCard.replaceChildren(h('section', { class: 'card stack', 'data-testid': 'mistake-card' },
-        h('strong', {}, 'Mistake detected'),
+        h('strong', {}, tx('Mistake detected')),
         h('div', { class: 'small' }, m.feedback ?? `Expected ${m.originalWord.text}`),
-        h('div', {}, h('button', { class: 'btn small', type: 'button', onClick: () => coach.playWord(m.wordIndex) }, icon('volume'), 'Listen to the reciter'))));
+        h('div', {}, h('button', { class: 'btn small', type: 'button', onClick: () => coach.playWord(m.wordIndex) }, icon('volume'), tx('Listen to the reciter')))));
     }
     wrongCard.hidden = !st.wrongAyahFeedback;
     if (st.wrongAyahFeedback) {
       const [ws2, wa] = globalToSurahAyah(st.detectedWrongAyahId);
       wrongCard.replaceChildren(h('section', { class: 'card stack' },
-        h('strong', {}, 'Wrong ayah'),
+        h('strong', {}, tx('Wrong ayah')),
         h('div', { class: 'small' }, st.wrongAyahFeedback),
-        h('div', {}, h('button', { class: 'btn small', type: 'button', onClick: () => coach.selectAyah(st.detectedWrongAyahId, listening) }, `Switch to ${ws2}:${wa}`))));
+        h('div', {}, h('button', { class: 'btn small', type: 'button', onClick: () => coach.selectAyah(st.detectedWrongAyahId, listening) }, tx('Switch to {ref}', { ref: `${ws2}:${wa}` })))));
     }
     errorBox.hidden = !speechError && speechSupported();
     errorBox.textContent = speechError ?? (speechSupported() ? '' : 'This browser has no speech recognition. Recite & review works in Chrome, Edge and Safari.');
@@ -163,7 +164,7 @@ export function reciteView({ store, engine, params, go }) {
     mic.replaceChildren(icon(listening ? 'square' : 'mic', { filled: listening }));
     mic.setAttribute('aria-label', listening ? 'Stop reciting' : 'Start reciting');
     status.textContent = st.isAutoPlayingMistake
-      ? 'Playing the correct word… keep going after'
+      ? tx('Playing the correct word… keep going after')
       : listening
         ? 'Listening to your recitation…'
         : 'Tap the microphone and recite the ayah';
@@ -177,20 +178,20 @@ export function reciteView({ store, engine, params, go }) {
   async function showReport(report) {
     const rows = report.ayahs.map((o) => h('div', { class: 'stack', style: { gap: '6px' } },
       h('div', { class: 'row' }, h('strong', {}, `${o.surah}:${o.ayah}`), h('span', { class: `badge ${o.isPerfect ? 'ok' : 'warn'}` },
-        o.isPerfect ? 'Perfect' : `${o.correctCount}/${o.totalContentWords}`)),
+        o.isPerfect ? tx('Perfect') : `${o.correctCount}/${o.totalContentWords}`)),
       o.mistakenWordIndices.length
         ? h('div', { class: 'chips' }, o.mistakenWordIndices.map((i) =>
           h('button', { class: 'chip', type: 'button', onClick: () => coach.playWordOf(o.surah, o.ayah, i) }, icon('volume'), ` Word ${i + 1}`)))
         : null));
     const choice = await dialog({
-      title: report.mistakeCount === 0 && report.reachedEndOfSurah ? 'Perfect recitation!' : report.reachedEndOfSurah ? 'Surah complete' : 'Recitation report',
+      title: report.mistakeCount === 0 && report.reachedEndOfSurah ? tx('Perfect recitation!') : report.reachedEndOfSurah ? 'Surah complete' : 'Recitation report',
       content: h('div', { class: 'stack', 'data-testid': 'recite-report' },
         h('p', { class: 'muted', style: { margin: 0 } },
-          `${report.accuracyPercent}% · ${report.perfectAyahs} of ${report.ayahs.length} ayahs perfect · ${report.mistakeCount} word${report.mistakeCount === 1 ? '' : 's'} to work on`),
+          tx('{percent}% · {perfect} of {total} ayahs perfect · {mistakes} to work on', { percent: report.accuracyPercent, perfect: report.perfectAyahs, total: report.ayahs.length, mistakes: report.mistakeCount === 1 ? tx('1 word') : tx('{n} words', { n: report.mistakeCount }) })),
         ...rows),
       actions: [
-        { label: 'Done', value: 'done' },
-        { label: 'Recite again', value: 'again', primary: true },
+        { label: tx('Done'), value: 'done' },
+        { label: tx('Recite again'), value: 'again', primary: true },
       ],
     });
     coach.dismissSessionReport();
@@ -216,7 +217,7 @@ export function reciteView({ store, engine, params, go }) {
 
   return {
     el,
-    title: 'Recite & review',
+    title: tx('Recite & review'),
     destroy() {
       speech.stop();
       words.stop();

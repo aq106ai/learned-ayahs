@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import com.quran.learnedplayer.ui.settings.rememberTranslationLanguageName
 import android.widget.Toast
 import androidx.compose.foundation.verticalScroll
@@ -84,7 +85,7 @@ fun ShareDialog(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
-                error = e.message?.takeIf { it.isNotBlank() } ?: "The image couldn't be made."
+                error = e.message?.takeIf { it.isNotBlank() } ?: tx("The image couldn't be made.")
             } finally {
                 working = false
             }
@@ -103,7 +104,7 @@ fun ShareDialog(
                         AyahShareText.of(context, surah, ayah, ayah, includeArabic, includeEnglish)
                     }
                     AyahShareText.copy(context, text)
-                    Toast.makeText(context, "Text copied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, tx("Text copied"), Toast.LENGTH_SHORT).show()
                 } else {
                     val send = withContext(Dispatchers.IO) {
                         AyahShareText.intent(context, surah, ayah, ayah, includeArabic, includeEnglish)
@@ -114,7 +115,7 @@ fun ShareDialog(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                error = e.message ?: "The text couldn't be shared."
+                error = e.message ?: tx("The text couldn't be shared.")
             } finally {
                 working = false
             }
@@ -125,11 +126,11 @@ fun ShareDialog(
         onDismissRequest = { if (!working) onDismiss() },
         containerColor = Panel,
         modifier = Modifier.testTag(TAG_SHARE_DIALOG),
-        title = { Text("Share this ayah") },
+        title = { Text(tx("Share this ayah")) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "A video of it recited, a picture of it as it looks now, or the words themselves.",
+                    tx("A video of it recited, a picture of it as it looks now, or the words themselves."),
                     color = TextMuted,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -137,8 +138,8 @@ fun ShareDialog(
                     onClick = onShareVideo,
                     enabled = !working,
                     modifier = Modifier.fillMaxWidth().testTag(TAG_SHARE_VIDEO),
-                ) { Text("Video…") }
-                Text("Image shape", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                ) { Text(tx("Video…")) }
+                Text(tx("Image shape"), color = TextMuted, style = MaterialTheme.typography.bodySmall)
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     VideoAspect.entries.forEach { shape ->
                         FilterChip(
@@ -160,25 +161,25 @@ fun ShareDialog(
                     enabled = !working,
                     modifier = Modifier.fillMaxWidth().testTag(TAG_SHARE_IMAGE),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Panel),
-                ) { Text("Share image", fontWeight = FontWeight.Bold) }
-                Text("Text", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                ) { Text(tx("Share image"), fontWeight = FontWeight.Bold) }
+                Text(tx("Text"), color = TextMuted, style = MaterialTheme.typography.bodySmall)
                 TextChoices(arabic, english, enabled = !working, onArabic = { arabic = it }, onEnglish = { english = it })
                 OutlinedButton(
                     onClick = { shareText(false) },
                     enabled = !working && (arabic || english),
                     modifier = Modifier.fillMaxWidth().testTag(TAG_SHARE_TEXT),
-                ) { Text("Share text") }
+                ) { Text(tx("Share text")) }
                 OutlinedButton(
                     onClick = { shareText(true) },
                     enabled = !working,
                     modifier = Modifier.fillMaxWidth().testTag("copy_text"),
-                ) { Text("Copy text") }
+                ) { Text(tx("Copy text")) }
                 if (working) LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(3.dp), color = AccentGreen, trackColor = Border)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !working) { Text("Close", color = TextMuted) } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !working) { Text(tx("Close"), color = TextMuted) } },
     )
 }
 
@@ -196,7 +197,7 @@ fun TextChoices(
             selected = arabic,
             onClick = { if (!arabic || english) onArabic(!arabic) },
             enabled = enabled,
-            label = { Text("Arabic") },
+            label = { Text(tx("Arabic")) },
             modifier = Modifier.testTag(TAG_SHARE_TEXT_ARABIC),
             colors = FilterChipDefaults.filterChipColors(
                 containerColor = Border,

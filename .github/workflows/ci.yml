@@ -36,6 +36,11 @@ jobs:
       - name: Word timings carry the audit's fixes
         run: python3 .setup/apply_timing_fixes.py --check
 
+      # Both apps' interface strings: every tx("…") in either codebase has an Urdu and an Arabic
+      # translation with the same placeholders, and the generated tables are current.
+      - name: Interface translations are complete
+        run: python3 .setup/make_ui_strings.py --check
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
 

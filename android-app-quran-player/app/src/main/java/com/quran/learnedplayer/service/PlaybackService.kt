@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.service
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -87,14 +88,14 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun audhuMediaItem(): MediaItem = introMediaItem(
-        title = "A'udhu Billah",
+        title = tx("A'udhu Billah"),
         filename = QuranConstants.AUDHU_FILENAME,
         remoteUrl = QuranConstants.AUDHU_URL,
         mediaId = "audhubillah",
     )
 
     private fun bismillahMediaItem(): MediaItem = introMediaItem(
-        title = "Bismillah",
+        title = tx("Bismillah"),
         filename = QuranConstants.BISMILLAH_FILENAME,
         remoteUrl = QuranConstants.BISMILLAH_URL,
         mediaId = "bismillah",
@@ -830,7 +831,7 @@ class PlaybackService : MediaSessionService() {
         introResumeIndex = index.coerceIn(0, (tracks.size - 1).coerceAtLeast(0))
         introStep = IntroStep.AUDHU
         PlayerStateHolder.updateIndex(introResumeIndex)
-        PlayerStateHolder.updateIntroLabel("A'udhu Billah")
+        PlayerStateHolder.updateIntroLabel(tx("A'udhu Billah"))
         player?.apply {
             // The queue's repeat mode (REPEAT_MODE_ONE in revision, ALL in surah modes)
             // would loop this single intro clip forever and STATE_ENDED would never
@@ -846,7 +847,7 @@ class PlaybackService : MediaSessionService() {
 
     private fun startIntroBismillah() {
         introStep = IntroStep.BISMILLAH
-        PlayerStateHolder.updateIntroLabel("Bismillah")
+        PlayerStateHolder.updateIntroLabel(tx("Bismillah"))
         player?.apply {
             setMediaItem(bismillahMediaItem())
             prepare()
@@ -1252,9 +1253,9 @@ class PlaybackService : MediaSessionService() {
             .setMediaId(mediaId)
             .setMediaMetadata(
                 MediaMetadata.Builder()
-                    .setTitle("${surah}:${ayah} · word ${wordIndex + 1}")
+                    .setTitle(tx("{0}:{1} · word {2}", surah, ayah, wordIndex + 1))
                     .setArtist(PlayerSettings.wordReciter.displayName)
-                    .setAlbumTitle("Word by word")
+                    .setAlbumTitle(tx("Word by word"))
                     .build(),
             )
             .build()
@@ -1272,7 +1273,7 @@ class PlaybackService : MediaSessionService() {
                 MediaMetadata.Builder()
                     .setTitle(label)
                     .setArtist(PlayerSettings.reciter.displayName)
-                    .setAlbumTitle("Learned Ayahs")
+                    .setAlbumTitle(tx("Learned Ayahs"))
                     .build(),
             )
             .build()
@@ -1343,17 +1344,17 @@ class PlaybackService : MediaSessionService() {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(
                 android.R.drawable.ic_media_previous,
-                "Previous",
+                tx("Previous"),
                 servicePendingIntent(ACTION_NOTIF_PREV),
             )
             .addAction(
                 if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play,
-                if (isPlaying) "Pause" else "Play",
+                if (isPlaying) tx("Pause") else tx("Play"),
                 servicePendingIntent(ACTION_NOTIF_PLAY_PAUSE),
             )
             .addAction(
                 android.R.drawable.ic_media_next,
-                "Next",
+                tx("Next"),
                 servicePendingIntent(ACTION_NOTIF_NEXT),
             )
 

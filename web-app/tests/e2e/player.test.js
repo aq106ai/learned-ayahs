@@ -231,6 +231,12 @@ test('word drags hold playback focus and cancel cleanly without turning into tap
     const fire = (type, x, y = 20) => reader.el.dispatchEvent(new PointerEvent(type, { pointerId: 99, button: 0, clientX: x, clientY: y }));
     // Synthetic pointers cannot take browser capture; lost capture is tested explicitly below.
     reader.el.setPointerCapture = () => {};
+    // The snap-back ends on transitionend or a 280 ms fallback; a slow CI runner can take longer
+    // than a fixed sleep, so wait for the stage to come home (or give up after 3 s).
+    const settled = async () => {
+      const until = performance.now() + 3000;
+      while (stage.style.transform && performance.now() < until) await new Promise((r) => setTimeout(r, 25));
+    };
     fire('pointerdown', 10);
     fire('pointermove', 150);
     engine.activeWord = 1;
@@ -238,12 +244,12 @@ test('word drags hold playback focus and cancel cleanly without turning into tap
     const held = reader.el.querySelector('.big').textContent;
     fire('pointermove', 10); // returning to the start is still a drag, not a tap
     fire('pointerup', 10);
-    await new Promise((r) => setTimeout(r, 300));
+    await settled();
     const afterReturn = [seeks, stage.style.transform];
     fire('pointerdown', 10);
     fire('pointermove', 190);
     fire('lostpointercapture', 190);
-    await new Promise((r) => setTimeout(r, 300));
+    await settled();
     const afterCancel = [seeks, stage.style.transform];
     settings.swipeToNavigate = false;
     fire('pointerdown', 10);

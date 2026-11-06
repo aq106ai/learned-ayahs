@@ -17,6 +17,9 @@ class ScenePaletteTest {
             assertTrue(scene.kind.name, contrastRatio(palette.textPrimary, palette.panel) >= 4.5f)
             assertTrue(scene.kind.name, contrastRatio(palette.textPrimary, palette.bg) >= 4.5f)
             assertTrue(scene.kind.name, contrastRatio(palette.accent, palette.panel) >= 4.5f)
+            // Icons and labels on the accent (a photo's accent is near white).
+            val onAccent = onAccentFor(palette.accent, palette.panel)
+            assertTrue(scene.kind.name, contrastRatio(onAccent, palette.accent) >= 4.5f)
             assertTrue(scene.kind.name, !palette.isLight)
         }
     }

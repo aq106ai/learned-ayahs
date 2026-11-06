@@ -79,6 +79,7 @@ import com.quran.learnedplayer.ui.theme.Accent
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.ui.theme.Bg
 import com.quran.learnedplayer.ui.theme.Border
+import com.quran.learnedplayer.ui.theme.OnAccentGreen
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
@@ -713,7 +714,7 @@ fun RecitationScreen(
                     Icon(
                         imageVector = if (isListening) Icons.Default.Mic else Icons.Default.MicOff,
                         contentDescription = if (isListening) tx("Stop Recording") else tx("Start Reciting"),
-                        tint = Color.White,
+                        tint = if (isListening) Color.White else OnAccentGreen,
                         modifier = Modifier.size(32.dp),
                     )
                 }

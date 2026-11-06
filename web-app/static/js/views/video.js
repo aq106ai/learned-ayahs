@@ -13,6 +13,7 @@ import { isPhoto, photoSubjects, thumbUrl, themeKey } from '../video/data.js';
 import { PlayerBackgrounds } from '../video/plan.js';
 import { BackgroundScenes, THEMES, theme, variant } from '../video/scenes.js';
 import { copyPlain, sharePlain, shareTextOf } from '../video/shareText.js';
+import { editionNameSync, translationLanguageSync } from '../services/content.js';
 
 const DEFAULT_SURAH_AYAHS = 10;
 const PREVIEW_W = 540;
@@ -170,7 +171,7 @@ export function videoView({ store, engine, server, go, params }) {
         : 'Recited before the ayahs';
     const text = section('Text',
       toggle('wordByWord', 'Word-by-word meanings', 'Under each Arabic word'),
-      toggle('fullTranslation', 'Translation', 'Saheeh International'),
+      toggle('fullTranslation', 'Translation', editionNameSync()),
       toggle('opening', "Begin with A'udhu", 'Recited before the ayahs'),
       h('label', { class: 'toggle-row' },
         h('span', { class: 'text' }, h('strong', {}, 'Include Bismillah'), h('span', {}, bismillahNote)),
@@ -239,7 +240,7 @@ export function videoView({ store, engine, server, go, params }) {
     return section('Share text',
       h('div', { class: 'chips' },
         chip('Arabic', textArabic, () => setTextLang(true), 'video-text-arabic'),
-        chip('English', textEnglish, () => setTextLang(false), 'video-text-english')),
+        chip(translationLanguageSync(), textEnglish, () => setTextLang(false), 'video-text-english')),
       h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-share-text', onClick: () => shareRangeText(false) }, 'Share text'),
       h('button', { class: 'btn', type: 'button', disabled: Boolean(job), 'data-testid': 'video-copy-text', onClick: () => shareRangeText(true) }, 'Copy text'));
   }

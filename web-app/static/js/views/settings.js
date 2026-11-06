@@ -9,6 +9,8 @@ import { clearOfflineAudio, countCached, saveForOffline } from '../services/offl
 import { speechSupported } from '../services/speech.js';
 import { exportFlow, importFlow } from './common.js';
 import { sourcesAndDisclaimer } from './terms.js';
+import { contentChoices } from './contentChoices.js';
+import { clearDownloaded, downloadedCount } from '../services/content.js';
 
 const VERSION = '1.0.0';
 
@@ -136,9 +138,28 @@ export function settingsView({ store, engine, server }) {
       store.setSetting('theme', v);
     })),
     card(
+      'Translation and tafsir',
+      'Shown beside the Arabic in the player, the surah pages, shared text and videos. Saheeh International and the English word meanings come with the app; other editions download from Quran.com when chosen and are kept for offline use.',
+      contentChoices(store),
+      h('div', { class: 'row', style: { marginTop: '10px' } },
+        h('button', {
+          class: 'btn small ghost', type: 'button', 'data-testid': 'content-clear',
+          onClick: async () => {
+            const n = await downloadedCount().catch(() => 0);
+            if (!n) {
+              toast('Nothing is downloaded. The bundled translation and meanings always stay.');
+              return;
+            }
+            if (await confirmDialog('Remove downloaded translations?', 'They will download again the next time they are shown.', { confirm: 'Remove', danger: true })) {
+              await clearDownloaded();
+              toast('Downloaded translations removed.');
+            }
+          },
+        }, icon('trash'), 'Remove downloaded translations')),
+    ),
+    card(
       'Reading',
       null,
-      toggle('showWordTranslations', 'Word-by-word translation', "Show each word's meaning beneath it in the ayah views."),
       h('div', { class: 'toggle-row' }, h('span', { class: 'text' }, h('strong', {}, 'Long ayahs'), h('span', {}, 'When a whole ayah is too long to fit on screen while playing:'))),
       radios('overflow', [['AUTO_SCROLL', 'Auto scroll'], ['FIT_TO_SCREEN', 'Fit to screen']], s().ayahOverflowMode, (v) => {
         store.setSetting('ayahOverflowMode', v);

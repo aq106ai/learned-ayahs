@@ -4,6 +4,7 @@
 import { h, icon, toast } from './lib/dom.js';
 import { probeServer } from './services/api.js';
 import * as quran from './services/quranData.js';
+import * as content from './services/content.js';
 import { registerServiceWorker } from './services/offline.js';
 import { store } from './state/store.js';
 import { PlayerEngine } from './player/engine.js';
@@ -213,14 +214,27 @@ async function boot() {
   // Word meanings are not needed for the first paint; fetch them alongside.
   quran.loadTranslations().catch(() => {});
 
+  // The chosen translation and word-meaning language (by catalog id) follow the settings.
+  content.bindSettings(() => store.settings);
+  content.loadCatalog().catch(() => {});
+  quran.setMeaningSource((surah, ayah) => content.meaningsSync(surah, ayah));
+
   engine = new PlayerEngine(store, { proxy: Boolean(server.available && server.audioProxy) });
   engine.restore();
   engine.on('state', renderMini);
   engine.on('track', renderMini);
+  // Word meanings in another language load a surah at a time, as that surah comes up.
+  const meaningsForTrack = () => { if (engine.track) content.ensureMeanings(engine.track.surah).catch(() => {}); };
+  engine.on('track', meaningsForTrack);
+  content.onContentLoaded(() => engine.refreshWords());
+  meaningsForTrack();
   engine.on('error', () => engine.error && toast(engine.error, { error: true }));
 
   store.on((what) => {
-    if (what === 'settings' || what === 'all') applyTheme();
+    if (what === 'settings' || what === 'all') {
+      applyTheme();
+      meaningsForTrack();
+    }
     if (what === 'session') {
       remount();
       return;

@@ -57,7 +57,7 @@ RECITER_FOLDERS = frozenset(
 EVERYAYAH = "https://everyayah.com/data"
 WORD_CLIPS = "https://audio.qurancdn.com/wbw"
 
-DATA_FILES = re.compile(r"^(quran_text|word_translations|word_timings_[a-z_]+|translation_en_saheeh|video_themes|nature_photos)\.json$")
+DATA_FILES = re.compile(r"^(quran_text|word_translations|word_timings_[a-z_]+|translation_en_saheeh|video_themes|nature_photos|content_catalog)\.json$")
 # The CC0 nature photos video and player backgrounds can use (see backgrounds/README).
 PHOTO_FILE = re.compile(r"^[a-z_]+_\d+(_thumb)?\.jpg$")
 AYAH_AUDIO = re.compile(r"^(?P<folder>[A-Za-z0-9_\-]+)/(?P<file>\d{6}\.mp3)$")
@@ -579,7 +579,7 @@ def make_handler(app: App):
                 "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
                 "img-src 'self' data: blob:; font-src 'self'; "
                 "media-src 'self' https://everyayah.com https://audio.qurancdn.com blob:; "
-                "connect-src 'self' https://everyayah.com https://audio.qurancdn.com; "
+                "connect-src 'self' https://everyayah.com https://audio.qurancdn.com https://api.quran.com; "
                 "worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'",
             )
 

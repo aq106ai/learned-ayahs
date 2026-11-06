@@ -9,6 +9,7 @@ import com.quran.learnedplayer.data.AyahMapping
 import com.quran.learnedplayer.data.AyahTrack
 import com.quran.learnedplayer.data.AyahWord
 import com.quran.learnedplayer.data.BookmarksStore
+import com.quran.learnedplayer.data.ContentRepository
 import com.quran.learnedplayer.data.LearnedAyahsStore
 import com.quran.learnedplayer.data.LearnedAyahsExport
 import com.quran.learnedplayer.data.LibraryRepository
@@ -122,9 +123,14 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Every ayah of [surah] with its words, for the surah browse/mark screen. Served from the
      * bundled asset (all 6236 ayahs), so it works offline; the first call also warms the cache.
+     * Meanings in another language are fetched for the surah first when they can be (English
+     * stays under each word otherwise).
      */
     suspend fun loadSurahWords(surah: Int): List<SurahAyah> = withContext(Dispatchers.IO) {
         val count = QuranConstants.VERSE_COUNTS.getOrNull(surah - 1) ?: return@withContext emptyList()
+        if (PlayerSettings.showWordTranslations) {
+            ContentRepository.ensureMeanings(surah) { s, a -> quranData.wordsForSync(s, a) }
+        }
         (1..count).map { ayah ->
             SurahAyah(
                 ayah = ayah,
@@ -147,6 +153,36 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                     val track = uiState.value.currentTrack ?: return@collectLatest
                     PlayerSettings.lastGlobalId = track.globalId
                     loadAyahText(track)
+                }
+        }
+        viewModelScope.launch {
+            // Word meanings in another language come a surah at a time, as that surah comes up.
+            combine(
+                uiState.map { it.currentTrack?.surah }.distinctUntilChanged(),
+                PlayerSettings.wordMeaningLanguageFlow,
+            ) { surah, lang -> surah to lang }
+                .collectLatest { (surah, lang) ->
+                    if (surah == null || lang == "en") return@collectLatest
+                    withContext(Dispatchers.IO) {
+                        ContentRepository.ensureMeanings(surah, lang) { s, a -> quranData.wordsForSync(s, a) }
+                    }
+                }
+        }
+        viewModelScope.launch {
+            // Meanings that arrived, or a different language: swap them in under the same words,
+            // without blanking the ayah (which would reset the word reader).
+            combine(ContentRepository.version, PlayerSettings.wordMeaningLanguageFlow) { v, l -> v to l }
+                .distinctUntilChanged()
+                .collectLatest {
+                    val track = uiState.value.currentTrack ?: return@collectLatest
+                    if (textGlobalId != track.globalId) return@collectLatest
+                    val current = uiState.value.ayahWords
+                    val fresh = withContext(Dispatchers.IO) { quranData.wordsForSync(track.surah, track.ayah) }
+                    if (textGlobalId == track.globalId && fresh.size == current.size &&
+                        fresh.map { it.translation } != current.map { it.translation }
+                    ) {
+                        PlayerStateHolder.replaceWordMeanings(fresh)
+                    }
                 }
         }
     }

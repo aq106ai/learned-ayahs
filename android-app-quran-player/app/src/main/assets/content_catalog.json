@@ -1,0 +1,2129 @@
+{
+ "format": "learned-ayahs-content-catalog",
+ "version": 1,
+ "api": "https://api.quran.com/api/v4",
+ "defaults": {
+  "translation": "en-saheeh",
+  "wordMeanings": "en",
+  "tafsir": "",
+  "reciter": "MAHER_AL_MUAIQLY"
+ },
+ "languages": {
+  "am": {
+   "name": "Amharic",
+   "nativeName": "Amharic",
+   "rtl": false
+  },
+  "ar": {
+   "name": "Arabic",
+   "nativeName": "العربية",
+   "rtl": true
+  },
+  "as": {
+   "name": "Assamese",
+   "nativeName": "অসমীয়া",
+   "rtl": false
+  },
+  "az": {
+   "name": "Azeri",
+   "nativeName": "Azərbaycan dili",
+   "rtl": false
+  },
+  "bg": {
+   "name": "Bulgarian",
+   "nativeName": "Български",
+   "rtl": false
+  },
+  "bm": {
+   "name": "Bambara",
+   "nativeName": "Bambara",
+   "rtl": false
+  },
+  "bn": {
+   "name": "Bengali",
+   "nativeName": "বাংলা",
+   "rtl": false
+  },
+  "bs": {
+   "name": "Bosnian",
+   "nativeName": "Bosanski",
+   "rtl": false
+  },
+  "ce": {
+   "name": "Chechen",
+   "nativeName": "Chechen",
+   "rtl": false
+  },
+  "cs": {
+   "name": "Czech",
+   "nativeName": "Čeština",
+   "rtl": false
+  },
+  "de": {
+   "name": "German",
+   "nativeName": "Deutsch",
+   "rtl": false
+  },
+  "dv": {
+   "name": "Divehi, Dhivehi, Maldivian",
+   "nativeName": "ދިވެހި",
+   "rtl": true
+  },
+  "en": {
+   "name": "English",
+   "nativeName": "English",
+   "rtl": false
+  },
+  "es": {
+   "name": "Spanish",
+   "nativeName": "Español",
+   "rtl": false
+  },
+  "fa": {
+   "name": "Persian",
+   "nativeName": "فارسی",
+   "rtl": true
+  },
+  "fi": {
+   "name": "Finnish",
+   "nativeName": "Suomi",
+   "rtl": false
+  },
+  "fr": {
+   "name": "French",
+   "nativeName": "Français",
+   "rtl": false
+  },
+  "gu": {
+   "name": "Gujarati",
+   "nativeName": "ગુજરાતી",
+   "rtl": false
+  },
+  "ha": {
+   "name": "Hausa",
+   "nativeName": "Hausa",
+   "rtl": false
+  },
+  "he": {
+   "name": "Hebrew",
+   "nativeName": "עברית",
+   "rtl": true
+  },
+  "hi": {
+   "name": "Hindi",
+   "nativeName": "हिन्दी",
+   "rtl": false
+  },
+  "id": {
+   "name": "Indonesian",
+   "nativeName": "Bahasa Indonesia",
+   "rtl": false
+  },
+  "it": {
+   "name": "Italian",
+   "nativeName": "Italiano",
+   "rtl": false
+  },
+  "ja": {
+   "name": "Japanese",
+   "nativeName": "日本語",
+   "rtl": false
+  },
+  "kk": {
+   "name": "Kazakh",
+   "nativeName": "Қазақ",
+   "rtl": false
+  },
+  "km": {
+   "name": "Central Khmer",
+   "nativeName": "Central Khmer",
+   "rtl": false
+  },
+  "kn": {
+   "name": "Kannada",
+   "nativeName": "Kannada",
+   "rtl": false
+  },
+  "ko": {
+   "name": "Korean",
+   "nativeName": "한국어",
+   "rtl": false
+  },
+  "ku": {
+   "name": "Kurdish",
+   "nativeName": "Kurdî",
+   "rtl": true
+  },
+  "lg": {
+   "name": "Ganda",
+   "nativeName": "Ganda",
+   "rtl": false
+  },
+  "ml": {
+   "name": "Malayalam",
+   "nativeName": "മലയാളം",
+   "rtl": false
+  },
+  "mr": {
+   "name": "Marathi",
+   "nativeName": "मराठी",
+   "rtl": false
+  },
+  "mrn": {
+   "name": "Maranao",
+   "nativeName": "Maranao",
+   "rtl": false
+  },
+  "ms": {
+   "name": "Malay",
+   "nativeName": "Bahasa Melayu",
+   "rtl": false
+  },
+  "ne": {
+   "name": "Nepali",
+   "nativeName": "नेपाली",
+   "rtl": false
+  },
+  "nl": {
+   "name": "Dutch",
+   "nativeName": "Nederlands",
+   "rtl": false
+  },
+  "no": {
+   "name": "Norwegian",
+   "nativeName": "Norsk",
+   "rtl": false
+  },
+  "om": {
+   "name": "Oromo",
+   "nativeName": "Oromo",
+   "rtl": false
+  },
+  "pl": {
+   "name": "Polish",
+   "nativeName": "Polski",
+   "rtl": false
+  },
+  "prs": {
+   "name": "Dari",
+   "nativeName": "دری",
+   "rtl": true
+  },
+  "ps": {
+   "name": "Pashto",
+   "nativeName": "پښتو",
+   "rtl": true
+  },
+  "pt": {
+   "name": "Portuguese",
+   "nativeName": "Português",
+   "rtl": false
+  },
+  "ro": {
+   "name": "Romanian",
+   "nativeName": "Română",
+   "rtl": false
+  },
+  "ru": {
+   "name": "Russian",
+   "nativeName": "Русский",
+   "rtl": false
+  },
+  "rw": {
+   "name": "Kinyarwanda",
+   "nativeName": "Ikinyarwanda",
+   "rtl": false
+  },
+  "sd": {
+   "name": "Sindhi",
+   "nativeName": "Sindhi",
+   "rtl": true
+  },
+  "si": {
+   "name": "Sinhala, Sinhalese",
+   "nativeName": "සිංහල",
+   "rtl": false
+  },
+  "so": {
+   "name": "Somali",
+   "nativeName": "Somali",
+   "rtl": false
+  },
+  "sq": {
+   "name": "Albanian",
+   "nativeName": "Shqip",
+   "rtl": false
+  },
+  "sv": {
+   "name": "Swedish",
+   "nativeName": "Svenska",
+   "rtl": false
+  },
+  "sw": {
+   "name": "Swahili",
+   "nativeName": "Kiswahili",
+   "rtl": false
+  },
+  "ta": {
+   "name": "Tamil",
+   "nativeName": "தமிழ்",
+   "rtl": false
+  },
+  "te": {
+   "name": "Telugu",
+   "nativeName": "తెలుగు",
+   "rtl": false
+  },
+  "tg": {
+   "name": "Tajik",
+   "nativeName": "Tajik",
+   "rtl": false
+  },
+  "th": {
+   "name": "Thai",
+   "nativeName": "ภาษาไทย",
+   "rtl": false
+  },
+  "tl": {
+   "name": "Tagalog",
+   "nativeName": "Tagalog",
+   "rtl": false
+  },
+  "tr": {
+   "name": "Turkish",
+   "nativeName": "Türkçe",
+   "rtl": false
+  },
+  "tt": {
+   "name": "Tatar",
+   "nativeName": "Tatar",
+   "rtl": false
+  },
+  "ug": {
+   "name": "Uighur, Uyghur",
+   "nativeName": "Uighur, Uyghur",
+   "rtl": true
+  },
+  "uk": {
+   "name": "Ukrainian",
+   "nativeName": "Українська",
+   "rtl": false
+  },
+  "ur": {
+   "name": "Urdu",
+   "nativeName": "اردو",
+   "rtl": true
+  },
+  "uz": {
+   "name": "Uzbek",
+   "nativeName": "Uzbek",
+   "rtl": false
+  },
+  "vi": {
+   "name": "Vietnamese",
+   "nativeName": "Tiếng Việt",
+   "rtl": false
+  },
+  "yo": {
+   "name": "Yoruba",
+   "nativeName": "Yoruba",
+   "rtl": false
+  },
+  "zgh": {
+   "name": "Amazigh",
+   "nativeName": "Tamaziɣt",
+   "rtl": false
+  },
+  "zh": {
+   "name": "Chinese",
+   "nativeName": "中文",
+   "rtl": false
+  }
+ },
+ "translations": [
+  {
+   "id": "en-saheeh",
+   "language": "en",
+   "name": "Saheeh International",
+   "author": "Saheeh International (Umm Muhammad)",
+   "source": "Tanzil.net",
+   "sourceUrl": "https://tanzil.net/trans/en.sahih",
+   "licence": "Tanzil: verbatim, with the source cited, for non-commercial use",
+   "bundled": true,
+   "recommended": true
+  },
+  {
+   "id": "qc-203",
+   "language": "en",
+   "name": "Al-Hilali & Khan",
+   "author": "Muhammad Taqi-ud-Din al-Hilali & Muhammad Muhsin Khan",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 203,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-85",
+   "language": "en",
+   "name": "M.A.S. Abdel Haleem",
+   "author": "Abdul Haleem",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 85,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-84",
+   "language": "en",
+   "name": "T. Usmani",
+   "author": "Mufti Taqi Usmani",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 84,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-95",
+   "language": "en",
+   "name": "A. Maududi (Tafhim commentary)",
+   "author": "Sayyid Abul Ala Maududi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 95,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-22",
+   "language": "en",
+   "name": "A. Yusuf Ali",
+   "author": "Abdullah Yusuf Ali",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 22,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-149",
+   "language": "en",
+   "name": "Fadel Soliman, Bridges’ translation",
+   "author": "Fadel Soliman",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 149,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-19",
+   "language": "en",
+   "name": "M. Pickthall",
+   "author": "Mohammed Marmaduke William Pickthall",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 19,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-87",
+   "language": "am",
+   "name": "Sadiq and Sani",
+   "author": "Sadiq and Sani",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 87,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-120",
+   "language": "as",
+   "name": "Shaykh Rafeequl Islam Habibur-Rahman",
+   "author": "Shaykh Rafeequl Islam Habibur-Rahman",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 120,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-75",
+   "language": "az",
+   "name": "Alikhan Musayev",
+   "author": "Alikhan Musayev",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 75,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-23",
+   "language": "az",
+   "name": "Azerbaijani",
+   "author": "Azerbaijani",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 23,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-237",
+   "language": "bg",
+   "name": "Tzvetan Theophanov",
+   "author": "Tzvetan Theophanov",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 237,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-795",
+   "language": "bm",
+   "name": "Suliman Kanti",
+   "author": "Suliman Kanti",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 795,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-796",
+   "language": "bm",
+   "name": "Baba Mamady Jani",
+   "author": "Baba Mamady Jani",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 796,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-161",
+   "language": "bn",
+   "name": "Taisirul Quran",
+   "author": "Tawheed Publication",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 161,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-213",
+   "language": "bn",
+   "name": "Dr. Abu Bakr Muhammad Zakaria",
+   "author": "Dr. Abu Bakr Muhammad Zakaria",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 213,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-162",
+   "language": "bn",
+   "name": "Rawai Al-bayan",
+   "author": "Bayaan Foundation",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 162,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-163",
+   "language": "bn",
+   "name": "Sheikh Mujibur Rahman",
+   "author": "Darussalaam Publication",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 163,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-126",
+   "language": "bs",
+   "name": "Besim Korkut",
+   "author": "Besim Korkut",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 126,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-214",
+   "language": "bs",
+   "name": "Dar Al-Salam Center",
+   "author": "Dar Al-Salam Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 214,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-25",
+   "language": "bs",
+   "name": "Muhamed Mehanović",
+   "author": "Muhamed Mehanović",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 25,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-106",
+   "language": "ce",
+   "name": "Magomed Magomedov",
+   "author": "Magomed Magomedov",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 106,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-26",
+   "language": "cs",
+   "name": "Czech",
+   "author": "Czech",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 26,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-27",
+   "language": "de",
+   "name": "Frank Bubenheim and Nadeem",
+   "author": "Frank Bubenheim and Nadeem",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 27,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-208",
+   "language": "de",
+   "name": "Abu Reda Muhammad ibn Ahmad",
+   "author": "Abu Reda Muhammad ibn Ahmad",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 208,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-86",
+   "language": "dv",
+   "name": "Office of the president of Maldives",
+   "author": "Office of the president of Maldives",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 86,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-840",
+   "language": "dv",
+   "name": "Abu Bakr Ibrahim Ali (Bakurube)",
+   "author": "Abu Bakr Ibrahim Ali",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 840,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-83",
+   "language": "es",
+   "name": "Sheikh Isa Garcia",
+   "author": "Sheikh Isa Garcia",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 83,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-140",
+   "language": "es",
+   "name": "Montada Islamic Foundation",
+   "author": "Montada Islamic Foundation",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 140,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-199",
+   "language": "es",
+   "name": "Noor International Center",
+   "author": "Noor International Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 199,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-135",
+   "language": "fa",
+   "name": "IslamHouse.com",
+   "author": "IslamHouse.com",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 135,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-29",
+   "language": "fa",
+   "name": "Hussein Taji Kal Dari",
+   "author": "Hussein Taji Kal Dari",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 29,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-30",
+   "language": "fi",
+   "name": "Finnish",
+   "author": "Finnish",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 30,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-31",
+   "language": "fr",
+   "name": "Muhammad Hamidullah",
+   "author": "Muhammad Hamidullah",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 31,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-136",
+   "language": "fr",
+   "name": "Montada Islamic Foundation",
+   "author": "Montada Islamic Foundation",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 136,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-779",
+   "language": "fr",
+   "name": "Rashid Maash",
+   "author": "Rashid Maash",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 779,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-225",
+   "language": "gu",
+   "name": "Rabila Al-Umry",
+   "author": "Rabila Al-Umry",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 225,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-32",
+   "language": "ha",
+   "name": "Hausa Translation(Abubakar Gumi)",
+   "author": "Abubakar Mahmoud Gumi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 32,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-115",
+   "language": "ha",
+   "name": "Abubakar Mahmood Jummi",
+   "author": "Abubakar Mahmood Jummi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 115,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-233",
+   "language": "he",
+   "name": "Dar Al-Salam Center",
+   "author": "Dar Al-Salam Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 233,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-122",
+   "language": "hi",
+   "name": "Maulana Azizul Haque al-Umari",
+   "author": "Maulana Azizul Haque al-Umari",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 122,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-33",
+   "language": "id",
+   "name": "Indonesian Islamic Affairs Ministry",
+   "author": "Unknown",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 33,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-134",
+   "language": "id",
+   "name": "King Fahad Quran Complex",
+   "author": "King Fahad Quran Complex",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 134,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-141",
+   "language": "id",
+   "name": "The Sabiq Company",
+   "author": "The Sabiq company",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 141,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-153",
+   "language": "it",
+   "name": "Hamza Roberto Piccardo",
+   "author": "Hamza Roberto Piccardo",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 153,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-209",
+   "language": "it",
+   "name": "Othman al-Sharif",
+   "author": "Othman al-Sharif",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 209,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-35",
+   "language": "ja",
+   "name": "Ryoichi Mita",
+   "author": "Ryoichi Mita",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 35,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-218",
+   "language": "ja",
+   "name": "Saeed Sato",
+   "author": "Saeed Sato",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 218,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-222",
+   "language": "kk",
+   "name": "Khalifa Altay",
+   "author": "Khalifa Altay",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 222,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-113",
+   "language": "kk",
+   "name": "Khalifah Altai",
+   "author": "Khalifah Altai",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 113,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-128",
+   "language": "km",
+   "name": "Cambodian Muslim Community Development",
+   "author": "Cambodian Muslim Community Development",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 128,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-771",
+   "language": "kn",
+   "name": "Kannada Translation",
+   "author": "Kannada Translation",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 771,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-36",
+   "language": "ko",
+   "name": "Korean",
+   "author": "Korean",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 36,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-219",
+   "language": "ko",
+   "name": "Hamed Choi",
+   "author": "Hamed Choi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 219,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-81",
+   "language": "ku",
+   "name": "Burhan Muhammad-Amin",
+   "author": "Burhan Muhammad-Amin",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 81,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-143",
+   "language": "ku",
+   "name": "Muhammad Saleh Bamoki",
+   "author": "Muhammad Saleh Bamoki",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 143,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-232",
+   "language": "lg",
+   "name": "African Development Foundation",
+   "author": "African Development Foundation",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 232,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-37",
+   "language": "ml",
+   "name": "Malayalam Translation(Abdul Hameed and Kunhi)",
+   "author": "Cheriyamundam Abdul Hameed and Kunhi Mohammed Parappoor",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 37,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-224",
+   "language": "ml",
+   "name": "Abdul-Hamid Haidar & Kanhi Muhammad",
+   "author": "Abdul-Hamid Haidar & Kanhi Muhammad",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 224,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-80",
+   "language": "ml",
+   "name": "Muhammad Karakunnu and Vanidas Elayavoor",
+   "author": "Muhammad Karakunnu and Vanidas Elayavoor",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 80,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-226",
+   "language": "mr",
+   "name": "Muhammad Shafi’i Ansari",
+   "author": "Muhammad Shafi’i Ansari",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 226,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-38",
+   "language": "mrn",
+   "name": "Maranao",
+   "author": "Maranao",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 38,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-39",
+   "language": "ms",
+   "name": "Abdullah Muhammad Basmeih",
+   "author": "Abdullah Muhammad Basmeih",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 39,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-108",
+   "language": "ne",
+   "name": "Ahl Al-Hadith Central Society of Nepal",
+   "author": "Ahl Al-Hadith Central Society of Nepal",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 108,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-235",
+   "language": "nl",
+   "name": "Malak Faris Abdalsalaam",
+   "author": "Malak Faris Abdalsalaam",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 235,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-144",
+   "language": "nl",
+   "name": "Sofian S. Siregar",
+   "author": "Sofian S. Siregar",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 144,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-41",
+   "language": "no",
+   "name": "Norwegian",
+   "author": "Norwegian",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 41,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-111",
+   "language": "om",
+   "name": "Ghali Apapur Apaghuna",
+   "author": "Ghali Apapur Apaghuna",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 111,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-42",
+   "language": "pl",
+   "name": "Józef Bielawski",
+   "author": "Józef Bielawski",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 42,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-785",
+   "language": "prs",
+   "name": "Mawlawi Muhammad Anwar Badkhashani",
+   "author": "Mawlawi Muhammad Anwar Badkhashani",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 785,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-118",
+   "language": "ps",
+   "name": "Zakaria Abulsalam",
+   "author": "Zakaria Abulsalam",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 118,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-103",
+   "language": "pt",
+   "name": "Helmi Nasr",
+   "author": "Helmi Nasr",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 103,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-43",
+   "language": "pt",
+   "name": "Portuguese Translation( Samir )",
+   "author": "Samir El-Hayek",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 43,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-44",
+   "language": "ro",
+   "name": "Grigore",
+   "author": "George Grigore",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 44,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-782",
+   "language": "ro",
+   "name": "Islamic and Cultural League",
+   "author": "Islamic and Cultural League",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 782,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-79",
+   "language": "ru",
+   "name": "Abu Adel",
+   "author": "Abu Adel",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 79,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-45",
+   "language": "ru",
+   "name": "Russian Translation ( Elmir Kuliev )",
+   "author": "Elmir Kuliev",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 45,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-78",
+   "language": "ru",
+   "name": "Ministry of Awqaf, Egypt",
+   "author": "Ministry of Awqaf, Egypt",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 78,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-774",
+   "language": "rw",
+   "name": "The Rwanda Muslims Association team",
+   "author": "The Rwanda Muslims Association team",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 774,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-238",
+   "language": "sd",
+   "name": "Taj Mehmood Amroti",
+   "author": "Taj Mehmood Amroti",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 238,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-228",
+   "language": "si",
+   "name": "Ruwwad Center",
+   "author": "Translation Pioneers Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 228,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-46",
+   "language": "so",
+   "name": "Mahmud Muhammad Abduh",
+   "author": "Mahmud Muhammad Abduh",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 46,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-88",
+   "language": "sq",
+   "name": "Hasan Efendi Nahi",
+   "author": "Hasan Efendi Nahi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 88,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-47",
+   "language": "sq",
+   "name": "Albanian",
+   "author": "Albanian",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 47,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-89",
+   "language": "sq",
+   "name": "Albanian Translation",
+   "author": "Sherif Ahmeti",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 89,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-48",
+   "language": "sv",
+   "name": "Knut Bernström",
+   "author": "Knut Bernström",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 48,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-231",
+   "language": "sw",
+   "name": "Dr. Abdullah Muhammad Abu Bakr and Sheikh Nasir Khamis",
+   "author": "Dr. Abdullah Muhammad Abu Bakr and Sheikh Nasir Khamis",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 231,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-49",
+   "language": "sw",
+   "name": "Ali Muhsin Al-Barwani",
+   "author": "Ali Muhsin Al-Barwani",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 49,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-50",
+   "language": "ta",
+   "name": "Jan Trust Foundation",
+   "author": "Jan Trust Foundation",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 50,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-133",
+   "language": "ta",
+   "name": "Abdul Hameed Baqavi",
+   "author": "Abdul Hameed Baqavi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 133,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-229",
+   "language": "ta",
+   "name": "Sheikh Omar Sharif bin Abdul Salam",
+   "author": "Sheikh Omar Sharif bin Abdul Salam",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 229,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-227",
+   "language": "te",
+   "name": "Maulana Abder-Rahim ibn Muhammad",
+   "author": "Maulana Abder-Rahim ibn Muhammad",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 227,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-139",
+   "language": "tg",
+   "name": "Khawaja Mirof & Khawaja Mir",
+   "author": "Khawaja Mirof & Khawaja Mir",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 139,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-223",
+   "language": "tg",
+   "name": "Pioneers of Translation Center",
+   "author": "Pioneers of Translation Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 223,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-74",
+   "language": "tg",
+   "name": "Tajik",
+   "author": "AbdolMohammad Ayati",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 74,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-230",
+   "language": "th",
+   "name": "Society of Institutes and Universities",
+   "author": "Society of Institutes and Universities",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 230,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-51",
+   "language": "th",
+   "name": "Thai Translatio (King Fahad Quran Complex)",
+   "author": "King Fahad Quran Complex",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 51,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-211",
+   "language": "tl",
+   "name": "Dar Al-Salam Center",
+   "author": "Dar Al-Salam Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 211,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-77",
+   "language": "tr",
+   "name": "Turkish Translation(Diyanet)",
+   "author": "Diyanet Isleri",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 77,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-210",
+   "language": "tr",
+   "name": "Dar Al-Salam Center",
+   "author": "Dar Al-Salam Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 210,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-52",
+   "language": "tr",
+   "name": "Elmalili Hamdi Yazir",
+   "author": "Elmalili Hamdi Yazir",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 52,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-124",
+   "language": "tr",
+   "name": "Muslim Shahin",
+   "author": "Muslim Shahin",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 124,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-112",
+   "language": "tr",
+   "name": "Shaban Britch",
+   "author": "Shaban Britch",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 112,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-53",
+   "language": "tt",
+   "name": "Tatar",
+   "author": "Tatar",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 53,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-76",
+   "language": "ug",
+   "name": "Muhammad Saleh",
+   "author": "Muhammad Saleh",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 76,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-217",
+   "language": "uk",
+   "name": "Dr. Mikhailo Yaqubovic",
+   "author": "Dr. Mikhailo Yaqubovic",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 217,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-234",
+   "language": "ur",
+   "name": "Fatah Muhammad Jalandhari",
+   "author": "Fatah Muhammad Jalandhari",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 234,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-54",
+   "language": "ur",
+   "name": "Maulana Muhammad Junagarhi",
+   "author": "Maulana Muhammad Junagarhi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 54,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-819",
+   "language": "ur",
+   "name": "Maulana Wahiduddin Khan",
+   "author": "Maulana Wahiduddin Khan",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 819,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-97",
+   "language": "ur",
+   "name": "Tafheem e Qur'an - Syed Abu Ali Maududi",
+   "author": "Syed Abu Ali Maududi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 97,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-831",
+   "language": "ur",
+   "name": "Abul Ala Maududi(Roman Urdu)",
+   "author": "Abul Ala Maududi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 831,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-158",
+   "language": "ur",
+   "name": "Bayan-ul-Quran",
+   "author": "Dr. Israr Ahmad",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 158,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-156",
+   "language": "ur",
+   "name": "Fe Zilal al-Qur'an",
+   "author": "Sayyid Ibrahim Qutb",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 156,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-151",
+   "language": "ur",
+   "name": "Shaykh al-Hind Mahmud al-Hasan(with Tafsir E Usmani)",
+   "author": "Shaykh al-Hind Mahmud al-Hasan",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 151,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-55",
+   "language": "uz",
+   "name": "Muhammad Sodiq Muhammad Yusuf (Latin)",
+   "author": "Muhammad Sodiq Muhammad Yusuf",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 55,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-101",
+   "language": "uz",
+   "name": "Alauddin Mansour",
+   "author": "Alauddin Mansour",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 101,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-127",
+   "language": "uz",
+   "name": "Muhammad Sodik Muhammad Yusuf",
+   "author": "Muhammad Sodik Muhammad Yusuf",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 127,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-220",
+   "language": "vi",
+   "name": "Ruwwad Center",
+   "author": "Translation Pioneers Center",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 220,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-221",
+   "language": "vi",
+   "name": "Hasan Abdul-Karim",
+   "author": "Hasan Abdul-Karim",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 221,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  },
+  {
+   "id": "qc-125",
+   "language": "yo",
+   "name": "Shaykh Abu Rahimah Mikael Aykyuni",
+   "author": "Shaykh Abu Rahimah Mikael Aykyuni",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 125,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-236",
+   "language": "zgh",
+   "name": "Ramdane At Mansour",
+   "author": "Ramdane At Mansour",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 236,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-56",
+   "language": "zh",
+   "name": "Chinese Translation (Simplified) - Ma Jain",
+   "author": "Ma Jian",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 56,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": true
+  },
+  {
+   "id": "qc-109",
+   "language": "zh",
+   "name": "Muhammad Makin",
+   "author": "Muhammad Makin",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 109,
+   "licence": "Not stated by the provider; fetched from Quran.com when chosen",
+   "bundled": false,
+   "recommended": false
+  }
+ ],
+ "wordMeanings": [
+  {
+   "id": "en",
+   "language": "en",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": true
+  },
+  {
+   "id": "ur",
+   "language": "ur",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  },
+  {
+   "id": "id",
+   "language": "id",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  },
+  {
+   "id": "bn",
+   "language": "bn",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  },
+  {
+   "id": "fa",
+   "language": "fa",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  }
+ ],
+ "tafsirs": [
+  {
+   "id": "qc-tafsir-14",
+   "language": "ar",
+   "name": "Tafsir Ibn Kathir",
+   "author": "Hafiz Ibn Kathir",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 14,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": true
+  },
+  {
+   "id": "qc-tafsir-16",
+   "language": "ar",
+   "name": "Tafsir Muyassar",
+   "author": "المیسر",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 16,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": true
+  },
+  {
+   "id": "qc-tafsir-91",
+   "language": "ar",
+   "name": "السعدي Al-Sa'di",
+   "author": "Saddi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 91,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": true
+  },
+  {
+   "id": "qc-tafsir-90",
+   "language": "ar",
+   "name": "Al-Qurtubi",
+   "author": "Qurtubi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 90,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-93",
+   "language": "ar",
+   "name": "Al-Tafsir al-Wasit (Tantawi)",
+   "author": "Waseet",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 93,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-94",
+   "language": "ar",
+   "name": "Tafseer Al-Baghawi",
+   "author": "Baghawy",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 94,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-15",
+   "language": "ar",
+   "name": "Tafsir al-Tabari",
+   "author": "Tabari",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 15,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-164",
+   "language": "bn",
+   "name": "Tafseer ibn Kathir",
+   "author": "Tawheed Publication",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 164,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-166",
+   "language": "bn",
+   "name": "Tafsir Abu Bakr Zakaria",
+   "author": "King Fahd Quran Printing Complex",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 166,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-165",
+   "language": "bn",
+   "name": "Tafsir Ahsanul Bayaan",
+   "author": "Bayaan Foundation",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 165,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-381",
+   "language": "bn",
+   "name": "Tafsir Fathul Majid",
+   "author": "AbdulRahman Bin Hasan Al-Alshaikh",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 381,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-169",
+   "language": "en",
+   "name": "Ibn Kathir (Abridged)",
+   "author": "Hafiz Ibn Kathir",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 169,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": true
+  },
+  {
+   "id": "qc-tafsir-168",
+   "language": "en",
+   "name": "Ma'arif al-Qur'an",
+   "author": "Mufti Muhammad Shafi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 168,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": true
+  },
+  {
+   "id": "qc-tafsir-817",
+   "language": "en",
+   "name": "Tazkirul Quran(Maulana Wahiduddin Khan)",
+   "author": "Maulana Wahid Uddin Khan",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 817,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-804",
+   "language": "ku",
+   "name": "Rebar Kurdish Tafsir",
+   "author": "Rebar Kurdish Tafsir",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 804,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-170",
+   "language": "ru",
+   "name": "Al-Sa'di",
+   "author": "Saddi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 170,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-159",
+   "language": "ur",
+   "name": "Bayan ul Quran",
+   "author": "Dr. Israr Ahmad",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 159,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": true
+  },
+  {
+   "id": "qc-tafsir-160",
+   "language": "ur",
+   "name": "Tafsir Ibn Kathir",
+   "author": "Hafiz Ibn Kathir",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 160,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": true
+  },
+  {
+   "id": "qc-tafsir-157",
+   "language": "ur",
+   "name": "Fi Zilal al-Quran",
+   "author": "Sayyid Ibrahim Qutb",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 157,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  },
+  {
+   "id": "qc-tafsir-818",
+   "language": "ur",
+   "name": "Tazkir ul Quran",
+   "author": "Maulana Wahid Uddin Khan",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "resourceId": 818,
+   "licence": "Not stated by the provider; fetched from Quran.com when opened",
+   "recommended": false
+  }
+ ],
+ "reciters": [
+  {
+   "id": "MAHER_AL_MUAIQLY",
+   "name": "Maher Al Muaiqly",
+   "folder": "MaherAlMuaiqly128kbps",
+   "timingsAsset": "word_timings_maher.json",
+   "highlighting": true
+  },
+  {
+   "id": "ABDUL_BASIT",
+   "name": "Abdul Basit (Murattal)",
+   "folder": "Abdul_Basit_Murattal_192kbps",
+   "timingsAsset": "word_timings_abdulbasit_murattal.json",
+   "highlighting": true
+  },
+  {
+   "id": "AL_HUSARY",
+   "name": "Mahmoud Khalil Al-Husary",
+   "folder": "Husary_128kbps",
+   "timingsAsset": "word_timings_husary.json",
+   "highlighting": true
+  },
+  {
+   "id": "AS_SUDAIS",
+   "name": "Abdurrahman As-Sudais",
+   "folder": "Abdurrahmaan_As-Sudais_192kbps",
+   "timingsAsset": "word_timings_sudais.json",
+   "highlighting": true
+  },
+  {
+   "id": "ASH_SHURAYM",
+   "name": "Saud Ash-Shuraym",
+   "folder": "Saood_ash-Shuraym_128kbps",
+   "timingsAsset": "word_timings_shuraym.json",
+   "highlighting": true
+  }
+ ],
+ "retired": {}
+}

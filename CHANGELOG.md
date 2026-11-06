@@ -6,6 +6,17 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
+### Translations and tafsir choices (both apps)
+- The intro gains a "Read and listen" page: translation language and edition (124 from
+  Quran.com, Saheeh International bundled), word meanings, full translation or both, the
+  word-meaning language (English, Urdu, Indonesian, Bengali, Persian), an optional tafsir and
+  the reciter. All of it is also in Settings, saved by catalog id.
+- Chosen editions and word meanings download from Quran.com when needed, are cleaned to plain
+  text, checked for completeness and kept for offline use; Saheeh International and the English
+  meanings stay bundled and are shown when a download fails.
+- Shared text, images and videos use the chosen edition and credit it by name.
+- A flaky browser test (scene colours after leaving the player) now waits for the route change.
+
 Android 1.12.1 (versionCode 46), including the previous unreleased 1.12.0 changes.
 
 ### Sharing and review fixes

@@ -10,6 +10,7 @@ const SOURCES = [
   [`Ayah recitations by ${RECITERS.map((r) => r.displayName).join(', ')}`, 'EveryAyah', 'https://everyayah.com'],
   ['Single-word recitations', 'Quran.com', 'https://quran.com'],
   ['English translation of whole ayahs (player and shared videos)', 'Saheeh International, via Tanzil.net', 'https://tanzil.net'],
+  ['Other translations, word meanings in other languages, and tafsir (downloaded when you choose them, each named where it is shown)', 'Quran.com', 'https://quran.com'],
   ['Nature photos for backgrounds (CC0)', 'Wikimedia Commons', 'https://commons.wikimedia.org'],
   ['Word timings used to highlight each word', 'Quranic Universal Library (QUL) by Tarteel', 'https://qul.tarteel.ai'],
   ['Arabic font Scheherazade New', 'SIL International', 'https://software.sil.org/scheherazade/'],

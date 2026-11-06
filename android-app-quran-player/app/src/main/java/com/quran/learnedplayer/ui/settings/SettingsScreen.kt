@@ -63,13 +63,17 @@ import com.quran.learnedplayer.ui.theme.Border
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.quran.learnedplayer.data.ContentRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 const val TAG_SETTINGS_SCREEN = "settings_screen"
 const val TAG_WORD_TRANSLATIONS_TOGGLE = "word_translations_toggle"
 const val TAG_SETTINGS_AYAH_TRANSLATION = "settings_ayah_translation_toggle"
+const val TAG_SETTINGS_CLEAR_CONTENT = "settings_clear_content"
 const val TAG_SWIPE_TO_NAVIGATE_TOGGLE = "swipe_to_navigate_toggle"
 const val TAG_TAP_TO_ADVANCE_TOGGLE = "tap_to_advance_toggle"
 const val TAG_DOWNLOAD_OFFLINE = "download_offline"
@@ -213,6 +217,35 @@ fun SettingsScreen(
             }
         }
 
+        Section("Translation and tafsir") {
+            Text(
+                text = "Shown beside the Arabic in the player, the surah pages, shared text and videos. " +
+                    "Saheeh International and the English word meanings come with the app; other " +
+                    "editions download from Quran.com when chosen and are kept for offline use.",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+            ContentChoices(includeStyle = false)
+            var cleared by remember { mutableStateOf<String?>(null) }
+            val scope = rememberCoroutineScope()
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        val bytes = withContext(Dispatchers.IO) { ContentRepository.downloadedBytes() }
+                        if (bytes == 0L) {
+                            cleared = "Nothing is downloaded. The bundled translation and meanings always stay."
+                        } else {
+                            withContext(Dispatchers.IO) { ContentRepository.clearDownloaded() }
+                            cleared = "Downloaded translations removed (${bytes / 1024} KB). They download again when shown."
+                        }
+                    }
+                },
+                modifier = Modifier.testTag(TAG_SETTINGS_CLEAR_CONTENT),
+            ) { Text("Remove downloaded translations", color = AccentGreen) }
+            cleared?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = TextMuted) }
+        }
+
         Section("Reading") {
             Row(
                 modifier = Modifier
@@ -250,7 +283,7 @@ fun SettingsScreen(
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Ayah translation", style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = "Show the whole ayah's English meaning (Saheeh International) under it in the player.",
+                        text = "Show the whole ayah's translation (${rememberEditionName()}) under it in the player.",
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )

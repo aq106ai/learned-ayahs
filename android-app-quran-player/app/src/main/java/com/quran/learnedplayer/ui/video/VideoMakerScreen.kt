@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.video
 
+import com.quran.learnedplayer.ui.settings.rememberEditionName
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -249,7 +250,7 @@ fun VideoMakerScreen(
                 Toggle("Word-by-word meanings", "Under each Arabic word", options.wordByWord, !working) { on ->
                     viewModel.update { it.copy(wordByWord = on) }
                 }
-                Toggle("Translation", "Saheeh International", options.fullTranslation, !working) { on ->
+                Toggle("Translation", rememberEditionName(), options.fullTranslation, !working) { on ->
                     viewModel.update { it.copy(fullTranslation = on) }
                 }
                 Toggle("Begin with A'udhu", "Recited before the ayahs", options.opening, !working) { on ->

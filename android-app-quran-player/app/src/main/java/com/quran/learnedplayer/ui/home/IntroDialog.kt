@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
@@ -29,6 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.quran.learnedplayer.data.AppTheme
+import com.quran.learnedplayer.data.Reciter
+import com.quran.learnedplayer.ui.settings.ContentChoices
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.ui.common.SourcesDialog
 import com.quran.learnedplayer.ui.theme.AccentGreen
@@ -53,17 +57,19 @@ const val TAG_INTRO_SOURCES = "intro_sources"
 fun introThemeTag(theme: AppTheme) = "intro_theme_${theme.name}"
 fun introBackgroundTag(choice: String) = "intro_background_$choice"
 
-private const val PAGE_COUNT = 4
+private const val PAGE_COUNT = 5
+const val TAG_INTRO_CONTENT = "intro_content"
 
 /**
  * Shown once, on first launch: why revising what you have memorised matters, how the app should
- * look (theme and player background, applied as they are picked), then a short guide to marking
+ * look (theme and player background, applied as they are picked), what to read beside the Arabic
+ * and who recites ([ContentChoices]; all of it also in Settings), then a short guide to marking
  * ayahs and to revising them. The last page links to the sources and disclaimer, which are also
  * always in Settings; nobody is asked to agree to them first. Dismissing at any point (Skip,
  * tapping outside, or Begin on the last page) marks the intro seen — it never reappears.
  */
 @Composable
-fun IntroDialog(onDismiss: () -> Unit) {
+fun IntroDialog(onDismiss: () -> Unit, onReciter: (Reciter) -> Unit = { PlayerSettings.reciter = it }) {
     var page by rememberSaveable { mutableIntStateOf(0) }
 
     AlertDialog(
@@ -75,7 +81,8 @@ fun IntroDialog(onDismiss: () -> Unit) {
                 text = when (page) {
                     0 -> "Keep what you have learned"
                     1 -> "Make it yours"
-                    2 -> "Mark what you know"
+                    2 -> "Read and listen"
+                    3 -> "Mark what you know"
                     else -> "Revise and read"
                 },
                 style = MaterialTheme.typography.titleMedium,
@@ -87,7 +94,8 @@ fun IntroDialog(onDismiss: () -> Unit) {
                 when (page) {
                     0 -> HadithPage()
                     1 -> LookPage()
-                    2 -> MarkingPage()
+                    2 -> ContentPage(onReciter)
+                    3 -> MarkingPage()
                     else -> RevisingPage()
                 }
                 Text(
@@ -225,6 +233,22 @@ private fun LookPage() {
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
         )
+    }
+}
+
+/** Translation, style, word-meaning language, tafsir and reciter, applied as they are picked. */
+@Composable
+private fun ContentPage(onReciter: (Reciter) -> Unit) {
+    Column(
+        modifier = Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()).testTag(TAG_INTRO_CONTENT),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            "What to read beside the Arabic, and who recites. All of it can be changed later in Settings.",
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+        )
+        ContentChoices(includeStyle = true, onReciter = onReciter)
     }
 }
 

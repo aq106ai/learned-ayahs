@@ -8,6 +8,8 @@
 import { surahAyahToGlobal, surahName, verseCount } from '../core/quran.js';
 import { audioUrls } from '../core/reciters.js';
 import { loadText, loadTimings, loadTranslations, segmentsSync, wordsSync } from '../services/quranData.js';
+import { currentEdition, ensureMeanings, loadCatalog, loadEdition } from '../services/content.js';
+import { creditOf, isRtl } from '../core/catalog.js';
 import { ArrayBufferTarget as Mp4Target, Muxer as Mp4Muxer } from '../lib/mp4-muxer.mjs';
 import { ArrayBufferTarget as WebmTarget, Muxer as WebmMuxer } from '../lib/webm-muxer.mjs';
 import {
@@ -90,6 +92,13 @@ export class VideoExporter {
 
   async prepareText(request) {
     await Promise.all([loadText(), loadTranslations(), loadTimings(request.reciter), loadThemeMap()]);
+    // The chosen translation and word meanings, credited by name. A download that fails leaves
+    // Saheeh International and the English meanings, which are bundled.
+    const [catalog, edition] = await Promise.all([loadCatalog(), currentEdition()]);
+    await loadEdition(edition).catch(() => {});
+    if (request.surah) await ensureMeanings(request.surah).catch(() => {});
+    request.translationCredit = creditOf(edition);
+    request.translationRtl = isRtl(catalog, edition.language);
   }
 
   async textFor(request, clip) {

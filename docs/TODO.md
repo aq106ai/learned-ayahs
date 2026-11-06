@@ -5,21 +5,41 @@
 Goal: support the complete eligible catalogs of the chosen providers, with searchable,
 language-aware pickers. Do not promise every translation or recording worldwide.
 
-- [ ] Inventory provider catalogs and record stable IDs, languages, authors/reciters,
-  editions, coverage, source URLs, versions, attribution and redistribution permissions.
-  Evaluate Quran.com/QUL and EveryAyah against the existing asset-generation pipeline.
-- [ ] Add a shared generated catalog and matching Android/web models. Persist IDs rather
-  than display names; migrate the current English translation and five reciter choices.
-- [ ] Offer translation selection in the reader, text copy/share, images and videos.
-  Load/download selected resources on demand; keep Arabic and English usable offline.
-  Distinguish full-ayah translations from word meanings and UI interface languages.
+- [x] Inventory provider catalogs (2026-11-06): Quran.com API v4 has 126 translations and 20
+  tafsirs, QUL 198 translations, everyayah 79 recordings. Terms: Tanzil is non-commercial only;
+  Quran.com publishes no licence per edition; QUL says check each resource (almost all "no
+  copyright information"); Quran Foundation's documented API now wants OAuth2 client credentials,
+  while the anonymous `api.quran.com/api/v4` the apps use still answers. So nothing new is
+  bundled: editions download on the user's device and are credited by name.
+- [x] Shared generated catalog (`assets/content_catalog.json`, `.setup/make_content_catalog.py`)
+  with `data/ContentCatalog.kt` and `web-app/static/js/core/catalog.js`. Settings store ids
+  (`translationEdition`, `wordMeaningLanguage`, `tafsirEdition`); the reciter keys were already
+  ids and Saheeh International is the default, so old installs need no migration.
+- [x] Translation, style (word meanings / full translation / both), word-meaning language,
+  tafsir and reciter chosen in the intro and changeable in Settings, on both apps. The chosen
+  edition is used in the reader, text share, images and videos (credited by name); downloads
+  are kept for offline use and Saheeh International shows when one can't be had.
+- [ ] Word meanings beyond en/ur/id/bn/fa: Quran.com returned 9% (tr, hi) to 21% (ta) of words in
+  English (`make_content_catalog.py --verify-words`). Find a complete source or leave them out.
+- [ ] Refresh `content_catalog.json` on a schedule (a workflow, like `nature-photos.yml`), and
+  add `retired` entries when Quran.com withdraws an edition.
+- [ ] UI languages: almost every Android string is hard-coded in Compose (strings.xml has 3) and
+  the web's are in the views. Move them to resources/message tables, then add an app-language
+  choice to the intro and Settings, starting with English, Urdu and Arabic, with RTL layout tests.
+- [ ] Tafsir reader (stage 2): a "Tafsir" action on the current ayah opens a bottom sheet / popup
+  with the chosen edition, its name and source, sanitized HTML, cached for offline use.
+- [ ] Reciters (stage 3; the user asked to keep accurate highlighting for every reciter, so no
+  audio-only catalog). Candidates with an everyayah folder and a Quran.com/QUL recitation:
+  Alafasy_128kbps, Minshawy_Murattal_128kbps, Abu_Bakr_Ash-Shaatree_128kbps, Hani_Rifai_192kbps,
+  Husary_Muallim_128kbps, Minshawy_Mujawwad_192kbps, Mohammad_al_Tablaway_128kbps,
+  Abdul_Basit_Mujawwad_128kbps. Pin each QUL id by measurement and run the timing audit.
 - [ ] Add reciters only with verified complete audio and timing data for the exact recording,
   following CONTRIBUTING.md. Never fabricate segments or borrow another recording's timings.
   If an audio-only catalog is wanted, design that separately with explicit feature capabilities
   before changing this rule: no synchronized highlighting or word seeking without valid timings.
 - [ ] Keep isolated-word reciters separate; require complete word files and stable word mapping.
-- [ ] Add a tafsir reader with language/author selection, ayah references, source attribution,
-  sanitized content and on-demand offline storage. Keep commentary separate from translations.
+- [ ] Tafsir: keep commentary separate from translations; ayah references and on-demand offline
+  storage (the edition choice already exists, see above).
 - [ ] Handle missing verses, unavailable resources, download retries, cache limits/deletion,
   provider updates and old saved selections consistently across Android and web.
 - [ ] Verify all 6,236 ayah mappings; test RTL/LTR layouts, long translations, large fonts,

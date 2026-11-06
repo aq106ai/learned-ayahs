@@ -1,12 +1,15 @@
 // The bundled Qur'an data (shared with the Android app, served from /data/):
 //   quran_text.json        all 6236 ayahs, Uthmani word text; "end" marks the ayah-number glyph
 //   word_translations.json English word-by-word, aligned to content words
+//   content_catalog.json   the translations, word-meaning languages and tafsirs on offer
+// Word meanings in other languages are loaded by services/content.js, which plugs them in here
+// with setMeaningSource; a word it has nothing for keeps its English meaning.
 //   word_timings_<r>.json  validated per-word [start, end) segments for one reciter
 // Loaded lazily and cached for the session (and by the service worker for offline use).
 
 const cache = new Map();
 
-function load(name) {
+export function loadData(name) {
   if (!cache.has(name)) {
     cache.set(
       name,
@@ -26,29 +29,41 @@ let translations = null;
 const timings = new Map();
 
 export async function loadText() {
-  text ??= await load('quran_text.json');
+  text ??= await loadData('quran_text.json');
   return text;
 }
 
 export async function loadTranslations() {
-  translations ??= await load('word_translations.json');
+  translations ??= await loadData('word_translations.json');
   return translations;
 }
 
 export async function loadTimings(reciter) {
-  if (!timings.has(reciter.key)) timings.set(reciter.key, await load(reciter.timingsAsset));
+  if (!timings.has(reciter.key)) timings.set(reciter.key, await loadData(reciter.timingsAsset));
   return timings.get(reciter.key);
 }
+
+let meaningSource = () => null;
+/** [fn(surah, ayah)] → this ayah's meanings in the chosen language (null entries fall back to English). */
+export function setMeaningSource(fn) {
+  meaningSource = fn ?? (() => null);
+}
+
+/** The bundled row for an ayah ({words: [{position, text, char_type}]}), or null. */
+export const rawAyah = (surah, ayah) => text?.[`${surah}:${ayah}`] ?? null;
 
 /** Words of an ayah: {text, isEnd, translation}. Requires loadText() to have resolved. */
 export function wordsSync(surah, ayah) {
   const row = text?.[`${surah}:${ayah}`];
   if (!row) return [];
-  const meanings = translations?.[`${surah}:${ayah}`] ?? [];
+  const english = translations?.[`${surah}:${ayah}`] ?? [];
+  const chosen = meaningSource(surah, ayah) ?? [];
   let content = 0;
   return row.words.map((w) => {
     const isEnd = w.char_type === 'end';
-    return { text: w.text, isEnd, translation: isEnd ? null : meanings[content++] ?? null };
+    if (isEnd) return { text: w.text, isEnd, translation: null };
+    const i = content++;
+    return { text: w.text, isEnd, translation: chosen[i] ?? english[i] ?? null };
   });
 }
 

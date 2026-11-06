@@ -1,5 +1,5 @@
-// An ayah, or a run of them, as plain text: the Arabic, then the English, then the
-// surah:ayah reference. Either language can be left out. Nothing else — no reciter credit.
+// An ayah, or a run of them, as plain text: the Arabic, then the chosen translation, then the
+// surah:ayah reference. (The parameter is still called `english`; it is whichever edition is chosen.) Either language can be left out. Nothing else — no reciter credit.
 
 import { toast } from '../lib/dom.js';
 import { surahName } from '../core/quran.js';
@@ -8,7 +8,7 @@ import { translation } from './data.js';
 
 export function formatShareText(name, surah, ayahs, arabic, english) {
   if (!ayahs.length) throw new Error('Choose at least one ayah');
-  if (!arabic && !english) throw new Error('Share at least the Arabic or the English');
+  if (!arabic && !english) throw new Error('Share at least the Arabic or the translation');
   const body = ayahs.map((ayah) => {
     const lines = [];
     if (arabic && ayah.arabic) lines.push(ayah.arabic);
@@ -29,7 +29,7 @@ export async function shareTextOf(surah, from, to, arabic, english) {
     const words = arabic ? contentWords(wordsSync(surah, number)).map((w) => w.text).join(' ') : '';
     if (arabic && !words) throw new Error('The Arabic text is unavailable. Please try again.');
     const translated = english ? await translation(surah, number) : null;
-    if (english && !translated?.trim()) throw new Error('The English text is unavailable. Please try again.');
+    if (english && !translated?.trim()) throw new Error('The translation is unavailable. Please try again.');
     return { number, arabic: words, english: translated };
   }));
   return formatShareText(surahName(surah), surah, ayahs, arabic, english);

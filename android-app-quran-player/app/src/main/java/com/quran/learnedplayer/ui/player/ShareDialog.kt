@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.settings.rememberTranslationLanguageName
 import android.widget.Toast
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
@@ -208,7 +209,7 @@ fun TextChoices(
             selected = english,
             onClick = { if (!english || arabic) onEnglish(!english) },
             enabled = enabled,
-            label = { Text("English") },
+            label = { Text(rememberTranslationLanguageName()) },
             modifier = Modifier.testTag(TAG_SHARE_TEXT_ENGLISH),
             colors = FilterChipDefaults.filterChipColors(
                 containerColor = Border,

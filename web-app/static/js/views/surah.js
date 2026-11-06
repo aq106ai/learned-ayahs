@@ -4,6 +4,7 @@
 import { h, icon } from '../lib/dom.js';
 import { VERSE_COUNTS, surahAyahToGlobal, surahName } from '../core/quran.js';
 import * as quran from '../services/quranData.js';
+import { ensureMeanings } from '../services/content.js';
 
 export function surahView({ store, engine, go, params }) {
   const surah = Math.min(Math.max(Number(params[0]) || 1, 1), 114);
@@ -85,7 +86,7 @@ export function surahView({ store, engine, go, params }) {
   async function load() {
     list.append(h('div', { class: 'boot' }, h('div', { class: 'spinner' })));
     await quran.loadText();
-    if (showTranslation) await quran.loadTranslations().catch(() => {});
+    if (showTranslation) await Promise.all([quran.loadTranslations().catch(() => {}), ensureMeanings(surah).catch(() => {})]);
     list.replaceChildren(...Array.from({ length: total }, (_, i) => ayahRow(i + 1, quran.wordsSync(surah, i + 1))));
     refresh();
   }

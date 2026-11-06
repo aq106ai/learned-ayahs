@@ -185,6 +185,18 @@ object PlayerStateHolder {
         }
     }
 
+    /**
+     * The same ayah's words with different meanings (a word-meaning language arrived). Unlike
+     * [updateAyahText] this keeps the timings: it is the same recording of the same words, and
+     * clearing them would switch highlighting off until the next ayah.
+     */
+    fun replaceWordMeanings(words: List<com.quran.learnedplayer.data.AyahWord>) {
+        _uiState.update { state ->
+            if (state.ayahWords.size != words.size || state.ayahWords.map { it.text } != words.map { it.text }) state
+            else state.copy(ayahWords = words)
+        }
+    }
+
     fun updateWordTimings(segments: List<LongRange>, exact: Boolean) {
         _uiState.update {
             it.copy(

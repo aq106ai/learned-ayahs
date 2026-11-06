@@ -3,10 +3,13 @@
 //   /data/       cache first, refreshed in the background (the Qur'an data rarely changes)
 //   /audio/      only what "Save for offline" stored; Range requests answered from the cache
 //   /api/        always the network
+// Translations and word meanings downloaded from Quran.com live in la-content-v1, written by
+// services/content.js itself (they are cross-origin, which this worker leaves alone).
 
 const SHELL_CACHE = 'la-shell-v1';
 const DATA_CACHE = 'la-data-v1';
 const AUDIO_CACHE = 'la-audio-v1';
+const CONTENT_CACHE = 'la-content-v1';
 
 const SHELL = [
   './',
@@ -28,7 +31,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const keep = new Set([SHELL_CACHE, DATA_CACHE, AUDIO_CACHE]);
+  const keep = new Set([SHELL_CACHE, DATA_CACHE, AUDIO_CACHE, CONTENT_CACHE]);
   event.waitUntil(
     caches
       .keys()

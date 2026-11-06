@@ -221,6 +221,16 @@ export class PlayerEngine extends EventTarget {
     }
   }
 
+  /** Word meanings in the chosen language arrived (services/content.js): show them, as above. */
+  refreshWords() {
+    const track = this.track;
+    if (!track || !quran.isTextLoaded()) return;
+    const words = quran.wordsSync(track.surah, track.ayah);
+    if (words.map((w) => w.translation).join('\u0000') === this.words.map((w) => w.translation).join('\u0000')) return;
+    this.words = words;
+    this.emit('track');
+  }
+
   async loadAyahData(track) {
     await quran.loadText();
     if (this.store.settings.showWordTranslations || this.mode === PlaybackMode.WORD_BY_WORD) {

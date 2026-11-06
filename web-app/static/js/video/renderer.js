@@ -16,7 +16,8 @@ const END_GLYPH = 'rgba(255,236,190,0.784)';
 const TRANSLATION = 'rgba(240,244,240,0.94)';
 
 /**
- * [request]: {aspect: {width, height}, wordByWord, fullTranslation, credits, reciter}.
+ * [request]: {aspect: {width, height}, wordByWord, fullTranslation, credits, reciter,
+ *   translationCredit, translationRtl} (the last two are filled in by VideoExporter.prepareText).
  * [textFor(clip)] → {words, segments, translation, reference}. [sceneFor(key, variant)] → a scene
  * spec. [creditFor(key, variant)] → "Photo: …" or null.
  */
@@ -153,7 +154,7 @@ export class FrameRenderer {
     const total = layout.lines.length * layout.lineHeight;
     let y = box.top + (box.height - total) / 2 + layout.size;
     ctx.save();
-    ctx.direction = 'ltr';
+    ctx.direction = this.request.translationRtl ? 'rtl' : 'ltr';
     ctx.textAlign = 'center';
     ctx.fillStyle = TRANSLATION;
     ctx.font = `${layout.size}px ${LATIN_FONT}`;
@@ -197,7 +198,7 @@ export class FrameRenderer {
     ctx.font = `${26 * u}px ${LATIN_FONT}`;
     ctx.fillStyle = 'rgba(255,255,255,0.88)';
     const credits = [`Recitation: ${this.request.reciter.displayName} · everyayah.com`];
-    if (this.request.fullTranslation) credits.push('Translation: Saheeh International · tanzil.net');
+    if (this.request.fullTranslation) credits.push(`Translation: ${this.request.translationCredit ?? 'Saheeh International · Tanzil.net'}`);
     if (this.request.wordByWord) credits.push('Word meanings: Quran.com');
     if (backgroundCredit) credits.push(backgroundCredit);
     let lines = credits;

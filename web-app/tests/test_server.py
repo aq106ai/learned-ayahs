@@ -329,7 +329,7 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(c.request("GET", "/data/../server.py")[0], 404)
         self.assertEqual(c.request("GET", "/data/secrets.json")[0], 404)
         # What videos and player backgrounds read.
-        for name in ("translation_en_saheeh.json", "video_themes.json", "nature_photos.json"):
+        for name in ("translation_en_saheeh.json", "video_themes.json", "nature_photos.json", "content_catalog.json"):
             self.assertEqual(c.request("GET", f"/data/{name}")[0], 200, name)
 
     def test_nature_photos_are_served_and_nothing_else_from_there(self):

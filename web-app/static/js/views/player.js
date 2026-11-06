@@ -24,6 +24,7 @@ import { applyPalette, paletteFor } from '../video/palette.js';
 import { PlayerBackgrounds } from '../video/plan.js';
 import { BackgroundScenes, THEMES, variant } from '../video/scenes.js';
 import { copyPlain, sharePlain, shareTextOf } from '../video/shareText.js';
+import { editionNameSync, onContentLoaded, translationLanguageSync } from '../services/content.js';
 
 export function playerView({ store, engine, server, go }) {
   let overlay = false; // word-by-word overlay in the whole-ayah modes
@@ -447,7 +448,7 @@ export function playerView({ store, engine, server, go }) {
         h('div', { class: 'theme-row' }, THEMES.map((t) => tile(t.title, t.key, drawnThumb(t.key)))),
         subjects.length ? h('div', { class: 'theme-row' }, subjects.map((s) => tile(s.title, s.themeKey, h('img', { src: thumbUrl(s), alt: '', loading: 'lazy' })))) : null,
         h('label', { class: 'toggle-row' },
-          h('span', { class: 'text' }, h('strong', {}, 'Translation'), h('span', {}, 'Saheeh International, under the whole ayah')),
+          h('span', { class: 'text' }, h('strong', {}, 'Translation'), h('span', {}, `${editionNameSync()}, under the whole ayah`)),
           h('input', { class: 'switch', type: 'checkbox', checked: store.settings.showAyahTranslation, 'data-testid': 'background-translation', onChange: (e) => store.setSetting('showAyahTranslation', e.target.checked) })),
         h('p', { class: 'small muted' }, 'Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons, never people or animals. A moving background uses a little more battery.'),
       );
@@ -469,7 +470,7 @@ export function playerView({ store, engine, server, go }) {
     const languages = h('div', { class: 'chips' });
     const drawLanguages = () => languages.replaceChildren(
       chip('Arabic', arabic, () => { if (arabic && !english) return; arabic = !arabic; drawLanguages(); }, 'share-text-arabic'),
-      chip('English', english, () => { if (english && !arabic) return; english = !english; drawLanguages(); }, 'share-text-english'),
+      chip(translationLanguageSync(), english, () => { if (english && !arabic) return; english = !english; drawLanguages(); }, 'share-text-english'),
     );
     drawLanguages();
     const status = h('p', { class: 'small muted', 'data-testid': 'share-status' });
@@ -630,6 +631,9 @@ export function playerView({ store, engine, server, go }) {
     }),
     engine.on('tick', renderTick),
     store.on((what) => { if (what === 'settings' || what === 'all') { applyBackground(); renderReader(); renderState(); } }),
+    // A translation or word meanings that finished downloading: show them. The word reader picks
+    // new meanings up as it moves, so only the whole-ayah view is redrawn.
+    onContentLoaded(() => { if (renderedKind === 'whole') renderReader(); }),
   ];
   applyBackground();
   renderReader();

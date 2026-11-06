@@ -100,6 +100,8 @@ pip install uharfbuzz fonttools matplotlib soundfile numpy scipy
 python .setup/make_timings.py                 # word_timings_<reciter>.json from QUL
 python .setup/make_recitation_corpus.py       # androidTest recitation audio
 python .setup/make_icon.py                    # launcher icon vector drawables
+python .setup/make_content_catalog.py         # content_catalog.json from Quran.com's resource lists
+python .setup/make_content_catalog.py --verify-words ur   # check one word-meaning language
 ```
 
 Commit the regenerated output together with the change that required it, and make sure

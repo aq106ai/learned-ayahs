@@ -31,6 +31,7 @@ corrected promptly.
 | A'udhu billah and Bismillah clips | [EveryAyah.com](https://everyayah.com/data/) |
 | Isolated word pronunciation MP3s | [Quran.com](https://quran.com/) word audio CDN (`audio.qurancdn.com/wbw`) |
 | Web player only: ayah text and word timings | Quran.com API and QUL API |
+| Translations other than Saheeh International, word meanings in other languages, and tafsir — only the ones the user chooses, fetched by their device and kept on it | [Quran.com](https://quran.com/) API (`api.quran.com/api/v4`). No licence is published per edition; each is credited by name and source where it is shown. Listed in `android-app-quran-player/app/src/main/assets/content_catalog.json` |
 
 ## QR code generation
 

@@ -1,5 +1,16 @@
 package com.quran.learnedplayer
 
+import com.quran.learnedplayer.ui.settings.TAG_CONTENT_LANGUAGE
+import com.quran.learnedplayer.ui.settings.TAG_CONTENT_EDITION
+import com.quran.learnedplayer.ui.settings.TAG_CONTENT_TAFSIR
+import com.quran.learnedplayer.ui.settings.TAG_CHOICE_LIST
+import com.quran.learnedplayer.ui.settings.choiceTag
+import com.quran.learnedplayer.ui.settings.contentStyleTag
+import com.quran.learnedplayer.ui.settings.contentReciterTag
+import com.quran.learnedplayer.data.TranslationStyle
+import com.quran.learnedplayer.data.Reciter
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onAllNodesWithText
@@ -111,7 +122,7 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
     }
 
     @Test
-    fun the_first_run_guide_walks_four_pages_and_then_never_shows_again() {
+    fun the_first_run_guide_walks_five_pages_and_then_never_shows_again() {
         // BaseAppTest pre-dismisses the intro for every other test; opt back in here.
         PlayerSettings.seenIntro = false
         composeRule.activityRule.scenario.recreate()
@@ -123,6 +134,11 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
         composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Make it yours").assertIsDisplayed()
+
+        composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Read and listen").assertIsDisplayed()
+        composeRule.onNodeWithText("Saheeh International", substring = true).assertIsDisplayed()
 
         composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
         composeRule.waitForIdle()
@@ -162,6 +178,30 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
         assertEquals(AppTheme.LIGHT, PlayerSettings.appTheme)
         assertEquals(PlayerBackgrounds.MATCHED, PlayerSettings.playerBackground)
         assertTrue("a background brings the translation", PlayerSettings.showAyahTranslation)
+
+        // Read and listen: the translation language, edition, style, tafsir and reciter.
+        composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(TAG_CONTENT_LANGUAGE).performClick()
+        composeRule.onNodeWithTag(TAG_CHOICE_LIST).performScrollToNode(hasTestTag(choiceTag("ur")))
+        composeRule.onNodeWithTag(choiceTag("ur")).performClick()
+        composeRule.waitForIdle()
+        assertEquals("ur", PlayerSettings.wordMeaningLanguage)
+        composeRule.onNodeWithTag(TAG_CONTENT_EDITION).performClick()
+        composeRule.onNodeWithTag(TAG_CHOICE_LIST).performScrollToNode(hasTestTag(choiceTag("qc-54")))
+        composeRule.onNodeWithTag(choiceTag("qc-54")).performClick()
+        composeRule.waitForIdle()
+        assertEquals("qc-54", PlayerSettings.translationEdition)
+        composeRule.onNodeWithTag(contentStyleTag(TranslationStyle.BOTH)).performScrollTo().performClick()
+        composeRule.onNodeWithTag(TAG_CONTENT_TAFSIR).performScrollTo().performClick()
+        composeRule.onNodeWithTag(TAG_CHOICE_LIST).performScrollToNode(hasTestTag(choiceTag("qc-tafsir-160")))
+        composeRule.onNodeWithTag(choiceTag("qc-tafsir-160")).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(contentReciterTag(Reciter.AS_SUDAIS)).performScrollTo().performClick()
+        composeRule.waitForIdle()
+        assertEquals("qc-tafsir-160", PlayerSettings.tafsirEdition)
+        assertEquals(Reciter.AS_SUDAIS, PlayerSettings.reciter)
+        assertTrue(PlayerSettings.showWordTranslations && PlayerSettings.showAyahTranslation)
 
         composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
         composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()

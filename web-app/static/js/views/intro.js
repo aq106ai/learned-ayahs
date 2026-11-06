@@ -1,5 +1,6 @@
 // First-run introduction (port of ui/home/IntroDialog.kt): the hadith on keeping the Qur'an,
-// choosing how the app looks, then how to mark and how to revise. The sources and disclaimer are a
+// choosing how the app looks, what to read beside the Arabic (translation, word meanings, tafsir)
+// and who recites, then how to mark and how to revise. The sources and disclaimer are a
 // tap away on the last page, and always in Settings.
 
 import { h } from '../lib/dom.js';
@@ -7,6 +8,7 @@ import { PlayerBackgrounds } from '../video/plan.js';
 import { photoSubjects, thumbUrl } from '../video/data.js';
 import { BackgroundScenes, variant } from '../video/scenes.js';
 import { showSources } from './terms.js';
+import { contentChoices } from './contentChoices.js';
 
 const THEMES = [['DARK', 'Dark'], ['LIGHT', 'Light'], ['SYSTEM', 'Match system']];
 const BACKGROUNDS = [
@@ -63,6 +65,9 @@ const PAGES = [
     h('p', { class: 'small muted', style: { margin: 0 } }, 'Sahih al-Bukhari 5033 · Sahih Muslim 791'),
     h('p', { class: 'small muted' }, 'Mark the ayahs you have memorised, and this app will help you revise them.')),
   (store) => lookPage(store),
+  (store) => h('div', { class: 'stack', 'data-testid': 'intro-content' },
+    h('p', { style: { margin: 0 } }, 'What to read beside the Arabic, and who recites. All of it can be changed later in Settings.'),
+    contentChoices(store, { reciter: true })),
   () => tips([
     'Open any surah and tap the circle beside an ayah you have memorised.',
     'Adding a lot at once? “Add by description” takes refs like 2:255, 36:1-83, or whole surahs like 112.',

@@ -9,12 +9,19 @@ import java.net.URL
 data class AyahWord(
     val text: String,
     val isEnd: Boolean = false,
-    /** English word-by-word meaning; null for the end-of-ayah number glyph. */
+    /**
+     * Word-by-word meaning, in [com.quran.learnedplayer.player.PlayerSettings.wordMeaningLanguage]
+     * where [ContentRepository] has it and English otherwise; null for the end-of-ayah glyph.
+     */
     val translation: String? = null,
+    /** 1-based position in the ayah, as Quran.com numbers words (0 when unknown). */
+    val position: Int = 0,
 )
 
 /**
- * The bundled Qur'an text, word meanings and per-reciter word timings.
+ * The bundled Qur'an text, word meanings and per-reciter word timings. Meanings in another
+ * language replace the English ones as they are read ([ContentRepository.withChosenMeanings]);
+ * the cache itself always holds the bundled English.
  *
  * The caches are process-wide and guarded by one lock. The text alone is ~5 MB of JSON; the
  * player, the playback service and Recite each hold a repository, and with per-instance caches it
@@ -44,9 +51,9 @@ class QuranDataRepository(context: Context) {
     suspend fun wordsFor(surah: Int, ayah: Int): List<AyahWord> {
         val key = verseKey(surah, ayah)
         synchronized(lock) {
-            textCache[key]?.let { return it }
+            textCache[key]?.let { return ContentRepository.withChosenMeanings(surah, ayah, it) }
             loadBundledTextIfNeeded()
-            textCache[key]?.let { return it }
+            textCache[key]?.let { return ContentRepository.withChosenMeanings(surah, ayah, it) }
         }
         // The bundle covers all 6236 ayahs, so this is a last-resort path only.
         val fetched = fetchWordsFromNetwork(surah, ayah)
@@ -58,10 +65,11 @@ class QuranDataRepository(context: Context) {
     /** Same as [wordsFor] but never hits the network — empty if the bundle has no row. */
     fun wordsForSync(surah: Int, ayah: Int): List<AyahWord> = synchronized(lock) {
         val key = verseKey(surah, ayah)
-        textCache[key] ?: run {
+        val words = textCache[key] ?: run {
             loadBundledTextIfNeeded()
             textCache[key] ?: emptyList()
         }
+        ContentRepository.withChosenMeanings(surah, ayah, words)
     }
 
     fun contentWordCount(surah: Int, ayah: Int): Int =
@@ -153,6 +161,7 @@ class QuranDataRepository(context: Context) {
             words += AyahWord(
                 text = word.optString("text", ""),
                 isEnd = isEnd,
+                position = word.optInt("position", i + 1),
             )
         }
         return words

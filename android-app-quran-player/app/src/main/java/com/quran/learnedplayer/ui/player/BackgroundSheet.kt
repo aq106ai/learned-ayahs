@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.settings.rememberEditionName
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -127,7 +128,7 @@ fun BackgroundSheet(onDismiss: () -> Unit) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Translation", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
-                    Text("Saheeh International, under the whole ayah", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                    Text("${rememberEditionName()}, under the whole ayah", color = TextMuted, style = MaterialTheme.typography.bodySmall)
                 }
                 Switch(
                     checked = translation,

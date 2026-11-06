@@ -144,6 +144,13 @@ object PlayerSettings {
     private const val KEY_USE_WORD_CLIPS = "use_word_clips"
     private const val KEY_PLAYER_BACKGROUND = "player_background"
     private const val KEY_AYAH_TRANSLATION = "show_ayah_translation"
+    private const val KEY_TRANSLATION_EDITION = "translation_edition"
+    private const val KEY_WORD_MEANING_LANGUAGE = "word_meaning_language"
+    private const val KEY_TAFSIR_EDITION = "tafsir_edition"
+
+    /** Catalog ids (`data/ContentCatalog.kt`). A saved id the catalog no longer has falls back there. */
+    const val DEFAULT_TRANSLATION_EDITION = "en-saheeh"
+    const val DEFAULT_WORD_MEANING_LANGUAGE = "en"
 
     /** Selectable pause lengths (seconds) between repeats under [RepeatMode.AYAH]. 0 = no pause. */
     val REVISION_DELAY_CHOICES = listOf(0, 3, 5, 10)
@@ -175,6 +182,11 @@ object PlayerSettings {
         _playerBackground.value = prefs?.getString(KEY_PLAYER_BACKGROUND, null) ?: PlayerBackgrounds.PLAIN
         snapAppearance(_appTheme.value, _playerBackground.value)
         _showAyahTranslation.value = prefs?.getBoolean(KEY_AYAH_TRANSLATION, false) ?: false
+        // Until content languages there was one translation and English meanings: an install
+        // from then reads as exactly that, with nothing to migrate.
+        _translationEdition.value = prefs?.getString(KEY_TRANSLATION_EDITION, null) ?: DEFAULT_TRANSLATION_EDITION
+        _wordMeaningLanguage.value = prefs?.getString(KEY_WORD_MEANING_LANGUAGE, null) ?: DEFAULT_WORD_MEANING_LANGUAGE
+        _tafsirEdition.value = prefs?.getString(KEY_TAFSIR_EDITION, null).orEmpty()
     }
 
     private val _mode = MutableStateFlow(PlaybackMode.DEFAULT)
@@ -249,7 +261,7 @@ object PlayerSettings {
     private val _showWordTranslations = MutableStateFlow(true)
     val showWordTranslationsFlow: StateFlow<Boolean> = _showWordTranslations.asStateFlow()
 
-    /** Show each word's English meaning beneath it in the ayah views. */
+    /** Show each word's meaning ([wordMeaningLanguage]) beneath it in the ayah views. */
     var showWordTranslations: Boolean
         get() = _showWordTranslations.value
         set(value) {
@@ -405,14 +417,47 @@ object PlayerSettings {
     val showAyahTranslationFlow: StateFlow<Boolean> = _showAyahTranslation.asStateFlow()
 
     /**
-     * Show the whole ayah's English translation (Saheeh International) under the Arabic. Off by
-     * default; choosing a background turns it on, since that's the look of a shared video.
+     * Show the whole ayah's translation ([translationEdition]) under the Arabic. Off by default;
+     * choosing a background turns it on, since that's the look of a shared video.
      */
     var showAyahTranslation: Boolean
         get() = _showAyahTranslation.value
         set(value) {
             _showAyahTranslation.value = value
             prefs?.edit()?.putBoolean(KEY_AYAH_TRANSLATION, value)?.apply()
+        }
+
+    private val _translationEdition = MutableStateFlow(DEFAULT_TRANSLATION_EDITION)
+    val translationEditionFlow: StateFlow<String> = _translationEdition.asStateFlow()
+
+    /** The whole-ayah translation, by catalog id ("en-saheeh", "qc-54", …), never by name. */
+    var translationEdition: String
+        get() = _translationEdition.value
+        set(value) {
+            _translationEdition.value = value
+            prefs?.edit()?.putString(KEY_TRANSLATION_EDITION, value)?.apply()
+        }
+
+    private val _wordMeaningLanguage = MutableStateFlow(DEFAULT_WORD_MEANING_LANGUAGE)
+    val wordMeaningLanguageFlow: StateFlow<String> = _wordMeaningLanguage.asStateFlow()
+
+    /** The language of the word-by-word meanings ("en" is bundled; others download per surah). */
+    var wordMeaningLanguage: String
+        get() = _wordMeaningLanguage.value
+        set(value) {
+            _wordMeaningLanguage.value = value
+            prefs?.edit()?.putString(KEY_WORD_MEANING_LANGUAGE, value)?.apply()
+        }
+
+    private val _tafsirEdition = MutableStateFlow("")
+    val tafsirEditionFlow: StateFlow<String> = _tafsirEdition.asStateFlow()
+
+    /** The tafsir opened from the player, by catalog id; empty for none. */
+    var tafsirEdition: String
+        get() = _tafsirEdition.value
+        set(value) {
+            _tafsirEdition.value = value
+            prefs?.edit()?.putString(KEY_TAFSIR_EDITION, value)?.apply()
         }
 
     private val _seekInsideAyahAudio = MutableStateFlow(false)

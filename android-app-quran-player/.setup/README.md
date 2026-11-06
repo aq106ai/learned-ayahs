@@ -35,6 +35,19 @@ curl -sI -L "https://audio-cdn.tarteel.ai/quran/<qul_dir>/112001.mp3"   | grep -
 
 If the lengths differ, the timings describe a different master and the highlight will drift.
 
+## `make_content_catalog.py` — translations, word meanings, tafsirs, reciters
+
+Writes `app/src/main/assets/content_catalog.json`, which both apps read (the web serves it from
+`/data/`). It lists Quran.com's translations and tafsirs by **stable id** (`qc-<resource id>`,
+`qc-tafsir-<resource id>`, plus the bundled `en-saheeh`), with language, author, source and what
+is known of the licence, and the five reciters under their existing keys. Settings store these
+ids, never names. Nothing new is bundled: the apps fetch a chosen edition from Quran.com.
+
+`--verify-words <code>` walks all 114 surahs and counts content words of `quran_text.json` that
+get no meaning, or one in another language. Only languages that come back (nearly) complete are
+in `WORD_MEANING_LANGUAGES`; the measured numbers are in the script. `ContentCatalogTest` and
+`web-app/tests/unit/catalog.test.js` check the output.
+
 ## `make_icon.py` — the آية launcher icon
 
 Regenerates `res/drawable/ic_launcher_foreground.xml` + `ic_launcher_monochrome.xml`. Vector

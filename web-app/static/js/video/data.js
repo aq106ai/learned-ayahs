@@ -1,10 +1,11 @@
 // The data video backgrounds and translations need, shared with the Android app (served from
-// data/): translation_en_saheeh.json (Saheeh International, one string per ayah, by global id),
+// data/): the chosen translation (services/content.js; Saheeh International is bundled),
 // video_themes.json (each ayah's background theme) and nature_photos.json (the CC0 photos).
 // The photos themselves are served from backgrounds/nature/ alongside the app.
 
 import { surahAyahToGlobal } from '../core/quran.js';
 import { FALLBACK } from './themes.js';
+import { ayahTranslation } from '../services/content.js';
 
 const cache = new Map();
 
@@ -20,9 +21,9 @@ function load(name) {
   return cache.get(name);
 }
 
-export async function translation(surah, ayah) {
-  const all = await load('translation_en_saheeh.json');
-  return all[surahAyahToGlobal(surah, ayah) - 1] ?? null;
+/** The ayah in the chosen translation edition (or [editionId]). */
+export function translation(surah, ayah, editionId) {
+  return ayahTranslation(surah, ayah, editionId);
 }
 
 export async function loadThemeMap() {

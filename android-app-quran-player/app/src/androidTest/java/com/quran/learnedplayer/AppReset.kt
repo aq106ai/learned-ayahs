@@ -44,6 +44,9 @@ internal object AppReset {
         PlayerSettings.useWordClips = false
         PlayerSettings.playerBackground = com.quran.learnedplayer.video.PlayerBackgrounds.PLAIN
         PlayerSettings.showAyahTranslation = false
+        PlayerSettings.translationEdition = PlayerSettings.DEFAULT_TRANSLATION_EDITION
+        PlayerSettings.wordMeaningLanguage = PlayerSettings.DEFAULT_WORD_MEANING_LANGUAGE
+        PlayerSettings.tafsirEdition = ""
         PlayerSettings.autoPlayMistakeAudio = true
         PlayerSettings.autoAdvanceSuccess = true
         // The first-run hadith would sit over every screen these tests drive;

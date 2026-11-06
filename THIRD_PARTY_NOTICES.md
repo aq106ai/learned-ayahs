@@ -13,13 +13,14 @@ corrected promptly.
 
 | What | Where | Source | Terms |
 |---|---|---|---|
+| **Amiri Quran** Arabic font (mushaf style "Amiri Quran") | `android-app-quran-player/app/src/main/res/font/amiri_quran.ttf` (the web app serves the same file) | [The Amiri Project](https://github.com/aliftype/amiri), Khaled Hosny, release 1.003 | SIL Open Font License 1.1. Full text in [`OFL_amiri_quran.txt`](android-app-quran-player/app/src/main/assets/OFL_amiri_quran.txt) |
 | **Scheherazade New** Arabic font | `android-app-quran-player/app/src/main/res/font/scheherazade_new.ttf` | [SIL International](https://software.sil.org/scheherazade/) | SIL Open Font License 1.1. Full text in [`OFL_scheherazade_new.txt`](android-app-quran-player/app/src/main/assets/OFL_scheherazade_new.txt) |
 | Qur'an text (Uthmani script, word by word, all 6236 ayahs) | `android-app-quran-player/app/src/main/assets/quran_text.json` | [Quran.com](https://quran.com/) API (`api.qurancdn.com`) | See Quran.com's terms |
 | English word-by-word translation | `android-app-quran-player/app/src/main/assets/word_translations.json` | [Quran.com](https://quran.com/) API | See Quran.com's terms |
 | English translation (Saheeh International), shown in the player and in shared videos | `android-app-quran-player/app/src/main/assets/translation_en_saheeh.json` | [Tanzil.net](https://tanzil.net/trans/en.sahih), via the [`quran-json`](https://www.npmjs.com/package/quran-json) package. Written by Umm Muhammad (Saheeh International) | Tanzil: verbatim, with the source cited, for non-commercial use |
 | Nature photos for video and player backgrounds (45, downloaded when used) | `backgrounds/nature/` | [Wikimedia Commons](https://commons.wikimedia.org/), each listed with its photographer and source in [`backgrounds/nature/CREDITS.md`](backgrounds/nature/CREDITS.md) | CC0 1.0 (no rights reserved) |
 | Background theme for each ayah, for shared videos | `android-app-quran-player/app/src/main/assets/video_themes.json` | Derived by `.setup/make_video_themes.py` from the translation above | Theme numbers only; no text |
-| Per-word timing segments for five reciters | `android-app-quran-player/app/src/main/assets/word_timings_*.json` | [QUL, Quranic Universal Library](https://qul.tarteel.ai/) by Tarteel, cleaned and validated by `.setup/make_timings.py` | See QUL's terms |
+| Per-word timing segments for each reciter | `android-app-quran-player/app/src/main/assets/word_timings_*.json` | [QUL, Quranic Universal Library](https://qul.tarteel.ai/) by Tarteel, cleaned and validated by `.setup/make_timings.py` | See QUL's terms |
 | **mp4-muxer** 5.2.1 and **webm-muxer** 5.1.3 (writing the web app's video files) | `web-app/static/js/lib/mp4-muxer.mjs`, `webm-muxer.mjs` | [Vanilagy/mp4-muxer](https://github.com/Vanilagy/mp4-muxer), [Vanilagy/webm-muxer](https://github.com/Vanilagy/webm-muxer) | MIT License |
 | Short recitation clips for automated tests (16 kHz WAV) | `android-app-quran-player/app/src/androidTest/assets/recitation/` | Derived from [EveryAyah.com](https://everyayah.com/) recordings by Maher Al Muaiqly, Abdurrahman As-Sudais and Saud Ash-Shuraym. One clip is spliced to contain a deliberate mistake for testing | Used only by the test suite. Not shipped in the app |
 
@@ -31,6 +32,7 @@ corrected promptly.
 | A'udhu billah and Bismillah clips | [EveryAyah.com](https://everyayah.com/data/) |
 | Isolated word pronunciation MP3s | [Quran.com](https://quran.com/) word audio CDN (`audio.qurancdn.com/wbw`) |
 | Web player only: ayah text and word timings | Quran.com API and QUL API |
+| Translations other than Saheeh International, word meanings in other languages, and tafsir — only the ones the user chooses, fetched by their device and kept on it | [Quran.com](https://quran.com/) API (`api.quran.com/api/v4`). No licence is published per edition; each is credited by name and source where it is shown. Listed in `android-app-quran-player/app/src/main/assets/content_catalog.json` |
 
 ## QR code generation
 

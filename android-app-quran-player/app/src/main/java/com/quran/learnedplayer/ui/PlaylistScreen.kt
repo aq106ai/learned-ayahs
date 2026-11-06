@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -128,14 +129,14 @@ fun PlaylistScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Playlist",
+                text = tx("Playlist"),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
                 modifier = Modifier.weight(1f),
             )
             OutlinedButton(onClick = onDismiss) {
-                Text("Back")
+                Text(tx("Back"))
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -165,7 +166,7 @@ fun PlaylistScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        text = "${surahs.size} surahs · ${masterTracks.size} ayahs · ${state.modeLabel}",
+                        text = tx("{0} surahs · {1} ayahs · {2}", surahs.size, masterTracks.size, state.modeLabel),
                         color = TextMuted,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -174,7 +175,7 @@ fun PlaylistScreen(
                         onClick = { showSurahPicker = true },
                     )
                     Text(
-                        text = "Tap a surah to expand · tap an ayah to go there",
+                        text = tx("Tap a surah to expand · tap an ayah to go there"),
                         color = TextMuted,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -218,7 +219,7 @@ private fun BookmarksSection(
             .testTag(TAG_PLAYLIST_BOOKMARKS),
     ) {
         Text(
-            text = "Bookmarks",
+            text = tx("Bookmarks"),
             color = TextMuted,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
@@ -243,7 +244,7 @@ private fun BookmarksSection(
                     modifier = Modifier.weight(1f),
                 )
                 IconButton(onClick = { onRemove(globalId) }) {
-                    Icon(Icons.Filled.Star, contentDescription = "Remove bookmark", tint = AccentGreen)
+                    Icon(Icons.Filled.Star, contentDescription = tx("Remove bookmark"), tint = AccentGreen)
                 }
             }
         }

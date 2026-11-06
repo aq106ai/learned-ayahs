@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,9 +51,9 @@ fun SurahJumpSheet(
     fun tryGoToNumber() {
         val n = numberText.trim().toIntOrNull()
         when {
-            n == null -> errorText = "Enter a surah number"
-            n !in 1..114 -> errorText = "Use a number from 1 to 114"
-            n !in availableSurahs -> errorText = "Surah $n is not in your learned playlist"
+            n == null -> errorText = tx("Enter a surah number")
+            n !in 1..114 -> errorText = tx("Use a number from 1 to 114")
+            n !in availableSurahs -> errorText = tx("Surah {0} is not in your learned playlist", n)
             else -> {
                 onSurahSelected(n)
                 onDismiss()
@@ -72,13 +73,13 @@ fun SurahJumpSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = "Go to surah",
+                text = tx("Go to surah"),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
             )
             Text(
-                text = "Type a surah number or pick from your learned surahs below.",
+                text = tx("Type a surah number or pick from your learned surahs below."),
                 color = TextMuted,
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -93,21 +94,21 @@ fun SurahJumpSheet(
                         numberText = it.filter { ch -> ch.isDigit() }.take(3)
                         errorText = null
                     },
-                    label = { Text("Surah #") },
-                    placeholder = { Text("e.g. 114") },
+                    label = { Text(tx("Surah #")) },
+                    placeholder = { Text(tx("e.g. 114")) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
                 Button(onClick = { tryGoToNumber() }) {
-                    Text("Go")
+                    Text(tx("Go"))
                 }
             }
             errorText?.let {
                 Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
             Text(
-                text = "Learned surahs (${availableSurahs.size})",
+                text = tx("Learned surahs ({0})", availableSurahs.size),
                 fontWeight = FontWeight.SemiBold,
                 color = TextPrimary,
             )
@@ -137,7 +138,7 @@ fun SurahJumpSheet(
                             fontWeight = if (active) FontWeight.SemiBold else FontWeight.Normal,
                         )
                         Text(
-                            text = "$ayahCount ayahs",
+                            text = tx("{0} ayahs", ayahCount),
                             color = TextMuted,
                             style = MaterialTheme.typography.bodySmall,
                         )
@@ -159,7 +160,7 @@ fun SurahJumpButton(
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
-            text = currentSurah?.let { SurahNames.title(it) } ?: "Choose surah…",
+            text = currentSurah?.let { SurahNames.title(it) } ?: tx("Choose surah…"),
             maxLines = 1,
         )
     }

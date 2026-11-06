@@ -1,0 +1,255 @@
+[alafasy] surah   1/114  ayahs=7
+[alafasy] surah   2/114  ayahs=293
+[alafasy] surah   3/114  ayahs=493
+[alafasy] surah   4/114  ayahs=669
+[alafasy] surah   5/114  ayahs=789
+[alafasy] surah   6/114  ayahs=954
+[alafasy] surah   7/114  ayahs=1160
+[alafasy] surah   8/114  ayahs=1235
+[alafasy] surah   9/114  ayahs=1364
+[alafasy] surah  10/114  ayahs=1473
+[alafasy] surah  11/114  ayahs=1596
+[alafasy] surah  12/114  ayahs=1707
+[alafasy] surah  13/114  ayahs=1750
+[alafasy] surah  14/114  ayahs=1802
+[alafasy] surah  15/114  ayahs=1901
+[alafasy] surah  16/114  ayahs=2029
+[alafasy] surah  17/114  ayahs=2140
+[alafasy] surah  18/114  ayahs=2250
+[alafasy] surah  19/114  ayahs=2348
+[alafasy] surah  20/114  ayahs=2483
+[alafasy] surah  21/114  ayahs=2595
+[alafasy] surah  22/114  ayahs=2673
+[alafasy] surah  23/114  ayahs=2791
+[alafasy] surah  24/114  ayahs=2855
+[alafasy] surah  25/114  ayahs=2932
+[alafasy] surah  26/114  ayahs=3159
+[alafasy] surah  27/114  ayahs=3252
+[alafasy] surah  28/114  ayahs=3340
+[alafasy] surah  29/114  ayahs=3409
+[alafasy] surah  30/114  ayahs=3469
+[alafasy] surah  31/114  ayahs=3503
+[alafasy] surah  32/114  ayahs=3533
+[alafasy] surah  33/114  ayahs=3606
+[alafasy] surah  34/114  ayahs=3660
+[alafasy] surah  35/114  ayahs=3705
+[alafasy] surah  36/114  ayahs=3788
+[alafasy] surah  37/114  ayahs=3970
+[alafasy] surah  38/114  ayahs=4058
+[alafasy] surah  39/114  ayahs=4133
+[alafasy] surah  40/114  ayahs=4218
+[alafasy] surah  41/114  ayahs=4272
+[alafasy] surah  42/114  ayahs=4325
+[alafasy] surah  43/114  ayahs=4414
+[alafasy] surah  44/114  ayahs=4473
+[alafasy] surah  45/114  ayahs=4510
+[alafasy] surah  46/114  ayahs=4545
+[alafasy] surah  47/114  ayahs=4583
+[alafasy] surah  48/114  ayahs=4612
+[alafasy] surah  49/114  ayahs=4630
+[alafasy] surah  50/114  ayahs=4675
+[alafasy] surah  51/114  ayahs=4735
+[alafasy] surah  52/114  ayahs=4784
+[alafasy] surah  53/114  ayahs=4846
+[alafasy] surah  54/114  ayahs=4901
+[alafasy] surah  55/114  ayahs=4979
+[alafasy] surah  56/114  ayahs=5075
+[alafasy] surah  57/114  ayahs=5104
+[alafasy] surah  58/114  ayahs=5126
+[alafasy] surah  59/114  ayahs=5150
+[alafasy] surah  60/114  ayahs=5163
+[alafasy] surah  61/114  ayahs=5177
+[alafasy] surah  62/114  ayahs=5188
+[alafasy] surah  63/114  ayahs=5199
+[alafasy] surah  64/114  ayahs=5217
+[alafasy] surah  65/114  ayahs=5229
+[alafasy] surah  66/114  ayahs=5241
+[alafasy] surah  67/114  ayahs=5271
+[alafasy] surah  68/114  ayahs=5323
+[alafasy] surah  69/114  ayahs=5375
+[alafasy] surah  70/114  ayahs=5419
+[alafasy] surah  71/114  ayahs=5447
+[alafasy] surah  72/114  ayahs=5475
+[alafasy] surah  73/114  ayahs=5495
+[alafasy] surah  74/114  ayahs=5551
+[alafasy] surah  75/114  ayahs=5591
+[alafasy] surah  76/114  ayahs=5622
+[alafasy] surah  77/114  ayahs=5672
+[alafasy] surah  78/114  ayahs=5712
+[alafasy] surah  79/114  ayahs=5758
+[alafasy] surah  80/114  ayahs=5800
+[alafasy] surah  81/114  ayahs=5829
+[alafasy] surah  82/114  ayahs=5848
+[alafasy] surah  83/114  ayahs=5884
+[alafasy] surah  84/114  ayahs=5909
+[alafasy] surah  85/114  ayahs=5931
+[alafasy] surah  86/114  ayahs=5948
+[alafasy] surah  87/114  ayahs=5967
+[alafasy] surah  88/114  ayahs=5993
+[alafasy] surah  89/114  ayahs=6023
+[alafasy] surah  90/114  ayahs=6043
+[alafasy] surah  91/114  ayahs=6058
+[alafasy] surah  92/114  ayahs=6079
+[alafasy] surah  93/114  ayahs=6090
+[alafasy] surah  94/114  ayahs=6098
+[alafasy] surah  95/114  ayahs=6106
+[alafasy] surah  96/114  ayahs=6125
+[alafasy] surah  97/114  ayahs=6130
+[alafasy] surah  98/114  ayahs=6138
+[alafasy] surah  99/114  ayahs=6146
+[alafasy] surah 100/114  ayahs=6157
+[alafasy] surah 101/114  ayahs=6168
+[alafasy] surah 102/114  ayahs=6176
+[alafasy] surah 103/114  ayahs=6179
+[alafasy] surah 104/114  ayahs=6188
+[alafasy] surah 105/114  ayahs=6193
+[alafasy] surah 106/114  ayahs=6197
+[alafasy] surah 107/114  ayahs=6204
+[alafasy] surah 108/114  ayahs=6207
+[alafasy] surah 109/114  ayahs=6213
+[alafasy] surah 110/114  ayahs=6216
+[alafasy] surah 111/114  ayahs=6221
+[alafasy] surah 112/114  ayahs=6225
+[alafasy] surah 113/114  ayahs=6230
+[alafasy] surah 114/114  ayahs=6236
+6214 recordings
+last word: voice end - onset = 731 ms + 272 ms per letter (fitted)
+
+Finding the last word's start, scored on ayahs whose last word QUL timed (error in ms):
+       letters: {'found': 1.0, 'p50': 340, 'p90': 860, 'within150': 0.255, 'within300': 0.469, 'useful': 0.255, 'of': 2170}
+  near-dip3-35: {'found': 0.952, 'p50': 320, 'p90': 780, 'within150': 0.26, 'within300': 0.497, 'useful': 0.248, 'of': 2170}
+  near-dip3-50: {'found': 0.965, 'p50': 320, 'p90': 800, 'within150': 0.257, 'within300': 0.493, 'useful': 0.248, 'of': 2170}
+  near-gap2-mid-50: {'found': 0.96, 'p50': 340, 'p90': 810, 'within150': 0.255, 'within300': 0.444, 'useful': 0.245, 'of': 2170}
+  near-gap2-mid-35: {'found': 0.934, 'p50': 340, 'p90': 790, 'within150': 0.261, 'within300': 0.453, 'useful': 0.244, 'of': 2170}
+  near-gap2-end-50: {'found': 0.958, 'p50': 360, 'p90': 840, 'within150': 0.231, 'within300': 0.422, 'useful': 0.221, 'of': 2170}
+  near-gap2-end-35: {'found': 0.929, 'p50': 360, 'p90': 820, 'within150': 0.236, 'within300': 0.431, 'useful': 0.219, 'of': 2170}
+  near-dip6-50: {'found': 0.845, 'p50': 340, 'p90': 880, 'within150': 0.235, 'within300': 0.469, 'useful': 0.199, 'of': 2170}
+  near-dip6-35: {'found': 0.818, 'p50': 320, 'p90': 840, 'within150': 0.242, 'within300': 0.482, 'useful': 0.198, 'of': 2170}
+  fit-snap-gap2-mid-200: {'found': 1.0, 'p50': 480, 'p90': 1100, 'within150': 0.159, 'within300': 0.293, 'useful': 0.159, 'of': 2170}
+  fit-snap-gap2-mid-120: {'found': 1.0, 'p50': 490, 'p90': 1100, 'within150': 0.157, 'within300': 0.3, 'useful': 0.157, 'of': 2170}
+  fit-snap-dip3-200: {'found': 1.0, 'p50': 480, 'p90': 1100, 'within150': 0.156, 'within300': 0.309, 'useful': 0.156, 'of': 2170}
+  fit-snap-gap2-end-200: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.153, 'within300': 0.312, 'useful': 0.153, 'of': 2170}
+  fit-snap-dip3-120: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.153, 'within300': 0.307, 'useful': 0.153, 'of': 2170}
+  fit-snap-dip6-120: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.153, 'within300': 0.306, 'useful': 0.153, 'of': 2170}
+  fit-snap-dip6-200: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.153, 'within300': 0.305, 'useful': 0.153, 'of': 2170}
+  fit-snap-gap2-end-120: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.152, 'within300': 0.312, 'useful': 0.152, 'of': 2170}
+  fit-snap-dip6-60: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.15, 'within300': 0.306, 'useful': 0.15, 'of': 2170}
+  fit-snap-gap2-mid-60: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.149, 'within300': 0.305, 'useful': 0.149, 'of': 2170}
+  fit-snap-dip3-60: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.149, 'within300': 0.307, 'useful': 0.149, 'of': 2170}
+           fit: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.148, 'within300': 0.306, 'useful': 0.148, 'of': 2170}
+  fit-snap-gap2-end-60: {'found': 1.0, 'p50': 500, 'p90': 1100, 'within150': 0.147, 'within300': 0.308, 'useful': 0.147, 'of': 2170}
+        sliver: {'found': 1.0, 'p50': 2830, 'p90': 3870, 'within150': 0.0, 'within300': 0.005, 'useful': 0.0, 'of': 2170}
+chosen: letters
+
+alafasy: 6214 ayahs: 4483 fine, 1650 repaired (932 last words, 863 first words), 0 shifted, 81 dropped
+
+Dropped, by reason:
+     49  first word ms:  2:34 (first word -700 ms from the voice); 2:51 (first word -620 ms from the voice); 2:131 (first word -600 ms from the voice); 3:35 (first word -620 ms from the voice)
+     31  words start inside:  3:18 (1 words start inside a silence); 3:129 (1 words start inside a silence); 6:52 (2 words start inside a silence); 6:53 (1 words start inside a silence)
+      1  timings run to:  35:44 (timings run to 33078 ms on a 31880 ms recording)
+
+Shifted:
+
+Last words moved (largest first):
+     26:17  10290 -> 4280 ms
+     29:69  16730 -> 11020 ms
+     6:165  34770 -> 29160 ms
+     26:22  14330 -> 8900 ms
+     77:50  10090 -> 5040 ms
+     7:105  24370 -> 19380 ms
+     43:59  14170 -> 9220 ms
+     26:59  9890 -> 5160 ms
+     24:64  29690 -> 24980 ms
+    11:123  23970 -> 19280 ms
+     59:17  17890 -> 13240 ms
+    12:111  32369 -> 27720 ms
+    26:197  13810 -> 9200 ms
+    10:103  15370 -> 10780 ms
+     4:176  58050 -> 53520 ms
+      3:92  25010 -> 20500 ms
+     2:252  12450 -> 7980 ms
+      9:26  26090 -> 21860 ms
+     43:89  11930 -> 7740 ms
+     2:141  18970 -> 14820 ms
+
+Dropped:
+      2:34  first word -700 ms from the voice
+      2:51  first word -620 ms from the voice
+     2:131  first word -600 ms from the voice
+      3:18  1 words start inside a silence
+      3:35  first word -620 ms from the voice
+      3:65  first word +2350 ms from the voice
+      3:66  first word +1640 ms from the voice
+      3:70  first word +2130 ms from the voice
+      3:71  first word +2230 ms from the voice
+     3:119  first word +1760 ms from the voice
+     3:129  1 words start inside a silence
+     4:109  first word +1520 ms from the voice
+     4:171  first word +2030 ms from the voice
+      5:15  first word +2150 ms from the voice
+      5:19  first word +2270 ms from the voice
+      5:70  first word -580 ms from the voice
+      5:72  first word -1120 ms from the voice
+     5:110  first word +2200 ms from the voice
+      6:52  2 words start inside a silence
+      6:53  1 words start inside a silence
+      6:82  2 words start inside a silence
+      6:91  1 words start inside a silence
+      7:71  1 words start inside a silence
+      7:72  1 words start inside a silence
+      8:20  1 words start inside a silence
+      8:48  first word -760 ms from the voice
+     11:35  1 words start inside a silence
+     11:76  first word +2230 ms from the voice
+     11:82  2 words start inside a silence
+      12:8  first word -520 ms from the voice
+     12:81  1 words start inside a silence
+     14:35  first word -700 ms from the voice
+     15:52  first word -680 ms from the voice
+     17:60  first word -680 ms from the voice
+     17:61  first word -680 ms from the voice
+     19:28  first word +2100 ms from the voice
+     19:32  1 words start inside a silence
+     19:43  first word +1740 ms from the voice
+     19:44  first word +1800 ms from the voice
+     19:45  first word +1700 ms from the voice
+     20:90  1 words start inside a silence
+     21:52  first word -480 ms from the voice
+     22:61  1 words start inside a silence
+     23:63  1 words start inside a silence
+     23:83  first word -500 ms from the voice
+     23:91  first word -660 ms from the voice
+     26:97  1 words start inside a silence
+     26:98  first word -400 ms from the voice
+    26:104  1 words start inside a silence
+    26:124  first word -460 ms from the voice
+    26:142  first word -480 ms from the voice
+    26:175  1 words start inside a silence
+      27:9  1 words start inside a silence
+     28:46  1 words start inside a silence
+     29:24  1 words start inside a silence
+     29:50  1 words start inside a silence
+     30:58  2 words start inside a silence
+     31:13  first word -660 ms from the voice
+     33:10  first word -500 ms from the voice
+     33:13  first word -620 ms from the voice
+     35:44  timings run to 33078 ms on a 31880 ms recording
+     37:67  1 words start inside a silence
+    37:134  first word -380 ms from the voice
+     38:71  first word -480 ms from the voice
+     39:50  first word -500 ms from the voice
+     41:14  first word -440 ms from the voice
+     41:50  1 words start inside a silence
+     42:44  1 words start inside a silence
+     42:45  2 words start inside a silence
+     43:26  first word -680 ms from the voice
+     43:79  first word -660 ms from the voice
+     44:41  1 words start inside a silence
+     44:49  first word -560 ms from the voice
+     47:38  first word +1800 ms from the voice
+     51:22  first word -720 ms from the voice
+      59:6  1 words start inside a silence
+     59:10  1 words start inside a silence
+      60:4  first word -580 ms from the voice
+      66:3  first word -820 ms from the voice
+      78:6  first word -920 ms from the voice

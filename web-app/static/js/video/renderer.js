@@ -16,7 +16,8 @@ const END_GLYPH = 'rgba(255,236,190,0.784)';
 const TRANSLATION = 'rgba(240,244,240,0.94)';
 
 /**
- * [request]: {aspect: {width, height}, wordByWord, fullTranslation, credits, reciter}.
+ * [request]: {aspect: {width, height}, wordByWord, fullTranslation, credits, reciter,
+ *   translationCredit, translationRtl} (the last two are filled in by VideoExporter.prepareText).
  * [textFor(clip)] → {words, segments, translation, reference}. [sceneFor(key, variant)] → a scene
  * spec. [creditFor(key, variant)] → "Photo: …" or null.
  */
@@ -41,6 +42,8 @@ export class FrameRenderer {
     this.arabicSize = (this.landscape ? 64 : height > width * 1.5 ? 82 : 72) * this.u;
     this.pagesCache = new Map();
     this.translationCache = new Map();
+    // The mushaf style's face first (VideoExporter.prepareText sets it), then the bundled default.
+    this.arabicFont = request.arabicFont ? `${request.arabicFont}, ${ARABIC_FONT}` : ARABIC_FONT;
     this.measureCtx = null;
     this.qr = timeline.endCardMs > 0 ? qrModules(PLAY_STORE_URL) : null;
   }
@@ -48,7 +51,7 @@ export class FrameRenderer {
   measurer(ctx) {
     return {
       arabicWidth: (text, px) => {
-        ctx.font = `${px}px ${ARABIC_FONT}`;
+        ctx.font = `${px}px ${this.arabicFont}`;
         return ctx.measureText(text).width;
       },
       glossWidth: (text, px) => {
@@ -128,7 +131,7 @@ export class FrameRenderer {
       const isActive = placed.word.contentIndex >= 0 && placed.word.contentIndex === active;
       const isEnd = placed.word.contentIndex < 0;
       ctx.direction = 'rtl';
-      ctx.font = `${pages.arabicSize}px ${ARABIC_FONT}`;
+      ctx.font = `${pages.arabicSize}px ${this.arabicFont}`;
       ctx.fillStyle = isActive ? HIGHLIGHT : isEnd ? END_GLYPH : '#fff';
       ctx.fillText(placed.word.arabic, centre, baseline);
       if (pages.showGloss && placed.word.gloss) {
@@ -153,7 +156,7 @@ export class FrameRenderer {
     const total = layout.lines.length * layout.lineHeight;
     let y = box.top + (box.height - total) / 2 + layout.size;
     ctx.save();
-    ctx.direction = 'ltr';
+    ctx.direction = this.request.translationRtl ? 'rtl' : 'ltr';
     ctx.textAlign = 'center';
     ctx.fillStyle = TRANSLATION;
     ctx.font = `${layout.size}px ${LATIN_FONT}`;
@@ -197,7 +200,7 @@ export class FrameRenderer {
     ctx.font = `${26 * u}px ${LATIN_FONT}`;
     ctx.fillStyle = 'rgba(255,255,255,0.88)';
     const credits = [`Recitation: ${this.request.reciter.displayName} · everyayah.com`];
-    if (this.request.fullTranslation) credits.push('Translation: Saheeh International · tanzil.net');
+    if (this.request.fullTranslation) credits.push(`Translation: ${this.request.translationCredit ?? 'Saheeh International · Tanzil.net'}`);
     if (this.request.wordByWord) credits.push('Word meanings: Quran.com');
     if (backgroundCredit) credits.push(backgroundCredit);
     let lines = credits;

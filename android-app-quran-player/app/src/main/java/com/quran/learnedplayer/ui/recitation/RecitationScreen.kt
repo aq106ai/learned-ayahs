@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.recitation
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -164,20 +165,20 @@ fun RecitationScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = tx("Back"),
                         tint = TextPrimary,
                     )
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Voice Recitation Practice",
+                        text = tx("Voice Recitation Practice"),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary,
                     )
                     Text(
-                        text = "$surahName ($surah:$ayah) • Global Ayah #$currentGlobalId",
+                        text = tx("{0} ({1}:{2}) • Global Ayah #{3}", surahName, surah, ayah, currentGlobalId),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                     )
@@ -193,7 +194,7 @@ fun RecitationScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Previous Ayah",
+                            contentDescription = tx("Previous Ayah"),
                             tint = AccentGreen,
                         )
                     }
@@ -203,7 +204,7 @@ fun RecitationScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Next Ayah",
+                            contentDescription = tx("Next Ayah"),
                             tint = AccentGreen,
                         )
                     }
@@ -223,13 +224,13 @@ fun RecitationScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         Text(
-                            text = "Saving word clips",
+                            text = tx("Saving word clips"),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary,
                         )
                         Text(
-                            text = packProgress?.message ?: "Downloading reciter clips for learned ayahs…",
+                            text = packProgress?.message ?: tx("Downloading reciter clips for learned ayahs…"),
                             style = MaterialTheme.typography.bodySmall,
                             color = TextMuted,
                         )
@@ -259,7 +260,7 @@ fun RecitationScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Recitation Accuracy",
+                                text = tx("Recitation Accuracy"),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = TextMuted,
                             )
@@ -276,7 +277,7 @@ fun RecitationScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "${result.correctCount}/${result.totalContentWords} words correct",
+                                    text = tx("{0}/{1} words correct", result.correctCount, result.totalContentWords),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = TextMuted,
                                     modifier = Modifier.padding(bottom = 4.dp),
@@ -303,7 +304,7 @@ fun RecitationScreen(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "Mistake",
+                                        text = tx("Mistake"),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = Color(0xFFEF5350),
                                         fontWeight = FontWeight.Bold,
@@ -328,7 +329,7 @@ fun RecitationScreen(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "Perfect Recitation!",
+                                        text = tx("Perfect Recitation!"),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = AccentGreen,
                                         fontWeight = FontWeight.Bold,
@@ -357,17 +358,16 @@ fun RecitationScreen(
                         val reportSurahName = report.surah?.let { SurahNames.name(it) }
                         Text(
                             text = when {
-                                report.reachedEndOfSurah && reportSurahName != null -> "$reportSurahName complete"
-                                reportSurahName != null -> "$reportSurahName so far"
-                                else -> "Recitation report"
+                                report.reachedEndOfSurah && reportSurahName != null -> tx("{0} complete", reportSurahName)
+                                reportSurahName != null -> tx("{0} so far", reportSurahName)
+                                else -> tx("Recitation report")
                             },
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary,
                         )
                         Text(
-                            text = "${report.correctCount}/${report.totalContentWords} words correct " +
-                                "· ${report.accuracyPercent}% · ${report.perfectAyahs}/${report.ayahs.size} ayahs perfect",
+                            text = tx("{0}/{1} words correct · {2}% · {3}/{4} ayahs perfect", report.correctCount, report.totalContentWords, report.accuracyPercent, report.perfectAyahs, report.ayahs.size),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted,
                         )
@@ -405,7 +405,7 @@ fun RecitationScreen(
                                                     modifier = Modifier.size(14.dp),
                                                 )
                                                 Spacer(modifier = Modifier.width(4.dp))
-                                                Text("Word ${idx + 1}", maxLines = 1)
+                                                Text(tx("Word {0}", idx + 1), maxLines = 1)
                                             }
                                         }
                                     }
@@ -419,14 +419,14 @@ fun RecitationScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             TextButton(onClick = { recitationViewModel.dismissSessionReport() }) {
-                                Text("Done")
+                                Text(tx("Done"))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = { recitationViewModel.retryCurrentAyah() },
                                 colors = ButtonDefaults.buttonColors(containerColor = Accent),
                             ) {
-                                Text("Recite again")
+                                Text(tx("Recite again"))
                             }
                         }
                     }
@@ -553,7 +553,7 @@ fun RecitationScreen(
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(
-                            text = "Wrong ayah",
+                            text = tx("Wrong ayah"),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFEF5350),
@@ -576,7 +576,7 @@ fun RecitationScreen(
                                     onClick = { recitationViewModel.selectAyah(targetId, startListening = true) },
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = AccentGreen),
                                 ) {
-                                    Text("Switch to $wSurah:$wAyah")
+                                    Text(tx("Switch to {0}:{1}", wSurah, wAyah))
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                             }
@@ -584,7 +584,7 @@ fun RecitationScreen(
                                 onClick = { recitationViewModel.retryCurrentAyah() },
                                 colors = ButtonDefaults.buttonColors(containerColor = Accent),
                             ) {
-                                Text("Retry")
+                                Text(tx("Retry"))
                             }
                         }
                     }
@@ -612,7 +612,7 @@ fun RecitationScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Mistake Detected",
+                                text = tx("Mistake Detected"),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFEF5350),
@@ -622,7 +622,7 @@ fun RecitationScreen(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = mistake.feedback ?: "Expected '${mistake.originalWord.text}'",
+                            text = mistake.feedback ?: tx("Expected '{0}'", mistake.originalWord.text),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextPrimary,
                         )
@@ -643,7 +643,7 @@ fun RecitationScreen(
                                     modifier = Modifier.size(16.dp),
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Listen Reciter")
+                                Text(tx("Listen Reciter"))
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))
@@ -659,7 +659,7 @@ fun RecitationScreen(
                                     modifier = Modifier.size(16.dp),
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Retry")
+                                Text(tx("Retry"))
                             }
                         }
                     }
@@ -681,7 +681,7 @@ fun RecitationScreen(
             // Live recognized transcript snippet
             if (recognizedText.isNotBlank()) {
                 Text(
-                    text = "Recognized: \"$recognizedText\"",
+                    text = tx("Recognized: \"{0}\"", recognizedText),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextMuted,
                     textAlign = TextAlign.Center,
@@ -712,7 +712,7 @@ fun RecitationScreen(
                 ) {
                     Icon(
                         imageVector = if (isListening) Icons.Default.Mic else Icons.Default.MicOff,
-                        contentDescription = if (isListening) "Stop Recording" else "Start Reciting",
+                        contentDescription = if (isListening) tx("Stop Recording") else tx("Start Reciting"),
                         tint = Color.White,
                         modifier = Modifier.size(32.dp),
                     )
@@ -721,9 +721,9 @@ fun RecitationScreen(
 
             Text(
                 text = when {
-                    isAutoPlayingMistake -> "Playing correct word… keep going after"
-                    isListening -> "Listening to your recitation..."
-                    else -> "Tap microphone & recite the Ayah"
+                    isAutoPlayingMistake -> tx("Playing correct word… keep going after")
+                    isListening -> tx("Listening to your recitation...")
+                    else -> tx("Tap microphone & recite the Ayah")
                 },
                 style = MaterialTheme.typography.labelMedium,
                 color = when {

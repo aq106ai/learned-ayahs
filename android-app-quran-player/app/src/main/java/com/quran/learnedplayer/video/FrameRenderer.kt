@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.video
 
+import com.quran.learnedplayer.data.ContentRepository
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -259,7 +260,7 @@ class FrameRenderer(
         labelPaint.color = Color.argb(225, 255, 255, 255)
         val credits = buildList {
             add("Recitation: ${request.reciter.displayName} · everyayah.com")
-            if (request.fullTranslation) add("Translation: Saheeh International · tanzil.net")
+            if (request.fullTranslation) add("Translation: ${ContentRepository.edition()?.credit ?: "Saheeh International · Tanzil.net"}")
             if (request.wordByWord) add("Word meanings: Quran.com")
             if (backgroundCredit != null) add(backgroundCredit)
         }

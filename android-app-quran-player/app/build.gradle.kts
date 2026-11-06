@@ -102,6 +102,7 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
+    testImplementation(composeBom)
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity-compose:1.8.2")
@@ -125,6 +126,8 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.11.1")
     testImplementation("androidx.test:core-ktx:1.5.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    // Compose UI tests on the JVM (Robolectric), for screens that need no device: ContentChoicesTest.
+    testImplementation("androidx.compose.ui:ui-test-junit4")
 
     // Instrumented end-to-end tests (Espresso + Compose UI test).
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

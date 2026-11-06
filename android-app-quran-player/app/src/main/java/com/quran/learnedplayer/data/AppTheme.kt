@@ -1,5 +1,7 @@
 package com.quran.learnedplayer.data
 
+import com.quran.learnedplayer.ui.i18n.tx
+
 /** The app's colour theme. Both are green; [DARK] is the original look and the default. */
 enum class AppTheme {
     DARK,
@@ -8,8 +10,8 @@ enum class AppTheme {
 
     val label: String
         get() = when (this) {
-            DARK -> "Dark"
-            LIGHT -> "Light"
+            DARK -> tx("Dark")
+            LIGHT -> tx("Light")
         }
 
     companion object {

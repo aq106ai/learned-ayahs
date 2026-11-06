@@ -1,0 +1,205 @@
+[minshawi_murattal] surah   1/114  ayahs=7
+[minshawi_murattal] surah   2/114  ayahs=293
+[minshawi_murattal] surah   3/114  ayahs=493
+[minshawi_murattal] surah   4/114  ayahs=669
+[minshawi_murattal] surah   5/114  ayahs=789
+[minshawi_murattal] surah   6/114  ayahs=954
+[minshawi_murattal] surah   7/114  ayahs=1160
+[minshawi_murattal] surah   8/114  ayahs=1235
+[minshawi_murattal] surah   9/114  ayahs=1364
+[minshawi_murattal] surah  10/114  ayahs=1473
+[minshawi_murattal] surah  11/114  ayahs=1596
+[minshawi_murattal] surah  12/114  ayahs=1707
+[minshawi_murattal] surah  13/114  ayahs=1750
+[minshawi_murattal] surah  14/114  ayahs=1802
+[minshawi_murattal] surah  15/114  ayahs=1901
+[minshawi_murattal] surah  16/114  ayahs=2029
+[minshawi_murattal] surah  17/114  ayahs=2140
+[minshawi_murattal] surah  18/114  ayahs=2250
+[minshawi_murattal] surah  19/114  ayahs=2348
+[minshawi_murattal] surah  20/114  ayahs=2483
+[minshawi_murattal] surah  21/114  ayahs=2595
+[minshawi_murattal] surah  22/114  ayahs=2673
+[minshawi_murattal] surah  23/114  ayahs=2791
+[minshawi_murattal] surah  24/114  ayahs=2855
+[minshawi_murattal] surah  25/114  ayahs=2932
+[minshawi_murattal] surah  26/114  ayahs=3159
+[minshawi_murattal] surah  27/114  ayahs=3252
+[minshawi_murattal] surah  28/114  ayahs=3340
+[minshawi_murattal] surah  29/114  ayahs=3409
+[minshawi_murattal] surah  30/114  ayahs=3469
+[minshawi_murattal] surah  31/114  ayahs=3503
+[minshawi_murattal] surah  32/114  ayahs=3533
+[minshawi_murattal] surah  33/114  ayahs=3606
+[minshawi_murattal] surah  34/114  ayahs=3660
+[minshawi_murattal] surah  35/114  ayahs=3705
+[minshawi_murattal] surah  36/114  ayahs=3788
+[minshawi_murattal] surah  37/114  ayahs=3970
+[minshawi_murattal] surah  38/114  ayahs=4058
+[minshawi_murattal] surah  39/114  ayahs=4133
+[minshawi_murattal] surah  40/114  ayahs=4218
+[minshawi_murattal] surah  41/114  ayahs=4272
+[minshawi_murattal] surah  42/114  ayahs=4325
+[minshawi_murattal] surah  43/114  ayahs=4414
+[minshawi_murattal] surah  44/114  ayahs=4473
+[minshawi_murattal] surah  45/114  ayahs=4510
+[minshawi_murattal] surah  46/114  ayahs=4545
+[minshawi_murattal] surah  47/114  ayahs=4583
+[minshawi_murattal] surah  48/114  ayahs=4612
+[minshawi_murattal] surah  49/114  ayahs=4630
+[minshawi_murattal] surah  50/114  ayahs=4675
+[minshawi_murattal] surah  51/114  ayahs=4735
+[minshawi_murattal] surah  52/114  ayahs=4784
+[minshawi_murattal] surah  53/114  ayahs=4846
+[minshawi_murattal] surah  54/114  ayahs=4901
+[minshawi_murattal] surah  55/114  ayahs=4979
+[minshawi_murattal] surah  56/114  ayahs=5075
+[minshawi_murattal] surah  57/114  ayahs=5104
+[minshawi_murattal] surah  58/114  ayahs=5126
+[minshawi_murattal] surah  59/114  ayahs=5150
+[minshawi_murattal] surah  60/114  ayahs=5163
+[minshawi_murattal] surah  61/114  ayahs=5177
+[minshawi_murattal] surah  62/114  ayahs=5188
+[minshawi_murattal] surah  63/114  ayahs=5199
+[minshawi_murattal] surah  64/114  ayahs=5217
+[minshawi_murattal] surah  65/114  ayahs=5229
+[minshawi_murattal] surah  66/114  ayahs=5241
+[minshawi_murattal] surah  67/114  ayahs=5271
+[minshawi_murattal] surah  68/114  ayahs=5323
+[minshawi_murattal] surah  69/114  ayahs=5375
+[minshawi_murattal] surah  70/114  ayahs=5419
+[minshawi_murattal] surah  71/114  ayahs=5447
+[minshawi_murattal] surah  72/114  ayahs=5475
+[minshawi_murattal] surah  73/114  ayahs=5495
+[minshawi_murattal] surah  74/114  ayahs=5551
+[minshawi_murattal] surah  75/114  ayahs=5591
+[minshawi_murattal] surah  76/114  ayahs=5622
+[minshawi_murattal] surah  77/114  ayahs=5672
+[minshawi_murattal] surah  78/114  ayahs=5712
+[minshawi_murattal] surah  79/114  ayahs=5758
+[minshawi_murattal] surah  80/114  ayahs=5800
+[minshawi_murattal] surah  81/114  ayahs=5829
+[minshawi_murattal] surah  82/114  ayahs=5848
+[minshawi_murattal] surah  83/114  ayahs=5884
+[minshawi_murattal] surah  84/114  ayahs=5909
+[minshawi_murattal] surah  85/114  ayahs=5931
+[minshawi_murattal] surah  86/114  ayahs=5948
+[minshawi_murattal] surah  87/114  ayahs=5967
+[minshawi_murattal] surah  88/114  ayahs=5993
+[minshawi_murattal] surah  89/114  ayahs=6023
+[minshawi_murattal] surah  90/114  ayahs=6043
+[minshawi_murattal] surah  91/114  ayahs=6058
+[minshawi_murattal] surah  92/114  ayahs=6079
+[minshawi_murattal] surah  93/114  ayahs=6090
+[minshawi_murattal] surah  94/114  ayahs=6098
+[minshawi_murattal] surah  95/114  ayahs=6106
+[minshawi_murattal] surah  96/114  ayahs=6125
+[minshawi_murattal] surah  97/114  ayahs=6130
+[minshawi_murattal] surah  98/114  ayahs=6138
+[minshawi_murattal] surah  99/114  ayahs=6146
+[minshawi_murattal] surah 100/114  ayahs=6157
+[minshawi_murattal] surah 101/114  ayahs=6168
+[minshawi_murattal] surah 102/114  ayahs=6176
+[minshawi_murattal] surah 103/114  ayahs=6179
+[minshawi_murattal] surah 104/114  ayahs=6188
+[minshawi_murattal] surah 105/114  ayahs=6193
+[minshawi_murattal] surah 106/114  ayahs=6197
+[minshawi_murattal] surah 107/114  ayahs=6204
+[minshawi_murattal] surah 108/114  ayahs=6207
+[minshawi_murattal] surah 109/114  ayahs=6213
+[minshawi_murattal] surah 110/114  ayahs=6216
+[minshawi_murattal] surah 111/114  ayahs=6221
+[minshawi_murattal] surah 112/114  ayahs=6225
+[minshawi_murattal] surah 113/114  ayahs=6230
+[minshawi_murattal] surah 114/114  ayahs=6236
+6215 recordings
+last word: voice end - onset = 750 ms + 129 ms per letter (fitted)
+
+Finding the last word's start, scored on ayahs whose last word QUL timed (error in ms):
+       letters: {'found': 1.0, 'p50': 200, 'p90': 520, 'within150': 0.382, 'within300': 0.698, 'useful': 0.382, 'of': 636}
+  fit-snap-gap2-end-120: {'found': 1.0, 'p50': 220, 'p90': 640, 'within150': 0.382, 'within300': 0.678, 'useful': 0.382, 'of': 636}
+  fit-snap-gap2-end-60: {'found': 1.0, 'p50': 200, 'p90': 640, 'within150': 0.381, 'within300': 0.673, 'useful': 0.381, 'of': 636}
+  fit-snap-gap2-mid-60: {'found': 1.0, 'p50': 200, 'p90': 640, 'within150': 0.379, 'within300': 0.676, 'useful': 0.379, 'of': 636}
+  fit-snap-dip3-60: {'found': 1.0, 'p50': 219, 'p90': 620, 'within150': 0.379, 'within300': 0.675, 'useful': 0.379, 'of': 636}
+           fit: {'found': 1.0, 'p50': 200, 'p90': 640, 'within150': 0.377, 'within300': 0.675, 'useful': 0.377, 'of': 636}
+  fit-snap-dip6-60: {'found': 1.0, 'p50': 200, 'p90': 640, 'within150': 0.376, 'within300': 0.676, 'useful': 0.376, 'of': 636}
+  fit-snap-gap2-mid-120: {'found': 1.0, 'p50': 220, 'p90': 640, 'within150': 0.373, 'within300': 0.679, 'useful': 0.373, 'of': 636}
+  fit-snap-gap2-end-200: {'found': 1.0, 'p50': 220, 'p90': 640, 'within150': 0.368, 'within300': 0.675, 'useful': 0.368, 'of': 636}
+  fit-snap-dip6-120: {'found': 1.0, 'p50': 220, 'p90': 640, 'within150': 0.366, 'within300': 0.679, 'useful': 0.366, 'of': 636}
+  fit-snap-dip3-120: {'found': 1.0, 'p50': 220, 'p90': 640, 'within150': 0.354, 'within300': 0.675, 'useful': 0.354, 'of': 636}
+  fit-snap-gap2-mid-200: {'found': 1.0, 'p50': 220, 'p90': 640, 'within150': 0.352, 'within300': 0.681, 'useful': 0.352, 'of': 636}
+  fit-snap-dip6-200: {'found': 1.0, 'p50': 220, 'p90': 640, 'within150': 0.343, 'within300': 0.668, 'useful': 0.343, 'of': 636}
+  fit-snap-dip3-200: {'found': 1.0, 'p50': 220, 'p90': 660, 'within150': 0.319, 'within300': 0.67, 'useful': 0.319, 'of': 636}
+  near-dip3-35: {'found': 0.934, 'p50': 280, 'p90': 700, 'within150': 0.18, 'within300': 0.559, 'useful': 0.168, 'of': 636}
+  near-dip3-50: {'found': 0.972, 'p50': 300, 'p90': 740, 'within150': 0.173, 'within300': 0.537, 'useful': 0.168, 'of': 636}
+  near-dip6-35: {'found': 0.785, 'p50': 300, 'p90': 800, 'within150': 0.164, 'within300': 0.517, 'useful': 0.129, 'of': 636}
+  near-dip6-50: {'found': 0.846, 'p50': 320, 'p90': 900, 'within150': 0.152, 'within300': 0.481, 'useful': 0.129, 'of': 636}
+  near-gap2-mid-50: {'found': 0.786, 'p50': 400, 'p90': 860, 'within150': 0.154, 'within300': 0.412, 'useful': 0.121, 'of': 636}
+  near-gap2-mid-35: {'found': 0.739, 'p50': 370, 'p90': 800, 'within150': 0.162, 'within300': 0.436, 'useful': 0.119, 'of': 636}
+  near-gap2-end-35: {'found': 0.728, 'p50': 380, 'p90': 840, 'within150': 0.097, 'within300': 0.425, 'useful': 0.071, 'of': 636}
+  near-gap2-end-50: {'found': 0.786, 'p50': 400, 'p90': 880, 'within150': 0.09, 'within300': 0.4, 'useful': 0.071, 'of': 636}
+        sliver: {'found': 1.0, 'p50': 1830, 'p90': 2430, 'within150': 0.0, 'within300': 0.002, 'useful': 0.0, 'of': 636}
+chosen: letters
+
+minshawi_murattal: 6215 ayahs: 1311 fine, 4874 repaired (914 last words, 4680 first words), 0 shifted, 30 dropped
+
+Dropped, by reason:
+     16  first word ms:  3:65 (first word +1910 ms from the voice); 3:66 (first word +1560 ms from the voice); 3:70 (first word +1810 ms from the voice); 3:71 (first word +1870 ms from the voice)
+     12  last word starts at:  55:13 (last word starts at 6480 ms, voice ends 6120 ms); 55:23 (last word starts at 6320 ms, voice ends 6020 ms); 55:25 (last word starts at 6520 ms, voice ends 6180 ms); 55:34 (last word starts at 6560 ms, voice ends 6140 ms)
+      2  words start inside:  7:113 (1 words start inside a silence); 66:5 (1 words start inside a silence)
+
+Shifted:
+
+Last words moved (largest first):
+     7:105  23050 -> 19100 ms
+    26:197  12210 -> 8600 ms
+     21:64  14690 -> 11300 ms
+     43:59  11930 -> 8620 ms
+     26:59  7450 -> 4160 ms
+      5:23  27530 -> 24260 ms
+     10:41  22970 -> 19700 ms
+     26:22  11250 -> 8000 ms
+     32:23  18170 -> 14920 ms
+     3:139  14370 -> 11160 ms
+     9:119  11170 -> 8000 ms
+      5:29  19690 -> 16560 ms
+      5:85  20370 -> 17240 ms
+      9:92  27490 -> 24360 ms
+     26:17  6450 -> 3320 ms
+      9:94  36750 -> 33640 ms
+      8:38  19370 -> 16320 ms
+      9:13  26490 -> 23440 ms
+       8:1  24290 -> 21260 ms
+     12:51  37610 -> 34620 ms
+
+Dropped:
+      3:65  first word +1910 ms from the voice
+      3:66  first word +1560 ms from the voice
+      3:70  first word +1810 ms from the voice
+      3:71  first word +1870 ms from the voice
+     3:119  first word +1580 ms from the voice
+     4:171  first word +1990 ms from the voice
+      5:15  first word +1870 ms from the voice
+      5:19  first word +1570 ms from the voice
+     6:145  first word -640 ms from the voice
+     7:113  1 words start inside a silence
+     7:146  first word -1020 ms from the voice
+     11:76  first word +1810 ms from the voice
+     15:52  first word -840 ms from the voice
+    26:124  first word -620 ms from the voice
+      27:7  first word -920 ms from the voice
+     41:14  first word -940 ms from the voice
+     55:13  last word starts at 6480 ms, voice ends 6120 ms
+     55:23  last word starts at 6320 ms, voice ends 6020 ms
+     55:25  last word starts at 6520 ms, voice ends 6180 ms
+     55:34  last word starts at 6560 ms, voice ends 6140 ms
+     55:45  last word starts at 6560 ms, voice ends 6080 ms
+     55:47  last word starts at 6840 ms, voice ends 6240 ms
+     55:51  last word starts at 6080 ms, voice ends 5720 ms
+     55:53  last word starts at 6960 ms, voice ends 6600 ms
+     55:63  last word starts at 6160 ms, voice ends 5600 ms
+     55:65  last word starts at 6520 ms, voice ends 6060 ms
+     55:69  last word starts at 6720 ms, voice ends 6360 ms
+     55:71  last word starts at 6120 ms, voice ends 5660 ms
+      66:5  1 words start inside a silence
+     89:27  first word +1640 ms from the voice

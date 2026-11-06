@@ -6,6 +6,19 @@
   src: url('../fonts/scheherazade_new.ttf') format('truetype');
   font-display: swap;
 }
+@font-face {
+  font-family: 'Amiri Quran';
+  src: url('../fonts/amiri_quran.ttf') format('truetype');
+  font-display: swap;
+}
+/* The mushaf style (content_catalog.json "mushafStyles"), set by main.js from the settings. */
+:root {
+  --quran-font: 'Scheherazade New';
+  --inline-sign: 1;
+}
+:root[dir='rtl'] {
+  --inline-sign: -1;
+}
 
 :root,
 :root[data-theme='dark'] {
@@ -86,12 +99,15 @@ textarea {
   display: none !important;
 }
 
+/* Logical (inline-start/end) properties throughout, so Urdu and Arabic mirror the layout. A skip
+   link pushed off with left: -999px widened the page by 999px in right-to-left. */
 .skip-link {
   position: absolute;
-  left: -999px;
+  inset-inline-start: 12px;
+  transform: translateY(-200%);
 }
 .skip-link:focus {
-  left: 12px;
+  transform: none;
   top: 12px;
   z-index: 100;
   background: var(--panel);
@@ -123,7 +139,7 @@ textarea {
   gap: 8px;
   padding: 20px 14px;
   background: var(--bg-2);
-  border-right: 1px solid var(--border);
+  border-inline-end: 1px solid var(--border);
 }
 
 .brand {
@@ -527,13 +543,13 @@ textarea.input:focus {
 }
 .search .icon {
   position: absolute;
-  left: 12px;
+  inset-inline-start: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
 }
 .search .input {
-  padding-left: 40px;
+  padding-inline-start: 40px;
 }
 
 .toggle-row {
@@ -574,7 +590,7 @@ textarea.input:focus {
   content: '';
   position: absolute;
   top: 2px;
-  left: 2px;
+  inset-inline-start: 2px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -586,7 +602,7 @@ textarea.input:focus {
   border-color: var(--accent);
 }
 .switch:checked::after {
-  transform: translateX(18px);
+  transform: translateX(calc(18px * var(--inline-sign, 1)));
   background: #fff;
 }
 
@@ -673,7 +689,7 @@ textarea.input:focus {
 /* ---- Arabic ------------------------------------------------------------------------------ */
 
 .arabic {
-  font-family: 'Scheherazade New', 'Amiri Quran', 'Noto Naskh Arabic', serif;
+  font-family: var(--quran-font), 'Scheherazade New', 'Noto Naskh Arabic', serif;
   direction: rtl;
   line-height: 2.1;
 }
@@ -888,7 +904,7 @@ textarea.input:focus {
   transition: background 0.12s, color 0.12s;
 }
 .word .ar {
-  font-family: 'Scheherazade New', 'Amiri Quran', 'Noto Naskh Arabic', serif;
+  font-family: var(--quran-font), 'Scheherazade New', 'Noto Naskh Arabic', serif;
   font-size: var(--ayah-size, 2.3rem);
   line-height: 1.7;
 }
@@ -944,7 +960,7 @@ textarea.input:focus {
   transition: transform 0.22s ease;
 }
 .word-reader .big {
-  font-family: 'Scheherazade New', 'Amiri Quran', 'Noto Naskh Arabic', serif;
+  font-family: var(--quran-font), 'Scheherazade New', 'Noto Naskh Arabic', serif;
   font-size: clamp(3.5rem, 12vw, 6.5rem);
   line-height: 1.6;
   direction: rtl;
@@ -1133,7 +1149,7 @@ textarea.input:focus {
   background: transparent;
   border: 0;
   width: 100%;
-  text-align: left;
+  text-align: start;
 }
 .list-row:hover {
   background: var(--panel-2);
@@ -1146,7 +1162,7 @@ textarea.input:focus {
 .list-row .sub {
   color: var(--muted);
   font-size: 0.8rem;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 details.group {
   border-bottom: 1px solid var(--border);
@@ -1307,7 +1323,7 @@ details.group summary::-webkit-details-marker {
 }
 .table th,
 .table td {
-  text-align: left;
+  text-align: start;
   padding: 10px 8px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
@@ -1502,4 +1518,50 @@ button.link {
   color: var(--accent-2);
   text-decoration: underline;
   cursor: pointer;
+}
+
+/* Tafsir (views/tafsir.js): long commentary, read in the dialog's own scroll. */
+.tafsir {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tafsir-text {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.tafsir-text h3 {
+  font-size: 1rem;
+  margin: 14px 0 4px;
+}
+.tafsir-text p,
+.tafsir-text li {
+  margin: 0 0 10px;
+}
+.tafsir-text blockquote {
+  margin: 0 0 10px;
+  padding-inline-start: 12px;
+  border-inline-start: 3px solid var(--border);
+  color: var(--muted);
+}
+.tafsir-text[dir='rtl'] {
+  font-size: 1.08rem;
+  line-height: 1.9;
+}
+
+/* Mushaf style tiles (views/contentChoices.js): each sample in its own face. */
+.mushaf-tile {
+  width: auto;
+  min-width: 150px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.mushaf-tile.selected {
+  border: 2px solid var(--accent);
+}
+.mushaf-sample {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  white-space: nowrap;
 }

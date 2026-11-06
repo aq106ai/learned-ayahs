@@ -4,6 +4,7 @@
 // Ayahs are identified by a 1-based "global id" across the whole Qur'an (1..6236). Audio files
 // follow everyayah.com's SSSAAA.mp3 naming.
 
+import { isRtlUi, tx } from './i18n.js';
 export const VERSE_COUNTS = [
   7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128, 111, 110,
   98, 135, 112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83, 182, 88,
@@ -50,10 +51,16 @@ const OFFSETS = (() => {
   return offsets;
 })();
 
-export const surahName = (surah) => SURAH_NAMES[surah - 1] ?? `Surah ${surah}`;
+// The names in Arabic script, for the Urdu and Arabic interfaces (Quran.com's name_arabic).
+const SURAH_NAMES_ARABIC = ["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "ابراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبإ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الانسان", "المرسلات", "النبإ", "النازعات", "عبس", "التكوير", "الإنفطار", "المطففين", "الإنشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
+
+/** The transliterated name: for parsing refs ("Al-Baqarah 255"), search and file names. */
+export const surahNameLatin = (surah) => SURAH_NAMES[surah - 1] ?? `Surah ${surah}`;
+/** The name to show: in Arabic script when the interface is Urdu or Arabic. */
+export const surahName = (surah) => (isRtlUi() ? SURAH_NAMES_ARABIC[surah - 1] : null) ?? surahNameLatin(surah);
 export const surahLabel = (surah) => `${surah} · ${surahName(surah)}`;
-export const surahTitle = (surah) => `Surah ${surah} · ${surahName(surah)}`;
-export const trackTitle = (surah, ayah) => `${surahTitle(surah)} · Ayah ${ayah}`;
+export const surahTitle = (surah) => tx('Surah {n} · {name}', { n: surah, name: surahName(surah) });
+export const trackTitle = (surah, ayah) => `${surahTitle(surah)} · ${tx('Ayah {n}', { n: ayah })}`;
 export const verseCount = (surah) => VERSE_COUNTS[surah - 1] ?? 0;
 
 export function isValidGlobalId(id) {
@@ -84,7 +91,7 @@ export const refKey = (surah, ayah) => `${surah}:${ayah}`;
 
 export function makeTrack(globalId, index = 0) {
   const [surah, ayah] = globalToSurahAyah(globalId);
-  return { index, globalId, surah, ayah, label: `${surahName(surah)} · Ayah ${ayah}` };
+  return { index, globalId, surah, ayah, label: `${surahName(surah)} · ${tx('Ayah {n}', { n: ayah })}` };
 }
 
 /**
@@ -107,29 +114,29 @@ export const PlaybackMode = Object.freeze({
 export const RepeatMode = Object.freeze({ OFF: 'OFF', SURAH: 'SURAH', AYAH: 'AYAH' });
 
 export const PLAYBACK_MODE_LABELS = {
-  REVISE: 'Learned ayahs',
-  FULL_SURAH: 'Full surah',
-  WORD_BY_WORD: 'Word by word',
+  REVISE: tx('Learned ayahs'),
+  FULL_SURAH: tx('Full surah'),
+  WORD_BY_WORD: tx('Word by word'),
 };
 
 export function repeatLabel(repeat, mode) {
-  if (mode === PlaybackMode.WORD_BY_WORD && repeat === RepeatMode.AYAH) return 'Word';
-  return { OFF: 'Off', SURAH: 'Surah', AYAH: 'Ayah' }[repeat];
+  if (mode === PlaybackMode.WORD_BY_WORD && repeat === RepeatMode.AYAH) return tx('Word');
+  return { OFF: tx('Off'), SURAH: tx('Surah'), AYAH: tx('Ayah') }[repeat];
 }
 
 /** The label shown wherever the active mode is surfaced (media session, mini bar, playlist). */
 export function playbackModeLabel(mode, repeat) {
   if (mode === PlaybackMode.FULL_SURAH) {
-    return { OFF: 'Full surah', SURAH: 'Full surah · repeat', AYAH: 'Full surah · repeat ayah' }[repeat];
+    return { OFF: tx('Full surah'), SURAH: tx('Full surah · repeat'), AYAH: tx('Full surah · repeat ayah') }[repeat];
   }
   if (mode === PlaybackMode.REVISE) {
     return {
-      OFF: 'Learned ayahs',
-      SURAH: 'Learned ayahs · repeat surah',
-      AYAH: 'Learned ayahs · repeat ayah',
+      OFF: tx('Learned ayahs'),
+      SURAH: tx('Learned ayahs · repeat surah'),
+      AYAH: tx('Learned ayahs · repeat ayah'),
     }[repeat];
   }
-  return repeat === RepeatMode.AYAH ? 'Word by word · repeat word' : 'Word by word';
+  return repeat === RepeatMode.AYAH ? tx('Word by word · repeat word') : tx('Word by word');
 }
 
 export const QueueBuilder = {

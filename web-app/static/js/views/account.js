@@ -4,6 +4,7 @@
 import { confirmDialog, dialog, h, icon, toast } from '../lib/dom.js';
 import { api } from '../services/api.js';
 
+import { tx } from '../core/i18n.js';
 const SYNC_LABELS = {
   local: 'Saved in this browser',
   synced: 'Synced to your account',
@@ -22,7 +23,7 @@ export function accountView({ store, server, go }) {
   const page = h('div', { class: 'page page-narrow' });
 
   function render() {
-    page.replaceChildren(h('header', { class: 'page-head' }, h('div', {}, h('h1', {}, store.user ? 'Account' : 'Sign in'))));
+    page.replaceChildren(h('header', { class: 'page-head' }, h('div', {}, h('h1', {}, store.user ? tx('Account') : tx('Sign in')))));
     if (!server.available) page.append(localOnly());
     else if (!store.user) page.append(signInForms());
     else page.append(...signedIn());
@@ -30,10 +31,10 @@ export function accountView({ store, server, go }) {
 
   function localOnly() {
     return h('section', { class: 'card stack' },
-      h('h2', {}, 'This browser only'),
+      h('h2', {}, tx('This browser only')),
       h('p', { class: 'muted', style: { margin: 0 } },
-        'Your learned ayahs, bookmarks and settings are saved in this browser. Accounts — to sync between devices and share a server with family or a class — are available when the app is run with its server (python3 server.py).'),
-      h('p', { class: 'small muted', style: { margin: 0 } }, 'To move your list to another device, use Export and Import in Settings.'),
+        tx('Your learned ayahs, bookmarks and settings are saved in this browser. Accounts — to sync between devices and share a server with family or a class — are available when the app is run with its server (python3 server.py).')),
+      h('p', { class: 'small muted', style: { margin: 0 } }, tx('To move your list to another device, use Export and Import in Settings.')),
     );
   }
 
@@ -45,12 +46,12 @@ export function accountView({ store, server, go }) {
       const password = h('input', { class: 'input', type: 'password', autocomplete: mode === 'signin' ? 'current-password' : 'new-password', required: true, 'data-testid': 'password' });
       const display = h('input', { class: 'input', autocomplete: 'name', 'data-testid': 'display-name' });
       const error = h('div', { class: 'notice error', hidden: true, 'data-testid': 'auth-error' });
-      const submit = h('button', { class: 'btn primary', type: 'submit', 'data-testid': 'auth-submit' }, mode === 'signin' ? 'Sign in' : 'Create account');
+      const submit = h('button', { class: 'btn primary', type: 'submit', 'data-testid': 'auth-submit' }, mode === 'signin' ? tx('Sign in') : tx('Create account'));
       const form = h('form', { class: 'stack' },
-        field('Username', username),
-        mode === 'register' ? field('Display name (optional)', display) : null,
-        field('Password', password),
-        mode === 'register' ? h('p', { class: 'tiny muted', style: { margin: 0 } }, 'At least 8 characters.') : null,
+        field(tx('Username'), username),
+        mode === 'register' ? field(tx('Display name (optional)'), display) : null,
+        field(tx('Password'), password),
+        mode === 'register' ? h('p', { class: 'tiny muted', style: { margin: 0 } }, tx('At least 8 characters.')) : null,
         error,
         h('div', { class: 'row' }, submit));
       form.addEventListener('submit', async (e) => {
@@ -63,14 +64,14 @@ export function accountView({ store, server, go }) {
             register: mode === 'register',
             displayName: display.value.trim(),
           });
-          toast(mode === 'register' ? 'Account created.' : `Welcome back, ${store.user.displayName}.`);
+          toast(mode === 'register' ? 'Account created.' : tx('Welcome back, {name}.', { name: store.user.displayName }));
           if (!result.accountIsNew && result.guestLearned.size) {
             const fresh = [...result.guestLearned].filter((id) => !store.learned.has(id));
             if (fresh.length) {
               const merge = await dialog({
-                title: 'Add this browser’s ayahs?',
-                content: h('p', { class: 'muted' }, `Before signing in you had marked ${guestCount} ayahs in this browser; ${fresh.length} of them are not in your account. Add them to your account?`),
-                actions: [{ label: 'Keep account as is', value: false }, { label: `Add ${fresh.length} ayahs`, value: true, primary: true }],
+                title: tx('Add this browser’s ayahs?'),
+                content: h('p', { class: 'muted' }, tx('Before signing in you had marked {count} ayahs in this browser; {fresh} of them are not in your account. Add them to your account?', { count: guestCount, fresh: fresh.length })),
+                actions: [{ label: tx('Keep account as is'), value: false }, { label: `Add ${fresh.length} ayahs`, value: true, primary: true }],
               });
               if (merge) store.mergeLearned(fresh);
             }
@@ -84,13 +85,13 @@ export function accountView({ store, server, go }) {
       });
       const switcher = server.registrationOpen || mode === 'register'
         ? h('p', { class: 'small muted', style: { margin: 0 } },
-          mode === 'signin' ? 'New here? ' : 'Already have an account? ',
+          mode === 'signin' ? tx('New here? ') : tx('Already have an account? '),
           h('a', { href: '#', 'data-testid': 'auth-switch', onClick: (e) => { e.preventDefault(); mode = mode === 'signin' ? 'register' : 'signin'; draw(); } },
-            mode === 'signin' ? 'Create an account' : 'Sign in'))
-        : h('p', { class: 'small muted', style: { margin: 0 } }, 'Registration is closed on this server. Ask its administrator for an account.');
+            mode === 'signin' ? tx('Create an account') : tx('Sign in')))
+        : h('p', { class: 'small muted', style: { margin: 0 } }, tx('Registration is closed on this server. Ask its administrator for an account.'));
       box.replaceChildren(
-        h('h2', {}, mode === 'signin' ? 'Sign in' : 'Create an account'),
-        h('p', { class: 'card-sub' }, 'Sync your learned ayahs, bookmarks and settings across your devices. Without an account everything stays in this browser.'),
+        h('h2', {}, mode === 'signin' ? tx('Sign in') : tx('Create an account')),
+        h('p', { class: 'card-sub' }, tx('Sync your learned ayahs, bookmarks and settings across your devices. Without an account everything stays in this browser.')),
         form,
         switcher,
       );
@@ -105,9 +106,9 @@ export function accountView({ store, server, go }) {
 
     const displayInput = h('input', { class: 'input', value: u.displayName, maxlength: '64' });
     const profile = h('section', { class: 'card stack' },
-      h('div', { class: 'row' }, icon('user'), h('h2', {}, u.displayName), h('span', { class: 'spacer' }), u.role === 'admin' ? h('span', { class: 'badge ok' }, 'Administrator') : null),
-      h('p', { class: 'muted small', style: { margin: 0 } }, `Signed in as ${u.username} · ${store.learned.size} learned ayahs · `, sync),
-      field('Display name', displayInput),
+      h('div', { class: 'row' }, icon('user'), h('h2', {}, u.displayName), h('span', { class: 'spacer' }), u.role === 'admin' ? h('span', { class: 'badge ok' }, tx('Administrator')) : null),
+      h('p', { class: 'muted small', style: { margin: 0 } }, `${tx('Signed in as {name}', { name: u.username })} · ${tx('{n} learned ayahs', { n: store.learned.size })} · `, sync),
+      field(tx('Display name'), displayInput),
       h('div', { class: 'row wrap' },
         h('button', {
           class: 'btn', type: 'button',
@@ -117,68 +118,68 @@ export function accountView({ store, server, go }) {
               store.user = res.user;
               store.rememberSession(res.user);
               store.emit('session');
-              toast('Saved.');
+              toast(tx('Saved.'));
             } catch (err) {
               toast(err.message, { error: true });
             }
           },
-        }, 'Save name'),
-        u.role === 'admin' ? h('a', { class: 'btn', href: '#/admin' }, icon('shield'), 'Manage users') : null,
+        }, tx('Save name')),
+        u.role === 'admin' ? h('a', { class: 'btn', href: '#/admin' }, icon('shield'), tx('Manage users')) : null,
         h('button', {
           class: 'btn ghost',
           type: 'button',
           'data-testid': 'sign-out',
           onClick: async () => {
             await store.flush();
-            if (store.dirty.size && !(await confirmDialog('Sign out with unsaved changes?', 'Some changes have not reached the server yet (it may be unreachable). Signing out now loses them.', { confirm: 'Sign out', danger: true }))) return;
+            if (store.dirty.size && !(await confirmDialog(tx('Sign out with unsaved changes?'), tx('Some changes have not reached the server yet (it may be unreachable). Signing out now loses them.'), { confirm: tx('Sign out'), danger: true }))) return;
             await store.signOut();
-            toast('Signed out.');
+            toast(tx('Signed out.'));
           },
-        }, icon('logout'), 'Sign out')),
+        }, icon('logout'), tx('Sign out'))),
     );
 
     const current = h('input', { class: 'input', type: 'password', autocomplete: 'current-password' });
     const next = h('input', { class: 'input', type: 'password', autocomplete: 'new-password' });
     const pwForm = h('form', { class: 'card stack' },
-      h('h2', {}, 'Change password'),
-      h('p', { class: 'card-sub' }, 'Other devices signed in to this account will be signed out.'),
-      field('Current password', current),
-      field('New password (at least 8 characters)', next),
-      h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Change password')));
+      h('h2', {}, tx('Change password')),
+      h('p', { class: 'card-sub' }, tx('Other devices signed in to this account will be signed out.')),
+      field(tx('Current password'), current),
+      field(tx('New password (at least 8 characters)'), next),
+      h('div', {}, h('button', { class: 'btn', type: 'submit' }, tx('Change password'))));
     pwForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       try {
         await api('POST', 'account/password', { currentPassword: current.value, newPassword: next.value });
         current.value = '';
         next.value = '';
-        toast('Password changed.');
+        toast(tx('Password changed.'));
       } catch (err) {
         toast(err.message, { error: true });
       }
     });
 
     const danger = h('section', { class: 'card stack' },
-      h('h2', {}, 'Delete account'),
-      h('p', { class: 'card-sub' }, 'Removes your account and its learned ayahs, bookmarks and settings from this server. Export first if you want to keep your list.'),
+      h('h2', {}, tx('Delete account')),
+      h('p', { class: 'card-sub' }, tx('Removes your account and its learned ayahs, bookmarks and settings from this server. Export first if you want to keep your list.')),
       h('div', {}, h('button', {
         class: 'btn danger', type: 'button',
         onClick: async () => {
           const pw = h('input', { class: 'input', type: 'password', autocomplete: 'current-password' });
           const ok = await dialog({
-            title: 'Delete your account?',
-            content: h('div', { class: 'stack' }, h('p', { class: 'muted' }, 'This cannot be undone.'), field('Confirm with your password', pw)),
-            actions: [{ label: 'Cancel', value: false }, { label: 'Delete account', value: true, danger: true }],
+            title: tx('Delete your account?'),
+            content: h('div', { class: 'stack' }, h('p', { class: 'muted' }, tx('This cannot be undone.')), field(tx('Confirm with your password'), pw)),
+            actions: [{ label: tx('Cancel'), value: false }, { label: tx('Delete account'), value: true, danger: true }],
           });
           if (!ok) return;
           try {
             await api('DELETE', 'account', { password: pw.value });
             store.forgetSession();
-            toast('Account deleted.');
+            toast(tx('Account deleted.'));
           } catch (err) {
             toast(err.message, { error: true });
           }
         },
-      }, icon('trash'), 'Delete account')));
+      }, icon('trash'), tx('Delete account'))));
 
     return [profile, pwForm, danger];
   }
@@ -187,5 +188,5 @@ export function accountView({ store, server, go }) {
   const off = store.on((what) => {
     if (what === 'session' || what === 'sync') render();
   });
-  return { el: page, destroy: off, title: 'Account' };
+  return { el: page, destroy: off, title: tx('Account') };
 }

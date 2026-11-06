@@ -1,5 +1,7 @@
 package com.quran.learnedplayer.ui.video
 
+import com.quran.learnedplayer.ui.i18n.tx
+import com.quran.learnedplayer.ui.settings.rememberEditionName
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -134,7 +136,7 @@ fun VideoMakerScreen(
                         AyahShareText.of(context, snapshot.surah, snapshot.fromAyah, snapshot.toAyah, arabic, english)
                     }
                     AyahShareText.copy(context, text)
-                    Toast.makeText(context, "Text copied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, tx("Text copied"), Toast.LENGTH_SHORT).show()
                 } else {
                     val send = withContext(Dispatchers.IO) {
                         AyahShareText.intent(context, snapshot.surah, snapshot.fromAyah, snapshot.toAyah, arabic, english)
@@ -145,7 +147,7 @@ fun VideoMakerScreen(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                textError = e.message ?: "The text couldn't be shared."
+                textError = e.message ?: tx("The text couldn't be shared.")
             } finally {
                 textWorking = false
             }
@@ -167,9 +169,9 @@ fun VideoMakerScreen(
     Column(modifier = Modifier.fillMaxSize().background(Bg).testTag(TAG_VIDEO_SCREEN)) {
         Row(modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 12.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextMuted)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tx("Back"), tint = TextMuted)
             }
-            Text("Make a video", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            Text(tx("Make a video"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
         }
 
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = 16.dp)) {
@@ -190,10 +192,10 @@ fun VideoMakerScreen(
                 ) {
                     val bitmap = preview
                     if (bitmap != null) {
-                        Image(bitmap.asImageBitmap(), contentDescription = "Preview of the first ayah", contentScale = ContentScale.Fit)
+                        Image(bitmap.asImageBitmap(), contentDescription = tx("Preview of the first ayah"), contentScale = ContentScale.Fit)
                     } else {
                         Text(
-                            previewError ?: "Preparing preview…",
+                            previewError ?: tx("Preparing preview…"),
                             color = TextMuted,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(16.dp),
@@ -202,40 +204,40 @@ fun VideoMakerScreen(
                 }
             }
 
-            Section("Ayahs") {
+            Section(tx("Ayahs")) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("${options.surah} · ${SurahNames.name(options.surah)}", style = MaterialTheme.typography.titleMedium)
-                        Text("${QuranConstants.VERSE_COUNTS[options.surah - 1]} ayahs", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                        Text(tx("{0} ayahs", QuranConstants.VERSE_COUNTS[options.surah - 1]), color = TextMuted, style = MaterialTheme.typography.bodySmall)
                     }
-                    OutlinedButton(onClick = { pickingSurah = true }, enabled = !working) { Text("Change") }
+                    OutlinedButton(onClick = { pickingSurah = true }, enabled = !working) { Text(tx("Change")) }
                 }
                 Spacer(Modifier.height(8.dp))
                 val count = QuranConstants.VERSE_COUNTS[options.surah - 1]
-                Stepper("From ayah", options.fromAyah, 1..count, enabled = !working) { v -> viewModel.update { it.copy(fromAyah = v, toAyah = maxOf(v, it.toAyah)) } }
-                Stepper("To ayah", options.toAyah, options.fromAyah..count, enabled = !working) { v -> viewModel.update { it.copy(toAyah = v) } }
+                Stepper(tx("From ayah"), options.fromAyah, 1..count, enabled = !working) { v -> viewModel.update { it.copy(fromAyah = v, toAyah = maxOf(v, it.toAyah)) } }
+                Stepper(tx("To ayah"), options.toAyah, options.fromAyah..count, enabled = !working) { v -> viewModel.update { it.copy(toAyah = v) } }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = {
                         viewModel.update {
                             it.copy(fromAyah = 1, toAyah = count, opening = true, bismillah = VideoRequest.bismillahAllowed(it.surah, 1))
                         }
                     }, enabled = !working) {
-                        Text("Whole surah", color = AccentGreen)
+                        Text(tx("Whole surah"), color = AccentGreen)
                     }
                 }
             }
 
-            Section("Shape") {
+            Section(tx("Shape")) {
                 ChipRow {
                     VideoAspect.entries.forEach { aspect ->
-                        Choice("${aspect.ratio} · ${aspect.label}", options.aspect == aspect, enabled = !working) {
+                        Choice("${aspect.ratio} · ${tx(aspect.label)}", options.aspect == aspect, enabled = !working) {
                             viewModel.update { it.copy(aspect = aspect) }
                         }
                     }
                 }
             }
 
-            Section("Reciter") {
+            Section(tx("Reciter")) {
                 ChipRow {
                     Reciter.entries.forEach { reciter ->
                         Choice(reciter.displayName, options.reciter == reciter, enabled = !working) {
@@ -245,50 +247,50 @@ fun VideoMakerScreen(
                 }
             }
 
-            Section("Text") {
-                Toggle("Word-by-word meanings", "Under each Arabic word", options.wordByWord, !working) { on ->
+            Section(tx("Text")) {
+                Toggle(tx("Word-by-word meanings"), tx("Under each Arabic word"), options.wordByWord, !working) { on ->
                     viewModel.update { it.copy(wordByWord = on) }
                 }
-                Toggle("Translation", "Saheeh International", options.fullTranslation, !working) { on ->
+                Toggle(tx("Translation"), rememberEditionName(), options.fullTranslation, !working) { on ->
                     viewModel.update { it.copy(fullTranslation = on) }
                 }
-                Toggle("Begin with A'udhu", "Recited before the ayahs", options.opening, !working) { on ->
+                Toggle(tx("Begin with A'udhu"), tx("Recited before the ayahs"), options.opening, !working) { on ->
                     viewModel.update { it.copy(opening = on) }
                 }
                 val bismillahAllowed = VideoRequest.bismillahAllowed(options.surah, options.fromAyah)
                 val bismillahNote = when {
-                    options.surah == 9 -> "At-Tawbah is recited without it"
-                    options.surah == 1 && options.fromAyah == 1 -> "This ayah is the Bismillah"
-                    else -> "Recited before the ayahs"
+                    options.surah == 9 -> tx("At-Tawbah is recited without it")
+                    options.surah == 1 && options.fromAyah == 1 -> tx("This ayah is the Bismillah")
+                    else -> tx("Recited before the ayahs")
                 }
-                Toggle("Include Bismillah", bismillahNote, options.bismillah && bismillahAllowed, !working && bismillahAllowed) { on ->
+                Toggle(tx("Include Bismillah"), bismillahNote, options.bismillah && bismillahAllowed, !working && bismillahAllowed) { on ->
                     viewModel.update { it.copy(bismillah = on) }
                 }
-                Toggle("End card", "A closing page with the Play Store link", options.endCard, !working) { on ->
+                Toggle(tx("End card"), tx("A closing page with the Play Store link"), options.endCard, !working) { on ->
                     viewModel.update { it.copy(endCard = on) }
                 }
-                Toggle("Credits on video", "Sources in small print under the text", options.credits, !working) { on ->
+                Toggle(tx("Credits on video"), tx("Sources in small print under the text"), options.credits, !working) { on ->
                     viewModel.update { it.copy(credits = on) }
                 }
             }
 
-            Section("Background") {
+            Section(tx("Background")) {
                 if (viewModel.photoSubjects.isNotEmpty()) {
                     ChipRow {
-                        Choice("Drawn scenes", !options.photos, enabled = !working) { viewModel.setPhotos(false) }
-                        Choice("Nature photos", options.photos, enabled = !working) { viewModel.setPhotos(true) }
+                        Choice(tx("Drawn scenes"), !options.photos, enabled = !working) { viewModel.setPhotos(false) }
+                        Choice(tx("Nature photos"), options.photos, enabled = !working) { viewModel.setPhotos(true) }
                     }
                     Spacer(Modifier.height(6.dp))
                 }
                 Text(
-                    "Matched picks a background for each ayah from what it is about. Or choose one for the whole video.",
+                    tx("Matched picks a background for each ayah from what it is about. Or choose one for the whole video."),
                     color = TextMuted,
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Spacer(Modifier.height(8.dp))
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     ThemeTile(
-                        title = "Matched",
+                        title = tx("Matched"),
                         subtitle = matchedTheme,
                         selected = options.themeKey == null,
                         image = null,
@@ -322,30 +324,29 @@ fun VideoMakerScreen(
                 Spacer(Modifier.height(8.dp))
                 Text(
                     if (options.photos) {
-                        "Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. " +
-                            "They download when first used. Videos carry no music, only the recitation."
+                        tx("Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. They download when first used. Videos carry no music, only the recitation.")
                     } else {
-                        "Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation."
+                        tx("Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation.")
                     },
                     color = TextMuted,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
 
-            Section("Share text") {
+            Section(tx("Share text")) {
                 OutlinedButton(
                     onClick = { textError = null; sharingText = true },
                     enabled = !working,
                     modifier = Modifier.fillMaxWidth().testTag(TAG_VIDEO_SHARE_TEXT),
-                ) { Text("Share or copy text") }
+                ) { Text(tx("Share or copy text")) }
             }
 
-            Section("Video") {
+            Section(tx("Video")) {
                 when (val state = export) {
                     is ExportState.Idle -> {
                         Text(
-                            "${options.ayahCount} ayah${if (options.ayahCount == 1) "" else "s"} · ${options.reciter.displayName}. " +
-                                "It's made on this phone; keep this screen open until it's done.",
+                            (if (options.ayahCount == 1) tx("1 ayah") else tx("{0} ayahs", options.ayahCount)) +
+                                " · ${options.reciter.displayName}. " + tx("It's made on this phone; keep this screen open until it's done."),
                             color = TextMuted,
                             style = MaterialTheme.typography.bodySmall,
                         )
@@ -354,7 +355,7 @@ fun VideoMakerScreen(
                             onClick = viewModel::create,
                             modifier = Modifier.fillMaxWidth().testTag(TAG_VIDEO_CREATE),
                             colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Panel),
-                        ) { Text("Create video", fontWeight = FontWeight.Bold) }
+                        ) { Text(tx("Create video"), fontWeight = FontWeight.Bold) }
                     }
                     is ExportState.Working -> {
                         Text(stageText(state.progress.stage), style = MaterialTheme.typography.bodyMedium)
@@ -367,11 +368,11 @@ fun VideoMakerScreen(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text("${(state.progress.fraction * 100).toInt()}%", color = TextMuted, style = MaterialTheme.typography.bodySmall)
-                        TextButton(onClick = viewModel::cancel) { Text("Cancel", color = TextMuted) }
+                        TextButton(onClick = viewModel::cancel) { Text(tx("Cancel"), color = TextMuted) }
                     }
                     is ExportState.Done -> {
                         val sizeMb = state.file.length() / (1024f * 1024f)
-                        Text("Your video is ready (${String.format(java.util.Locale.ROOT, "%.1f", sizeMb)} MB).", style = MaterialTheme.typography.bodyMedium)
+                        Text(tx("Your video is ready ({0} MB).", String.format(java.util.Locale.ROOT, "%.1f", sizeMb)), style = MaterialTheme.typography.bodyMedium)
                         state.savedTo?.let { Text(it, color = AccentGreen, style = MaterialTheme.typography.bodySmall) }
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -379,14 +380,14 @@ fun VideoMakerScreen(
                                 onClick = { viewModel.shareIntent()?.let { context.startActivity(it) } },
                                 modifier = Modifier.weight(1f).testTag(TAG_VIDEO_SHARE),
                                 colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Panel),
-                            ) { Text("Share", fontWeight = FontWeight.Bold) }
+                            ) { Text(tx("Share"), fontWeight = FontWeight.Bold) }
                             OutlinedButton(
                                 onClick = {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) viewModel.saveToMovies()
                                     else saveAs.launch(state.file.name)
                                 },
                                 modifier = Modifier.weight(1f).testTag(TAG_VIDEO_SAVE),
-                            ) { Text("Save to phone") }
+                            ) { Text(tx("Save to phone")) }
                         }
                     }
                     is ExportState.Failed -> {
@@ -396,7 +397,7 @@ fun VideoMakerScreen(
                             onClick = viewModel::create,
                             modifier = Modifier.fillMaxWidth().testTag(TAG_VIDEO_CREATE),
                             colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Panel),
-                        ) { Text("Try again") }
+                        ) { Text(tx("Try again")) }
                     }
                 }
             }
@@ -407,7 +408,7 @@ fun VideoMakerScreen(
         AlertDialog(
             onDismissRequest = { pickingSurah = false },
             containerColor = Panel,
-            title = { Text("Surah") },
+            title = { Text(tx("Surah")) },
             text = {
                 LazyColumn(modifier = Modifier.heightIn(max = 420.dp)) {
                     items((1..114).toList()) { s ->
@@ -422,7 +423,7 @@ fun VideoMakerScreen(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { pickingSurah = false }) { Text("Close", color = TextMuted) } },
+            confirmButton = { TextButton(onClick = { pickingSurah = false }) { Text(tx("Close"), color = TextMuted) } },
         )
     }
 
@@ -430,13 +431,13 @@ fun VideoMakerScreen(
         AlertDialog(
             onDismissRequest = { if (!textWorking) sharingText = false },
             containerColor = Panel,
-            title = { Text("Share text") },
+            title = { Text(tx("Share text")) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("The selected ayahs, as words only.", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                    Text(tx("The selected ayahs, as words only."), color = TextMuted, style = MaterialTheme.typography.bodySmall)
                     TextChoices(textArabic, textEnglish, enabled = !textWorking, onArabic = { textArabic = it }, onEnglish = { textEnglish = it })
                     OutlinedButton(onClick = { shareText(true) }, enabled = !textWorking, modifier = Modifier.testTag("video_copy_text")) {
-                        Text("Copy text")
+                        Text(tx("Copy text"))
                     }
                     textError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
@@ -445,17 +446,17 @@ fun VideoMakerScreen(
                 TextButton(
                     onClick = { shareText(false) },
                     enabled = !textWorking && (textArabic || textEnglish),
-                ) { Text("Share", color = AccentGreen) }
+                ) { Text(tx("Share"), color = AccentGreen) }
             },
-            dismissButton = { TextButton(onClick = { sharingText = false }, enabled = !textWorking) { Text("Close", color = TextMuted) } },
+            dismissButton = { TextButton(onClick = { sharingText = false }, enabled = !textWorking) { Text(tx("Close"), color = TextMuted) } },
         )
     }
 }
 
 private fun stageText(stage: VideoExporter.Stage) = when (stage) {
-    VideoExporter.Stage.DOWNLOADING -> "Downloading the recitation…"
-    VideoExporter.Stage.AUDIO -> "Preparing the audio…"
-    VideoExporter.Stage.VIDEO -> "Drawing the video…"
+    VideoExporter.Stage.DOWNLOADING -> tx("Downloading the recitation…")
+    VideoExporter.Stage.AUDIO -> tx("Preparing the audio…")
+    VideoExporter.Stage.VIDEO -> tx("Drawing the video…")
 }
 
 @Composable
@@ -515,11 +516,11 @@ private fun Stepper(label: String, value: Int, range: IntRange, enabled: Boolean
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
         IconButton(onClick = { onChange((value - 1).coerceIn(range)) }, enabled = enabled && value > range.first) {
-            Icon(Icons.Filled.Remove, contentDescription = "$label down", tint = TextMuted)
+            Icon(Icons.Filled.Remove, contentDescription = tx("{0} down", label), tint = TextMuted)
         }
         Text("$value", modifier = Modifier.width(44.dp), style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         IconButton(onClick = { onChange((value + 1).coerceIn(range)) }, enabled = enabled && value < range.last) {
-            Icon(Icons.Filled.Add, contentDescription = "$label up", tint = TextMuted)
+            Icon(Icons.Filled.Add, contentDescription = tx("{0} up", label), tint = TextMuted)
         }
     }
 }

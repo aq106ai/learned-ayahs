@@ -273,6 +273,9 @@ test('leaving the player clears its scene colors from navigation', async () => {
   const { page, context, errors } = await playerWith([[112, 1]], { playerBackground: 'matched' });
   await page.waitForFunction(() => document.querySelector('.sidebar').style.getPropertyValue('--panel'));
   await page.click('[data-testid=nav-surahs]');
+  // A hash link only queues `hashchange`; reading the sidebar straight after the click raced the
+  // router on slow CI runners. Wait until the Surahs view has replaced the player.
+  await page.waitForFunction(() => document.title.startsWith('Surahs'));
   assert.equal(await page.locator('.sidebar').evaluate((el) => el.style.getPropertyValue('--panel')), '');
   assert.deepEqual(errors, []);
   await context.close();

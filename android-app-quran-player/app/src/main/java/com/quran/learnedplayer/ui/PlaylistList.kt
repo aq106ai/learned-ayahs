@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,7 +65,7 @@ fun CompactPlayerBar(
                     Text(
                         text = state.introLabel ?: when {
                             track != null -> SurahNames.trackTitle(track.surah, track.ayah)
-                            else -> "Ready — press Play"
+                            else -> tx("Ready — press Play")
                         },
                         color = TextPrimary,
                         fontWeight = FontWeight.SemiBold,
@@ -74,7 +75,7 @@ fun CompactPlayerBar(
                     Text(
                         text = buildString {
                             if (state.tracks.isNotEmpty()) {
-                                append("${state.currentIndex + 1} of ${state.tracks.size}")
+                                append(tx("{0} of {1}", state.currentIndex + 1, state.tracks.size))
                             }
                             append(" · ${state.modeLabel}")
                         },
@@ -83,13 +84,13 @@ fun CompactPlayerBar(
                         maxLines = 1,
                     )
                 }
-                TextButton(onClick = { viewModel.previous() }) { Text("Prev") }
+                TextButton(onClick = { viewModel.previous() }) { Text(tx("Prev")) }
                 TextButton(onClick = {
                     if (state.isPlaying) viewModel.pause() else viewModel.playOrResume(onPlayRequested)
                 }) {
-                    Text(if (state.isPlaying) "Pause" else "Play")
+                    Text(if (state.isPlaying) tx("Pause") else tx("Play"))
                 }
-                TextButton(onClick = { viewModel.next() }) { Text("Next") }
+                TextButton(onClick = { viewModel.next() }) { Text(tx("Next")) }
             }
         }
     }
@@ -137,7 +138,7 @@ fun LazyListScope.playlistTrackItems(
                     onClick = { entry.surah?.let(onHeaderClick) },
                 )
                 PlaylistEntryKind.AYAH_ROW -> TrackRow(
-                    label = "Ayah ${entry.track?.ayah ?: 0}",
+                    label = tx("Ayah {0}", entry.track?.ayah ?: 0),
                     active = entry.track?.globalId == activeGlobalId,
                     bookmarked = entry.track?.globalId?.let(bookmarkedIds::contains) ?: false,
                     bookmarkTag = entry.track?.globalId?.let(::bookmarkToggleTag),
@@ -189,7 +190,7 @@ private fun SurahHeaderRow(
                 fontWeight = FontWeight.SemiBold,
             )
         }
-        Text("$ayahCount ayahs", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+        Text(tx("{0} ayahs", ayahCount), color = TextMuted, style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -223,7 +224,7 @@ private fun TrackRow(
         ) {
             Icon(
                 imageVector = if (bookmarked) Icons.Filled.Star else Icons.Filled.StarBorder,
-                contentDescription = if (bookmarked) "Remove bookmark" else "Bookmark this ayah",
+                contentDescription = if (bookmarked) tx("Remove bookmark") else tx("Bookmark this ayah"),
                 tint = if (bookmarked) AccentGreen else TextMuted,
             )
         }

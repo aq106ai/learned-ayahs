@@ -33,6 +33,8 @@ test('first run: the welcome sets the theme and background, with the sources a t
   assert.equal(await page.getAttribute('html', 'data-theme'), 'light');
   await page.click('[data-testid=intro-background-matched]');
   await page.click('[data-testid=intro-next]');
+  await page.waitForSelector('[data-testid=intro-content] [data-testid=content-translation]');
+  await page.click('[data-testid=intro-next]');
   await page.click('[data-testid=intro-next]');
   await page.click('[data-testid=intro-sources]');
   const sources = await page.textContent('[data-testid=sources-dialog]');
@@ -57,7 +59,7 @@ test('first run: the welcome sets the theme and background, with the sources a t
 test('first run shows the welcome, then lands on the surah list; it is not shown again', async () => {
   const { page, context, errors } = await openApp(browser, server, { seenIntro: false, query: '?test' });
   await page.waitForSelector('[data-testid=intro]');
-  for (let i = 0; i < 4; i++) await page.click('[data-testid=intro-next]'); // the last is "Begin"
+  for (let i = 0; i < 5; i++) await page.click('[data-testid=intro-next]'); // the last is "Begin"
   await page.waitForSelector('[data-testid=intro]', { state: 'detached' });
   assert.equal(new URL(page.url()).hash, '#/surahs');
   // Left as they were: plain, and the default theme.

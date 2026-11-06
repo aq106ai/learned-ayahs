@@ -5,21 +5,61 @@
 Goal: support the complete eligible catalogs of the chosen providers, with searchable,
 language-aware pickers. Do not promise every translation or recording worldwide.
 
-- [ ] Inventory provider catalogs and record stable IDs, languages, authors/reciters,
-  editions, coverage, source URLs, versions, attribution and redistribution permissions.
-  Evaluate Quran.com/QUL and EveryAyah against the existing asset-generation pipeline.
-- [ ] Add a shared generated catalog and matching Android/web models. Persist IDs rather
-  than display names; migrate the current English translation and five reciter choices.
-- [ ] Offer translation selection in the reader, text copy/share, images and videos.
-  Load/download selected resources on demand; keep Arabic and English usable offline.
-  Distinguish full-ayah translations from word meanings and UI interface languages.
+- [x] Inventory provider catalogs (2026-11-06): Quran.com API v4 has 126 translations and 20
+  tafsirs, QUL 198 translations, everyayah 79 recordings. Terms: Tanzil is non-commercial only;
+  Quran.com publishes no licence per edition; QUL says check each resource (almost all "no
+  copyright information"); Quran Foundation's documented API now wants OAuth2 client credentials,
+  while the anonymous `api.quran.com/api/v4` the apps use still answers. So nothing new is
+  bundled: editions download on the user's device and are credited by name.
+- [x] Shared generated catalog (`assets/content_catalog.json`, `.setup/make_content_catalog.py`)
+  with `data/ContentCatalog.kt` and `web-app/static/js/core/catalog.js`. Settings store ids
+  (`translationEdition`, `wordMeaningLanguage`, `tafsirEdition`); the reciter keys were already
+  ids and Saheeh International is the default, so old installs need no migration.
+- [x] Translation, style (word meanings / full translation / both), word-meaning language,
+  tafsir and reciter chosen in the intro and changeable in Settings, on both apps. The chosen
+  edition is used in the reader, text share, images and videos (credited by name); downloads
+  are kept for offline use and Saheeh International shows when one can't be had.
+- [x] Mushaf style (intro and Settings): Uthmani in Scheherazade New (default) or Amiri Quran,
+  both SIL OFL, bundled, covering all 81 codepoints of the text; the reader, word reader, images
+  and videos follow it (`QuranFonts` / `--quran-font`).
+- [ ] More mushaf styles need a licence or a matching text (checked 2026-11-06):
+  Quran.com's KFGQPC V1/V2 page fonts, V4 tajweed and IndoPak Nastaleeq have no licence available
+  to us (QUL lists none; Quran.com's frontend repo has no licence) — ask Quran Foundation / the
+  King Fahd Complex for permission. Digital Khatt's Madina, Old Madina and IndoPak fonts are OFL
+  but misdraw Quran.com's text (صِرَٰطَ breaks at the dagger alif; IndoPak waqf marks missing);
+  they would need their own text and a word-position check. Tajweed colours: Quran.com's tajweed
+  text differs from ours in 165 of 761 words checked (marks, not only colour), so the colours
+  would have to be carried onto our text first.
+- [ ] Word meanings beyond en/ur/id/bn/fa: Quran.com returned 9% (tr, hi) to 21% (ta) of words in
+  English (`make_content_catalog.py --verify-words`). Find a complete source or leave them out.
+- [ ] Refresh `content_catalog.json` on a schedule (a workflow, like `nature-photos.yml`), and
+  add `retired` entries when Quran.com withdraws an edition.
+- [x] App languages: English, Urdu and Arabic, chosen in the intro ("Make it yours") and Settings,
+  or following the phone/browser. Every interface string goes through tx("English") on both apps,
+  backed by one table (`.setup/ui_strings.json` → `make_ui_strings.py`); CI fails on a missing or
+  placeholder-breaking translation. Urdu and Arabic mirror the layout (web CSS uses logical
+  properties; Android sets the Activity's locale). Surah names show in Arabic script for both.
+- [ ] Have fluent Urdu and Arabic readers review the translations (written for this change), and
+  check the Android screens right to left on a device or emulator (only the web was looked at).
+- [ ] More app languages: add a code to UI_LANGUAGES / UiStrings.languages and a column to
+  ui_strings.json; Indonesian, Bengali, Turkish and Persian would match the content languages.
+- [ ] Server error messages (web `services/api.js`, server.py) are still English.
+- [x] Tafsir reader: the player's Tafsir button opens a popup (web `views/tafsir.js`) / bottom
+  sheet (Android `ui/player/TafsirSheet.kt`) with the chosen edition, its name, author and source,
+  and the ayahs the entry covers. The provider's HTML becomes plain blocks (`tafsirText.js` /
+  `TafsirText.kt`) — no element or attribute of it is ever rendered — and each entry read is kept
+  for offline use. `TafsirSheetTest` (instrumented) is written but not yet run on a device.
+- [x] Reciters with checked timings only (the user asked to keep accurate highlighting, so no
+  audio-only catalog): Abdul Basit Mujawwad (QUL 14), Husary Muallim (22), Husary Mujawwad (21),
+  Ghamdi (19), Dussary (26), Tunaiji (23), Minshawi Murattal (24), Shatri (17), Alafasy (18)
+  pinned by `pin_qul_ids.py` and audited by CI (each keeps 6031-6185 of 6236 ayahs).
+- [ ] Out: Tablawi (QUL 11: 0.65-5 s of slack on every probe), Hani Rifai (5) and Minshawi
+  Mujawwad (8) (segments span several words).
 - [ ] Add reciters only with verified complete audio and timing data for the exact recording,
   following CONTRIBUTING.md. Never fabricate segments or borrow another recording's timings.
   If an audio-only catalog is wanted, design that separately with explicit feature capabilities
   before changing this rule: no synchronized highlighting or word seeking without valid timings.
 - [ ] Keep isolated-word reciters separate; require complete word files and stable word mapping.
-- [ ] Add a tafsir reader with language/author selection, ayah references, source attribution,
-  sanitized content and on-demand offline storage. Keep commentary separate from translations.
 - [ ] Handle missing verses, unavailable resources, download retries, cache limits/deletion,
   provider updates and old saved selections consistently across Android and web.
 - [ ] Verify all 6,236 ayah mappings; test RTL/LTR layouts, long translations, large fonts,

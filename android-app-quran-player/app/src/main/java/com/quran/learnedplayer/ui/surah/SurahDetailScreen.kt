@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.surah
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -104,7 +105,7 @@ fun SurahDetailScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = tx("Back"),
                         tint = TextMuted,
                     )
                 }
@@ -116,7 +117,7 @@ fun SurahDetailScreen(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Text(
-                    text = "${QuranConstants.VERSE_COUNTS[surah - 1]} ayahs · $learnedHere learned",
+                    text = tx("{0} ayahs · {1} learned", QuranConstants.VERSE_COUNTS[surah - 1], learnedHere),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextMuted,
                 )
@@ -124,7 +125,7 @@ fun SurahDetailScreen(
 
             if (!isOnboarding) {
                 IconButton(onClick = onMakeVideo, modifier = Modifier.testTag(TAG_SURAH_MAKE_VIDEO)) {
-                    Icon(Icons.Filled.Movie, contentDescription = "Make a video", tint = TextMuted)
+                    Icon(Icons.Filled.Movie, contentDescription = tx("Make a video"), tint = TextMuted)
                 }
             }
 
@@ -134,7 +135,7 @@ fun SurahDetailScreen(
                     modifier = Modifier.testTag(TAG_BACK_TO_MAIN),
                 ) {
                     Text(
-                        text = "Proceed",
+                        text = tx("Proceed"),
                         color = AccentGreen,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
@@ -167,7 +168,7 @@ fun SurahDetailScreen(
                     modifier = Modifier.padding(end = 6.dp),
                 )
                 Text(
-                    text = if (allLearned) "Unmark all ayahs" else "Mark all ayahs learned",
+                    text = if (allLearned) tx("Unmark all ayahs") else tx("Mark all ayahs learned"),
                     color = AccentGreen,
                 )
             }
@@ -243,7 +244,7 @@ private fun AyahRow(
             ) {
                 Icon(
                     imageVector = if (isLearned) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
-                    contentDescription = if (isLearned) "Marked learned" else "Mark learned",
+                    contentDescription = if (isLearned) tx("Marked learned") else tx("Mark learned"),
                     tint = if (isLearned) AccentGreen else TextMuted,
                 )
             }

@@ -1,0 +1,209 @@
+[husary_muallim] surah   1/114  ayahs=7
+[husary_muallim] surah   2/114  ayahs=293
+[husary_muallim] surah   3/114  ayahs=493
+[husary_muallim] surah   4/114  ayahs=669
+[husary_muallim] surah   5/114  ayahs=789
+[husary_muallim] surah   6/114  ayahs=954
+[husary_muallim] surah   7/114  ayahs=1160
+[husary_muallim] surah   8/114  ayahs=1235
+[husary_muallim] surah   9/114  ayahs=1364
+[husary_muallim] surah  10/114  ayahs=1473
+[husary_muallim] surah  11/114  ayahs=1596
+[husary_muallim] surah  12/114  ayahs=1707
+[husary_muallim] surah  13/114  ayahs=1750
+[husary_muallim] surah  14/114  ayahs=1802
+[husary_muallim] surah  15/114  ayahs=1901
+[husary_muallim] surah  16/114  ayahs=2029
+[husary_muallim] surah  17/114  ayahs=2140
+[husary_muallim] surah  18/114  ayahs=2250
+[husary_muallim] surah  19/114  ayahs=2348
+[husary_muallim] surah  20/114  ayahs=2483
+[husary_muallim] surah  21/114  ayahs=2595
+[husary_muallim] surah  22/114  ayahs=2673
+[husary_muallim] surah  23/114  ayahs=2791
+[husary_muallim] surah  24/114  ayahs=2855
+[husary_muallim] surah  25/114  ayahs=2932
+[husary_muallim] surah  26/114  ayahs=3159
+[husary_muallim] surah  27/114  ayahs=3252
+[husary_muallim] surah  28/114  ayahs=3340
+[husary_muallim] surah  29/114  ayahs=3409
+[husary_muallim] surah  30/114  ayahs=3469
+[husary_muallim] surah  31/114  ayahs=3503
+[husary_muallim] surah  32/114  ayahs=3533
+[husary_muallim] surah  33/114  ayahs=3606
+[husary_muallim] surah  34/114  ayahs=3660
+[husary_muallim] surah  35/114  ayahs=3705
+[husary_muallim] surah  36/114  ayahs=3788
+[husary_muallim] surah  37/114  ayahs=3970
+[husary_muallim] surah  38/114  ayahs=4058
+[husary_muallim] surah  39/114  ayahs=4133
+[husary_muallim] surah  40/114  ayahs=4218
+[husary_muallim] surah  41/114  ayahs=4272
+[husary_muallim] surah  42/114  ayahs=4325
+[husary_muallim] surah  43/114  ayahs=4414
+[husary_muallim] surah  44/114  ayahs=4473
+[husary_muallim] surah  45/114  ayahs=4510
+[husary_muallim] surah  46/114  ayahs=4545
+[husary_muallim] surah  47/114  ayahs=4583
+[husary_muallim] surah  48/114  ayahs=4612
+[husary_muallim] surah  49/114  ayahs=4630
+[husary_muallim] surah  50/114  ayahs=4675
+[husary_muallim] surah  51/114  ayahs=4735
+[husary_muallim] surah  52/114  ayahs=4784
+[husary_muallim] surah  53/114  ayahs=4846
+[husary_muallim] surah  54/114  ayahs=4901
+[husary_muallim] surah  55/114  ayahs=4979
+[husary_muallim] surah  56/114  ayahs=5075
+[husary_muallim] surah  57/114  ayahs=5104
+[husary_muallim] surah  58/114  ayahs=5126
+[husary_muallim] surah  59/114  ayahs=5150
+[husary_muallim] surah  60/114  ayahs=5163
+[husary_muallim] surah  61/114  ayahs=5177
+[husary_muallim] surah  62/114  ayahs=5188
+[husary_muallim] surah  63/114  ayahs=5199
+[husary_muallim] surah  64/114  ayahs=5217
+[husary_muallim] surah  65/114  ayahs=5229
+[husary_muallim] surah  66/114  ayahs=5241
+[husary_muallim] surah  67/114  ayahs=5271
+[husary_muallim] surah  68/114  ayahs=5323
+[husary_muallim] surah  69/114  ayahs=5375
+[husary_muallim] surah  70/114  ayahs=5419
+[husary_muallim] surah  71/114  ayahs=5447
+[husary_muallim] surah  72/114  ayahs=5475
+[husary_muallim] surah  73/114  ayahs=5495
+[husary_muallim] surah  74/114  ayahs=5551
+[husary_muallim] surah  75/114  ayahs=5591
+[husary_muallim] surah  76/114  ayahs=5622
+[husary_muallim] surah  77/114  ayahs=5672
+[husary_muallim] surah  78/114  ayahs=5712
+[husary_muallim] surah  79/114  ayahs=5758
+[husary_muallim] surah  80/114  ayahs=5800
+[husary_muallim] surah  81/114  ayahs=5829
+[husary_muallim] surah  82/114  ayahs=5848
+[husary_muallim] surah  83/114  ayahs=5884
+[husary_muallim] surah  84/114  ayahs=5909
+[husary_muallim] surah  85/114  ayahs=5931
+[husary_muallim] surah  86/114  ayahs=5948
+[husary_muallim] surah  87/114  ayahs=5967
+[husary_muallim] surah  88/114  ayahs=5993
+[husary_muallim] surah  89/114  ayahs=6023
+[husary_muallim] surah  90/114  ayahs=6043
+[husary_muallim] surah  91/114  ayahs=6058
+[husary_muallim] surah  92/114  ayahs=6079
+[husary_muallim] surah  93/114  ayahs=6090
+[husary_muallim] surah  94/114  ayahs=6098
+[husary_muallim] surah  95/114  ayahs=6106
+[husary_muallim] surah  96/114  ayahs=6125
+[husary_muallim] surah  97/114  ayahs=6130
+[husary_muallim] surah  98/114  ayahs=6138
+[husary_muallim] surah  99/114  ayahs=6146
+[husary_muallim] surah 100/114  ayahs=6157
+[husary_muallim] surah 101/114  ayahs=6168
+[husary_muallim] surah 102/114  ayahs=6176
+[husary_muallim] surah 103/114  ayahs=6179
+[husary_muallim] surah 104/114  ayahs=6188
+[husary_muallim] surah 105/114  ayahs=6193
+[husary_muallim] surah 106/114  ayahs=6197
+[husary_muallim] surah 107/114  ayahs=6204
+[husary_muallim] surah 108/114  ayahs=6207
+[husary_muallim] surah 109/114  ayahs=6213
+[husary_muallim] surah 110/114  ayahs=6216
+[husary_muallim] surah 111/114  ayahs=6221
+[husary_muallim] surah 112/114  ayahs=6225
+[husary_muallim] surah 113/114  ayahs=6230
+[husary_muallim] surah 114/114  ayahs=6236
+6210 recordings
+last word: voice end - onset = 1167 ms + 183 ms per letter (fitted)
+
+Finding the last word's start, scored on ayahs whose last word QUL timed (error in ms):
+       letters: {'found': 1.0, 'p50': 240, 'p90': 880, 'within150': 0.33, 'within300': 0.585, 'useful': 0.33, 'of': 1781}
+  fit-snap-dip3-200: {'found': 1.0, 'p50': 380, 'p90': 1420, 'within150': 0.209, 'within300': 0.391, 'useful': 0.209, 'of': 1781}
+  fit-snap-dip3-120: {'found': 1.0, 'p50': 380, 'p90': 1420, 'within150': 0.208, 'within300': 0.4, 'useful': 0.208, 'of': 1781}
+  fit-snap-dip3-60: {'found': 1.0, 'p50': 400, 'p90': 1420, 'within150': 0.207, 'within300': 0.404, 'useful': 0.207, 'of': 1781}
+  fit-snap-dip6-120: {'found': 1.0, 'p50': 400, 'p90': 1420, 'within150': 0.206, 'within300': 0.404, 'useful': 0.206, 'of': 1781}
+  fit-snap-dip6-60: {'found': 1.0, 'p50': 400, 'p90': 1420, 'within150': 0.205, 'within300': 0.405, 'useful': 0.205, 'of': 1781}
+  fit-snap-dip6-200: {'found': 1.0, 'p50': 380, 'p90': 1420, 'within150': 0.204, 'within300': 0.402, 'useful': 0.204, 'of': 1781}
+           fit: {'found': 1.0, 'p50': 400, 'p90': 1420, 'within150': 0.203, 'within300': 0.408, 'useful': 0.203, 'of': 1781}
+  fit-snap-gap2-mid-60: {'found': 1.0, 'p50': 400, 'p90': 1420, 'within150': 0.203, 'within300': 0.408, 'useful': 0.203, 'of': 1781}
+  fit-snap-gap2-end-60: {'found': 1.0, 'p50': 400, 'p90': 1420, 'within150': 0.203, 'within300': 0.408, 'useful': 0.203, 'of': 1781}
+  fit-snap-gap2-end-120: {'found': 1.0, 'p50': 400, 'p90': 1440, 'within150': 0.203, 'within300': 0.408, 'useful': 0.203, 'of': 1781}
+  fit-snap-gap2-mid-120: {'found': 1.0, 'p50': 400, 'p90': 1420, 'within150': 0.202, 'within300': 0.408, 'useful': 0.202, 'of': 1781}
+  fit-snap-gap2-end-200: {'found': 1.0, 'p50': 400, 'p90': 1440, 'within150': 0.202, 'within300': 0.408, 'useful': 0.202, 'of': 1781}
+  fit-snap-gap2-mid-200: {'found': 1.0, 'p50': 380, 'p90': 1420, 'within150': 0.199, 'within300': 0.407, 'useful': 0.199, 'of': 1781}
+  near-dip3-35: {'found': 0.979, 'p50': 340, 'p90': 1040, 'within150': 0.137, 'within300': 0.428, 'useful': 0.134, 'of': 1781}
+  near-dip3-50: {'found': 0.994, 'p50': 341, 'p90': 1060, 'within150': 0.135, 'within300': 0.421, 'useful': 0.134, 'of': 1781}
+  near-dip6-35: {'found': 0.898, 'p50': 380, 'p90': 1000, 'within150': 0.1, 'within300': 0.387, 'useful': 0.09, 'of': 1781}
+  near-dip6-50: {'found': 0.943, 'p50': 400, 'p90': 1100, 'within150': 0.095, 'within300': 0.37, 'useful': 0.09, 'of': 1781}
+  near-gap2-mid-35: {'found': 0.445, 'p50': 680, 'p90': 2300, 'within150': 0.116, 'within300': 0.259, 'useful': 0.052, 'of': 1781}
+  near-gap2-mid-50: {'found': 0.505, 'p50': 740, 'p90': 2520, 'within150': 0.102, 'within300': 0.228, 'useful': 0.052, 'of': 1781}
+  near-gap2-end-35: {'found': 0.4, 'p50': 620, 'p90': 1280, 'within150': 0.059, 'within300': 0.279, 'useful': 0.024, 'of': 1781}
+  near-gap2-end-50: {'found': 0.469, 'p50': 720, 'p90': 1720, 'within150': 0.05, 'within300': 0.238, 'useful': 0.024, 'of': 1781}
+        sliver: {'found': 1.0, 'p50': 5950, 'p90': 7790, 'within150': 0.0, 'within300': 0.001, 'useful': 0.0, 'of': 1781}
+chosen: letters
+
+husary_muallim: 6210 ayahs: 3700 fine, 2476 repaired (935 last words, 1830 first words), 0 shifted, 34 dropped
+
+Dropped, by reason:
+     22  first word ms:  3:65 (first word +2430 ms from the voice); 3:66 (first word +1680 ms from the voice); 3:70 (first word +2550 ms from the voice); 3:71 (first word +2670 ms from the voice)
+     11  words start inside:  4:25 (1 words start inside a silence); 5:3 (1 words start inside a silence); 7:187 (1 words start inside a silence); 8:39 (1 words start inside a silence)
+      1  last word starts at:  55:55 (last word starts at 11800 ms, voice ends 8260 ms)
+
+Shifted:
+
+Last words moved (largest first):
+    26:197  22610 -> 12120 ms
+      3:78  75970 -> 66300 ms
+      8:43  48970 -> 39460 ms
+    26:187  20530 -> 11020 ms
+     36:54  19850 -> 10340 ms
+     28:37  38610 -> 29140 ms
+      9:13  57090 -> 47680 ms
+     16:93  45050 -> 35680 ms
+    26:196  13410 -> 4040 ms
+     39:59  19890 -> 10520 ms
+     2:248  82890 -> 73620 ms
+     27:63  47530 -> 38280 ms
+    16:111  32049 -> 22820 ms
+     38:26  62690 -> 53480 ms
+     39:25  19370 -> 10320 ms
+      63:8  39330 -> 30300 ms
+    26:184  15130 -> 6120 ms
+     2:193  33130 -> 24180 ms
+     27:53  16129 -> 7200 ms
+      8:27  25770 -> 16880 ms
+
+Dropped:
+      3:65  first word +2430 ms from the voice
+      3:66  first word +1680 ms from the voice
+      3:70  first word +2550 ms from the voice
+      3:71  first word +2670 ms from the voice
+     3:119  first word +1800 ms from the voice
+      4:25  1 words start inside a silence
+     4:109  first word +1740 ms from the voice
+     4:171  first word +2690 ms from the voice
+       5:3  1 words start inside a silence
+      5:15  first word +2470 ms from the voice
+      5:19  first word +2650 ms from the voice
+      5:68  first word +3190 ms from the voice
+     7:144  first word +2010 ms from the voice
+     7:187  1 words start inside a silence
+      8:39  1 words start inside a silence
+     10:84  first word +1570 ms from the voice
+     11:76  first word +2150 ms from the voice
+    11:112  1 words start inside a silence
+     12:21  first word +1760 ms from the voice
+     17:85  1 words start inside a silence
+     19:43  first word +1680 ms from the voice
+     19:44  first word +1720 ms from the voice
+     19:45  first word +1740 ms from the voice
+     20:83  first word +1780 ms from the voice
+    26:159  1 words start inside a silence
+     28:38  1 words start inside a silence
+    37:152  first word +3720 ms from the voice
+     39:23  first word +2760 ms from the voice
+     47:38  first word +1600 ms from the voice
+      49:5  1 words start inside a silence
+     55:55  last word starts at 11800 ms, voice ends 8260 ms
+     58:12  1 words start inside a silence
+     67:13  1 words start inside a silence
+     74:31  first word +3600 ms from the voice

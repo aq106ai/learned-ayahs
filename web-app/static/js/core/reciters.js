@@ -37,6 +37,61 @@ export const RECITERS = [
     folder: 'Saood_ash-Shuraym_128kbps',
     timingsAsset: 'word_timings_shuraym.json',
   },
+  // 1.13: pinned by .setup/pin_qul_ids.py and audited by timing-audit.yml (see data/Reciter.kt).
+  {
+    key: 'ABDUL_BASIT_MUJAWWAD',
+    displayName: 'Abdul Basit (Mujawwad)',
+    folder: 'Abdul_Basit_Mujawwad_128kbps',
+    timingsAsset: 'word_timings_abdulbasit_mujawwad.json',
+  },
+  {
+    key: 'AL_HUSARY_MUALLIM',
+    displayName: 'Mahmoud Khalil Al-Husary (Muallim)',
+    folder: 'Husary_Muallim_128kbps',
+    timingsAsset: 'word_timings_husary_muallim.json',
+  },
+  {
+    key: 'AL_HUSARY_MUJAWWAD',
+    displayName: 'Mahmoud Khalil Al-Husary (Mujawwad)',
+    folder: 'Husary_128kbps_Mujawwad',
+    timingsAsset: 'word_timings_husary_mujawwad.json',
+  },
+  {
+    key: 'AL_GHAMDI',
+    displayName: 'Saad Al-Ghamdi',
+    folder: 'Ghamadi_40kbps',
+    timingsAsset: 'word_timings_ghamadi.json',
+  },
+  {
+    key: 'AD_DUSSARY',
+    displayName: 'Yasser Ad-Dussary',
+    folder: 'Yasser_Ad-Dussary_128kbps',
+    timingsAsset: 'word_timings_dussary.json',
+  },
+  {
+    key: 'AL_TUNAIJI',
+    displayName: 'Khalifa Al-Tunaiji',
+    folder: 'khalefa_al_tunaiji_64kbps',
+    timingsAsset: 'word_timings_tunaiji.json',
+  },
+  {
+    key: 'AL_MINSHAWI',
+    displayName: 'Mohamed Siddiq Al-Minshawi (Murattal)',
+    folder: 'Minshawy_Murattal_128kbps',
+    timingsAsset: 'word_timings_minshawi_murattal.json',
+  },
+  {
+    key: 'ASH_SHATRI',
+    displayName: 'Abu Bakr Ash-Shatri',
+    folder: 'Abu_Bakr_Ash-Shaatree_128kbps',
+    timingsAsset: 'word_timings_shatri.json',
+  },
+  {
+    key: 'AL_AFASY',
+    displayName: 'Mishary Rashid Alafasy',
+    folder: 'Alafasy_128kbps',
+    timingsAsset: 'word_timings_alafasy.json',
+  },
 ];
 
 export const DEFAULT_RECITER = RECITERS[0];

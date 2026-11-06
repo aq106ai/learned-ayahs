@@ -16,6 +16,7 @@
 //   - Word highlighting uses the reciter's validated segments or nothing — never an estimate.
 //   - When a word reader is open, every controller's Next/Previous steps words (stepWordHook).
 
+import { tx } from '../core/i18n.js';
 import {
   NO_BISMILLAH_INTRO_SURAHS,
   PlaybackMode,
@@ -122,8 +123,8 @@ export class PlayerEngine extends EventTarget {
   }
 
   get introLabel() {
-    if (this.intro === 'AUDHU') return "A'udhu Billah";
-    if (this.intro === 'BISMILLAH') return 'Bismillah';
+    if (this.intro === 'AUDHU') return tx("A'udhu Billah");
+    if (this.intro === 'BISMILLAH') return tx('Bismillah');
     return null;
   }
 
@@ -219,6 +220,16 @@ export class PlayerEngine extends EventTarget {
       el.dataset.src = url;
       el.src = url;
     }
+  }
+
+  /** Word meanings in the chosen language arrived (services/content.js): show them, as above. */
+  refreshWords() {
+    const track = this.track;
+    if (!track || !quran.isTextLoaded()) return;
+    const words = quran.wordsSync(track.surah, track.ayah);
+    if (words.map((w) => w.translation).join('\u0000') === this.words.map((w) => w.translation).join('\u0000')) return;
+    this.words = words;
+    this.emit('track');
   }
 
   async loadAyahData(track) {
@@ -608,7 +619,7 @@ export class PlayerEngine extends EventTarget {
       this.startAudio();
       return;
     }
-    this.error = this.track ? `Couldn't load audio for ${this.track.surah}:${this.track.ayah}.` : "Couldn't load audio.";
+    this.error = this.track ? tx("Couldn't load audio for {ref}.", { ref: `${this.track.surah}:${this.track.ayah}` }) : tx("Couldn't load audio.");
     this.wantPlay = false;
     this.setPlaying(false);
     this.emit('error');

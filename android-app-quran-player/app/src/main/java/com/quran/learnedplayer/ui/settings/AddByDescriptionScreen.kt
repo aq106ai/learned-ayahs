@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.settings
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -91,9 +92,9 @@ fun AddByDescriptionScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = TextMuted)
+                Icon(Icons.Filled.ArrowBack, contentDescription = tx("Back"), tint = TextMuted)
             }
-            Text("Add by description", style = MaterialTheme.typography.titleLarge)
+            Text(tx("Add by description"), style = MaterialTheme.typography.titleLarge)
         }
 
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -113,8 +114,11 @@ fun AddByDescriptionScreen(
                         .testTag(TAG_CURRENT_SELECTION),
                 ) {
                     Text(
-                        text = "Already marked · ${learnedIds.size} ayahs " +
-                            "in ${currentSurahCount} surah${if (currentSurahCount == 1) "" else "s"}",
+                        text = if (currentSurahCount == 1) {
+                            tx("Already marked · {0} ayahs in 1 surah", learnedIds.size)
+                        } else {
+                            tx("Already marked · {0} ayahs in {1} surahs", learnedIds.size, currentSurahCount)
+                        },
                         style = MaterialTheme.typography.labelLarge,
                         color = AccentGreen,
                     )
@@ -128,8 +132,7 @@ fun AddByDescriptionScreen(
             }
 
             Text(
-                text = "Type what you've learned — for example:\n" +
-                    "36:1-83,  2:255,  Al-Baqarah 1-5,  112,  78-114",
+                text = tx("Type what you've learned — for example:\n36:1-83,  2:255,  Al-Baqarah 1-5,  112,  78-114"),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
                 modifier = Modifier.padding(top = 8.dp),
@@ -143,8 +146,8 @@ fun AddByDescriptionScreen(
                     .heightIn(min = 140.dp)
                     .padding(top = 12.dp)
                     .testTag(TAG_DESCRIPTION_FIELD),
-                placeholder = { Text("36:1-83, Al-Mulk, 78-114") },
-                label = { Text("Ayah references, or JSON from an LLM") },
+                placeholder = { Text(tx("36:1-83, Al-Mulk, 78-114")) },
+                label = { Text(tx("Ayah references, or JSON from an LLM")) },
             )
 
             Column(
@@ -159,18 +162,18 @@ fun AddByDescriptionScreen(
                     .testTag(TAG_DESCRIPTION_PREVIEW),
             ) {
                 Text(
-                    text = applied?.let { "Added $it ayahs." }
+                    text = applied?.let { tx("Added {0} ayahs.", it) }
                         ?: when {
-                            input.isBlank() -> "Nothing entered yet."
-                            parsed.ids.isEmpty() -> "Couldn't read any ayahs from that."
-                            else -> "Will mark ${parsed.ids.size} ayahs · $newCount new."
+                            input.isBlank() -> tx("Nothing entered yet.")
+                            parsed.ids.isEmpty() -> tx("Couldn't read any ayahs from that.")
+                            else -> tx("Will mark {0} ayahs · {1} new.", parsed.ids.size, newCount)
                         },
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (applied != null || parsed.ids.isNotEmpty()) AccentGreen else TextMuted,
                 )
                 if (parsed.unparsed.isNotEmpty()) {
                     Text(
-                        text = "Ignored: ${parsed.unparsed.joinToString(", ")}",
+                        text = tx("Ignored: {0}", parsed.unparsed.joinToString(", ")),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                         modifier = Modifier.padding(top = 6.dp),
@@ -195,20 +198,18 @@ fun AddByDescriptionScreen(
                     ),
                     modifier = Modifier.testTag(TAG_DESCRIPTION_APPLY),
                 ) {
-                    Text("Add")
+                    Text(tx("Add"))
                 }
                 OutlinedButton(
                     onClick = { copyToClipboard(context, llmPrompt()) },
                     modifier = Modifier.testTag(TAG_COPY_LLM_PROMPT),
                 ) {
-                    Text("Copy LLM prompt")
+                    Text(tx("Copy LLM prompt"))
                 }
             }
 
             Text(
-                text = "Copy the prompt into any AI assistant, describe your memorisation in " +
-                    "your own words, then paste its reply back into the box above. Nothing is " +
-                    "sent anywhere by this app.",
+                text = tx("Copy the prompt into any AI assistant, describe your memorisation in your own words, then paste its reply back into the box above. Nothing is sent anywhere by this app."),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
                 modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
@@ -219,7 +220,7 @@ fun AddByDescriptionScreen(
 
 private fun copyToClipboard(context: Context, text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    clipboard.setPrimaryClip(ClipData.newPlainText("Learned Ayahs prompt", text))
+    clipboard.setPrimaryClip(ClipData.newPlainText(tx("Learned Ayahs prompt"), text))
 }
 
 /** The schema mirrors [LearnedAyahsExport], so a reply can be pasted in or saved and imported. */

@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.video
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.app.Application
 import android.content.ContentValues
 import android.content.Context
@@ -91,7 +92,7 @@ data class VideoOptions(
 class VideoMakerViewModel(application: Application) : AndroidViewModel(application) {
     private val context: Context get() = getApplication()
     private val exporter by lazy {
-        VideoExporter(context, ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF)
+        VideoExporter(context, ResourcesCompat.getFont(context, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes(PlayerSettings.mushafStyle)) ?: android.graphics.Typeface.SERIF)
     }
     private val texts = VideoTexts(application)
     private val naturePhotos = NaturePhotos(application)
@@ -190,7 +191,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             // A photo may have to download first, so this runs on the IO pool.
             val result = withContext(Dispatchers.IO) { runCatching { exporter.preview(request, PREVIEW_W) } }
             _preview.value = result.getOrNull()
-            _previewError.value = result.exceptionOrNull()?.let { it.message ?: "The preview couldn't be drawn." }
+            _previewError.value = result.exceptionOrNull()?.let { it.message ?: tx("The preview couldn't be drawn.") }
         }
     }
 
@@ -208,7 +209,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
-                ExportState.Failed(e.message?.takeIf { it.isNotBlank() } ?: "The video couldn't be made on this phone.")
+                ExportState.Failed(e.message?.takeIf { it.isNotBlank() } ?: tx("The video couldn't be made on this phone."))
             }
         }
     }
@@ -224,11 +225,11 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 runCatching {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) throw IllegalStateException("Needs Android 10")
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) throw IllegalStateException(tx("Needs Android 10"))
                     insertIntoMovies(done.file)
                 }
             }
-            _export.value = if (result.isSuccess) done.copy(savedTo = "Saved to Movies › Learned Ayahs") else done.copy(savedTo = "Couldn't save the video.")
+            _export.value = if (result.isSuccess) done.copy(savedTo = tx("Saved to Movies › Learned Ayahs")) else done.copy(savedTo = tx("Couldn't save the video."))
         }
     }
 
@@ -242,7 +243,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             put(MediaStore.Video.Media.IS_PENDING, 1)
         }
         val uri = resolver.insert(MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values)
-            ?: error("No space for the video")
+            ?: error(tx("No space for the video"))
         resolver.openOutputStream(uri)!!.use { out -> file.inputStream().use { it.copyTo(out) } }
         values.clear()
         values.put(MediaStore.Video.Media.IS_PENDING, 0)
@@ -258,7 +259,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
                     context.contentResolver.openOutputStream(uri)!!.use { out -> done.file.inputStream().use { it.copyTo(out) } }
                 }.isSuccess
             }
-            _export.value = done.copy(savedTo = if (ok) "Saved." else "Couldn't save the video.")
+            _export.value = done.copy(savedTo = if (ok) tx("Saved.") else tx("Couldn't save the video."))
         }
     }
 
@@ -270,7 +271,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return Intent.createChooser(send, "Share video")
+        return Intent.createChooser(send, tx("Share video"))
     }
 
     override fun onCleared() {

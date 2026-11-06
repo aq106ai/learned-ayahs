@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -38,7 +39,7 @@ object ShareImage {
      * lights an example word, for an ayah that isn't playing. Downloads a photo it needs.
      */
     suspend fun make(context: Context, options: VideoOptions, atMs: Long?): File = withContext(Dispatchers.IO) {
-        val font = ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF
+        val font = ResourcesCompat.getFont(context, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes(PlayerSettings.mushafStyle)) ?: android.graphics.Typeface.SERIF
         val bitmap = VideoExporter(context, font).still(options.toRequest(), options.aspect.width, atMs)
         val dir = File(context.cacheDir, "images").apply { mkdirs() }
         // Clear out old pictures, but not recent ones: an app shared one may not have read it yet.
@@ -58,7 +59,7 @@ object ShareImage {
         }
         if (!partial.renameTo(file)) {
             partial.delete()
-            throw java.io.IOException("Couldn't save the picture")
+            throw java.io.IOException(tx("Couldn't save the picture"))
         }
         file
     }
@@ -70,6 +71,6 @@ object ShareImage {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return Intent.createChooser(send, "Share image")
+        return Intent.createChooser(send, tx("Share image"))
     }
 }

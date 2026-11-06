@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.home
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -101,7 +102,7 @@ fun SurahListScreen(
             TextButton(onClick = onBackToMain, modifier = Modifier.testTag(TAG_BACK_TO_MAIN)) {
                 if (isOnboarding) {
                     Text(
-                        text = "Proceed",
+                        text = tx("Proceed"),
                         color = AccentGreen,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
@@ -119,7 +120,7 @@ fun SurahListScreen(
                         tint = TextMuted,
                     )
                     Text(
-                        text = "Back",
+                        text = tx("Back"),
                         color = TextMuted,
                         modifier = Modifier.padding(start = 4.dp),
                     )
@@ -128,14 +129,14 @@ fun SurahListScreen(
         }
         Column(modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 4.dp)) {
             Text(
-                text = "Learned Ayahs",
+                text = tx("Learned Ayahs"),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
                 // The reciter belongs to playback, not browsing — it stays on the player
                 // screen header and in Settings, where the choice is actually made.
-                text = "${learnedIds.size} ayahs marked",
+                text = tx("{0} ayahs marked", learnedIds.size),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -149,7 +150,7 @@ fun SurahListScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .testTag(TAG_SEARCH_FIELD),
             singleLine = true,
-            placeholder = { Text("Search surah") },
+            placeholder = { Text(tx("Search surah")) },
             leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, tint = TextMuted) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         )
@@ -196,21 +197,21 @@ private fun LearnedAyahsBanner(
                 onClick = onAddByDescription,
                 modifier = Modifier.weight(1f).testTag(TAG_ADD_BY_DESCRIPTION),
             ) {
-                Text("Description", maxLines = 1)
+                Text(tx("Description"), maxLines = 1)
             }
             if (showExport) {
                 OutlinedButton(
                     onClick = onExportLearnedAyahs,
                     modifier = Modifier.testTag(TAG_EXPORT),
                 ) {
-                    Text("Export", maxLines = 1)
+                    Text(tx("Export"), maxLines = 1)
                 }
             }
             OutlinedButton(
                 onClick = onImportLearnedAyahs,
                 modifier = Modifier.testTag(TAG_IMPORT),
             ) {
-                Text("Import", maxLines = 1)
+                Text(tx("Import"), maxLines = 1)
             }
         }
         error?.let { message ->
@@ -284,7 +285,7 @@ private fun SurahRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(SurahNames.name(surah), style = MaterialTheme.typography.titleMedium)
             Text(
-                text = "$total ayahs",
+                text = tx("{0} ayahs", total),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -303,9 +304,9 @@ private fun SurahRow(
                 .clickable { onSetLearned(!allLearned) }
                 .semantics {
                     contentDescription = if (allLearned) {
-                        "Unmark all of ${SurahNames.name(surah)}"
+                        tx("Unmark all of {0}", SurahNames.name(surah))
                     } else {
-                        "Mark all of ${SurahNames.name(surah)} learned"
+                        tx("Mark all of {0} learned", SurahNames.name(surah))
                     }
                 }
                 .testTag(surahSelectAllTag(surah)),
@@ -324,7 +325,7 @@ private fun SurahRow(
 @Composable
 private fun LearnedBadge(count: Int) {
     Text(
-        text = "$count learned",
+        text = tx("{0} learned", count),
         style = MaterialTheme.typography.labelSmall,
         color = AccentGreen,
         modifier = Modifier
@@ -338,5 +339,5 @@ private fun matchesSurah(surah: Int, query: String): Boolean {
     if (query.isBlank()) return true
     val q = query.trim()
     return surah.toString() == q ||
-        SurahNames.name(surah).contains(q, ignoreCase = true)
+        (SurahNames.name(surah).contains(q, ignoreCase = true) || SurahNames.latin(surah).contains(q, ignoreCase = true))
 }

@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.video
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.app.Application
 import android.content.ContentValues
 import android.content.Context
@@ -15,7 +16,6 @@ import androidx.lifecycle.viewModelScope
 import com.quran.learnedplayer.R
 import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.Reciter
-import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.video.NaturePhotos
 import com.quran.learnedplayer.video.PhotoSubject
@@ -61,10 +61,17 @@ data class VideoOptions(
     val photos: Boolean = false,
     /** Sources and "Made with Learned Ayahs" printed on the video. */
     val credits: Boolean = false,
+    /** Recite Bismillah before the ayahs. On for a range that starts at ayah 1, when the surah has one. */
+    val bismillah: Boolean = fromAyah == 1 && VideoRequest.bismillahAllowed(surah, fromAyah),
+    /** A closing page with the Play Store link. */
+    val endCard: Boolean = true,
 ) {
     val ayahCount: Int get() = toAyah - fromAyah + 1
 
-    fun toRequest() = VideoRequest(surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey, photos, credits)
+    fun toRequest() = VideoRequest(
+        surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey,
+        photos, credits, bismillah, endCard,
+    )
 
     /**
      * These options made to look like the player: its [background] (a plain player gets
@@ -85,7 +92,7 @@ data class VideoOptions(
 class VideoMakerViewModel(application: Application) : AndroidViewModel(application) {
     private val context: Context get() = getApplication()
     private val exporter by lazy {
-        VideoExporter(context, ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF)
+        VideoExporter(context, ResourcesCompat.getFont(context, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes(PlayerSettings.mushafStyle)) ?: android.graphics.Typeface.SERIF)
     }
     private val texts = VideoTexts(application)
     private val naturePhotos = NaturePhotos(application)
@@ -143,7 +150,8 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             val new = change(old)
             val count = QuranConstants.VERSE_COUNTS[new.surah - 1]
             val from = new.fromAyah.coerceIn(1, count)
-            new.copy(fromAyah = from, toAyah = new.toAyah.coerceIn(from, count))
+            val allowed = VideoRequest.bismillahAllowed(new.surah, from)
+            new.copy(fromAyah = from, toAyah = new.toAyah.coerceIn(from, count), bismillah = new.bismillah && allowed)
         }
         if (_export.value !is ExportState.Working) _export.value = ExportState.Idle
         refreshPreview()
@@ -151,7 +159,13 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
 
     fun setSurah(surah: Int) = update {
         val count = QuranConstants.VERSE_COUNTS[surah - 1]
-        it.copy(surah = surah, fromAyah = 1, toAyah = minOf(count, DEFAULT_SURAH_AYAHS), opening = true)
+        it.copy(
+            surah = surah,
+            fromAyah = 1,
+            toAyah = minOf(count, DEFAULT_SURAH_AYAHS),
+            opening = true,
+            bismillah = VideoRequest.bismillahAllowed(surah, 1),
+        )
     }
 
     /** The theme the first ayah is matched to, shown under the "Matched" choice. */
@@ -177,7 +191,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             // A photo may have to download first, so this runs on the IO pool.
             val result = withContext(Dispatchers.IO) { runCatching { exporter.preview(request, PREVIEW_W) } }
             _preview.value = result.getOrNull()
-            _previewError.value = result.exceptionOrNull()?.let { it.message ?: "The preview couldn't be drawn." }
+            _previewError.value = result.exceptionOrNull()?.let { it.message ?: tx("The preview couldn't be drawn.") }
         }
     }
 
@@ -195,7 +209,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
-                ExportState.Failed(e.message?.takeIf { it.isNotBlank() } ?: "The video couldn't be made on this phone.")
+                ExportState.Failed(e.message?.takeIf { it.isNotBlank() } ?: tx("The video couldn't be made on this phone."))
             }
         }
     }
@@ -211,11 +225,11 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 runCatching {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) throw IllegalStateException("Needs Android 10")
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) throw IllegalStateException(tx("Needs Android 10"))
                     insertIntoMovies(done.file)
                 }
             }
-            _export.value = if (result.isSuccess) done.copy(savedTo = "Saved to Movies › Learned Ayahs") else done.copy(savedTo = "Couldn't save the video.")
+            _export.value = if (result.isSuccess) done.copy(savedTo = tx("Saved to Movies › Learned Ayahs")) else done.copy(savedTo = tx("Couldn't save the video."))
         }
     }
 
@@ -229,7 +243,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             put(MediaStore.Video.Media.IS_PENDING, 1)
         }
         val uri = resolver.insert(MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values)
-            ?: error("No space for the video")
+            ?: error(tx("No space for the video"))
         resolver.openOutputStream(uri)!!.use { out -> file.inputStream().use { it.copyTo(out) } }
         values.clear()
         values.put(MediaStore.Video.Media.IS_PENDING, 0)
@@ -245,7 +259,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
                     context.contentResolver.openOutputStream(uri)!!.use { out -> done.file.inputStream().use { it.copyTo(out) } }
                 }.isSuccess
             }
-            _export.value = done.copy(savedTo = if (ok) "Saved." else "Couldn't save the video.")
+            _export.value = done.copy(savedTo = if (ok) tx("Saved.") else tx("Couldn't save the video."))
         }
     }
 
@@ -255,10 +269,9 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "video/mp4"
             putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_TEXT, caption(_options.value))
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return Intent.createChooser(send, "Share video")
+        return Intent.createChooser(send, tx("Share video"))
     }
 
     override fun onCleared() {
@@ -274,24 +287,5 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             Locale.ROOT, "LearnedAyahs_%03d_%03d-%03d_%s.mp4",
             options.surah, options.fromAyah, options.toAyah, options.aspect.ratio.replace(':', 'x'),
         )
-
-        fun reference(options: VideoOptions): String {
-            val range = if (options.fromAyah == options.toAyah) "${options.fromAyah}" else "${options.fromAyah}-${options.toAyah}"
-            return "${SurahNames.name(options.surah)} ${options.surah}:$range · ${options.reciter.displayName}"
-        }
-
-        /**
-         * The text shared with the video: what it is, then its sources. The video itself carries
-         * no credits unless asked for, so this is where they travel with it.
-         */
-        fun caption(options: VideoOptions): String = buildList {
-            add(reference(options))
-            add("")
-            add("Recitation: ${options.reciter.displayName} (everyayah.com)")
-            if (options.fullTranslation) add("Translation: Saheeh International (tanzil.net)")
-            if (options.wordByWord) add("Word meanings: Quran.com")
-            if (options.photos || NaturePhotos.isPhoto(options.themeKey)) add("Background photos: Wikimedia Commons (CC0)")
-            add("Made with Learned Ayahs")
-        }.joinToString("\n")
     }
 }

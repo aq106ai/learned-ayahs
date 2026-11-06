@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import com.quran.learnedplayer.ui.player.TafsirSheet
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
@@ -98,6 +101,7 @@ const val TAG_SURAH_PANEL_LIST = "surah_panel_list"
 const val TAG_MANAGE_AYAHS = "manage_ayahs"
 const val TAG_OPEN_SETTINGS = "open_settings_from_player"
 const val TAG_SHARE = "share_from_player"
+const val TAG_OPEN_TAFSIR = "open_tafsir"
 const val TAG_OPEN_BACKGROUND = "open_background_sheet"
 const val TAG_READER_CARD = "reader_card"
 const val TAG_EXPAND_PANEL = "expand_playback_panel"
@@ -131,6 +135,7 @@ fun PlayerScreen(
     var showPlaylistPanel by remember { mutableStateOf(false) }
     var showBackgroundSheet by remember { mutableStateOf(false) }
     var showShare by remember { mutableStateOf(false) }
+    var showTafsir by remember { mutableStateOf(false) }
     val background by PlayerSettings.playerBackgroundFlow.collectAsState()
     val withBackground = background != PlayerBackgrounds.PLAIN
 
@@ -168,6 +173,7 @@ fun PlayerScreen(
                     onOpenPlaylistPanel = { showPlaylistPanel = true },
                     onOpenSettings = onOpenSettings,
                     onShare = if (state.currentTrack != null) ({ showShare = true }) else null,
+                    onTafsir = if (state.currentTrack != null) ({ showTafsir = true }) else null,
                     chrome = chrome,
                 )
 
@@ -239,7 +245,7 @@ fun PlayerScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Recite & review",
+                                text = tx("Recite & review"),
                                 color = Color.White,
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
@@ -291,6 +297,7 @@ fun PlayerScreen(
 
     if (showBackgroundSheet) BackgroundSheet(onDismiss = { showBackgroundSheet = false })
     val track = state.currentTrack
+    if (showTafsir && track != null) TafsirSheet(track.surah, track.ayah, onDismiss = { showTafsir = false })
     if (showShare && track != null) {
         ShareDialog(
             surah = track.surah,
@@ -323,6 +330,7 @@ private fun ReaderHeader(
     onOpenPlaylistPanel: () -> Unit,
     onOpenSettings: () -> Unit,
     onShare: (() -> Unit)?,
+    onTafsir: (() -> Unit)? = null,
     chrome: Color,
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -334,7 +342,7 @@ private fun ReaderHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onOpenSurahPanel, modifier = Modifier.testTag(TAG_OPEN_SURAH_PANEL)) {
-                Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Browse surahs", tint = TextMuted)
+                Icon(Icons.AutoMirrored.Filled.List, contentDescription = tx("Browse surahs"), tint = TextMuted)
             }
             Text(
                 text = state.fullscreenMeta,
@@ -344,23 +352,28 @@ private fun ReaderHeader(
                 textAlign = TextAlign.Center,
             )
             IconButton(onClick = onOpenPlaylistPanel, modifier = Modifier.testTag(TAG_OPEN_PLAYLIST_PANEL)) {
-                Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = "Playlist", tint = TextMuted)
+                Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = tx("Playlist"), tint = TextMuted)
             }
             if (showWordToggle) {
                 OutlinedButton(
                     onClick = onToggleWordByWord,
                     modifier = Modifier.testTag(TAG_TOGGLE_WORD_BY_WORD),
                 ) {
-                    Text(if (wordByWord) "Whole ayah" else "Word by word")
+                    Text(if (wordByWord) tx("Whole ayah") else tx("Word by word"))
+                }
+            }
+            if (onTafsir != null) {
+                IconButton(onClick = onTafsir, modifier = Modifier.testTag(TAG_OPEN_TAFSIR)) {
+                    Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = tx("Tafsir on this ayah"), tint = TextMuted)
                 }
             }
             if (onShare != null) {
                 IconButton(onClick = onShare, modifier = Modifier.testTag(TAG_SHARE)) {
-                    Icon(Icons.Filled.Share, contentDescription = "Share this ayah", tint = TextMuted)
+                    Icon(Icons.Filled.Share, contentDescription = tx("Share this ayah"), tint = TextMuted)
                 }
             }
             IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(TAG_OPEN_SETTINGS)) {
-                Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = TextMuted)
+                Icon(Icons.Filled.Settings, contentDescription = tx("Settings"), tint = TextMuted)
             }
         }
     }
@@ -390,14 +403,13 @@ private fun LoadingContent(state: PlayerUiState) {
 @Composable
 private fun EmptyContent(onBrowseSurahs: () -> Unit) {
     Text(
-        text = "No ayahs marked yet.",
+        text = tx("No ayahs marked yet."),
         color = TextPrimary,
         style = MaterialTheme.typography.titleMedium,
         textAlign = TextAlign.Center,
     )
     Text(
-        text = "Open a surah and tap the circle beside an ayah to add it to your revision. " +
-            "You can also add several at once from Settings.",
+        text = tx("Open a surah and tap the circle beside an ayah to add it to your revision. You can also add several at once from Settings."),
         color = TextMuted,
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
@@ -406,19 +418,19 @@ private fun EmptyContent(onBrowseSurahs: () -> Unit) {
         onClick = onBrowseSurahs,
         modifier = Modifier.testTag(TAG_EMPTY_BROWSE),
     ) {
-        Text("Browse surahs")
+        Text(tx("Browse surahs"))
     }
 }
 
 @Composable
 private fun ErrorContent(state: PlayerUiState, onBrowseSurahs: () -> Unit) {
     Text(
-        state.error ?: "Something went wrong",
+        state.error ?: tx("Something went wrong"),
         color = MaterialTheme.colorScheme.error,
         textAlign = TextAlign.Center,
     )
     OutlinedButton(onClick = onBrowseSurahs) {
-        Text("Browse surahs")
+        Text(tx("Browse surahs"))
     }
 }
 
@@ -454,7 +466,7 @@ private fun BottomPlaybackPanel(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = state.introLabel ?: state.currentTrack?.let { "${it.index}. ${it.label}" }
-                        ?: "Ready — press Play",
+                        ?: tx("Ready — press Play"),
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -462,7 +474,7 @@ private fun BottomPlaybackPanel(
                 Text(
                     text = buildString {
                         if (state.tracks.isNotEmpty()) {
-                            append("${state.currentIndex + 1} of ${state.tracks.size}")
+                            append(tx("{0} of {1}", state.currentIndex + 1, state.tracks.size))
                         }
                         append(" · ${state.modeLabel}")
                     },
@@ -472,11 +484,11 @@ private fun BottomPlaybackPanel(
                 )
             }
             IconButton(onClick = onOpenBackground, modifier = Modifier.testTag(TAG_OPEN_BACKGROUND)) {
-                Icon(Icons.Filled.Wallpaper, contentDescription = "Background", tint = TextMuted)
+                Icon(Icons.Filled.Wallpaper, contentDescription = tx("Background"), tint = TextMuted)
             }
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,
-                contentDescription = if (expanded) "Collapse controls" else "Expand controls",
+                contentDescription = if (expanded) tx("Collapse controls") else tx("Expand controls"),
                 tint = TextMuted,
             )
         }
@@ -491,7 +503,7 @@ private fun BottomPlaybackPanel(
                     onClick = { viewModel.previous() },
                     modifier = Modifier.weight(1f).testTag(TAG_FULLSCREEN_PREVIOUS),
                 ) {
-                    Text("Prev")
+                    Text(tx("Prev"))
                 }
                 Button(
                     onClick = {
@@ -500,13 +512,13 @@ private fun BottomPlaybackPanel(
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Panel),
                 ) {
-                    Text(if (state.isPlaying) "Pause" else "Play")
+                    Text(if (state.isPlaying) tx("Pause") else tx("Play"))
                 }
                 OutlinedButton(
                     onClick = { viewModel.next() },
                     modifier = Modifier.weight(1f).testTag(TAG_FULLSCREEN_NEXT),
                 ) {
-                    Text("Next")
+                    Text(tx("Next"))
                 }
             }
         }
@@ -570,7 +582,7 @@ private fun formatTime(ms: Long): String {
 private fun RevisionDelaySelector(activeSeconds: Int, onSelect: (Int) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
-            text = "Pause before repeat — time to revise or press Next",
+            text = tx("Pause before repeat — time to revise or press Next"),
             color = TextMuted,
             style = MaterialTheme.typography.bodySmall,
         )
@@ -580,7 +592,7 @@ private fun RevisionDelaySelector(activeSeconds: Int, onSelect: (Int) -> Unit) {
         ) {
             PlayerSettings.REVISION_DELAY_CHOICES.forEach { seconds ->
                 ModeChip(
-                    label = if (seconds == 0) "Off" else "${seconds}s",
+                    label = if (seconds == 0) tx("Off") else "${seconds}s",
                     selected = seconds == activeSeconds,
                     modifier = Modifier.weight(1f).testTag(revisionDelayTag(seconds)),
                     onClick = { onSelect(seconds) },
@@ -594,7 +606,7 @@ private fun RevisionDelaySelector(activeSeconds: Int, onSelect: (Int) -> Unit) {
 private fun ModeSelector(active: PlaybackMode, onSelect: (PlaybackMode) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
-            text = "Play",
+            text = tx("Play"),
             color = TextMuted,
             style = MaterialTheme.typography.bodySmall,
         )
@@ -604,7 +616,7 @@ private fun ModeSelector(active: PlaybackMode, onSelect: (PlaybackMode) -> Unit)
         ) {
             PlaybackMode.entries.forEach { mode ->
                 ModeChip(
-                    label = mode.label,
+                    label = tx(mode.label),
                     selected = mode == active,
                     modifier = Modifier.weight(1f).testTag(playbackModeTag(mode)),
                     onClick = { onSelect(mode) },
@@ -627,7 +639,7 @@ private fun RepeatSelector(
     }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
-            text = "Repeat",
+            text = tx("Repeat"),
             color = TextMuted,
             style = MaterialTheme.typography.bodySmall,
         )
@@ -658,12 +670,12 @@ private fun WordClipsToggle(enabled: Boolean, onChange: (Boolean) -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
-            Text("Word clips (Quran.com)", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
+            Text(tx("Word clips (Quran.com)"), color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
             Text(
                 text = if (enabled) {
-                    "Isolated pronunciation clips. Recite & review always uses these."
+                    tx("Isolated pronunciation clips. Recite & review always uses these.")
                 } else {
-                    "Off: play each word in your ayah reciter by seeking the ayah audio."
+                    tx("Off: play each word in your ayah reciter by seeking the ayah audio.")
                 },
                 color = TextMuted,
                 style = MaterialTheme.typography.bodySmall,
@@ -748,21 +760,21 @@ private fun SurahNavPanel(
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "Surahs",
+                text = tx("Surahs"),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
                 modifier = Modifier.weight(1f),
             )
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Filled.Close, contentDescription = "Close", tint = TextMuted)
+                Icon(Icons.Filled.Close, contentDescription = tx("Close"), tint = TextMuted)
             }
         }
         OutlinedButton(
             onClick = onBrowseSurahs,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp).testTag(TAG_MANAGE_AYAHS),
         ) {
-            Text("Manage learned ayahs")
+            Text(tx("Manage learned ayahs"))
         }
         OutlinedTextField(
             value = query,
@@ -772,7 +784,7 @@ private fun SurahNavPanel(
                 .padding(vertical = 8.dp)
                 .testTag(TAG_SURAH_PANEL_SEARCH),
             singleLine = true,
-            placeholder = { Text("Search surah") },
+            placeholder = { Text(tx("Search surah")) },
             leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, tint = TextMuted) },
             keyboardOptions = KeyboardOptions.Default,
         )
@@ -799,7 +811,7 @@ private fun SurahNavPanel(
                         fontWeight = if (active) FontWeight.SemiBold else FontWeight.Normal,
                     )
                     Text(
-                        text = if (learned > 0) "$learned learned" else "${QuranConstants.VERSE_COUNTS[surah - 1]} ayahs",
+                        text = if (learned > 0) tx("{0} learned", learned) else tx("{0} ayahs", QuranConstants.VERSE_COUNTS[surah - 1]),
                         color = if (learned > 0) AccentGreen else TextMuted,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -812,5 +824,5 @@ private fun SurahNavPanel(
 private fun matchesSurahQuery(surah: Int, query: String): Boolean {
     if (query.isBlank()) return true
     val q = query.trim()
-    return surah.toString() == q || SurahNames.name(surah).contains(q, ignoreCase = true)
+    return surah.toString() == q || SurahNames.name(surah).contains(q, ignoreCase = true) || SurahNames.latin(surah).contains(q, ignoreCase = true)
 }

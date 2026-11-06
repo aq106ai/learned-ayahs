@@ -28,6 +28,8 @@ export function playerBackground({ engine, store }) {
   let raf = 0;
   let idle = 0;
   let token = 0;
+  let shownId;
+  const hooks = { onScene: () => {} };
 
   const choice = () => store.settings.playerBackground;
   const active = () => choice() !== PlayerBackgrounds.PLAIN;
@@ -82,11 +84,20 @@ export function playerBackground({ engine, store }) {
     return variant(key.themeKey, key.variant);
   }
 
+  /** The chrome follows the scene on screen, and only changes when that scene does. */
+  function publish(spec) {
+    const id = spec?.id ?? null;
+    if (id === shownId) return;
+    shownId = id;
+    hooks.onScene(spec);
+  }
+
   function draw() {
     if (!scenes) return;
     const ctx = canvas.getContext('2d');
     const shown = live.at(performance.now());
     drawn = shown;
+    publish(shown?.current ? sceneFor(shown.current) : null);
     if (!shown) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       return;
@@ -133,6 +144,7 @@ export function playerBackground({ engine, store }) {
 
   return {
     el: canvas,
+    hooks,
     /** Call when the setting changes (or on first show). */
     refresh() {
       canvas.hidden = !active();
@@ -142,12 +154,15 @@ export function playerBackground({ engine, store }) {
         live.clear();
         shownChoice = null;
         wanted = null;
+        publish(null);
         return;
       }
       requestAnimationFrame(resize);
       refreshWanted();
     },
     destroy() {
+      token++; // Ignore data/photo loads that finish after navigation.
+      hooks.onScene = () => {};
       offs.forEach((off) => off());
       cancelAnimationFrame(raf);
       clearTimeout(idle);

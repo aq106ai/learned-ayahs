@@ -52,6 +52,15 @@ FOLDERS = {
     "husary": "Husary_128kbps",
     "sudais": "Abdurrahmaan_As-Sudais_192kbps",
     "shuraym": "Saood_ash-Shuraym_128kbps",
+    "alafasy": "Alafasy_128kbps",
+    "minshawi_murattal": "Minshawy_Murattal_128kbps",
+    "shatri": "Abu_Bakr_Ash-Shaatree_128kbps",
+    "husary_muallim": "Husary_Muallim_128kbps",
+    "husary_mujawwad": "Husary_128kbps_Mujawwad",
+    "abdulbasit_mujawwad": "Abdul_Basit_Mujawwad_128kbps",
+    "ghamadi": "Ghamadi_40kbps",
+    "dussary": "Yasser_Ad-Dussary_128kbps",
+    "tunaiji": "khalefa_al_tunaiji_64kbps",
 }
 
 RATE = 8000

@@ -1,5 +1,8 @@
 package com.quran.learnedplayer.data
 
+import com.quran.learnedplayer.ui.i18n.UiStrings
+import com.quran.learnedplayer.ui.i18n.tx
+
 object SurahNames {
     private val NAMES = arrayOf(
         "Al-Fatihah", "Al-Baqarah", "Al-Imran", "An-Nisa", "Al-Maidah", "Al-Anam", "Al-Araf", "Al-Anfal",
@@ -18,11 +21,34 @@ object SurahNames {
         "Al-Ikhlas", "Al-Falaq", "An-Nas",
     )
 
-    fun name(surah: Int): String = NAMES.getOrElse(surah - 1) { "Surah $surah" }
+    /** In Arabic script, for the Urdu and Arabic interfaces (Quran.com's name_arabic). */
+    private val ARABIC = arrayOf(
+        "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال",
+        "التوبة", "يونس", "هود", "يوسف", "الرعد", "ابراهيم", "الحجر", "النحل",
+        "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور",
+        "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة",
+        "الأحزاب", "سبإ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر",
+        "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح",
+        "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة",
+        "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن",
+        "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن",
+        "المزمل", "المدثر", "القيامة", "الانسان", "المرسلات", "النبإ", "النازعات", "عبس",
+        "التكوير", "الإنفطار", "المطففين", "الإنشقاق", "البروج", "الطارق", "الأعلى", "الغاشية",
+        "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق",
+        "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة",
+        "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص",
+        "الفلق", "الناس",
+    )
+
+    /** The transliterated name: for parsing refs ("Al-Baqarah 255") and search. */
+    fun latin(surah: Int): String = NAMES.getOrElse(surah - 1) { "Surah $surah" }
+
+    /** The name to show: in Arabic script when the interface is Urdu or Arabic. */
+    fun name(surah: Int): String = if (UiStrings.isRtl) ARABIC.getOrNull(surah - 1) ?: latin(surah) else latin(surah)
 
     fun label(surah: Int): String = "$surah · ${name(surah)}"
 
-    fun title(surah: Int): String = "Surah $surah · ${name(surah)}"
+    fun title(surah: Int): String = tx("Surah {0} · {1}", surah, name(surah))
 
-    fun trackTitle(surah: Int, ayah: Int): String = "${title(surah)} · Ayah $ayah"
+    fun trackTitle(surah: Int, ayah: Int): String = "${title(surah)} · ${tx("Ayah {0}", ayah)}"
 }

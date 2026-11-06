@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -7,7 +8,6 @@ import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import com.quran.learnedplayer.R
 import com.quran.learnedplayer.player.PlayerSettings
-import com.quran.learnedplayer.ui.video.VideoMakerViewModel
 import com.quran.learnedplayer.ui.video.VideoOptions
 import com.quran.learnedplayer.video.VideoAspect
 import com.quran.learnedplayer.video.VideoExporter
@@ -18,8 +18,8 @@ import java.util.Locale
 
 /**
  * "Share → Image": the ayah playing now as a picture, drawn exactly like a frame of a shared
- * video (same background, card, text and highlighted word), in the shape the user picked. The
- * sources go in the message it's shared with, as for a video.
+ * video (same background, card, text and highlighted word), in the shape the user picked.
+ * The picture goes out on its own; the words are a separate share.
  */
 object ShareImage {
     /** How long a shared picture is kept for the app it went to. */
@@ -39,7 +39,7 @@ object ShareImage {
      * lights an example word, for an ayah that isn't playing. Downloads a photo it needs.
      */
     suspend fun make(context: Context, options: VideoOptions, atMs: Long?): File = withContext(Dispatchers.IO) {
-        val font = ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF
+        val font = ResourcesCompat.getFont(context, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes(PlayerSettings.mushafStyle)) ?: android.graphics.Typeface.SERIF
         val bitmap = VideoExporter(context, font).still(options.toRequest(), options.aspect.width, atMs)
         val dir = File(context.cacheDir, "images").apply { mkdirs() }
         // Clear out old pictures, but not recent ones: an app shared one may not have read it yet.
@@ -59,19 +59,18 @@ object ShareImage {
         }
         if (!partial.renameTo(file)) {
             partial.delete()
-            throw java.io.IOException("Couldn't save the picture")
+            throw java.io.IOException(tx("Couldn't save the picture"))
         }
         file
     }
 
-    fun shareIntent(context: Context, file: File, options: VideoOptions): Intent {
+    fun shareIntent(context: Context, file: File): Intent {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "image/jpeg"
             putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_TEXT, VideoMakerViewModel.caption(options))
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return Intent.createChooser(send, "Share image")
+        return Intent.createChooser(send, tx("Share image"))
     }
 }

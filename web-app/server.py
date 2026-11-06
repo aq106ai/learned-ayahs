@@ -52,12 +52,22 @@ RECITER_FOLDERS = frozenset(
         "Husary_128kbps",
         "Abdurrahmaan_As-Sudais_192kbps",
         "Saood_ash-Shuraym_128kbps",
+        "Abdul_Basit_Mujawwad_128kbps",
+        "Husary_Muallim_128kbps",
+        "Husary_128kbps_Mujawwad",
+        "Ghamadi_40kbps",
+        "Yasser_Ad-Dussary_128kbps",
+        "khalefa_al_tunaiji_64kbps",
+        "Minshawy_Murattal_128kbps",
+        "Abu_Bakr_Ash-Shaatree_128kbps",
+        "Alafasy_128kbps",
     }
 )
 EVERYAYAH = "https://everyayah.com/data"
 WORD_CLIPS = "https://audio.qurancdn.com/wbw"
 
-DATA_FILES = re.compile(r"^(quran_text|word_translations|word_timings_[a-z_]+|translation_en_saheeh|video_themes|nature_photos)\.json$")
+QURAN_FONTS = ("scheherazade_new.ttf", "amiri_quran.ttf")
+DATA_FILES = re.compile(r"^(quran_text|word_translations|word_timings_[a-z_]+|translation_en_saheeh|video_themes|nature_photos|content_catalog)\.json$")
 # The CC0 nature photos video and player backgrounds can use (see backgrounds/README).
 PHOTO_FILE = re.compile(r"^[a-z_]+_\d+(_thumb)?\.jpg$")
 AYAH_AUDIO = re.compile(r"^(?P<folder>[A-Za-z0-9_\-]+)/(?P<file>\d{6}\.mp3)$")
@@ -188,6 +198,12 @@ class Store:
             conn.execute("PRAGMA journal_mode = WAL")
             self.local.conn = conn
         return conn
+
+    def close_current_thread(self) -> None:
+        conn = getattr(self.local, "conn", None)
+        if conn is not None:
+            conn.close()
+            del self.local.conn
 
     def query(self, sql: str, params: tuple = ()) -> List[sqlite3.Row]:
         return self.conn.execute(sql, params).fetchall()
@@ -550,6 +566,12 @@ def make_handler(app: App):
 
         # -- plumbing ---------------------------------------------------------------------
 
+        def finish(self):
+            try:
+                super().finish()
+            finally:
+                app.store.close_current_thread()
+
         def log_message(self, fmt, *args):  # noqa: N802 - stdlib signature
             if not config.quiet:
                 sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
@@ -567,7 +589,7 @@ def make_handler(app: App):
                 "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
                 "img-src 'self' data: blob:; font-src 'self'; "
                 "media-src 'self' https://everyayah.com https://audio.qurancdn.com blob:; "
-                "connect-src 'self' https://everyayah.com https://audio.qurancdn.com; "
+                "connect-src 'self' https://everyayah.com https://audio.qurancdn.com https://api.quran.com; "
                 "worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'",
             )
 
@@ -673,8 +695,10 @@ def make_handler(app: App):
                     if not PHOTO_FILE.match(name):
                         raise ApiError(404, "not_found", "Not found.")
                     self.serve_file(config.photos_dir / name, "image/jpeg", "public, max-age=604800")
-                elif path == "/fonts/scheherazade_new.ttf":
-                    self.serve_file(config.font_path, "font/ttf", "public, max-age=604800")
+                elif path.startswith("/fonts/") and path[len("/fonts/"):] in QURAN_FONTS:
+                    # The mushaf styles' fonts (content_catalog.json "mushafStyles"), from the
+                    # Android app's res/font, like the Qur'an data from its assets.
+                    self.serve_file(config.font_path.parent / path[len("/fonts/"):], "font/ttf", "public, max-age=604800")
                 else:
                     self.serve_static(path)
             except ApiError as err:
@@ -1029,6 +1053,7 @@ def make_handler(app: App):
 
 def make_server(config: Config) -> ThreadingHTTPServer:
     app = App(config)
+    app.store.close_current_thread()
     server = ThreadingHTTPServer((config.host, config.port), make_handler(app))
     server.daemon_threads = True
     server.app = app  # type: ignore[attr-defined]
@@ -1050,7 +1075,8 @@ def export_static(config: Config, out: Path) -> int:
             shutil.copy2(f, out / "data" / f.name)
             copied += 1
     (out / "fonts").mkdir(exist_ok=True)
-    shutil.copy2(config.font_path, out / "fonts" / config.font_path.name)
+    for name in QURAN_FONTS:
+        shutil.copy2(config.font_path.parent / name, out / "fonts" / name)
     photos = 0
     if config.photos_dir.is_dir():
         (out / "backgrounds" / "nature").mkdir(parents=True, exist_ok=True)

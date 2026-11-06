@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.os.SystemClock
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -21,7 +22,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -115,7 +115,7 @@ fun AyahReaderContent(
                 onAdvance = onNext,
                 onGoBack = onPrevious,
             )
-            .advanceOnTap(enabled = tapAdvances, label = "Next ayah", onTap = onNext),
+            .advanceOnTap(enabled = tapAdvances, label = tx("Next ayah"), onTap = onNext),
     ) {
         if (wordByWord) {
             WordByWordView(
@@ -204,24 +204,26 @@ private fun WholeAyahReader(
 }
 
 /**
- * The current ayah's English translation (Saheeh International, the one shared videos use) when
+ * The current ayah in the chosen translation edition (the one shared videos use) when
  * [PlayerSettings.showAyahTranslation] is on; null while it loads, or when it's off. Loaded off
- * the main thread: the first call reads the whole translation asset.
+ * the main thread: the first call reads the whole edition, or downloads it.
  */
 @Composable
 private fun rememberAyahTranslation(state: PlayerUiState): String? {
     val show by PlayerSettings.showAyahTranslationFlow.collectAsState()
+    val edition by PlayerSettings.translationEditionFlow.collectAsState()
     val track = state.currentTrack
     val context = LocalContext.current
-    val key = if (show && track != null) track.surah to track.ayah else null
-    // Kept with the ayah it belongs to: produceState holds its last value while it reloads, and
-    // without the key the previous ayah's translation showed under the new Arabic until then.
-    val loaded by produceState<Pair<Pair<Int, Int>, String?>?>(null, key) {
-        value = key?.let { (surah, ayah) ->
-            key to withContext(Dispatchers.IO) { VideoTexts(context).translation(surah, ayah) }
+    val key = if (show && track != null) Triple(track.surah, track.ayah, edition) else null
+    // Clear the old translation as soon as the ayah changes. The keyed effect cancels an
+    // obsolete load, so it cannot put the previous ayah's translation under new Arabic.
+    var loaded by remember(key) { mutableStateOf<String?>(null) }
+    LaunchedEffect(key) {
+        loaded = key?.let { (surah, ayah) ->
+            withContext(Dispatchers.IO) { VideoTexts(context).translation(surah, ayah) }
         }
     }
-    return loaded?.takeIf { it.first == key }?.second
+    return loaded
 }
 
 @Composable
@@ -346,7 +348,7 @@ private fun AyahWordsContent(
     val showTranslations by PlayerSettings.showWordTranslationsFlow.collectAsState()
     when {
         state.ayahTextLoading -> Text(
-            text = "Loading text…",
+            text = tx("Loading text…"),
             color = TextMuted,
             modifier = modifier,
             textAlign = TextAlign.Center,

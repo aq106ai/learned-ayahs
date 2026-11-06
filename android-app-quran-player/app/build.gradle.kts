@@ -28,8 +28,8 @@ android {
         // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
         // every screen inside the safe area.
         targetSdk = 36
-        versionCode = 45
-        versionName = "1.12.0"
+        versionCode = 46
+        versionName = "1.12.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -102,6 +102,7 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
+    testImplementation(composeBom)
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity-compose:1.8.2")
@@ -117,12 +118,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.media3:media3-exoplayer:1.2.1")
     implementation("androidx.media3:media3-session:1.2.1")
+    // QR code on the video's closing card. Encode only — no camera.
+    implementation("com.google.zxing:core:3.5.3")
 
     // Local JVM unit tests (Robolectric supplies SharedPreferences + org.json off-device).
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.11.1")
     testImplementation("androidx.test:core-ktx:1.5.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    // Compose UI tests on the JVM (Robolectric), for screens that need no device: ContentChoicesTest.
+    testImplementation("androidx.compose.ui:ui-test-junit4")
 
     // Instrumented end-to-end tests (Espresso + Compose UI test).
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

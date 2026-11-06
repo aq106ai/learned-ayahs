@@ -39,8 +39,8 @@ test('the video maker previews the ayah and makes a video with sound and picture
     const head = new Uint8Array(await blob.slice(0, 64).arrayBuffer());
     return { size: blob.size, container: format.container, durationMs, stages: [...stages], head: Array.from(head) };
   });
-  // A'udhu (0.6 s) + Bismillah (0.6 s) + four 1.2 s ayahs, with the lead-in, gaps and tail.
-  assert.equal(made.durationMs, 500 + 600 + 400 + 600 + 4 * (400 + 1200) + 1800);
+  // A'udhu (0.6 s) + Bismillah (0.6 s) + four 1.2 s ayahs, with the lead-in, gaps, tail and end card.
+  assert.equal(made.durationMs, 500 + 600 + 400 + 600 + 4 * (400 + 1200) + 1800 + 4000);
   assert.deepEqual(made.stages, ['DOWNLOADING', 'AUDIO', 'VIDEO']);
   assert.ok(made.size > 20_000, `video is ${made.size} bytes`);
   if (made.container === 'webm') assert.deepEqual(made.head.slice(0, 4), [0x1a, 0x45, 0xdf, 0xa3], 'a WebM (EBML) file');
@@ -54,8 +54,10 @@ test('the video maker previews the ayah and makes a video with sound and picture
   assert.match(download.suggestedFilename(), /^LearnedAyahs_112_001-004_1x1\.(mp4|webm)$/);
   const file = readFileSync(await download.path());
   assert.ok(file.length > 20_000);
-  const captionText = await page.textContent('[data-testid=video-caption]');
-  assert.match(captionText, /Recitation: Maher Al Muaiqly \(everyayah\.com\)/);
+  assert.equal(await page.$('[data-testid=video-caption]'), null);
+  await page.waitForSelector('[data-testid=video-share-text]');
+  assert.equal(await page.isChecked('[data-testid=video-bismillah]'), true, 'Bismillah is on for the start of a surah');
+  assert.equal(await page.isChecked('[data-testid=video-endCard]'), true, 'the end card is on');
   assert.deepEqual(errors, []);
   await context.close();
 });
@@ -76,6 +78,7 @@ test('a background turns the player into the video look, with the translation', 
   await page.waitForSelector('.player.with-bg');
   await page.waitForFunction(() => /He is Allah/.test(document.querySelector('[data-testid=ayah-translation]')?.textContent ?? ''));
   // The scene has actually been painted.
+  await page.waitForFunction(() => document.querySelector('.player')?.style.getPropertyValue('--bg'), null, { timeout: 15000 });
   await page.waitForFunction(() => {
     const c = document.querySelector('[data-testid=player-background]');
     if (!c || c.hidden || !c.width) return false;
@@ -94,6 +97,8 @@ test('Share → Image saves a picture of the ayah; Share → Video opens the mak
 
   await page.click('[data-testid=share]');
   await page.click('[data-testid=share-aspect-TALL]');
+  // Exercise the download fallback explicitly; desktop Chrome can expose native file sharing.
+  await page.evaluate(() => { navigator.canShare = () => false; });
   const download = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.click('.dialog .btn.primary')]).then(([d]) => d);
   assert.equal(download.suggestedFilename(), 'LearnedAyahs_112_001-001_4x5.jpg');
   const jpg = readFileSync(await download.path());
@@ -106,6 +111,34 @@ test('Share → Image saves a picture of the ayah; Share → Video opens the mak
   assert.match(page.url(), /#\/video\/112\/1\/player$/);
   // Started out like the player: its chosen background is selected.
   await page.waitForSelector('[data-testid=video-theme-night][aria-pressed=true]');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+
+test('a range can be copied as Arabic or English without creating a video', async () => {
+  const { page, context, errors } = await openApp(browser, server, { path: 'video/112/1' });
+  await page.evaluate(() => {
+    window.__copies = [];
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (text) => window.__copies.push(text) } });
+  });
+  await page.fill('[data-testid=video-to]', '2');
+  await page.dispatchEvent('[data-testid=video-to]', 'change');
+  await page.click('[data-testid=video-text-english]');
+  await page.click('[data-testid=video-copy-text]');
+  await page.waitForFunction(() => window.__copies.length === 1);
+  let text = await page.evaluate(() => window.__copies[0]);
+  assert.match(text, /Al-Ikhlas 112:1-2/);
+  assert.match(text, /[\u0600-\u06ff]/);
+  assert.doesNotMatch(text, /Say|Allah, the Eternal/);
+  await page.click('[data-testid=video-text-english]');
+  await page.click('[data-testid=video-text-arabic]');
+  await page.click('[data-testid=video-copy-text]');
+  await page.waitForFunction(() => window.__copies.length === 2);
+  text = await page.evaluate(() => window.__copies[1]);
+  assert.match(text, /Say/);
+  assert.doesNotMatch(text, /[\u0600-\u06ff]/);
+  assert.equal(await page.locator('[data-testid=video-download]').count(), 0);
   assert.deepEqual(errors, []);
   await context.close();
 });

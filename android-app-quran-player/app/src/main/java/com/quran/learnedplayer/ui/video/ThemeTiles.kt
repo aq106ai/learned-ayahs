@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui.video
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -134,7 +135,7 @@ fun ThemeTile(
             if (image != null) {
                 Image(image.asImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             } else if (subtitle != null) {
-                Text("Auto", color = if (selected) AccentGreen else TextMuted, style = MaterialTheme.typography.labelLarge)
+                Text(tx("Auto"), color = if (selected) AccentGreen else TextMuted, style = MaterialTheme.typography.labelLarge)
             }
         }
         Text(title, style = MaterialTheme.typography.labelSmall, color = if (selected) AccentGreen else TextPrimary, maxLines = 2)

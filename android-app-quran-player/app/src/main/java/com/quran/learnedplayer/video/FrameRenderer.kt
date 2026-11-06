@@ -1,5 +1,7 @@
 package com.quran.learnedplayer.video
 
+import com.quran.learnedplayer.data.ContentRepository
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -8,6 +10,8 @@ import android.graphics.Typeface
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
 import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.data.WordSync
 import kotlin.math.min
@@ -92,12 +96,18 @@ class FrameRenderer(
 
     private val pagesCache = HashMap<TimelineClip, Pair<ClipText, AyahPages>>()
     private val translationCache = HashMap<Triple<TimelineClip, Int, Int>, StaticLayout>()
+    private val qr: Bitmap? = if (timeline.endCardMs > 0) qrBitmap((min(width, height) * 0.34f).toInt().coerceAtLeast(64)) else null
 
     fun draw(canvas: Canvas, ms: Long) {
         val (slot, previous, fade) = BackgroundPlan.at(slots, ms)
         canvas.drawColor(Color.BLACK) // the frame bitmap is reused; start each frame clean
         if (previous != null) scenes.draw(canvas, sceneFor(previous.themeKey, previous.variant), ms)
         scenes.draw(canvas, sceneFor(slot.themeKey, slot.variant), ms, (fade * 255).toInt())
+
+        if (timeline.showsEndCard(ms)) {
+            drawEndCard(canvas)
+            return
+        }
 
         val clip = timeline.clipAt(ms) ?: return
         val (text, pages) = pagesCache.getOrPut(clip) {
@@ -119,7 +129,62 @@ class FrameRenderer(
         drawLabels(canvas, text, creditFor(slot.themeKey, slot.variant))
     }
 
-    fun release() = scenes.release()
+    fun release() {
+        scenes.release()
+        qr?.recycle()
+    }
+
+    /** The closing page: who made the video, and where to get the app. */
+    private fun drawEndCard(canvas: Canvas) {
+        drawCard(canvas)
+        labelPaint.textAlign = Paint.Align.CENTER
+        labelPaint.color = Color.WHITE
+        labelPaint.setShadowLayer(8f * u, 0f, 2f * u, Color.argb(170, 0, 0, 0))
+        labelPaint.textSize = 48f * u
+        var y = card.top + 72f * u
+        canvas.drawText("This video was made with", w / 2, y, labelPaint)
+        y += 64f * u
+        labelPaint.textSize = 56f * u
+        canvas.drawText("Learned Ayahs", w / 2, y, labelPaint)
+        y += 52f * u
+        labelPaint.textSize = 34f * u
+        labelPaint.color = Color.argb(230, 255, 255, 255)
+        canvas.drawText("Download on Google Play", w / 2, y, labelPaint)
+
+        val code = qr
+        if (code != null) {
+            val top = y + 28f * u
+            val left = w / 2 - code.width / 2f
+            // A white mat so the code stays scannable on a dark scene.
+            cardPaint.style = Paint.Style.FILL
+            cardPaint.color = Color.WHITE
+            canvas.drawRoundRect(
+                RectF(left - 16f * u, top - 16f * u, left + code.width + 16f * u, top + code.height + 16f * u),
+                12f * u, 12f * u, cardPaint,
+            )
+            canvas.drawBitmap(code, left, top, null)
+            y = top + code.height + 48f * u
+        }
+        labelPaint.color = Color.argb(200, 255, 255, 255)
+        var urlSize = 22f * u
+        labelPaint.textSize = urlSize
+        while (labelPaint.measureText(VideoRequest.PLAY_STORE_URL) > w * 0.9f && urlSize > 12f * u) {
+            urlSize *= 0.9f
+            labelPaint.textSize = urlSize
+        }
+        canvas.drawText(VideoRequest.PLAY_STORE_URL, w / 2, y, labelPaint)
+    }
+
+    private fun qrBitmap(size: Int): Bitmap {
+        val matrix = QRCodeWriter().encode(VideoRequest.PLAY_STORE_URL, BarcodeFormat.QR_CODE, size, size)
+        return Bitmap.createBitmap(matrix.width, matrix.height, Bitmap.Config.ARGB_8888).also { bitmap ->
+            for (x in 0 until matrix.width) {
+                for (y in 0 until matrix.height) {
+                    bitmap.setPixel(x, y, if (matrix.get(x, y)) Color.BLACK else Color.WHITE)
+                }
+            }
+        }
+    }
 
     private fun drawCard(canvas: Canvas) {
         cardPaint.color = Color.argb(118, 4, 8, 10)
@@ -188,14 +253,14 @@ class FrameRenderer(
         labelPaint.textSize = 40f * u
         labelPaint.setShadowLayer(8f * u, 0f, 2f * u, Color.argb(170, 0, 0, 0))
         canvas.drawText(text.reference, w / 2, card.top - 42f * u, labelPaint)
-        // Off by default: the sources go with the video in the text it's shared with instead.
+        // Off by default: the picture stays clean, and the sources stay in the app.
         if (!request.credits) return
 
         labelPaint.textSize = 26f * u
         labelPaint.color = Color.argb(225, 255, 255, 255)
         val credits = buildList {
             add("Recitation: ${request.reciter.displayName} · everyayah.com")
-            if (request.fullTranslation) add("Translation: Saheeh International · tanzil.net")
+            if (request.fullTranslation) add("Translation: ${ContentRepository.edition()?.credit ?: "Saheeh International · Tanzil.net"}")
             if (request.wordByWord) add("Word meanings: Quran.com")
             if (backgroundCredit != null) add(backgroundCredit)
         }

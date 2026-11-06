@@ -1,0 +1,2442 @@
+{
+ " (offline)": {
+  "ur": "(آف لائن)",
+  "ar": "(دون اتصال)"
+ },
+ " (you)": {
+  "ur": " (آپ)",
+  "ar": " (أنت)"
+ },
+ " ({0} failed)": {
+  "ur": " ({0} ناکام)",
+  "ar": " ({0} فشل)"
+ },
+ " · pausing before repeat": {
+  "ur": " · دہرانے سے پہلے وقفہ",
+  "ar": " · توقف قبل التكرار"
+ },
+ " — also in Settings.": {
+  "ur": " — یہ سیٹنگز میں بھی ہے۔",
+  "ar": " — وهي في الإعدادات أيضًا."
+ },
+ "\"Keep refreshing your knowledge of the Qur'an, for by Him in Whose Hand my soul is, it is more liable to escape than camels which are tied.\"": {
+  "ur": "”قرآن کی نگہداشت کرتے رہو، اس ذات کی قسم جس کے ہاتھ میں محمد کی جان ہے، یہ رسیوں میں بندھے اونٹوں سے بھی زیادہ تیزی سے نکل جاتا ہے۔“",
+  "ar": "أي: داوموا على مراجعة القرآن، فإنه أسرع تفلتًا من الإبل المعقولة."
+ },
+ "1 ayah": {
+  "ur": "1 آیت",
+  "ar": "آية واحدة"
+ },
+ "1 learned ayah": {
+  "ur": "1 یاد کی ہوئی آیت",
+  "ar": "آية محفوظة واحدة"
+ },
+ "1 word": {
+  "ur": "1 لفظ",
+  "ar": "كلمة واحدة"
+ },
+ "36:1-83, Al-Mulk, 78-114": {
+  "ur": "36:1-83، الملک، 78-114",
+  "ar": "36:1-83، الملك، 78-114"
+ },
+ "A closing page with the Play Store link": {
+  "ur": "آخر میں پلے اسٹور لنک والا صفحہ",
+  "ar": "صفحة ختامية برابط متجر Play"
+ },
+ "A video of it recited, a picture of it as it looks now, or the words themselves.": {
+  "ur": "اس کی تلاوت کی ویڈیو، ابھی جیسی نظر آتی ہے اس کی تصویر، یا صرف الفاظ۔",
+  "ar": "فيديو بتلاوتها، أو صورة كما تظهر الآن، أو كلماتها نفسها."
+ },
+ "A'udhu Billah": {
+  "ur": "اعوذ باللہ",
+  "ar": "الاستعاذة"
+ },
+ "About": {
+  "ur": "تعارف",
+  "ar": "حول التطبيق"
+ },
+ "Account": {
+  "ur": "اکاؤنٹ",
+  "ar": "الحساب"
+ },
+ "Account deleted.": {
+  "ur": "اکاؤنٹ حذف کر دیا گیا۔",
+  "ar": "تم حذف الحساب."
+ },
+ "Add": {
+  "ur": "شامل کریں",
+  "ar": "إضافة"
+ },
+ "Add by description": {
+  "ur": "تفصیل لکھ کر شامل کریں",
+  "ar": "الإضافة بالوصف"
+ },
+ "Add this browser’s ayahs?": {
+  "ur": "اس براؤزر کی آیات شامل کریں؟",
+  "ar": "إضافة آيات هذا المتصفح؟"
+ },
+ "Add {n} ayahs": {
+  "ur": "{n} آیات شامل کریں",
+  "ar": "أضف {n} آية"
+ },
+ "Added {0} ayahs.": {
+  "ur": "{0} آیات شامل کر دی گئیں۔",
+  "ar": "أُضيفت {0} آية."
+ },
+ "Added {n} ayahs.": {
+  "ur": "{n} آیات شامل کر دی گئیں۔",
+  "ar": "أُضيفت {n} آية."
+ },
+ "Adding a lot at once? “Add by description” at the bottom of the surah list takes refs like 2:255, 36:1-83, or whole surahs like 112.": {
+  "ur": "ایک ساتھ بہت سی شامل کرنی ہیں؟ سورتوں کی فہرست کے نیچے ”تفصیل لکھ کر شامل کریں“ میں 2:255، 36:1-83 جیسے حوالے یا 112 جیسی پوری سورتیں لکھ سکتے ہیں۔",
+  "ar": "تريد إضافة الكثير دفعة واحدة؟ «الإضافة بالوصف» أسفل قائمة السور تقبل مراجع مثل 2:255 و36:1-83 أو سورًا كاملة مثل 112."
+ },
+ "Adding a lot at once? “Add by description” takes refs like 2:255, 36:1-83, or whole surahs like 112.": {
+  "ur": "ایک ساتھ بہت سی شامل کرنی ہیں؟ ”تفصیل لکھ کر شامل کریں“ میں 2:255، 36:1-83 جیسے حوالے یا 112 جیسی پوری سورتیں لکھ سکتے ہیں۔",
+  "ar": "تريد إضافة الكثير دفعة واحدة؟ «الإضافة بالوصف» تقبل مراجع مثل 2:255 و36:1-83 أو سورًا كاملة مثل 112."
+ },
+ "Adds a Recite button to the player and a Recite tab.": {
+  "ur": "پلیئر میں تلاوت کا بٹن اور تلاوت کا ٹیب شامل کرتا ہے۔",
+  "ar": "يضيف زر التلاوة إلى المشغل وتبويب التلاوة."
+ },
+ "Admin": {
+  "ur": "منتظم",
+  "ar": "المشرف"
+ },
+ "Administrator": {
+  "ur": "منتظم",
+  "ar": "مشرف"
+ },
+ "Administrators only": {
+  "ur": "صرف منتظمین",
+  "ar": "للمشرفين فقط"
+ },
+ "All ayahs unmarked.": {
+  "ur": "تمام آیات کا نشان ہٹا دیا گیا۔",
+  "ar": "أُلغي تعليم جميع الآيات."
+ },
+ "All surahs": {
+  "ur": "تمام سورتیں",
+  "ar": "كل السور"
+ },
+ "Already have an account? ": {
+  "ur": "پہلے سے اکاؤنٹ ہے؟ ",
+  "ar": "لديك حساب بالفعل؟ "
+ },
+ "Already marked · {0} ayahs in 1 surah": {
+  "ur": "پہلے سے نشان زد · 1 سورت میں {0} آیات",
+  "ar": "معلَّمة مسبقًا · {0} آية في سورة واحدة"
+ },
+ "Already marked · {0} ayahs in {1} surahs": {
+  "ur": "پہلے سے نشان زد · {1} سورتوں میں {0} آیات",
+  "ar": "معلَّمة مسبقًا · {0} آية في {1} سورة"
+ },
+ "Already marked · {n} ayahs in 1 surah": {
+  "ur": "پہلے سے نشان زد · 1 سورت میں {n} آیات",
+  "ar": "معلَّمة مسبقًا · {n} آية في سورة واحدة"
+ },
+ "Already marked · {n} ayahs in {surahs} surahs": {
+  "ur": "پہلے سے نشان زد · {surahs} سورتوں میں {n} آیات",
+  "ar": "معلَّمة مسبقًا · {n} آية في {surahs} سورة"
+ },
+ "Already use the Android app? Export there, then Import here — the files are the same.": {
+  "ur": "اینڈرائیڈ ایپ استعمال کرتے ہیں؟ وہاں ایکسپورٹ کریں، پھر یہاں امپورٹ کریں — فائلیں ایک جیسی ہیں۔",
+  "ar": "تستخدم تطبيق أندرويد؟ صدِّر هناك ثم استورد هنا — الملفات نفسها."
+ },
+ "Already used this app? “Import”, beside it, restores an exported backup.": {
+  "ur": "یہ ایپ پہلے استعمال کی ہے؟ ساتھ والا ”امپورٹ“ ایکسپورٹ کیا ہوا بیک اپ بحال کرتا ہے۔",
+  "ar": "استخدمت التطبيق من قبل؟ «استيراد» بجانبه يستعيد نسخة احتياطية مصدَّرة."
+ },
+ "Always confirm your memorisation and recitation with a qualified teacher.": {
+  "ur": "اپنے حفظ اور تلاوت کی تصدیق ہمیشہ کسی مستند استاد سے کروائیں۔",
+  "ar": "تحقَّق دائمًا من حفظك وتلاوتك مع معلّم مؤهَّل."
+ },
+ "App language": {
+  "ur": "ایپ کی زبان",
+  "ar": "لغة التطبيق"
+ },
+ "Arabic": {
+  "ur": "عربی",
+  "ar": "العربية"
+ },
+ "Arabic font Amiri Quran (the \"Amiri Quran\" mushaf style)": {
+  "ur": "عربی فونٹ امیری قرآن (”امیری قرآن“ مصحف انداز)",
+  "ar": "الخط العربي «أميري قرآن» (نمط المصحف «أميري قرآن»)"
+ },
+ "Arabic font Scheherazade New": {
+  "ur": "عربی فونٹ شہرزاد نیو",
+  "ar": "الخط العربي «شهرزاد الجديد»"
+ },
+ "Arabic is available offline ({0}).": {
+  "ur": "عربی آف لائن دستیاب ہے ({0})۔",
+  "ar": "العربية متاحة دون اتصال ({0})."
+ },
+ "Arabic is available offline — Recite will use it.": {
+  "ur": "عربی آف لائن دستیاب ہے — تلاوت اسی کو استعمال کرے گی۔",
+  "ar": "العربية متاحة دون اتصال — ستستخدمها التلاوة."
+ },
+ "Arabic is not downloaded yet, so Recite needs a connection.": {
+  "ur": "عربی ابھی ڈاؤن لوڈ نہیں ہوئی، اس لیے تلاوت کو انٹرنیٹ درکار ہے۔",
+  "ar": "لم تُنزَّل العربية بعد، لذا تحتاج التلاوة إلى اتصال."
+ },
+ "Arabic speech recognition is not available on this phone. Add Arabic in your phone's voice input settings and try again.": {
+  "ur": "اس فون پر عربی آواز کی شناخت دستیاب نہیں۔ اپنے فون کی وائس اِن پٹ سیٹنگز میں عربی شامل کر کے دوبارہ کوشش کریں۔",
+  "ar": "التعرّف على الكلام العربي غير متاح على هذا الهاتف. أضف العربية في إعدادات الإدخال الصوتي في هاتفك ثم حاول مجددًا."
+ },
+ "Asking your phone to download Arabic…": {
+  "ur": "آپ کے فون سے عربی ڈاؤن لوڈ کرنے کو کہا جا رہا ہے…",
+  "ar": "يُطلب من هاتفك تنزيل العربية…"
+ },
+ "At least 8 characters.": {
+  "ur": "کم از کم 8 حروف۔",
+  "ar": "8 أحرف على الأقل."
+ },
+ "At-Tawbah is recited without it": {
+  "ur": "سورۃ التوبہ اس کے بغیر پڑھی جاتی ہے",
+  "ar": "سورة التوبة تُتلى بدونها"
+ },
+ "Auto": {
+  "ur": "خودکار",
+  "ar": "تلقائي"
+ },
+ "Auto scroll": {
+  "ur": "خودکار اسکرول",
+  "ar": "تمرير تلقائي"
+ },
+ "Auto-advance on success": {
+  "ur": "درست پڑھنے پر خود آگے بڑھیں",
+  "ar": "التقدم تلقائيًا عند النجاح"
+ },
+ "Auto-play audio on mistake": {
+  "ur": "غلطی پر آڈیو خود چلائیں",
+  "ar": "تشغيل الصوت تلقائيًا عند الخطأ"
+ },
+ "Automatically move to next ayah when recitation is 100% correct.": {
+  "ur": "تلاوت 100% درست ہونے پر خود اگلی آیت پر جائیں۔",
+  "ar": "الانتقال تلقائيًا إلى الآية التالية عندما تكون التلاوة صحيحة 100%."
+ },
+ "Ayah": {
+  "ur": "آیت",
+  "ar": "آية"
+ },
+ "Ayah recitations by {0}": {
+  "ur": "آیات کی تلاوت: {0}",
+  "ar": "تلاوة الآيات: {0}"
+ },
+ "Ayah recitations by {names}": {
+  "ur": "آیات کی تلاوت: {names}",
+  "ar": "تلاوة الآيات: {names}"
+ },
+ "Ayah reciter": {
+  "ur": "آیات کے قاری",
+  "ar": "قارئ الآيات"
+ },
+ "Ayah references, or JSON from an AI assistant": {
+  "ur": "آیات کے حوالے، یا کسی AI اسسٹنٹ کا JSON",
+  "ar": "مراجع الآيات، أو JSON من مساعد ذكاء اصطناعي"
+ },
+ "Ayah references, or JSON from an LLM": {
+  "ur": "آیات کے حوالے، یا کسی LLM کا JSON",
+  "ar": "مراجع الآيات، أو JSON من نموذج لغوي"
+ },
+ "Ayah text": {
+  "ur": "آیت کا متن",
+  "ar": "نص الآية"
+ },
+ "Ayah text unavailable.": {
+  "ur": "آیت کا متن دستیاب نہیں۔",
+  "ar": "نص الآية غير متاح."
+ },
+ "Ayah to recite": {
+  "ur": "پڑھنے کے لیے آیت",
+  "ar": "الآية المراد تلاوتها"
+ },
+ "Ayah translation": {
+  "ur": "آیت کا ترجمہ",
+  "ar": "ترجمة الآية"
+ },
+ "Ayah {0}": {
+  "ur": "آیت {0}",
+  "ar": "الآية {0}"
+ },
+ "Ayah {n}": {
+  "ur": "آیت {n}",
+  "ar": "الآية {n}"
+ },
+ "Ayahs": {
+  "ur": "آیات",
+  "ar": "الآيات"
+ },
+ "ayahs marked learned, in 1 surah": {
+  "ur": "آیات یاد کے طور پر نشان زد، 1 سورت میں",
+  "ar": "آية معلَّمة محفوظة، في سورة واحدة"
+ },
+ "ayahs marked learned, in {n} surahs": {
+  "ur": "آیات یاد کے طور پر نشان زد، {n} سورتوں میں",
+  "ar": "آية معلَّمة محفوظة، في {n} سورة"
+ },
+ "ayahs marked — open a surah and tick the ayahs you know": {
+  "ur": "آیات نشان زد — کوئی سورت کھولیں اور جو آیات یاد ہیں ان پر نشان لگائیں",
+  "ar": "آية معلَّمة — افتح سورة وعلِّم الآيات التي تحفظها"
+ },
+ "Back": {
+  "ur": "واپس",
+  "ar": "رجوع"
+ },
+ "Back up your list, move it between devices, or bring it in from the Android app. Files are interchangeable with the Android app.": {
+  "ur": "اپنی فہرست کا بیک اپ لیں، ایک ڈیوائس سے دوسری پر لے جائیں، یا اینڈرائیڈ ایپ سے لائیں۔ فائلیں اینڈرائیڈ ایپ کے ساتھ قابلِ تبادلہ ہیں۔",
+  "ar": "احفظ نسخة من قائمتك، أو انقلها بين الأجهزة، أو استوردها من تطبيق أندرويد. الملفات متوافقة مع تطبيق أندرويد."
+ },
+ "Background": {
+  "ur": "پس منظر",
+  "ar": "الخلفية"
+ },
+ "Backgrounds are drawn scenes of sky, land, water, light and pattern, never people or animals. Videos carry no music, only the recitation.": {
+  "ur": "پس منظر آسمان، زمین، پانی، روشنی اور نقش و نگار کے بنائے ہوئے مناظر ہیں، کبھی انسان یا جانور نہیں۔ ویڈیوز میں موسیقی نہیں، صرف تلاوت ہوتی ہے۔",
+  "ar": "الخلفيات مشاهد مرسومة للسماء والأرض والماء والضوء والزخارف، ولا تتضمن بشرًا ولا حيوانات. ولا موسيقى في الفيديو، بل التلاوة فقط."
+ },
+ "Before signing in you had marked {count} ayahs in this browser; {fresh} of them are not in your account. Add them to your account?": {
+  "ur": "سائن ان سے پہلے آپ نے اس براؤزر میں {count} آیات نشان زد کی تھیں؛ ان میں سے {fresh} آپ کے اکاؤنٹ میں نہیں ہیں۔ انہیں اکاؤنٹ میں شامل کریں؟",
+  "ar": "قبل تسجيل الدخول علّمت {count} آية في هذا المتصفح؛ {fresh} منها ليست في حسابك. هل تضيفها إلى حسابك؟"
+ },
+ "Begin": {
+  "ur": "شروع کریں",
+  "ar": "ابدأ"
+ },
+ "Begin with A'udhu": {
+  "ur": "اعوذ باللہ سے شروع کریں",
+  "ar": "البدء بالاستعاذة"
+ },
+ "Behind the ayah while it plays": {
+  "ur": "تلاوت کے دوران آیت کے پیچھے",
+  "ar": "خلف الآية أثناء تلاوتها"
+ },
+ "Beta": {
+  "ur": "بیٹا",
+  "ar": "تجريبي"
+ },
+ "Bismillah": {
+  "ur": "بسم اللہ",
+  "ar": "البسملة"
+ },
+ "Bookmark this ayah": {
+  "ur": "اس آیت کو بک مارک کریں",
+  "ar": "أضف هذه الآية إلى المفضلة"
+ },
+ "Bookmarks": {
+  "ur": "بک مارکس",
+  "ar": "المفضلة"
+ },
+ "Both": {
+  "ur": "دونوں",
+  "ar": "كلاهما"
+ },
+ "Browse surahs": {
+  "ur": "سورتیں دیکھیں",
+  "ar": "تصفّح السور"
+ },
+ "Browser's language": {
+  "ur": "براؤزر کی زبان",
+  "ar": "لغة المتصفح"
+ },
+ "Bypass this server's audio cache. Turn on if the server has no internet access.": {
+  "ur": "اس سرور کے آڈیو کیش کو نظرانداز کریں۔ اگر سرور کو انٹرنیٹ تک رسائی نہیں تو اسے آن کریں۔",
+  "ar": "تجاوز ذاكرة الصوت المؤقتة لهذا الخادم. فعِّله إن لم يكن للخادم اتصال بالإنترنت."
+ },
+ "Cancel": {
+  "ur": "منسوخ کریں",
+  "ar": "إلغاء"
+ },
+ "Change": {
+  "ur": "تبدیل کریں",
+  "ar": "تغيير"
+ },
+ "Change password": {
+  "ur": "پاس ورڈ تبدیل کریں",
+  "ar": "تغيير كلمة المرور"
+ },
+ "Change tafsir": {
+  "ur": "تفسیر تبدیل کریں",
+  "ar": "تغيير التفسير"
+ },
+ "Check your connection, or save ayahs for offline in Settings.": {
+  "ur": "اپنا کنکشن چیک کریں، یا سیٹنگز میں آیات آف لائن محفوظ کریں۔",
+  "ar": "تحقق من اتصالك، أو احفظ الآيات للاستخدام دون اتصال من الإعدادات."
+ },
+ "Checking Arabic speech support…": {
+  "ur": "عربی آواز کی شناخت کی سہولت جانچی جا رہی ہے…",
+  "ar": "جارٍ التحقق من دعم التعرف على الكلام العربي…"
+ },
+ "Checking…": {
+  "ur": "جانچ ہو رہی ہے…",
+  "ar": "جارٍ التحقق…"
+ },
+ "Choose a tafsir to read commentary on this ayah. It downloads from Quran.com and is kept for offline use. You can change it later in Settings.": {
+  "ur": "اس آیت کی تفسیر پڑھنے کے لیے کوئی تفسیر منتخب کریں۔ یہ Quran.com سے ڈاؤن لوڈ ہو کر آف لائن استعمال کے لیے محفوظ رہتی ہے۔ آپ اسے بعد میں سیٹنگز میں تبدیل کر سکتے ہیں۔",
+  "ar": "اختر تفسيرًا لقراءة شرح هذه الآية. يُنزَّل من Quran.com ويُحفظ للاستخدام دون اتصال. يمكنك تغييره لاحقًا من الإعدادات."
+ },
+ "Choose a tafsir:": {
+  "ur": "تفسیر منتخب کریں:",
+  "ar": "اختر تفسيرًا:"
+ },
+ "Choose a tafsir…": {
+  "ur": "تفسیر منتخب کریں…",
+  "ar": "اختر تفسيرًا…"
+ },
+ "Choose at least one ayah": {
+  "ur": "کم از کم ایک آیت منتخب کریں",
+  "ar": "اختر آية واحدة على الأقل"
+ },
+ "Choose surah…": {
+  "ur": "سورت منتخب کریں…",
+  "ar": "اختر سورة…"
+ },
+ "Chosen": {
+  "ur": "منتخب",
+  "ar": "مختار"
+ },
+ "Close": {
+  "ur": "بند کریں",
+  "ar": "إغلاق"
+ },
+ "Collapse": {
+  "ur": "سمیٹیں",
+  "ar": "طيّ"
+ },
+ "Collapse controls": {
+  "ur": "کنٹرول سمیٹیں",
+  "ar": "طيّ عناصر التحكم"
+ },
+ "Collapse the sidebar": {
+  "ur": "سائیڈ بار سمیٹیں",
+  "ar": "طيّ الشريط الجانبي"
+ },
+ "Commentary on the current ayah, from the Tafsir button in the player.": {
+  "ur": "موجودہ آیت کی تفسیر، پلیئر کے تفسیر بٹن سے۔",
+  "ar": "شرح الآية الحالية، من زر التفسير في المشغل."
+ },
+ "Confirm with your password": {
+  "ur": "اپنے پاس ورڈ سے تصدیق کریں",
+  "ar": "أكِّد بكلمة المرور"
+ },
+ "Copy AI prompt": {
+  "ur": "AI پرامپٹ کاپی کریں",
+  "ar": "نسخ موجّه الذكاء الاصطناعي"
+ },
+ "Copy LLM prompt": {
+  "ur": "LLM پرامپٹ کاپی کریں",
+  "ar": "نسخ موجّه النموذج اللغوي"
+ },
+ "Copy text": {
+  "ur": "متن کاپی کریں",
+  "ar": "نسخ النص"
+ },
+ "Copy the prompt into any AI assistant, describe your memorisation in your own words, then paste its reply back into the box above. Nothing is sent anywhere by this app.": {
+  "ur": "پرامپٹ کسی بھی AI اسسٹنٹ میں کاپی کریں، اپنے حفظ کو اپنے الفاظ میں بیان کریں، پھر اس کا جواب اوپر والے خانے میں پیسٹ کریں۔ یہ ایپ کچھ بھی کہیں نہیں بھیجتی۔",
+  "ar": "انسخ الموجّه إلى أي مساعد ذكاء اصطناعي، وصِف حفظك بكلماتك، ثم الصق ردّه في المربع أعلاه. هذا التطبيق لا يرسل شيئًا إلى أي مكان."
+ },
+ "Copy the prompt into any AI assistant, describe your memorisation in your own words, then paste its reply into the box above. Nothing is sent anywhere by this app.": {
+  "ur": "پرامپٹ کسی بھی AI اسسٹنٹ میں کاپی کریں، اپنے حفظ کو اپنے الفاظ میں بیان کریں، پھر اس کا جواب اوپر والے خانے میں پیسٹ کریں۔ یہ ایپ کچھ بھی کہیں نہیں بھیجتی۔",
+  "ar": "انسخ الموجّه إلى أي مساعد ذكاء اصطناعي، وصِف حفظك بكلماتك، ثم الصق ردّه في المربع أعلاه. هذا التطبيق لا يرسل شيئًا إلى أي مكان."
+ },
+ "Could not check offline Arabic on this phone — Recite will use online recognition.": {
+  "ur": "اس فون پر آف لائن عربی جانچی نہیں جا سکی — تلاوت آن لائن شناخت استعمال کرے گی۔",
+  "ar": "تعذّر التحقق من العربية دون اتصال على هذا الهاتف — ستستخدم التلاوة التعرّف عبر الإنترنت."
+ },
+ "Could not open the microphone.": {
+  "ur": "مائیکروفون نہیں کھل سکا۔",
+  "ar": "تعذّر فتح الميكروفون."
+ },
+ "Could not reach the clipboard; the prompt is in the box above to copy.": {
+  "ur": "کلپ بورڈ تک رسائی نہیں ہو سکی؛ پرامپٹ کاپی کرنے کے لیے اوپر والے خانے میں ہے۔",
+  "ar": "تعذّر الوصول إلى الحافظة؛ الموجّه في المربع أعلاه لنسخه."
+ },
+ "Could not start": {
+  "ur": "شروع نہیں ہو سکا",
+  "ar": "تعذّر البدء"
+ },
+ "Could not start speech recognition: {0}": {
+  "ur": "آواز کی شناخت شروع نہیں ہو سکی: {0}",
+  "ar": "تعذّر بدء التعرّف على الكلام: {0}"
+ },
+ "Couldn't export": {
+  "ur": "ایکسپورٹ نہیں ہو سکا",
+  "ar": "تعذّر التصدير"
+ },
+ "Couldn't import that file": {
+  "ur": "وہ فائل امپورٹ نہیں ہو سکی",
+  "ar": "تعذّر استيراد هذا الملف"
+ },
+ "Couldn't load audio for {ref}.": {
+  "ur": "{ref} کی آڈیو لوڈ نہیں ہو سکی۔",
+  "ar": "تعذّر تحميل صوت {ref}."
+ },
+ "Couldn't load audio.": {
+  "ur": "آڈیو لوڈ نہیں ہو سکی۔",
+  "ar": "تعذّر تحميل الصوت."
+ },
+ "Couldn't read any ayahs from that.": {
+  "ur": "اس میں سے کوئی آیت نہیں پڑھی جا سکی۔",
+  "ar": "تعذّرت قراءة أي آية من ذلك."
+ },
+ "Couldn't save the picture": {
+  "ur": "تصویر محفوظ نہیں ہو سکی",
+  "ar": "تعذّر حفظ الصورة"
+ },
+ "Couldn't save the video.": {
+  "ur": "ویڈیو محفوظ نہیں ہو سکی۔",
+  "ar": "تعذّر حفظ الفيديو."
+ },
+ "Create": {
+  "ur": "بنائیں",
+  "ar": "إنشاء"
+ },
+ "Create account": {
+  "ur": "اکاؤنٹ بنائیں",
+  "ar": "إنشاء حساب"
+ },
+ "Create an account": {
+  "ur": "اکاؤنٹ بنائیں",
+  "ar": "أنشئ حسابًا"
+ },
+ "Create video": {
+  "ur": "ویڈیو بنائیں",
+  "ar": "إنشاء فيديو"
+ },
+ "Credits on video": {
+  "ur": "ویڈیو پر حوالہ جات",
+  "ar": "المصادر على الفيديو"
+ },
+ "Current password": {
+  "ur": "موجودہ پاس ورڈ",
+  "ar": "كلمة المرور الحالية"
+ },
+ "Dark": {
+  "ur": "گہرا",
+  "ar": "داكن"
+ },
+ "Delete": {
+  "ur": "حذف کریں",
+  "ar": "حذف"
+ },
+ "Delete account": {
+  "ur": "اکاؤنٹ حذف کریں",
+  "ar": "حذف الحساب"
+ },
+ "Delete your account?": {
+  "ur": "اپنا اکاؤنٹ حذف کریں؟",
+  "ar": "حذف حسابك؟"
+ },
+ "Describe it in your own words": {
+  "ur": "اپنے الفاظ میں بیان کریں",
+  "ar": "صِفه بكلماتك"
+ },
+ "Description": {
+  "ur": "تفصیل",
+  "ar": "الوصف"
+ },
+ "Disable": {
+  "ur": "غیر فعال کریں",
+  "ar": "تعطيل"
+ },
+ "Disabled": {
+  "ur": "غیر فعال",
+  "ar": "معطَّل"
+ },
+ "Display name": {
+  "ur": "ظاہری نام",
+  "ar": "الاسم الظاهر"
+ },
+ "Display name (optional)": {
+  "ur": "ظاہری نام (اختیاری)",
+  "ar": "الاسم الظاهر (اختياري)"
+ },
+ "Done": {
+  "ur": "ہو گیا",
+  "ar": "تم"
+ },
+ "Download": {
+  "ur": "ڈاؤن لوڈ",
+  "ar": "تنزيل"
+ },
+ "Download Arabic for offline use": {
+  "ur": "آف لائن استعمال کے لیے عربی ڈاؤن لوڈ کریں",
+  "ar": "تنزيل العربية للاستخدام دون اتصال"
+ },
+ "Downloaded translations removed ({0} KB). They download again when shown.": {
+  "ur": "ڈاؤن لوڈ شدہ ترجمے ہٹا دیے گئے ({0} KB)۔ دکھائے جانے پر دوبارہ ڈاؤن لوڈ ہوں گے۔",
+  "ar": "أُزيلت الترجمات المنزَّلة ({0} ك.ب). ستُنزَّل مجددًا عند عرضها."
+ },
+ "Downloaded translations removed.": {
+  "ur": "ڈاؤن لوڈ شدہ ترجمے ہٹا دیے گئے۔",
+  "ar": "أُزيلت الترجمات المنزَّلة."
+ },
+ "Downloading Arabic… {0}%": {
+  "ur": "عربی ڈاؤن لوڈ ہو رہی ہے… {0}%",
+  "ar": "جارٍ تنزيل العربية… {0}%"
+ },
+ "Downloading reciter clips for learned ayahs…": {
+  "ur": "یاد کی ہوئی آیات کے لیے قاری کی آوازیں ڈاؤن لوڈ ہو رہی ہیں…",
+  "ar": "جارٍ تنزيل مقاطع القارئ للآيات المحفوظة…"
+ },
+ "Downloading the recitation…": {
+  "ur": "تلاوت ڈاؤن لوڈ ہو رہی ہے…",
+  "ar": "جارٍ تنزيل التلاوة…"
+ },
+ "Downloading {0}…": {
+  "ur": "{0} ڈاؤن لوڈ ہو رہا ہے…",
+  "ar": "جارٍ تنزيل {0}…"
+ },
+ "Drawing the image…": {
+  "ur": "تصویر بن رہی ہے…",
+  "ar": "جارٍ رسم الصورة…"
+ },
+ "Drawing the video…": {
+  "ur": "ویڈیو بن رہی ہے…",
+  "ar": "جارٍ رسم الفيديو…"
+ },
+ "Drawn scenes": {
+  "ur": "بنائے ہوئے مناظر",
+  "ar": "مشاهد مرسومة"
+ },
+ "Drawn, matched to each ayah": {
+  "ur": "بنائے ہوئے، ہر آیت کے مطابق",
+  "ar": "مرسومة، مطابقة لكل آية"
+ },
+ "e.g. 114": {
+  "ur": "مثلاً 114",
+  "ar": "مثلًا 114"
+ },
+ "Enable": {
+  "ur": "فعال کریں",
+  "ar": "تفعيل"
+ },
+ "Enable Recite & review": {
+  "ur": "تلاوت اور جائزہ فعال کریں",
+  "ar": "تفعيل التلاوة والمراجعة"
+ },
+ "End card": {
+  "ur": "اختتامی صفحہ",
+  "ar": "بطاقة الختام"
+ },
+ "English translation of whole ayahs (player and shared videos)": {
+  "ur": "پوری آیات کا انگریزی ترجمہ (پلیئر اور شیئر کی گئی ویڈیوز)",
+  "ar": "الترجمة الإنجليزية للآيات كاملة (المشغل والفيديوهات المشتركة)"
+ },
+ "Enter a surah number": {
+  "ur": "سورت کا نمبر لکھیں",
+  "ar": "أدخل رقم السورة"
+ },
+ "Every reciter here has checked word timings, so each word lights up as it is recited.": {
+  "ur": "یہاں ہر قاری کے الفاظ کے اوقات جانچے گئے ہیں، اس لیے ہر لفظ تلاوت کے ساتھ روشن ہوتا ہے۔",
+  "ar": "لكل قارئ هنا توقيتات كلمات مُتحقَّق منها، فتُضاء كل كلمة عند تلاوتها."
+ },
+ "EveryAyah · everyayah.com": {
+  "ur": "EveryAyah · everyayah.com",
+  "ar": "EveryAyah · everyayah.com"
+ },
+ "Everyone with an account on this server.": {
+  "ur": "اس سرور پر اکاؤنٹ رکھنے والے سب لوگ۔",
+  "ar": "كل من لديه حساب على هذا الخادم."
+ },
+ "Expand": {
+  "ur": "پھیلائیں",
+  "ar": "توسيع"
+ },
+ "Expand controls": {
+  "ur": "کنٹرول پھیلائیں",
+  "ar": "توسيع عناصر التحكم"
+ },
+ "Expand the sidebar": {
+  "ur": "سائیڈ بار پھیلائیں",
+  "ar": "توسيع الشريط الجانبي"
+ },
+ "Expected '{0}'": {
+  "ur": "متوقع ’{0}‘",
+  "ar": "المتوقَّع «{0}»"
+ },
+ "Export": {
+  "ur": "ایکسپورٹ",
+  "ar": "تصدير"
+ },
+ "Exported {0} ayahs": {
+  "ur": "{0} آیات ایکسپورٹ ہو گئیں",
+  "ar": "صُدِّرت {0} آية"
+ },
+ "Exported {n} ayahs.": {
+  "ur": "{n} آیات ایکسپورٹ ہو گئیں۔",
+  "ar": "صُدِّرت {n} آية."
+ },
+ "Feed post": {
+  "ur": "فیڈ پوسٹ",
+  "ar": "منشور"
+ },
+ "Fit to screen": {
+  "ur": "اسکرین میں سمائیں",
+  "ar": "ملاءمة الشاشة"
+ },
+ "From ayah": {
+  "ur": "آیت سے",
+  "ar": "من الآية"
+ },
+ "Full surah": {
+  "ur": "پوری سورت",
+  "ar": "السورة كاملة"
+ },
+ "Full surah · repeat": {
+  "ur": "پوری سورت · دہرائیں",
+  "ar": "السورة كاملة · تكرار"
+ },
+ "Full surah · repeat ayah": {
+  "ur": "پوری سورت · آیت دہرائیں",
+  "ar": "السورة كاملة · تكرار الآية"
+ },
+ "Full translation": {
+  "ur": "مکمل ترجمہ",
+  "ar": "الترجمة كاملة"
+ },
+ "Gestures": {
+  "ur": "اشارے",
+  "ar": "الإيماءات"
+ },
+ "Go": {
+  "ur": "جائیں",
+  "ar": "انتقال"
+ },
+ "Go to player": {
+  "ur": "پلیئر پر جائیں",
+  "ar": "الذهاب إلى المشغل"
+ },
+ "Go to surah": {
+  "ur": "سورت پر جائیں",
+  "ar": "الذهاب إلى السورة"
+ },
+ "Hide words until I recite them": {
+  "ur": "پڑھنے تک الفاظ چھپائیں",
+  "ar": "إخفاء الكلمات حتى أتلوها"
+ },
+ "I understand, turn it on": {
+  "ur": "میں سمجھ گیا، آن کریں",
+  "ar": "فهمت، فعِّله"
+ },
+ "If you notice a mistake in the text, a meaning or a recitation, please report it to the source it comes from, listed above. Problems with the app itself can be reported at github.com/aq106ai/learned-ayahs/issues.": {
+  "ur": "اگر آپ کو متن، معنی یا تلاوت میں کوئی غلطی نظر آئے تو براہِ کرم اوپر درج اس کے ماخذ کو اطلاع دیں۔ خود ایپ کے مسائل github.com/aq106ai/learned-ayahs/issues پر بتائے جا سکتے ہیں۔",
+  "ar": "إن لاحظت خطأً في النص أو المعنى أو التلاوة فأبلغ به مصدره المذكور أعلاه. ويمكن الإبلاغ عن مشكلات التطبيق نفسه في github.com/aq106ai/learned-ayahs/issues."
+ },
+ "Ignored: {0}": {
+  "ur": "نظرانداز کیا گیا: {0}",
+  "ar": "تم تجاهل: {0}"
+ },
+ "Image saved to your downloads.": {
+  "ur": "تصویر آپ کے ڈاؤن لوڈز میں محفوظ ہو گئی۔",
+  "ar": "حُفظت الصورة في التنزيلات."
+ },
+ "Image shape": {
+  "ur": "تصویر کی شکل",
+  "ar": "شكل الصورة"
+ },
+ "Import": {
+  "ur": "امپورٹ",
+  "ar": "استيراد"
+ },
+ "Import learned ayahs": {
+  "ur": "یاد کی ہوئی آیات امپورٹ کریں",
+  "ar": "استيراد الآيات المحفوظة"
+ },
+ "Importing adds to what you have already marked; nothing is removed.": {
+  "ur": "امپورٹ پہلے سے نشان زد آیات میں اضافہ کرتا ہے؛ کچھ بھی ہٹایا نہیں جاتا۔",
+  "ar": "الاستيراد يضيف إلى ما علّمته من قبل؛ ولا يُزال شيء."
+ },
+ "Importing your learned ayahs…": {
+  "ur": "آپ کی یاد کی ہوئی آیات امپورٹ ہو رہی ہیں…",
+  "ar": "جارٍ استيراد آياتك المحفوظة…"
+ },
+ "In Word by word mode, play isolated pronunciation clips instead of cutting each word from your ayah reciter.": {
+  "ur": "لفظ بہ لفظ موڈ میں، آیات کے قاری کی آواز سے ہر لفظ کاٹنے کے بجائے الگ تلفظ کی آوازیں چلائیں۔",
+  "ar": "في وضع كلمة بكلمة، شغِّل مقاطع النطق المنفردة بدل قصّ كل كلمة من صوت قارئ الآيات."
+ },
+ "Include Bismillah": {
+  "ur": "بسم اللہ شامل کریں",
+  "ar": "تضمين البسملة"
+ },
+ "Included with the app — works offline.": {
+  "ur": "ایپ کے ساتھ شامل — آف لائن کام کرتا ہے۔",
+  "ar": "مضمَّن مع التطبيق — يعمل دون اتصال."
+ },
+ "Isolated pronunciation clips. Recite & review always uses these.": {
+  "ur": "الگ الگ تلفظ کی آوازیں۔ تلاوت اور جائزہ ہمیشہ یہی استعمال کرتا ہے۔",
+  "ar": "مقاطع نطق منفردة. تستخدمها التلاوة والمراجعة دائمًا."
+ },
+ "It's made in this browser; keep this page open until it's done.": {
+  "ur": "یہ اسی براؤزر میں بنتی ہے؛ مکمل ہونے تک یہ صفحہ کھلا رکھیں۔",
+  "ar": "يُصنع في هذا المتصفح؛ أبقِ الصفحة مفتوحة حتى ينتهي."
+ },
+ "It's made on this phone; keep this screen open until it's done.": {
+  "ur": "یہ اسی فون پر بنتی ہے؛ مکمل ہونے تک یہ اسکرین کھلی رکھیں۔",
+  "ar": "يُصنع على هذا الهاتف؛ أبقِ الشاشة مفتوحة حتى ينتهي."
+ },
+ "Keep account as is": {
+  "ur": "اکاؤنٹ جیسا ہے ویسا رکھیں",
+  "ar": "إبقاء الحساب كما هو"
+ },
+ "Keep what you have learned": {
+  "ur": "جو یاد کیا ہے اسے محفوظ رکھیں",
+  "ar": "حافظ على ما تعلّمت"
+ },
+ "Keep your learned ayahs playable without a connection.": {
+  "ur": "اپنی یاد کی ہوئی آیات بغیر انٹرنیٹ کے چلنے کے قابل رکھیں۔",
+  "ar": "اجعل آياتك المحفوظة تعمل دون اتصال."
+ },
+ "Learned ayahs": {
+  "ur": "یاد کی ہوئی آیات",
+  "ar": "الآيات المحفوظة"
+ },
+ "Learned Ayahs": {
+  "ur": "Learned Ayahs",
+  "ar": "Learned Ayahs"
+ },
+ "Learned Ayahs is a free tool that makes it easier to revise what you have memorised. It does not author any of the Qur'an text, meanings or recitations it shows and plays: it gives you access to these public online sources.": {
+  "ur": "Learned Ayahs ایک مفت ٹول ہے جو آپ کے حفظ کی دہرائی کو آسان بناتا ہے۔ جو قرآنی متن، معانی یا تلاوتیں یہ دکھاتا اور سناتا ہے ان میں سے کچھ بھی اس کا لکھا ہوا نہیں: یہ آپ کو ان عوامی آن لائن ماخذوں تک رسائی دیتا ہے۔",
+  "ar": "Learned Ayahs أداة مجانية تيسّر مراجعة ما حفظت. وهي لا تؤلف شيئًا من نص القرآن أو معانيه أو تلاواته التي تعرضها وتشغّلها، بل تتيح لك الوصول إلى هذه المصادر العامة على الإنترنت."
+ },
+ "Learned Ayahs Player v{0}": {
+  "ur": "Learned Ayahs Player ورژن {0}",
+  "ar": "Learned Ayahs Player الإصدار {0}"
+ },
+ "Learned Ayahs prompt": {
+  "ur": "Learned Ayahs پرامپٹ",
+  "ar": "موجّه Learned Ayahs"
+ },
+ "Learned Ayahs web v{version} · open source (MIT).": {
+  "ur": "Learned Ayahs ویب ورژن {version} · اوپن سورس (MIT)۔",
+  "ar": "Learned Ayahs للويب الإصدار {version} · مفتوح المصدر (MIT)."
+ },
+ "Learned ayahs · repeat ayah": {
+  "ur": "یاد کی ہوئی آیات · آیت دہرائیں",
+  "ar": "الآيات المحفوظة · تكرار الآية"
+ },
+ "Learned ayahs · repeat surah": {
+  "ur": "یاد کی ہوئی آیات · سورت دہرائیں",
+  "ar": "الآيات المحفوظة · تكرار السورة"
+ },
+ "Learned surahs ({0})": {
+  "ur": "یاد کی ہوئی سورتیں ({0})",
+  "ar": "السور المحفوظة ({0})"
+ },
+ "Let anyone who can reach this server create an account. Close it once your family or class is set up.": {
+  "ur": "جو بھی اس سرور تک پہنچ سکے اسے اکاؤنٹ بنانے دیں۔ جب آپ کا خاندان یا جماعت سیٹ ہو جائے تو اسے بند کر دیں۔",
+  "ar": "اسمح لكل من يصل إلى هذا الخادم بإنشاء حساب. أغلقه بعد تجهيز عائلتك أو صفّك."
+ },
+ "Light": {
+  "ur": "ہلکا",
+  "ar": "فاتح"
+ },
+ "Listen": {
+  "ur": "سنیں",
+  "ar": "استمع"
+ },
+ "Listen from ayah {n}": {
+  "ur": "آیت {n} سے سنیں",
+  "ar": "استمع من الآية {n}"
+ },
+ "Listen from this ayah": {
+  "ur": "اس آیت سے سنیں",
+  "ar": "استمع من هذه الآية"
+ },
+ "Listen Reciter": {
+  "ur": "قاری کو سنیں",
+  "ar": "استمع إلى القارئ"
+ },
+ "Listen to the reciter": {
+  "ur": "قاری کو سنیں",
+  "ar": "استمع إلى القارئ"
+ },
+ "Listening to your recitation...": {
+  "ur": "آپ کی تلاوت سنی جا رہی ہے...",
+  "ar": "جارٍ الاستماع إلى تلاوتك..."
+ },
+ "Listens while you recite a learned ayah and plays the correct word back when you say a wrong one.": {
+  "ur": "یاد کی ہوئی آیت پڑھتے وقت سنتا ہے اور غلط لفظ پر درست لفظ سناتا ہے۔",
+  "ar": "يستمع أثناء تلاوتك لآية محفوظة ويُسمعك الكلمة الصحيحة حين تخطئ."
+ },
+ "Listens while you recite a learned ayah and plays the correct word back when you slip. Uses your phone's Arabic speech recognition — offline when a voice pack is installed, otherwise online.": {
+  "ur": "یاد کی ہوئی آیت پڑھتے وقت سنتا ہے اور چوکنے پر درست لفظ سناتا ہے۔ آپ کے فون کی عربی آواز کی شناخت استعمال کرتا ہے — وائس پیک ہو تو آف لائن، ورنہ آن لائن۔",
+  "ar": "يستمع أثناء تلاوتك لآية محفوظة ويُسمعك الكلمة الصحيحة حين تزلّ. يستخدم التعرّف على الكلام العربي في هاتفك — دون اتصال إن كانت حزمة الصوت مثبتة، وإلا فعبر الإنترنت."
+ },
+ "Loading ayah text…": {
+  "ur": "آیت کا متن لوڈ ہو رہا ہے…",
+  "ar": "جارٍ تحميل نص الآية…"
+ },
+ "Loading text…": {
+  "ur": "متن لوڈ ہو رہا ہے…",
+  "ar": "جارٍ تحميل النص…"
+ },
+ "Loading your learned ayahs…": {
+  "ur": "آپ کی یاد کی ہوئی آیات لوڈ ہو رہی ہیں…",
+  "ar": "جارٍ تحميل آياتك المحفوظة…"
+ },
+ "Loading {0}…": {
+  "ur": "{0} لوڈ ہو رہا ہے…",
+  "ar": "جارٍ تحميل {0}…"
+ },
+ "Loading…": {
+  "ur": "لوڈ ہو رہا ہے…",
+  "ar": "جارٍ التحميل…"
+ },
+ "Long ayahs": {
+  "ur": "لمبی آیات",
+  "ar": "الآيات الطويلة"
+ },
+ "Make a video": {
+  "ur": "ویڈیو بنائیں",
+  "ar": "اصنع فيديو"
+ },
+ "Make admin": {
+  "ur": "منتظم بنائیں",
+  "ar": "جعله مشرفًا"
+ },
+ "Make another": {
+  "ur": "ایک اور بنائیں",
+  "ar": "اصنع آخر"
+ },
+ "Make it yours": {
+  "ur": "اسے اپنا بنائیں",
+  "ar": "اجعله لك"
+ },
+ "Make it yours. You can change these any time in Settings, or from the background button in the player.": {
+  "ur": "اسے اپنا بنائیں۔ آپ انہیں کسی بھی وقت سیٹنگز میں، یا پلیئر کے پس منظر بٹن سے تبدیل کر سکتے ہیں۔",
+  "ar": "اجعله لك. يمكنك تغيير هذه في أي وقت من الإعدادات أو من زر الخلفية في المشغل."
+ },
+ "Make user": {
+  "ur": "عام صارف بنائیں",
+  "ar": "جعله مستخدمًا"
+ },
+ "Manage learned ayahs": {
+  "ur": "یاد کی ہوئی آیات کا انتظام",
+  "ar": "إدارة الآيات المحفوظة"
+ },
+ "Manage users": {
+  "ur": "صارفین کا انتظام",
+  "ar": "إدارة المستخدمين"
+ },
+ "Mark all ayahs learned": {
+  "ur": "تمام آیات کو یاد کے طور پر نشان زد کریں",
+  "ar": "تعليم كل الآيات محفوظة"
+ },
+ "Mark all learned": {
+  "ur": "سب یاد کے طور پر نشان زد کریں",
+  "ar": "تعليم الكل محفوظًا"
+ },
+ "Mark all of {0} learned": {
+  "ur": "پوری {0} کو یاد کے طور پر نشان زد کریں",
+  "ar": "تعليم {0} كلها محفوظة"
+ },
+ "Mark all of {surah} learned": {
+  "ur": "پوری {surah} کو یاد کے طور پر نشان زد کریں",
+  "ar": "تعليم {surah} كلها محفوظة"
+ },
+ "Mark learned": {
+  "ur": "یاد کے طور پر نشان زد کریں",
+  "ar": "تعليم كمحفوظة"
+ },
+ "Mark many ayahs at once.": {
+  "ur": "ایک ساتھ بہت سی آیات نشان زد کریں۔",
+  "ar": "علِّم آيات كثيرة دفعة واحدة."
+ },
+ "Mark some ayahs first.": {
+  "ur": "پہلے کچھ آیات نشان زد کریں۔",
+  "ar": "علِّم بعض الآيات أولًا."
+ },
+ "Mark the ayahs you have memorised first; Recite & review walks through them.": {
+  "ur": "پہلے اپنی حفظ کی ہوئی آیات نشان زد کریں؛ تلاوت اور جائزہ انہی سے گزرتا ہے۔",
+  "ar": "علِّم الآيات التي حفظتها أولًا؛ وستمرّ عليها التلاوة والمراجعة."
+ },
+ "Mark the ayahs you have memorised, and this app will help you revise them.": {
+  "ur": "اپنی حفظ کی ہوئی آیات نشان زد کریں، اور یہ ایپ ان کی دہرائی میں آپ کی مدد کرے گی۔",
+  "ar": "علِّم الآيات التي حفظتها، وسيعينك هذا التطبيق على مراجعتها."
+ },
+ "Mark the ayahs you have memorised. Your revision plays exactly these.": {
+  "ur": "اپنی حفظ کی ہوئی آیات نشان زد کریں۔ آپ کی دہرائی بالکل یہی چلاتی ہے۔",
+  "ar": "علِّم الآيات التي حفظتها. ستُشغِّل مراجعتك هذه الآيات بالضبط."
+ },
+ "Mark what you know": {
+  "ur": "جو یاد ہے اسے نشان زد کریں",
+  "ar": "علِّم ما تحفظه"
+ },
+ "Marked learned": {
+  "ur": "یاد کے طور پر نشان زد",
+  "ar": "معلَّمة محفوظة"
+ },
+ "Match system": {
+  "ur": "سسٹم کے مطابق",
+  "ar": "مطابق للنظام"
+ },
+ "Matched": {
+  "ur": "مطابق",
+  "ar": "مطابِقة"
+ },
+ "Matched follows what each ayah is about, as in a shared video. Or choose one for every ayah:": {
+  "ur": "”مطابق“ ہر آیت کے موضوع کے مطابق ہوتا ہے، جیسے شیئر کی گئی ویڈیو میں۔ یا ہر آیت کے لیے ایک منتخب کریں:",
+  "ar": "«مطابِقة» تتبع موضوع كل آية، كما في الفيديو المشترك. أو اختر واحدة لكل الآيات:"
+ },
+ "Matched photos": {
+  "ur": "مطابق تصاویر",
+  "ar": "صور مطابِقة"
+ },
+ "Matched picks a background for each ayah from what it is about. Or choose one for the whole video.": {
+  "ur": "”مطابق“ ہر آیت کے موضوع سے اس کا پس منظر چنتا ہے۔ یا پوری ویڈیو کے لیے ایک منتخب کریں۔",
+  "ar": "«مطابِقة» تختار لكل آية خلفية حسب موضوعها. أو اختر واحدة للفيديو كله."
+ },
+ "Matched scenes": {
+  "ur": "مطابق مناظر",
+  "ar": "مشاهد مطابِقة"
+ },
+ "Matched to each ayah": {
+  "ur": "ہر آیت کے مطابق",
+  "ar": "مطابِقة لكل آية"
+ },
+ "Microphone access was blocked. Allow it in your browser to use Recite & review.": {
+  "ur": "مائیکروفون تک رسائی روک دی گئی۔ تلاوت اور جائزہ استعمال کرنے کے لیے براؤزر میں اجازت دیں۔",
+  "ar": "حُجب الوصول إلى الميكروفون. اسمح به في المتصفح لاستخدام التلاوة والمراجعة."
+ },
+ "Microphone error: {0}": {
+  "ur": "مائیکروفون کی خرابی: {0}",
+  "ar": "خطأ في الميكروفون: {0}"
+ },
+ "Microphone permission required": {
+  "ur": "مائیکروفون کی اجازت درکار ہے",
+  "ar": "يلزم إذن الميكروفون"
+ },
+ "Mistake": {
+  "ur": "غلطی",
+  "ar": "خطأ"
+ },
+ "Mistake Detected": {
+  "ur": "غلطی ملی",
+  "ar": "تم اكتشاف خطأ"
+ },
+ "Mistake detected": {
+  "ur": "غلطی ملی",
+  "ar": "تم اكتشاف خطأ"
+ },
+ "More controls": {
+  "ur": "مزید کنٹرول",
+  "ar": "المزيد من عناصر التحكم"
+ },
+ "Move to the next ayah once every word has been recited correctly.": {
+  "ur": "ہر لفظ درست پڑھے جانے کے بعد اگلی آیت پر جائیں۔",
+  "ar": "الانتقال إلى الآية التالية بعد تلاوة كل كلمة تلاوة صحيحة."
+ },
+ "Mushaf style": {
+  "ur": "مصحف کا انداز",
+  "ar": "نمط المصحف"
+ },
+ "Nature photos": {
+  "ur": "قدرتی تصاویر",
+  "ar": "صور الطبيعة"
+ },
+ "Nature photos for backgrounds (CC0)": {
+  "ur": "پس منظر کے لیے قدرتی تصاویر (CC0)",
+  "ar": "صور الطبيعة للخلفيات (CC0)"
+ },
+ "Needs Android 10": {
+  "ur": "اینڈرائیڈ 10 درکار ہے",
+  "ar": "يتطلب أندرويد 10"
+ },
+ "Needs Android 13 or newer. Recite listens through your phone's speech recognition, and the way it keeps the microphone open without switching it on and off is only available on newer Android versions.": {
+  "ur": "اینڈرائیڈ 13 یا اس سے نیا درکار ہے۔ تلاوت آپ کے فون کی آواز کی شناخت کے ذریعے سنتی ہے، اور مائیکروفون کو بار بار بند کھولے بغیر کھلا رکھنے کا طریقہ صرف نئے اینڈرائیڈ ورژنز میں دستیاب ہے۔",
+  "ar": "يتطلب أندرويد 13 أو أحدث. تستمع التلاوة عبر التعرّف على الكلام في هاتفك، وطريقة إبقاء الميكروفون مفتوحًا دون إطفائه وتشغيله متاحة في إصدارات أندرويد الأحدث فقط."
+ },
+ "New here? ": {
+  "ur": "نئے ہیں؟ ",
+  "ar": "جديد هنا؟ "
+ },
+ "New password (at least 8 characters)": {
+  "ur": "نیا پاس ورڈ (کم از کم 8 حروف)",
+  "ar": "كلمة مرور جديدة (8 أحرف على الأقل)"
+ },
+ "Next": {
+  "ur": "اگلا",
+  "ar": "التالي"
+ },
+ "Next ayah": {
+  "ur": "اگلی آیت",
+  "ar": "الآية التالية"
+ },
+ "Next Ayah": {
+  "ur": "اگلی آیت",
+  "ar": "الآية التالية"
+ },
+ "Next surah ›": {
+  "ur": "اگلی سورت ›",
+  "ar": "السورة التالية ›"
+ },
+ "Next word": {
+  "ur": "اگلا لفظ",
+  "ar": "الكلمة التالية"
+ },
+ "No ayahs found in that file. Is it a Learned Ayahs export?": {
+  "ur": "اس فائل میں کوئی آیت نہیں ملی۔ کیا یہ Learned Ayahs کی ایکسپورٹ فائل ہے؟",
+  "ar": "لم تُوجد آيات في هذا الملف. هل هو ملف تصدير من Learned Ayahs؟"
+ },
+ "No ayahs marked yet.": {
+  "ur": "ابھی کوئی آیت نشان زد نہیں۔",
+  "ar": "لم تُعلَّم أي آية بعد."
+ },
+ "No connection, and no offline Arabic model on this phone.": {
+  "ur": "انٹرنیٹ نہیں، اور اس فون پر آف لائن عربی ماڈل بھی نہیں۔",
+  "ar": "لا يوجد اتصال، ولا نموذج عربي دون اتصال على هذا الهاتف."
+ },
+ "No space for the video": {
+  "ur": "ویڈیو کے لیے جگہ نہیں",
+  "ar": "لا توجد مساحة للفيديو"
+ },
+ "No surah matches that search.": {
+  "ur": "اس تلاش سے کوئی سورت نہیں ملی۔",
+  "ar": "لا توجد سورة تطابق هذا البحث."
+ },
+ "None": {
+  "ur": "کوئی نہیں",
+  "ar": "لا شيء"
+ },
+ "Not downloaded — mistake playback will stream": {
+  "ur": "ڈاؤن لوڈ نہیں — غلطی پر آواز آن لائن چلے گی",
+  "ar": "غير منزَّل — سيُبث تشغيل الخطأ عبر الإنترنت"
+ },
+ "Not signed in — saved in this browser": {
+  "ur": "سائن ان نہیں — اسی براؤزر میں محفوظ",
+  "ar": "لم تسجّل الدخول — محفوظ في هذا المتصفح"
+ },
+ "Nothing entered yet.": {
+  "ur": "ابھی کچھ درج نہیں کیا گیا۔",
+  "ar": "لم يُدخَل شيء بعد."
+ },
+ "Nothing in the playlist yet.": {
+  "ur": "پلے لسٹ میں ابھی کچھ نہیں۔",
+  "ar": "لا شيء في قائمة التشغيل بعد."
+ },
+ "Nothing is downloaded. The bundled translation and meanings always stay.": {
+  "ur": "کچھ ڈاؤن لوڈ نہیں ہوا۔ ایپ کے ساتھ شامل ترجمہ اور معانی ہمیشہ رہتے ہیں۔",
+  "ar": "لا شيء منزَّل. تبقى الترجمة والمعاني المضمَّنة دائمًا."
+ },
+ "Nothing to recite yet": {
+  "ur": "ابھی پڑھنے کو کچھ نہیں",
+  "ar": "لا شيء للتلاوة بعد"
+ },
+ "Off": {
+  "ur": "بند",
+  "ar": "إيقاف"
+ },
+ "Off: each word is played in your ayah reciter, cut from the ayah audio.": {
+  "ur": "بند: ہر لفظ آیات کے قاری کی آواز میں، آیت کی آڈیو سے کاٹ کر چلایا جاتا ہے۔",
+  "ar": "إيقاف: تُشغَّل كل كلمة بصوت قارئ الآيات، مقتطعة من صوت الآية."
+ },
+ "Off: play each word in your ayah reciter by seeking the ayah audio.": {
+  "ur": "بند: آیت کی آڈیو میں جا کر ہر لفظ آیات کے قاری کی آواز میں چلائیں۔",
+  "ar": "إيقاف: شغِّل كل كلمة بصوت قارئ الآيات بالانتقال داخل صوت الآية."
+ },
+ "Offline": {
+  "ur": "آف لائن",
+  "ar": "دون اتصال"
+ },
+ "Offline Arabic needs Android 13 or newer.": {
+  "ur": "آف لائن عربی کے لیے اینڈرائیڈ 13 یا نیا درکار ہے۔",
+  "ar": "العربية دون اتصال تتطلب أندرويد 13 أو أحدث."
+ },
+ "Offline: word clips for your learned ayahs (stream otherwise)": {
+  "ur": "آف لائن: آپ کی یاد کی ہوئی آیات کے الفاظ کی آوازیں (ورنہ آن لائن)",
+  "ar": "دون اتصال: مقاطع كلمات آياتك المحفوظة (وإلا فعبر الإنترنت)"
+ },
+ "Offline: {0}/{1}": {
+  "ur": "آف لائن: {0}/{1}",
+  "ar": "دون اتصال: {0}/{1}"
+ },
+ "Offline: {0}/{1} (your learned ayahs only)": {
+  "ur": "آف لائن: {0}/{1} (صرف آپ کی یاد کی ہوئی آیات)",
+  "ar": "دون اتصال: {0}/{1} (آياتك المحفوظة فقط)"
+ },
+ "Offline: {0}/{1} · A'udhu + Bismillah": {
+  "ur": "آف لائن: {0}/{1} · اعوذ باللہ + بسم اللہ",
+  "ar": "دون اتصال: {0}/{1} · الاستعاذة + البسملة"
+ },
+ "Offline: {0}/{1} · intro clips stream online": {
+  "ur": "آف لائن: {0}/{1} · ابتدائی آوازیں آن لائن چلتی ہیں",
+  "ar": "دون اتصال: {0}/{1} · تُبث مقاطع الافتتاح عبر الإنترنت"
+ },
+ "Open a surah and tap the circle beside an ayah to add it to your revision. You can also add several at once from Settings.": {
+  "ur": "کوئی سورت کھولیں اور آیت کے ساتھ والے دائرے کو دبا کر اسے اپنی دہرائی میں شامل کریں۔ آپ سیٹنگز سے کئی آیات ایک ساتھ بھی شامل کر سکتے ہیں۔",
+  "ar": "افتح سورة واضغط الدائرة بجانب الآية لإضافتها إلى مراجعتك. ويمكنك أيضًا إضافة عدة آيات دفعة واحدة من الإعدادات."
+ },
+ "Open a surah and tick the ayahs you have memorised to add them to your revision. You can also add several at once by description.": {
+  "ur": "کوئی سورت کھولیں اور حفظ کی ہوئی آیات پر نشان لگا کر انہیں اپنی دہرائی میں شامل کریں۔ آپ تفصیل لکھ کر کئی آیات ایک ساتھ بھی شامل کر سکتے ہیں۔",
+  "ar": "افتح سورة وعلِّم الآيات التي حفظتها لإضافتها إلى مراجعتك. ويمكنك أيضًا إضافة عدة آيات دفعة واحدة بالوصف."
+ },
+ "Open any surah and tap the circle beside an ayah you have memorised.": {
+  "ur": "کوئی بھی سورت کھولیں اور حفظ کی ہوئی آیت کے ساتھ والا دائرہ دبائیں۔",
+  "ar": "افتح أي سورة واضغط الدائرة بجانب آية حفظتها."
+ },
+ "Open registration": {
+  "ur": "رجسٹریشن کھلی",
+  "ar": "التسجيل مفتوح"
+ },
+ "Open Settings": {
+  "ur": "سیٹنگز کھولیں",
+  "ar": "افتح الإعدادات"
+ },
+ "Other devices signed in to this account will be signed out.": {
+  "ur": "اس اکاؤنٹ میں سائن ان دوسری ڈیوائسز سائن آؤٹ ہو جائیں گی۔",
+  "ar": "سيُسجَّل خروج الأجهزة الأخرى المسجَّلة في هذا الحساب."
+ },
+ "Other translations, word meanings in other languages, and tafsir (downloaded when you choose them, each named where it is shown)": {
+  "ur": "دوسرے ترجمے، دوسری زبانوں میں الفاظ کے معانی، اور تفسیر (منتخب کرنے پر ڈاؤن لوڈ ہوتے ہیں، ہر ایک کا نام وہیں لکھا ہوتا ہے جہاں وہ دکھایا جائے)",
+  "ar": "الترجمات الأخرى، ومعاني الكلمات بلغات أخرى، والتفسير (تُنزَّل عند اختيارها، ويُذكر اسم كلٍّ منها حيث يُعرض)"
+ },
+ "Password": {
+  "ur": "پاس ورڈ",
+  "ar": "كلمة المرور"
+ },
+ "password (8+ characters)": {
+  "ur": "پاس ورڈ (8+ حروف)",
+  "ar": "كلمة المرور (8 أحرف أو أكثر)"
+ },
+ "Password changed.": {
+  "ur": "پاس ورڈ تبدیل ہو گیا۔",
+  "ar": "تم تغيير كلمة المرور."
+ },
+ "Pause": {
+  "ur": "روکیں",
+  "ar": "إيقاف مؤقت"
+ },
+ "Pause before repeat — time to revise or press Next": {
+  "ur": "دہرانے سے پہلے وقفہ — دہرائیں یا ”اگلا“ دبائیں",
+  "ar": "توقف قبل التكرار — وقت للمراجعة أو اضغط «التالي»"
+ },
+ "Perfect": {
+  "ur": "بہترین",
+  "ar": "ممتاز"
+ },
+ "Perfect Recitation!": {
+  "ur": "بہترین تلاوت!",
+  "ar": "تلاوة ممتازة!"
+ },
+ "Perfect recitation!": {
+  "ur": "بہترین تلاوت!",
+  "ar": "تلاوة ممتازة!"
+ },
+ "Phone's language": {
+  "ur": "فون کی زبان",
+  "ar": "لغة الهاتف"
+ },
+ "Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. They download when first used. Videos carry no music, only the recitation.": {
+  "ur": "صرف قدرت کی تصاویر، Wikimedia Commons (CC0) سے، ہر ایک ہاتھ سے جانچی گئی: کبھی انسان یا جانور نہیں۔ پہلی بار استعمال پر ڈاؤن لوڈ ہوتی ہیں۔ ویڈیوز میں موسیقی نہیں، صرف تلاوت ہوتی ہے۔",
+  "ar": "صور للطبيعة فقط من Wikimedia Commons (CC0)، فُحصت كل واحدة يدويًا: لا بشر ولا حيوانات. تُنزَّل عند أول استخدام. ولا موسيقى في الفيديو، بل التلاوة فقط."
+ },
+ "Photos of nature only, from Wikimedia Commons (CC0), each checked by hand: never people or animals. Videos carry no music, only the recitation.": {
+  "ur": "صرف قدرت کی تصاویر، Wikimedia Commons (CC0) سے، ہر ایک ہاتھ سے جانچی گئی: کبھی انسان یا جانور نہیں۔ ویڈیوز میں موسیقی نہیں، صرف تلاوت ہوتی ہے۔",
+  "ar": "صور للطبيعة فقط من Wikimedia Commons (CC0)، فُحصت كل واحدة يدويًا: لا بشر ولا حيوانات. ولا موسيقى في الفيديو، بل التلاوة فقط."
+ },
+ "Plain": {
+  "ur": "سادہ",
+  "ar": "سادة"
+ },
+ "Play": {
+  "ur": "چلائیں",
+  "ar": "تشغيل"
+ },
+ "Play reciter audio when a mistake is detected and pause for user to re-recite.": {
+  "ur": "غلطی ملنے پر قاری کی آواز چلائیں اور دوبارہ پڑھنے کے لیے رکیں۔",
+  "ar": "شغِّل صوت القارئ عند اكتشاف خطأ وتوقف لتعيد التلاوة."
+ },
+ "Play the reciter’s word when a mistake is detected, then let you re-recite.": {
+  "ur": "غلطی ملنے پر قاری کا لفظ چلائیں، پھر آپ کو دوبارہ پڑھنے دیں۔",
+  "ar": "شغِّل كلمة القارئ عند اكتشاف خطأ، ثم دعك تعيد التلاوة."
+ },
+ "Playback": {
+  "ur": "تلاوت چلانا",
+  "ar": "التشغيل"
+ },
+ "Player": {
+  "ur": "پلیئر",
+  "ar": "المشغل"
+ },
+ "Playing correct word… keep going after": {
+  "ur": "درست لفظ چل رہا ہے… اس کے بعد جاری رکھیں",
+  "ar": "تشغيل الكلمة الصحيحة… تابع بعدها"
+ },
+ "Playing the correct word… keep going after": {
+  "ur": "درست لفظ چل رہا ہے… اس کے بعد جاری رکھیں",
+  "ar": "تشغيل الكلمة الصحيحة… تابع بعدها"
+ },
+ "Playlist": {
+  "ur": "پلے لسٹ",
+  "ar": "قائمة التشغيل"
+ },
+ "Preparing preview…": {
+  "ur": "پیش منظر تیار ہو رہا ہے…",
+  "ar": "جارٍ تجهيز المعاينة…"
+ },
+ "Preparing the audio…": {
+  "ur": "آڈیو تیار ہو رہی ہے…",
+  "ar": "جارٍ تجهيز الصوت…"
+ },
+ "Press play and your learned ayahs recite in order — turn on “Repeat ayah” to have each one repeat so it settles in.": {
+  "ur": "چلائیں دبائیں اور آپ کی یاد کی ہوئی آیات ترتیب سے پڑھی جائیں گی — ”آیت دہرائیں“ آن کریں تاکہ ہر آیت دہرائی جائے اور پختہ ہو جائے۔",
+  "ar": "اضغط تشغيل فتُتلى آياتك المحفوظة بالترتيب — فعِّل «تكرار الآية» لتتكرر كل آية فترسخ."
+ },
+ "Prev": {
+  "ur": "پچھلا",
+  "ar": "السابق"
+ },
+ "Preview of the first ayah": {
+  "ur": "پہلی آیت کا پیش منظر",
+  "ar": "معاينة الآية الأولى"
+ },
+ "Previous": {
+  "ur": "پچھلا",
+  "ar": "السابق"
+ },
+ "Previous Ayah": {
+  "ur": "پچھلی آیت",
+  "ar": "الآية السابقة"
+ },
+ "Previous ayah": {
+  "ur": "پچھلی آیت",
+  "ar": "الآية السابقة"
+ },
+ "Previous ayah →": {
+  "ur": "پچھلی آیت ←",
+  "ar": "الآية السابقة ←"
+ },
+ "Proceed": {
+  "ur": "آگے بڑھیں",
+  "ar": "متابعة"
+ },
+ "Prompt copied. Paste it into any AI assistant, then add your description.": {
+  "ur": "پرامپٹ کاپی ہو گیا۔ اسے کسی بھی AI اسسٹنٹ میں پیسٹ کریں، پھر اپنی تفصیل شامل کریں۔",
+  "ar": "نُسخ الموجّه. الصقه في أي مساعد ذكاء اصطناعي ثم أضف وصفك."
+ },
+ "Qur'an text (Uthmani script) and English word-by-word meanings": {
+  "ur": "قرآن کا متن (رسمِ عثمانی) اور انگریزی میں لفظ بہ لفظ معانی",
+  "ar": "نص القرآن (بالرسم العثماني) ومعاني الكلمات بالإنجليزية"
+ },
+ "Quran.com": {
+  "ur": "Quran.com",
+  "ar": "Quran.com"
+ },
+ "Quran.com · audio.qurancdn.com": {
+  "ur": "Quran.com · audio.qurancdn.com",
+  "ar": "Quran.com · audio.qurancdn.com"
+ },
+ "Quran.com · quran.com": {
+  "ur": "Quran.com · quran.com",
+  "ar": "Quran.com · quran.com"
+ },
+ "Quranic Universal Library (QUL) by Tarteel": {
+  "ur": "Quranic Universal Library (QUL)، ترتیل کی جانب سے",
+  "ar": "المكتبة القرآنية الشاملة (QUL) من ترتيل"
+ },
+ "Quranic Universal Library (QUL) by Tarteel · qul.tarteel.ai": {
+  "ur": "Quranic Universal Library (QUL)، ترتیل کی جانب سے · qul.tarteel.ai",
+  "ar": "المكتبة القرآنية الشاملة (QUL) من ترتيل · qul.tarteel.ai"
+ },
+ "Read and listen": {
+  "ur": "پڑھیں اور سنیں",
+  "ar": "اقرأ واستمع"
+ },
+ "Reading": {
+  "ur": "پڑھنا",
+  "ar": "القراءة"
+ },
+ "Ready": {
+  "ur": "تیار",
+  "ar": "جاهز"
+ },
+ "Ready — press Play": {
+  "ur": "تیار — چلائیں دبائیں",
+  "ar": "جاهز — اضغط تشغيل"
+ },
+ "Recitation & AI review": {
+  "ur": "تلاوت اور AI جائزہ",
+  "ar": "التلاوة والمراجعة بالذكاء الاصطناعي"
+ },
+ "Recitation & AI Review": {
+  "ur": "تلاوت اور AI جائزہ",
+  "ar": "التلاوة والمراجعة بالذكاء الاصطناعي"
+ },
+ "Recitation Accuracy": {
+  "ur": "تلاوت کی درستی",
+  "ar": "دقة التلاوة"
+ },
+ "Recitation report": {
+  "ur": "تلاوت کی رپورٹ",
+  "ar": "تقرير التلاوة"
+ },
+ "Recitation: everyayah.com · Word audio, text and meanings: Quran.com · Word timings: QUL by Tarteel · Arabic: Scheherazade New (SIL OFL).": {
+  "ur": "تلاوت: everyayah.com · الفاظ کی آواز، متن اور معانی: Quran.com · الفاظ کے اوقات: ترتیل کی QUL · عربی: Scheherazade New (SIL OFL)۔",
+  "ar": "التلاوة: everyayah.com · صوت الكلمات والنص والمعاني: Quran.com · توقيتات الكلمات: QUL من ترتيل · الخط العربي: Scheherazade New (SIL OFL)."
+ },
+ "Recitation: {0} (everyayah.com)\nArabic: Scheherazade New (SIL OFL)": {
+  "ur": "تلاوت: {0} (everyayah.com)\nعربی: Scheherazade New (SIL OFL)",
+  "ar": "التلاوة: {0} (everyayah.com)\nالخط العربي: Scheherazade New (SIL OFL)"
+ },
+ "Recite": {
+  "ur": "تلاوت",
+  "ar": "التلاوة"
+ },
+ "Recite & review": {
+  "ur": "تلاوت اور جائزہ",
+  "ar": "التلاوة والمراجعة"
+ },
+ "Recite & review is a beta": {
+  "ur": "تلاوت اور جائزہ ابھی بیٹا ہے",
+  "ar": "التلاوة والمراجعة ميزة تجريبية"
+ },
+ "Recite again": {
+  "ur": "دوبارہ پڑھیں",
+  "ar": "أعد التلاوة"
+ },
+ "Recite from memory. You are only interrupted for a word you really got wrong.": {
+  "ur": "زبانی پڑھیں۔ آپ کو صرف اس لفظ پر روکا جائے گا جو واقعی غلط پڑھا ہو۔",
+  "ar": "اتلُ من حفظك. لن يُقاطعك إلا لكلمة أخطأت فيها حقًّا."
+ },
+ "Recite needs Android 13 or newer on this phone.": {
+  "ur": "تلاوت کے لیے اس فون پر اینڈرائیڈ 13 یا نیا درکار ہے۔",
+  "ar": "تتطلب التلاوة أندرويد 13 أو أحدث على هذا الهاتف."
+ },
+ "Recited before the ayahs": {
+  "ur": "آیات سے پہلے پڑھی جاتی ہے",
+  "ar": "تُتلى قبل الآيات"
+ },
+ "Reciter": {
+  "ur": "قاری",
+  "ar": "القارئ"
+ },
+ "Recognized: \"{0}\"": {
+  "ur": "پہچانا گیا: ”{0}“",
+  "ar": "تم التعرّف على: «{0}»"
+ },
+ "Registration is closed on this server. Ask its administrator for an account.": {
+  "ur": "اس سرور پر رجسٹریشن بند ہے۔ اکاؤنٹ کے لیے اس کے منتظم سے کہیں۔",
+  "ar": "التسجيل مغلق على هذا الخادم. اطلب حسابًا من مشرفه."
+ },
+ "Remove": {
+  "ur": "ہٹائیں",
+  "ar": "إزالة"
+ },
+ "Remove bookmark": {
+  "ur": "بک مارک ہٹائیں",
+  "ar": "إزالة من المفضلة"
+ },
+ "Remove downloaded translations": {
+  "ur": "ڈاؤن لوڈ شدہ ترجمے ہٹائیں",
+  "ar": "إزالة الترجمات المنزَّلة"
+ },
+ "Remove downloaded translations?": {
+  "ur": "ڈاؤن لوڈ شدہ ترجمے ہٹائیں؟",
+  "ar": "إزالة الترجمات المنزَّلة؟"
+ },
+ "Remove offline audio": {
+  "ur": "آف لائن آڈیو ہٹائیں",
+  "ar": "إزالة الصوت المحفوظ"
+ },
+ "Remove offline audio?": {
+  "ur": "آف لائن آڈیو ہٹائیں؟",
+  "ar": "إزالة الصوت المحفوظ؟"
+ },
+ "Removes your account and its learned ayahs, bookmarks and settings from this server. Export first if you want to keep your list.": {
+  "ur": "آپ کا اکاؤنٹ اور اس کی یاد کی ہوئی آیات، بک مارکس اور سیٹنگز اس سرور سے ہٹا دیتا ہے۔ اگر فہرست رکھنی ہے تو پہلے ایکسپورٹ کر لیں۔",
+  "ar": "يحذف حسابك وآياته المحفوظة ومفضلته وإعداداته من هذا الخادم. صدِّر أولًا إن أردت الاحتفاظ بقائمتك."
+ },
+ "Repeat": {
+  "ur": "دہرائیں",
+  "ar": "تكرار"
+ },
+ "Reset password": {
+  "ur": "پاس ورڈ ری سیٹ کریں",
+  "ar": "إعادة تعيين كلمة المرور"
+ },
+ "Reset password for {name}": {
+  "ur": "{name} کا پاس ورڈ ری سیٹ کریں",
+  "ar": "إعادة تعيين كلمة مرور {name}"
+ },
+ "Retry": {
+  "ur": "دوبارہ کوشش کریں",
+  "ar": "إعادة المحاولة"
+ },
+ "Revise and read": {
+  "ur": "دہرائیں اور پڑھیں",
+  "ar": "راجع واقرأ"
+ },
+ "Saheeh International is shown until it downloads.": {
+  "ur": "ڈاؤن لوڈ ہونے تک صحیح انٹرنیشنل دکھایا جا رہا ہے۔",
+  "ar": "تُعرض ترجمة صحيح إنترناشونال حتى يكتمل التنزيل."
+ },
+ "Saheeh International · via tanzil.net": {
+  "ur": "صحیح انٹرنیشنل · بذریعہ tanzil.net",
+  "ar": "صحيح إنترناشونال · عبر tanzil.net"
+ },
+ "Saheeh International, via Tanzil.net": {
+  "ur": "صحیح انٹرنیشنل، بذریعہ Tanzil.net",
+  "ar": "صحيح إنترناشونال، عبر Tanzil.net"
+ },
+ "Sahih al-Bukhari 5033 · Sahih Muslim 791": {
+  "ur": "صحیح بخاری 5033 · صحیح مسلم 791",
+  "ar": "صحيح البخاري 5033 · صحيح مسلم 791"
+ },
+ "Save learned ayahs for offline": {
+  "ur": "یاد کی ہوئی آیات آف لائن کے لیے محفوظ کریں",
+  "ar": "حفظ الآيات المحفوظة للاستخدام دون اتصال"
+ },
+ "Save name": {
+  "ur": "نام محفوظ کریں",
+  "ar": "حفظ الاسم"
+ },
+ "Save to phone": {
+  "ur": "فون میں محفوظ کریں",
+  "ar": "حفظ في الهاتف"
+ },
+ "Save word audio for offline": {
+  "ur": "الفاظ کی آواز آف لائن کے لیے محفوظ کریں",
+  "ar": "حفظ صوت الكلمات للاستخدام دون اتصال"
+ },
+ "Save word clips for Recite & review": {
+  "ur": "تلاوت اور جائزہ کے لیے الفاظ کی آوازیں محفوظ کریں",
+  "ar": "حفظ مقاطع الكلمات للتلاوة والمراجعة"
+ },
+ "Saved for offline use.": {
+  "ur": "آف لائن استعمال کے لیے محفوظ ہو گیا۔",
+  "ar": "حُفظ للاستخدام دون اتصال."
+ },
+ "Saved in this browser": {
+  "ur": "اسی براؤزر میں محفوظ",
+  "ar": "محفوظ في هذا المتصفح"
+ },
+ "Saved offline": {
+  "ur": "آف لائن محفوظ",
+  "ar": "محفوظ دون اتصال"
+ },
+ "Saved offline: {n} of {total} learned ayahs ({reciter}). The Qur'an text, meanings and timings are kept automatically once loaded.": {
+  "ur": "آف لائن محفوظ: {total} میں سے {n} یاد کی ہوئی آیات ({reciter})۔ قرآن کا متن، معانی اور اوقات ایک بار لوڈ ہونے کے بعد خود محفوظ رہتے ہیں۔",
+  "ar": "محفوظ دون اتصال: {n} من {total} آية محفوظة ({reciter}). يُحتفظ بنص القرآن والمعاني والتوقيتات تلقائيًا بعد تحميلها."
+ },
+ "Saved recitations will stream again next time.": {
+  "ur": "محفوظ تلاوتیں اگلی بار دوبارہ آن لائن چلیں گی۔",
+  "ar": "ستُبث التلاوات المحفوظة عبر الإنترنت مرة أخرى."
+ },
+ "Saved to Movies › Learned Ayahs": {
+  "ur": "Movies › Learned Ayahs میں محفوظ ہو گئی",
+  "ar": "حُفظ في Movies › Learned Ayahs"
+ },
+ "Saved, but {n} files could not be downloaded. Try again when online.": {
+  "ur": "محفوظ ہو گیا، لیکن {n} فائلیں ڈاؤن لوڈ نہیں ہو سکیں۔ آن لائن ہونے پر دوبارہ کوشش کریں۔",
+  "ar": "حُفظ، لكن تعذّر تنزيل {n} ملفًا. حاول مجددًا عند الاتصال."
+ },
+ "Saved.": {
+  "ur": "محفوظ ہو گیا۔",
+  "ar": "تم الحفظ."
+ },
+ "Saving intro clips…": {
+  "ur": "ابتدائی آوازیں محفوظ ہو رہی ہیں…",
+  "ar": "جارٍ حفظ مقاطع الافتتاح…"
+ },
+ "Saving offline… {0}/{1}": {
+  "ur": "آف لائن محفوظ ہو رہا ہے… {0}/{1}",
+  "ar": "جارٍ الحفظ دون اتصال… {0}/{1}"
+ },
+ "Saving word audio…": {
+  "ur": "الفاظ کی آواز محفوظ ہو رہی ہے…",
+  "ar": "جارٍ حفظ صوت الكلمات…"
+ },
+ "Saving word audio… {0}/{1}": {
+  "ur": "الفاظ کی آواز محفوظ ہو رہی ہے… {0}/{1}",
+  "ar": "جارٍ حفظ صوت الكلمات… {0}/{1}"
+ },
+ "Saving word clips": {
+  "ur": "الفاظ کی آوازیں محفوظ ہو رہی ہیں",
+  "ar": "جارٍ حفظ مقاطع الكلمات"
+ },
+ "Saving word clips for review…": {
+  "ur": "جائزے کے لیے الفاظ کی آوازیں محفوظ ہو رہی ہیں…",
+  "ar": "جارٍ حفظ مقاطع الكلمات للمراجعة…"
+ },
+ "Saving word clips… {0}/{1}": {
+  "ur": "الفاظ کی آوازیں محفوظ ہو رہی ہیں… {0}/{1}",
+  "ar": "جارٍ حفظ مقاطع الكلمات… {0}/{1}"
+ },
+ "Scenes": {
+  "ur": "مناظر",
+  "ar": "مشاهد"
+ },
+ "Scenes and photos follow what each ayah is about, with its translation underneath.": {
+  "ur": "مناظر اور تصاویر ہر آیت کے موضوع کے مطابق ہوتی ہیں، نیچے اس کا ترجمہ ہوتا ہے۔",
+  "ar": "تتبع المشاهد والصور موضوع كل آية، وتحتها ترجمتها."
+ },
+ "Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons (downloaded when first used), never people or animals. A moving background uses a little more battery.": {
+  "ur": "آسمان، زمین، پانی، روشنی اور نقش و نگار کے مناظر، اور Wikimedia Commons کی CC0 قدرتی تصاویر (پہلی بار استعمال پر ڈاؤن لوڈ)، کبھی انسان یا جانور نہیں۔ متحرک پس منظر تھوڑی زیادہ بیٹری استعمال کرتا ہے۔",
+  "ar": "مشاهد للسماء والأرض والماء والضوء والزخارف، وصور طبيعة CC0 من Wikimedia Commons (تُنزَّل عند أول استخدام)، دون بشر أو حيوانات. الخلفية المتحركة تستهلك بطارية أكثر قليلًا."
+ },
+ "Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons, never people or animals. A moving background uses a little more battery.": {
+  "ur": "آسمان، زمین، پانی، روشنی اور نقش و نگار کے مناظر، اور Wikimedia Commons کی CC0 قدرتی تصاویر، کبھی انسان یا جانور نہیں۔ متحرک پس منظر تھوڑی زیادہ بیٹری استعمال کرتا ہے۔",
+  "ar": "مشاهد للسماء والأرض والماء والضوء والزخارف، وصور طبيعة CC0 من Wikimedia Commons، دون بشر أو حيوانات. الخلفية المتحركة تستهلك بطارية أكثر قليلًا."
+ },
+ "Search": {
+  "ur": "تلاش",
+  "ar": "بحث"
+ },
+ "Search surah": {
+  "ur": "سورت تلاش کریں",
+  "ar": "ابحث عن سورة"
+ },
+ "Search surah by name or number": {
+  "ur": "نام یا نمبر سے سورت تلاش کریں",
+  "ar": "ابحث عن سورة بالاسم أو الرقم"
+ },
+ "Seek": {
+  "ur": "آیت میں جائیں",
+  "ar": "الانتقال"
+ },
+ "Seek to the word in the reader": {
+  "ur": "ریڈر میں لفظ پر جائیں",
+  "ar": "الانتقال إلى الكلمة في القارئ"
+ },
+ "Settings": {
+  "ur": "سیٹنگز",
+  "ar": "الإعدادات"
+ },
+ "Shape": {
+  "ur": "شکل",
+  "ar": "الشكل"
+ },
+ "Share": {
+  "ur": "شیئر کریں",
+  "ar": "مشاركة"
+ },
+ "Share at least the Arabic or the English": {
+  "ur": "کم از کم عربی یا انگریزی شیئر کریں",
+  "ar": "شارك العربية أو الإنجليزية على الأقل"
+ },
+ "Share image": {
+  "ur": "تصویر شیئر کریں",
+  "ar": "مشاركة الصورة"
+ },
+ "Share or copy text": {
+  "ur": "متن شیئر یا کاپی کریں",
+  "ar": "مشاركة النص أو نسخه"
+ },
+ "Share text": {
+  "ur": "متن شیئر کریں",
+  "ar": "مشاركة النص"
+ },
+ "Share this ayah": {
+  "ur": "یہ آیت شیئر کریں",
+  "ar": "مشاركة هذه الآية"
+ },
+ "Share video": {
+  "ur": "ویڈیو شیئر کریں",
+  "ar": "مشاركة الفيديو"
+ },
+ "Shorts, Reels, TikTok": {
+  "ur": "Shorts، Reels، TikTok",
+  "ar": "Shorts وReels وTikTok"
+ },
+ "Show": {
+  "ur": "دکھائیں",
+  "ar": "عرض"
+ },
+ "Show each word's meaning beneath it in the ayah views.": {
+  "ur": "آیت کے مناظر میں ہر لفظ کے نیچے اس کا معنی دکھائیں۔",
+  "ar": "اعرض معنى كل كلمة تحتها في عرض الآية."
+ },
+ "Show the whole ayah's translation ({0}) under it in the player.": {
+  "ur": "پلیئر میں پوری آیت کا ترجمہ ({0}) اس کے نیچے دکھائیں۔",
+  "ar": "اعرض ترجمة الآية كاملة ({0}) تحتها في المشغل."
+ },
+ "Shown beside the Arabic in the player, the surah pages, shared text and videos. Saheeh International and the English word meanings come with the app; other editions download from Quran.com when chosen and are kept for offline use.": {
+  "ur": "پلیئر، سورت کے صفحات، شیئر کیے گئے متن اور ویڈیوز میں عربی کے ساتھ دکھایا جاتا ہے۔ صحیح انٹرنیشنل اور انگریزی میں الفاظ کے معانی ایپ کے ساتھ آتے ہیں؛ دوسرے ایڈیشن منتخب کرنے پر Quran.com سے ڈاؤن لوڈ ہو کر آف لائن استعمال کے لیے محفوظ رہتے ہیں۔",
+  "ar": "تُعرض بجانب العربية في المشغل وصفحات السور والنصوص والفيديوهات المشتركة. ترجمة صحيح إنترناشونال ومعاني الكلمات بالإنجليزية مضمَّنة مع التطبيق؛ والإصدارات الأخرى تُنزَّل من Quran.com عند اختيارها وتُحفظ للاستخدام دون اتصال."
+ },
+ "Sign in": {
+  "ur": "سائن ان",
+  "ar": "تسجيل الدخول"
+ },
+ "Sign in with an administrator account to manage users.": {
+  "ur": "صارفین کے انتظام کے لیے منتظم اکاؤنٹ سے سائن ان کریں۔",
+  "ar": "سجّل الدخول بحساب مشرف لإدارة المستخدمين."
+ },
+ "Sign out": {
+  "ur": "سائن آؤٹ",
+  "ar": "تسجيل الخروج"
+ },
+ "Sign out with unsaved changes?": {
+  "ur": "غیر محفوظ تبدیلیوں کے ساتھ سائن آؤٹ کریں؟",
+  "ar": "تسجيل الخروج مع تغييرات غير محفوظة؟"
+ },
+ "Signed in as {name}": {
+  "ur": "{name} کے طور پر سائن ان",
+  "ar": "مسجَّل الدخول باسم {name}"
+ },
+ "Signed out.": {
+  "ur": "سائن آؤٹ ہو گیا۔",
+  "ar": "تم تسجيل الخروج."
+ },
+ "SIL International": {
+  "ur": "SIL International",
+  "ar": "SIL International"
+ },
+ "SIL International · software.sil.org": {
+  "ur": "SIL International · software.sil.org",
+  "ar": "SIL International · software.sil.org"
+ },
+ "Single-word recitations": {
+  "ur": "الگ الگ الفاظ کی تلاوت",
+  "ar": "تلاوة الكلمات المنفردة"
+ },
+ "Skip": {
+  "ur": "چھوڑیں",
+  "ar": "تخطٍّ"
+ },
+ "Skipped word '{0}'": {
+  "ur": "چھوٹا ہوا لفظ ’{0}‘",
+  "ar": "كلمة متروكة «{0}»"
+ },
+ "Some changes have not reached the server yet (it may be unreachable). Signing out now loses them.": {
+  "ur": "کچھ تبدیلیاں ابھی سرور تک نہیں پہنچیں (شاید سرور دستیاب نہیں)۔ ابھی سائن آؤٹ کرنے سے وہ ضائع ہو جائیں گی۔",
+  "ar": "بعض التغييرات لم تصل إلى الخادم بعد (ربما يتعذّر الوصول إليه). تسجيل الخروج الآن يُضيّعها."
+ },
+ "Something went wrong": {
+  "ur": "کچھ غلط ہو گیا",
+  "ar": "حدث خطأ ما"
+ },
+ "Source code and Android app": {
+  "ur": "سورس کوڈ اور اینڈرائیڈ ایپ",
+  "ar": "الشيفرة المصدرية وتطبيق أندرويد"
+ },
+ "Sources and disclaimer": {
+  "ur": "ماخذ اور اعلانِ دستبرداری",
+  "ar": "المصادر وإخلاء المسؤولية"
+ },
+ "Sources in small print under the text": {
+  "ur": "متن کے نیچے باریک حروف میں ماخذ",
+  "ar": "المصادر بخط صغير تحت النص"
+ },
+ "Speech recognition error ({0})": {
+  "ur": "آواز کی شناخت میں خرابی ({0})",
+  "ar": "خطأ في التعرّف على الكلام ({0})"
+ },
+ "Speech recognition is not available in this browser. Try Chrome, Edge or Safari.": {
+  "ur": "اس براؤزر میں آواز کی شناخت دستیاب نہیں۔ Chrome، Edge یا Safari آزمائیں۔",
+  "ar": "التعرّف على الكلام غير متاح في هذا المتصفح. جرّب Chrome أو Edge أو Safari."
+ },
+ "Speech recognition needs an internet connection in this browser.": {
+  "ur": "اس براؤزر میں آواز کی شناخت کے لیے انٹرنیٹ درکار ہے۔",
+  "ar": "يحتاج التعرّف على الكلام إلى اتصال بالإنترنت في هذا المتصفح."
+ },
+ "Speech recognition stopped ({error}).": {
+  "ur": "آواز کی شناخت رک گئی ({error})۔",
+  "ar": "توقف التعرّف على الكلام ({error})."
+ },
+ "Square": {
+  "ur": "مربع",
+  "ar": "مربع"
+ },
+ "Start Reciting": {
+  "ur": "تلاوت شروع کریں",
+  "ar": "ابدأ التلاوة"
+ },
+ "Stop Recording": {
+  "ur": "ریکارڈنگ روکیں",
+  "ar": "إيقاف التسجيل"
+ },
+ "Stream directly from everyayah.com": {
+  "ur": "براہِ راست everyayah.com سے چلائیں",
+  "ar": "البث مباشرة من everyayah.com"
+ },
+ "Surah": {
+  "ur": "سورت",
+  "ar": "السورة"
+ },
+ "Surah #": {
+  "ur": "سورت نمبر",
+  "ar": "رقم السورة"
+ },
+ "Surah {0} is not in your learned playlist": {
+  "ur": "سورت {0} آپ کی یاد کی ہوئی پلے لسٹ میں نہیں ہے",
+  "ar": "السورة {0} ليست في قائمة آياتك المحفوظة"
+ },
+ "Surah {0} · {1}": {
+  "ur": "سورت {0} · {1}",
+  "ar": "سورة {0} · {1}"
+ },
+ "Surah {n} · {name}": {
+  "ur": "سورت {n} · {name}",
+  "ar": "سورة {n} · {name}"
+ },
+ "Surahs": {
+  "ur": "سورتیں",
+  "ar": "السور"
+ },
+ "Swipe left/right on the player to move between ayahs (or words).": {
+  "ur": "آیات (یا الفاظ) کے درمیان جانے کے لیے پلیئر پر دائیں بائیں سوائپ کریں۔",
+  "ar": "اسحب يمينًا أو يسارًا في المشغل للتنقل بين الآيات (أو الكلمات)."
+ },
+ "Swipe left/right on the player to move between ayahs.": {
+  "ur": "آیات کے درمیان جانے کے لیے پلیئر پر دائیں بائیں سوائپ کریں۔",
+  "ar": "اسحب يمينًا أو يسارًا في المشغل للتنقل بين الآيات."
+ },
+ "swipe or tap for the next word": {
+  "ur": "اگلے لفظ کے لیے سوائپ کریں یا دبائیں",
+  "ar": "اسحب أو اضغط للكلمة التالية"
+ },
+ "Swipe or tap on the player to move between ayahs.": {
+  "ur": "آیات کے درمیان جانے کے لیے پلیئر پر سوائپ کریں یا دبائیں۔",
+  "ar": "اسحب أو اضغط في المشغل للتنقل بين الآيات."
+ },
+ "Swipe to navigate": {
+  "ur": "سوائپ سے آگے پیچھے",
+  "ar": "التنقل بالسحب"
+ },
+ "Switch to {0}:{1}": {
+  "ur": "{0}:{1} پر جائیں",
+  "ar": "الانتقال إلى {0}:{1}"
+ },
+ "Switch to {ref}": {
+  "ur": "{ref} پر جائیں",
+  "ar": "الانتقال إلى {ref}"
+ },
+ "Sync your learned ayahs, bookmarks and settings across your devices. Without an account everything stays in this browser.": {
+  "ur": "اپنی یاد کی ہوئی آیات، بک مارکس اور سیٹنگز اپنی ڈیوائسز کے درمیان ہم آہنگ رکھیں۔ اکاؤنٹ کے بغیر سب کچھ اسی براؤزر میں رہتا ہے۔",
+  "ar": "زامن آياتك المحفوظة ومفضلتك وإعداداتك بين أجهزتك. دون حساب يبقى كل شيء في هذا المتصفح."
+ },
+ "Tafsir": {
+  "ur": "تفسیر",
+  "ar": "التفسير"
+ },
+ "Tafsir (optional)": {
+  "ur": "تفسیر (اختیاری)",
+  "ar": "التفسير (اختياري)"
+ },
+ "Tafsir on this ayah": {
+  "ur": "اس آیت کی تفسیر",
+  "ar": "تفسير هذه الآية"
+ },
+ "Tafsir · {0} {1}:{2}": {
+  "ur": "تفسیر · {0} {1}:{2}",
+  "ar": "التفسير · {0} {1}:{2}"
+ },
+ "Tap a surah to expand · tap an ayah to go there": {
+  "ur": "سورت کھولنے کے لیے دبائیں · آیت پر جانے کے لیے اسے دبائیں",
+  "ar": "اضغط سورة لتوسيعها · اضغط آية للانتقال إليها"
+ },
+ "Tap microphone & recite the Ayah": {
+  "ur": "مائیکروفون دبائیں اور آیت پڑھیں",
+  "ar": "اضغط الميكروفون واتلُ الآية"
+ },
+ "Tap the player to move to the next ayah (or word).": {
+  "ur": "اگلی آیت (یا لفظ) پر جانے کے لیے پلیئر دبائیں۔",
+  "ar": "اضغط المشغل للانتقال إلى الآية التالية (أو الكلمة)."
+ },
+ "Tap the player to move to the next ayah.": {
+  "ur": "اگلی آیت پر جانے کے لیے پلیئر دبائیں۔",
+  "ar": "اضغط المشغل للانتقال إلى الآية التالية."
+ },
+ "Tap to advance": {
+  "ur": "دبا کر آگے بڑھیں",
+  "ar": "التقدم بالضغط"
+ },
+ "Text": {
+  "ur": "متن",
+  "ar": "النص"
+ },
+ "Text copied": {
+  "ur": "متن کاپی ہو گیا",
+  "ar": "نُسخ النص"
+ },
+ "That sounds like a different ayah ({0}:{1}). Stay on this one, or change ayah.": {
+  "ur": "یہ کوئی اور آیت لگتی ہے ({0}:{1})۔ اسی پر رہیں، یا آیت تبدیل کریں۔",
+  "ar": "يبدو أنها آية أخرى ({0}:{1}). ابقَ على هذه، أو غيّر الآية."
+ },
+ "The Amiri Project, Khaled Hosny": {
+  "ur": "The Amiri Project، خالد حسنی",
+  "ar": "مشروع أميري، خالد حسني"
+ },
+ "The Amiri Project, Khaled Hosny · github.com/aliftype/amiri": {
+  "ur": "The Amiri Project، خالد حسنی · github.com/aliftype/amiri",
+  "ar": "مشروع أميري، خالد حسني · github.com/aliftype/amiri"
+ },
+ "The app is provided free and \"as is\", without warranty of any kind. To the extent the law allows, its developers are not responsible for the content of these sources or for any loss arising from using the app.": {
+  "ur": "یہ ایپ مفت اور ”جیسی ہے“ کی بنیاد پر، کسی بھی قسم کی ضمانت کے بغیر فراہم کی جاتی ہے۔ قانون کی حد تک، اس کے بنانے والے ان ماخذوں کے مواد یا ایپ کے استعمال سے ہونے والے کسی نقصان کے ذمہ دار نہیں۔",
+  "ar": "يُقدَّم التطبيق مجانًا «كما هو» دون أي ضمان. وفي الحدود التي يسمح بها القانون، لا يتحمل مطوروه مسؤولية محتوى هذه المصادر ولا أي ضرر ينشأ عن استخدام التطبيق."
+ },
+ "The Arabic text is unavailable. Please try again.": {
+  "ur": "عربی متن دستیاب نہیں۔ براہِ کرم دوبارہ کوشش کریں۔",
+  "ar": "النص العربي غير متاح. يُرجى المحاولة مجددًا."
+ },
+ "The download failed.": {
+  "ur": "ڈاؤن لوڈ ناکام رہا۔",
+  "ar": "فشل التنزيل."
+ },
+ "The English text is unavailable. Please try again.": {
+  "ur": "انگریزی متن دستیاب نہیں۔ براہِ کرم دوبارہ کوشش کریں۔",
+  "ar": "النص الإنجليزي غير متاح. يُرجى المحاولة مجددًا."
+ },
+ "The image couldn't be made.": {
+  "ur": "تصویر نہیں بن سکی۔",
+  "ar": "تعذّر إنشاء الصورة."
+ },
+ "The language of the app's menus and messages. The Qur'an, translations and tafsir have their own choices below.": {
+  "ur": "ایپ کے مینو اور پیغامات کی زبان۔ قرآن، ترجموں اور تفسیر کے اپنے الگ انتخاب نیچے ہیں۔",
+  "ar": "لغة قوائم التطبيق ورسائله. وللقرآن والترجمات والتفسير خيارات خاصة بها أدناه."
+ },
+ "The list of tafsirs could not be loaded. Check your connection and try again.": {
+  "ur": "تفاسیر کی فہرست لوڈ نہیں ہو سکی۔ اپنا کنکشن چیک کر کے دوبارہ کوشش کریں۔",
+  "ar": "تعذّر تحميل قائمة التفاسير. تحقق من اتصالك وحاول مجددًا."
+ },
+ "The list of translations could not be loaded. Saheeh International is used for now.": {
+  "ur": "ترجموں کی فہرست لوڈ نہیں ہو سکی۔ فی الحال صحیح انٹرنیشنل استعمال ہو رہا ہے۔",
+  "ar": "تعذّر تحميل قائمة الترجمات. تُستخدم صحيح إنترناشونال مؤقتًا."
+ },
+ "The player as it is": {
+  "ur": "پلیئر جیسا ہے",
+  "ar": "المشغل كما هو"
+ },
+ "The player reads along with you: each word lights up as it is recited. Swipe or tap to move between ayahs.": {
+  "ur": "پلیئر آپ کے ساتھ پڑھتا ہے: ہر لفظ تلاوت کے ساتھ روشن ہوتا ہے۔ آیات کے درمیان جانے کے لیے سوائپ کریں یا دبائیں۔",
+  "ar": "يقرأ المشغل معك: تُضاء كل كلمة عند تلاوتها. اسحب أو اضغط للتنقل بين الآيات."
+ },
+ "The preview couldn't be drawn.": {
+  "ur": "پیش منظر نہیں بن سکا۔",
+  "ar": "تعذّر رسم المعاينة."
+ },
+ "The Qur'an text, meanings and recitations come from public sources, also listed in Settings.": {
+  "ur": "قرآن کا متن، معانی اور تلاوتیں عوامی ماخذوں سے آتی ہیں، جو سیٹنگز میں بھی درج ہیں۔",
+  "ar": "نص القرآن والمعاني والتلاوات من مصادر عامة، مذكورة أيضًا في الإعدادات."
+ },
+ "The Qur'an text, meanings and recitations come from public sources. ": {
+  "ur": "قرآن کا متن، معانی اور تلاوتیں عوامی ماخذوں سے آتی ہیں۔ ",
+  "ar": "نص القرآن والمعاني والتلاوات من مصادر عامة. "
+ },
+ "The selected ayahs, as words only.": {
+  "ur": "منتخب آیات، صرف الفاظ کی صورت میں۔",
+  "ar": "الآيات المختارة، كلمات فقط."
+ },
+ "The text couldn't be shared.": {
+  "ur": "متن شیئر نہیں ہو سکا۔",
+  "ar": "تعذّرت مشاركة النص."
+ },
+ "The video couldn't be made on this phone.": {
+  "ur": "اس فون پر ویڈیو نہیں بن سکی۔",
+  "ar": "تعذّر إنشاء الفيديو على هذا الهاتف."
+ },
+ "The whole ayah, under the Arabic": {
+  "ur": "پوری آیت، عربی کے نیچے",
+  "ar": "الآية كاملة، تحت العربية"
+ },
+ "Their account and learned ayahs are removed from this server.": {
+  "ur": "ان کا اکاؤنٹ اور یاد کی ہوئی آیات اس سرور سے ہٹا دی جاتی ہیں۔",
+  "ar": "يُحذف حسابه وآياته المحفوظة من هذا الخادم."
+ },
+ "Theme": {
+  "ur": "تھیم",
+  "ar": "السمة"
+ },
+ "They will download again the next time they are shown.": {
+  "ur": "اگلی بار دکھائے جانے پر یہ دوبارہ ڈاؤن لوڈ ہوں گے۔",
+  "ar": "ستُنزَّل مجددًا في المرة التالية التي تُعرض فيها."
+ },
+ "This ayah is the Bismillah": {
+  "ur": "یہ آیت خود بسم اللہ ہے",
+  "ar": "هذه الآية هي البسملة"
+ },
+ "This browser cannot store audio for offline use.": {
+  "ur": "یہ براؤزر آڈیو کو آف لائن استعمال کے لیے محفوظ نہیں کر سکتا۔",
+  "ar": "لا يستطيع هذا المتصفح حفظ الصوت للاستخدام دون اتصال."
+ },
+ "This browser can’t make videos. Use a recent Chrome, Edge or Safari.": {
+  "ur": "یہ براؤزر ویڈیوز نہیں بنا سکتا۔ Chrome، Edge یا Safari کا نیا ورژن استعمال کریں۔",
+  "ar": "لا يستطيع هذا المتصفح إنشاء الفيديو. استخدم إصدارًا حديثًا من Chrome أو Edge أو Safari."
+ },
+ "This browser has no speech recognition. Recite & review works in Chrome, Edge and Safari.": {
+  "ur": "اس براؤزر میں آواز کی شناخت نہیں۔ تلاوت اور جائزہ Chrome، Edge اور Safari میں کام کرتا ہے۔",
+  "ar": "لا يدعم هذا المتصفح التعرّف على الكلام. تعمل التلاوة والمراجعة في Chrome وEdge وSafari."
+ },
+ "This browser only": {
+  "ur": "صرف یہ براؤزر",
+  "ar": "هذا المتصفح فقط"
+ },
+ "This cannot be undone.": {
+  "ur": "اسے واپس نہیں کیا جا سکتا۔",
+  "ar": "لا يمكن التراجع عن هذا."
+ },
+ "This clears all {n} learned ayahs from your account. Export first if you might want them back.": {
+  "ur": "یہ آپ کے اکاؤنٹ سے تمام {n} یاد کی ہوئی آیات صاف کر دے گا۔ اگر بعد میں واپس چاہییں تو پہلے ایکسپورٹ کر لیں۔",
+  "ar": "سيمحو هذا كل الآيات المحفوظة ({n}) من حسابك. صدِّر أولًا إن احتجت إليها لاحقًا."
+ },
+ "This clears all {n} learned ayahs in this browser. Export first if you might want them back.": {
+  "ur": "یہ اس براؤزر سے تمام {n} یاد کی ہوئی آیات صاف کر دے گا۔ اگر بعد میں واپس چاہییں تو پہلے ایکسپورٹ کر لیں۔",
+  "ar": "سيمحو هذا كل الآيات المحفوظة ({n}) في هذا المتصفح. صدِّر أولًا إن احتجت إليها لاحقًا."
+ },
+ "This commentary covers {0} together.": {
+  "ur": "یہ تفسیر {0} کو ایک ساتھ بیان کرتی ہے۔",
+  "ar": "يتناول هذا الشرح {0} معًا."
+ },
+ "This commentary covers {range} together.": {
+  "ur": "یہ تفسیر {range} کو ایک ساتھ بیان کرتی ہے۔",
+  "ar": "يتناول هذا الشرح {range} معًا."
+ },
+ "This is a beta feature.\n\nIt listens through your phone's Arabic speech recognition, which is built for everyday speech rather than Qur'anic recitation. It will sometimes miss a real mistake, and it can occasionally flag a word you recited correctly.\n\nTreat it as practice help, never as a check on whether your recitation is correct. Your microphone is only used while you are on the Recite screen and have started listening.": {
+  "ur": "یہ ایک بیٹا فیچر ہے۔\n\nیہ آپ کے فون کی عربی آواز کی شناخت کے ذریعے سنتا ہے، جو روزمرہ گفتگو کے لیے بنی ہے، قرآن کی تلاوت کے لیے نہیں۔ یہ کبھی کبھی اصل غلطی سے چوک جائے گا، اور کبھی درست پڑھے گئے لفظ کو بھی غلط بتا سکتا ہے۔\n\nاسے مشق میں مدد سمجھیں، اپنی تلاوت کی درستی کی جانچ ہرگز نہیں۔ آپ کا مائیکروفون صرف اسی وقت استعمال ہوتا ہے جب آپ تلاوت کی اسکرین پر ہوں اور سننا شروع کیا ہو۔",
+  "ar": "هذه ميزة تجريبية.\n\nتستمع عبر التعرّف على الكلام العربي في هاتفك، وهو مصمَّم للكلام اليومي لا لتلاوة القرآن. قد يفوتها خطأ حقيقي أحيانًا، وقد تُنبّه على كلمة تلوتها صحيحة.\n\nاعتبرها عونًا على التدرّب، لا حكمًا على صحة تلاوتك. لا يُستخدم الميكروفون إلا وأنت في شاشة التلاوة وقد بدأت الاستماع."
+ },
+ "This is a beta feature. It listens through your browser's Arabic speech recognition, which is built for everyday speech rather than Qur'anic recitation. It will sometimes miss a real mistake, and it can occasionally flag a word you recited correctly. Treat it as practice help, never as a check on whether your recitation is correct. Your microphone is only used while you are on the Recite screen.": {
+  "ur": "یہ ایک بیٹا فیچر ہے۔ یہ آپ کے براؤزر کی عربی آواز کی شناخت کے ذریعے سنتا ہے، جو روزمرہ گفتگو کے لیے بنی ہے، قرآن کی تلاوت کے لیے نہیں۔ یہ کبھی کبھی اصل غلطی سے چوک جائے گا، اور کبھی درست پڑھے گئے لفظ کو بھی غلط بتا سکتا ہے۔ اسے مشق میں مدد سمجھیں، اپنی تلاوت کی درستی کی جانچ ہرگز نہیں۔ آپ کا مائیکروفون صرف تلاوت کی اسکرین پر استعمال ہوتا ہے۔",
+  "ar": "هذه ميزة تجريبية. تستمع عبر التعرّف على الكلام العربي في متصفحك، وهو مصمَّم للكلام اليومي لا لتلاوة القرآن. قد يفوتها خطأ حقيقي أحيانًا، وقد تُنبّه على كلمة تلوتها صحيحة. اعتبرها عونًا على التدرّب، لا حكمًا على صحة تلاوتك. لا يُستخدم الميكروفون إلا في شاشة التلاوة."
+ },
+ "This tafsir has no commentary on this ayah.": {
+  "ur": "اس تفسیر میں اس آیت پر کوئی تشریح نہیں۔",
+  "ar": "لا يتضمن هذا التفسير شرحًا لهذه الآية."
+ },
+ "To ayah": {
+  "ur": "آیت تک",
+  "ar": "إلى الآية"
+ },
+ "To move your list to another device, use Export and Import in Settings.": {
+  "ur": "اپنی فہرست دوسری ڈیوائس پر لے جانے کے لیے سیٹنگز میں ایکسپورٹ اور امپورٹ استعمال کریں۔",
+  "ar": "لنقل قائمتك إلى جهاز آخر، استخدم التصدير والاستيراد في الإعدادات."
+ },
+ "Translation": {
+  "ur": "ترجمہ",
+  "ar": "الترجمة"
+ },
+ "Translation and tafsir": {
+  "ur": "ترجمہ اور تفسیر",
+  "ar": "الترجمة والتفسير"
+ },
+ "Translation language": {
+  "ur": "ترجمے کی زبان",
+  "ar": "لغة الترجمة"
+ },
+ "Translation style": {
+  "ur": "ترجمے کا انداز",
+  "ar": "أسلوب الترجمة"
+ },
+ "Try again": {
+  "ur": "دوبارہ کوشش کریں",
+  "ar": "حاول مجددًا"
+ },
+ "Try “Word by word” in the player header — one word at a time with its meaning, and Next/Previous (even on headsets) step word by word.": {
+  "ur": "پلیئر کے اوپر ”لفظ بہ لفظ“ آزمائیں — ایک وقت میں ایک لفظ اس کے معنی کے ساتھ، اور اگلا/پچھلا (ہیڈسیٹ پر بھی) لفظ بہ لفظ چلتا ہے۔",
+  "ar": "جرّب «كلمة بكلمة» في أعلى المشغل — كلمة واحدة في كل مرة مع معناها، ويتنقل «التالي/السابق» (حتى من السماعات) كلمةً كلمة."
+ },
+ "Try “Word by word”: one word at a time with its meaning. Next and Previous — even on headphones — step word by word.": {
+  "ur": "”لفظ بہ لفظ“ آزمائیں: ایک وقت میں ایک لفظ اس کے معنی کے ساتھ۔ اگلا اور پچھلا — ہیڈفون پر بھی — لفظ بہ لفظ چلتے ہیں۔",
+  "ar": "جرّب «كلمة بكلمة»: كلمة واحدة في كل مرة مع معناها. ويتنقل «التالي» و«السابق» — حتى من السماعات — كلمةً كلمة."
+ },
+ "Turn it on in Settings to practise reciting your learned ayahs from memory while the app listens.": {
+  "ur": "سیٹنگز میں اسے آن کریں تاکہ ایپ کے سننے کے دوران آپ یاد کی ہوئی آیات زبانی پڑھنے کی مشق کر سکیں۔",
+  "ar": "فعِّلها من الإعدادات لتتدرّب على تلاوة آياتك المحفوظة من حفظك والتطبيق يستمع."
+ },
+ "Turn on": {
+  "ur": "آن کریں",
+  "ar": "تفعيل"
+ },
+ "Turn on Recite & review?": {
+  "ur": "تلاوت اور جائزہ آن کریں؟",
+  "ar": "تفعيل التلاوة والمراجعة؟"
+ },
+ "Type a surah number or pick from your learned surahs below.": {
+  "ur": "سورت کا نمبر لکھیں یا نیچے اپنی یاد کی ہوئی سورتوں میں سے چنیں۔",
+  "ar": "اكتب رقم السورة أو اختر من سورك المحفوظة أدناه."
+ },
+ "Type what you've learned — for example:\n36:1-83,  2:255,  Al-Baqarah 1-5,  112,  78-114": {
+  "ur": "جو یاد کیا ہے وہ لکھیں — مثلاً:\n36:1-83،  2:255،  البقرہ 1-5،  112،  78-114",
+  "ar": "اكتب ما حفظته — مثلًا:\n36:1-83،  2:255،  البقرة 1-5،  112،  78-114"
+ },
+ "Type what you've learned — for example: 36:1-83,  2:255,  Al-Baqarah 1-5,  112,  78-114": {
+  "ur": "جو یاد کیا ہے وہ لکھیں — مثلاً: 36:1-83،  2:255،  البقرہ 1-5،  112،  78-114",
+  "ar": "اكتب ما حفظته — مثلًا: 36:1-83،  2:255،  البقرة 1-5،  112،  78-114"
+ },
+ "Under each Arabic word": {
+  "ur": "ہر عربی لفظ کے نیچے",
+  "ar": "تحت كل كلمة عربية"
+ },
+ "Unmark all": {
+  "ur": "سب کا نشان ہٹائیں",
+  "ar": "إلغاء تعليم الكل"
+ },
+ "Unmark all ayahs": {
+  "ur": "تمام آیات کا نشان ہٹائیں",
+  "ar": "إلغاء تعليم كل الآيات"
+ },
+ "Unmark all of {0}": {
+  "ur": "پوری {0} کا نشان ہٹائیں",
+  "ar": "إلغاء تعليم {0} كلها"
+ },
+ "Unmark all of {surah}": {
+  "ur": "پوری {surah} کا نشان ہٹائیں",
+  "ar": "إلغاء تعليم {surah} كلها"
+ },
+ "Unmark every ayah?": {
+  "ur": "ہر آیت کا نشان ہٹائیں؟",
+  "ar": "إلغاء تعليم كل آية؟"
+ },
+ "Use a number from 1 to 114": {
+  "ur": "1 سے 114 تک کا نمبر لکھیں",
+  "ar": "استخدم رقمًا من 1 إلى 114"
+ },
+ "User": {
+  "ur": "صارف",
+  "ar": "مستخدم"
+ },
+ "Username": {
+  "ur": "صارف نام",
+  "ar": "اسم المستخدم"
+ },
+ "Users": {
+  "ur": "صارفین",
+  "ar": "المستخدمون"
+ },
+ "Video": {
+  "ur": "ویڈیو",
+  "ar": "فيديو"
+ },
+ "Video…": {
+  "ur": "ویڈیو…",
+  "ar": "فيديو…"
+ },
+ "Voice Recitation Practice": {
+  "ur": "آواز سے تلاوت کی مشق",
+  "ar": "التدرّب على التلاوة بالصوت"
+ },
+ "Welcome": {
+  "ur": "خوش آمدید",
+  "ar": "مرحبًا"
+ },
+ "Welcome back, {name}.": {
+  "ur": "خوش آمدید، {name}۔",
+  "ar": "مرحبًا بعودتك يا {name}."
+ },
+ "Welcome to Learned Ayahs": {
+  "ur": "Learned Ayahs میں خوش آمدید",
+  "ar": "مرحبًا بك في Learned Ayahs"
+ },
+ "What to read beside the Arabic, and who recites. All of it can be changed later in Settings.": {
+  "ur": "عربی کے ساتھ کیا پڑھنا ہے، اور تلاوت کون کرے۔ یہ سب بعد میں سیٹنگز میں تبدیل کیا جا سکتا ہے۔",
+  "ar": "ماذا تقرأ بجانب العربية، ومن يتلو. ويمكن تغيير ذلك كله لاحقًا من الإعدادات."
+ },
+ "When a whole ayah is too long to fit on screen while playing:": {
+  "ur": "جب تلاوت کے دوران پوری آیت اسکرین میں نہ سمائے:",
+  "ar": "عندما تكون الآية أطول من أن تتسع لها الشاشة أثناء التشغيل:"
+ },
+ "When whole ayah is too long to fit on screen while playing:": {
+  "ur": "جب تلاوت کے دوران پوری آیت اسکرین میں نہ سمائے:",
+  "ar": "عندما تكون الآية أطول من أن تتسع لها الشاشة أثناء التشغيل:"
+ },
+ "When you move through words in the word-by-word reader, jump the ayah audio to that word.": {
+  "ur": "لفظ بہ لفظ ریڈر میں الفاظ پر چلتے وقت، آیت کی آڈیو اسی لفظ پر لے جائیں۔",
+  "ar": "عند التنقل بين الكلمات في قارئ كلمة بكلمة، انقل صوت الآية إلى تلك الكلمة."
+ },
+ "Whole ayah": {
+  "ur": "پوری آیت",
+  "ar": "الآية كاملة"
+ },
+ "Whole surah": {
+  "ur": "پوری سورت",
+  "ar": "السورة كاملة"
+ },
+ "Whole-ayah recitations from everyayah.com. Each one ships exact per-word timings, so the word being recited is highlighted.": {
+  "ur": "everyayah.com سے پوری آیات کی تلاوت۔ ہر ایک کے ساتھ الفاظ کے درست اوقات ہیں، اس لیے پڑھا جانے والا لفظ نمایاں ہوتا ہے۔",
+  "ar": "تلاوات الآيات كاملة من everyayah.com. لكلٍّ منها توقيتات دقيقة للكلمات، فتُبرز الكلمة التي تُتلى."
+ },
+ "Whole-ayah recitations stream from everyayah.com. Each one ships exact word timings for optional highlight-while-playing.": {
+  "ur": "پوری آیات کی تلاوت everyayah.com سے آن لائن چلتی ہے۔ ہر ایک کے ساتھ الفاظ کے درست اوقات ہیں تاکہ چلتے وقت لفظ نمایاں ہو سکے۔",
+  "ar": "تُبث تلاوات الآيات كاملة من everyayah.com. ولكلٍّ منها توقيتات دقيقة للكلمات لإبرازها أثناء التشغيل."
+ },
+ "Wikimedia Commons": {
+  "ur": "Wikimedia Commons",
+  "ar": "Wikimedia Commons"
+ },
+ "Wikimedia Commons · commons.wikimedia.org": {
+  "ur": "Wikimedia Commons · commons.wikimedia.org",
+  "ar": "Wikimedia Commons · commons.wikimedia.org"
+ },
+ "Will mark {0} ayahs · {1} new.": {
+  "ur": "{0} آیات نشان زد ہوں گی · {1} نئی۔",
+  "ar": "ستُعلَّم {0} آية · {1} جديدة."
+ },
+ "Will mark {n} ayahs · {fresh} new.": {
+  "ur": "{n} آیات نشان زد ہوں گی · {fresh} نئی۔",
+  "ar": "ستُعلَّم {n} آية · {fresh} جديدة."
+ },
+ "Word": {
+  "ur": "لفظ",
+  "ar": "كلمة"
+ },
+ "Word by word": {
+  "ur": "لفظ بہ لفظ",
+  "ar": "كلمة بكلمة"
+ },
+ "Word by word · repeat word": {
+  "ur": "لفظ بہ لفظ · لفظ دہرائیں",
+  "ar": "كلمة بكلمة · تكرار الكلمة"
+ },
+ "Word clips (Quran.com)": {
+  "ur": "الفاظ کی آوازیں (Quran.com)",
+  "ar": "مقاطع الكلمات (Quran.com)"
+ },
+ "Word clips are played back when a wrong word is detected — they are a separate download from the speech engine.": {
+  "ur": "غلط لفظ ملنے پر الفاظ کی آوازیں چلائی جاتی ہیں — یہ آواز کی شناخت سے الگ ڈاؤن لوڈ ہیں۔",
+  "ar": "تُشغَّل مقاطع الكلمات عند اكتشاف كلمة خاطئة — وهي تنزيل منفصل عن محرك الكلام."
+ },
+ "Word clips: {name}.": {
+  "ur": "الفاظ کی آوازیں: {name}۔",
+  "ar": "مقاطع الكلمات: {name}."
+ },
+ "Word meanings": {
+  "ur": "الفاظ کے معانی",
+  "ar": "معاني الكلمات"
+ },
+ "Word meanings and the whole ayah": {
+  "ur": "الفاظ کے معانی اور پوری آیت",
+  "ar": "معاني الكلمات والآية كاملة"
+ },
+ "Word meanings are a study aid, not a translation of the Qur'an. Word highlighting and Recite & review are approximate.": {
+  "ur": "الفاظ کے معانی مطالعے میں مدد ہیں، قرآن کا ترجمہ نہیں۔ الفاظ کا نمایاں ہونا اور تلاوت اور جائزہ تخمینی ہیں۔",
+  "ar": "معاني الكلمات عون على الدراسة وليست ترجمة للقرآن. وإبراز الكلمات والتلاوة والمراجعة تقريبية."
+ },
+ "Word meanings in": {
+  "ur": "الفاظ کے معانی کی زبان",
+  "ar": "معاني الكلمات بلغة"
+ },
+ "Word timings used to highlight each word": {
+  "ur": "ہر لفظ کو نمایاں کرنے کے لیے الفاظ کے اوقات",
+  "ar": "توقيتات الكلمات المستخدمة لإبراز كل كلمة"
+ },
+ "Word {0}": {
+  "ur": "لفظ {0}",
+  "ar": "الكلمة {0}"
+ },
+ "Word-by-word meanings": {
+  "ur": "لفظ بہ لفظ معانی",
+  "ar": "معاني كلمة بكلمة"
+ },
+ "Word-by-word translation": {
+  "ur": "لفظ بہ لفظ ترجمہ",
+  "ar": "ترجمة كلمة بكلمة"
+ },
+ "Wrong ayah": {
+  "ur": "غلط آیت",
+  "ar": "آية خاطئة"
+ },
+ "You can change these any time in Settings, or from the background button in the player.": {
+  "ur": "آپ انہیں کسی بھی وقت سیٹنگز میں، یا پلیئر کے پس منظر بٹن سے تبدیل کر سکتے ہیں۔",
+  "ar": "يمكنك تغيير هذه في أي وقت من الإعدادات أو من زر الخلفية في المشغل."
+ },
+ "Your account": {
+  "ur": "آپ کا اکاؤنٹ",
+  "ar": "حسابك"
+ },
+ "Your learned ayahs": {
+  "ur": "آپ کی یاد کی ہوئی آیات",
+  "ar": "آياتك المحفوظة"
+ },
+ "Your learned ayahs, bookmarks and settings are saved in this browser. Accounts — to sync between devices and share a server with family or a class — are available when the app is run with its server (python3 server.py).": {
+  "ur": "آپ کی یاد کی ہوئی آیات، بک مارکس اور سیٹنگز اسی براؤزر میں محفوظ ہیں۔ اکاؤنٹس — ڈیوائسز کے درمیان ہم آہنگی اور خاندان یا جماعت کے ساتھ ایک سرور کے لیے — تب دستیاب ہیں جب ایپ اپنے سرور (python3 server.py) کے ساتھ چلائی جائے۔",
+  "ar": "آياتك المحفوظة ومفضلتك وإعداداتك محفوظة في هذا المتصفح. والحسابات — للمزامنة بين الأجهزة ومشاركة خادم مع العائلة أو الصف — متاحة عند تشغيل التطبيق مع خادمه (python3 server.py)."
+ },
+ "Your phone's speech service does not offer Arabic offline, so Recite needs a connection. That is a limit of the speech service, not of Recite.": {
+  "ur": "آپ کے فون کی آواز کی سروس عربی آف لائن نہیں دیتی، اس لیے تلاوت کو انٹرنیٹ درکار ہے۔ یہ آواز کی سروس کی حد ہے، تلاوت کی نہیں۔",
+  "ar": "لا توفّر خدمة الكلام في هاتفك العربية دون اتصال، لذا تحتاج التلاوة إلى اتصال. وهذا قيد في خدمة الكلام لا في التلاوة."
+ },
+ "Your phone's speech service would not download Arabic{0}. Recite will use online recognition, which needs a connection but is often the more accurate of the two anyway.": {
+  "ur": "آپ کے فون کی آواز کی سروس نے عربی{0} ڈاؤن لوڈ نہیں کی۔ تلاوت آن لائن شناخت استعمال کرے گی، جسے انٹرنیٹ درکار ہے لیکن عموماً یہی زیادہ درست ہوتی ہے۔",
+  "ar": "لم تنزّل خدمة الكلام في هاتفك العربية{0}. ستستخدم التلاوة التعرّف عبر الإنترنت، وهو يحتاج إلى اتصال لكنه غالبًا الأدق بينهما."
+ },
+ "Your video is ready ({0} MB).": {
+  "ur": "آپ کی ویڈیو تیار ہے ({0} MB)۔",
+  "ar": "الفيديو جاهز ({0} م.ب)."
+ },
+ "Your video is ready ({size} MB, {format}).": {
+  "ur": "آپ کی ویڈیو تیار ہے ({size} MB، {format})۔",
+  "ar": "الفيديو جاهز ({size} م.ب، {format})."
+ },
+ "YouTube": {
+  "ur": "YouTube",
+  "ar": "YouTube"
+ },
+ "{0} ({1}:{2}) • Global Ayah #{3}": {
+  "ur": "{0} ({1}:{2}) • مجموعی آیت نمبر {3}",
+  "ar": "{0} ({1}:{2}) • الآية رقم {3} في المصحف"
+ },
+ "{0} / {1}   ·   swipe for the next word": {
+  "ur": "{0} / {1}   ·   اگلے لفظ کے لیے سوائپ کریں",
+  "ar": "{0} / {1}   ·   اسحب للكلمة التالية"
+ },
+ "{0} ayahs": {
+  "ur": "{0} آیات",
+  "ar": "{0} آية"
+ },
+ "{0} ayahs + intro clips saved for offline playback": {
+  "ur": "{0} آیات اور ابتدائی آوازیں آف لائن چلانے کے لیے محفوظ",
+  "ar": "حُفظت {0} آية ومقاطع الافتتاح للتشغيل دون اتصال"
+ },
+ "{0} ayahs marked": {
+  "ur": "{0} آیات نشان زد",
+  "ar": "{0} آية معلَّمة"
+ },
+ "{0} ayahs saved · intro clips need connection": {
+  "ur": "{0} آیات محفوظ · ابتدائی آوازوں کو انٹرنیٹ درکار",
+  "ar": "حُفظت {0} آية · مقاطع الافتتاح تحتاج إلى اتصال"
+ },
+ "{0} ayahs · {1} learned": {
+  "ur": "{0} آیات · {1} یاد",
+  "ar": "{0} آية · {1} محفوظة"
+ },
+ "{0} by {1}, from {2}.": {
+  "ur": "{0}، از {1}، بذریعہ {2}۔",
+  "ar": "{0} لـ{1}، من {2}."
+ },
+ "{0} by {1}, from {2}. Opens from the Tafsir button in the player.": {
+  "ur": "{0}، از {1}، بذریعہ {2}۔ پلیئر کے تفسیر بٹن سے کھلتی ہے۔",
+  "ar": "{0} لـ{1}، من {2}. يُفتح من زر التفسير في المشغل."
+ },
+ "{0} complete": {
+  "ur": "{0} مکمل",
+  "ar": "{0} مكتمل"
+ },
+ "{0} could not be loaded. {1}": {
+  "ur": "{0} لوڈ نہیں ہو سکی۔ {1}",
+  "ar": "تعذّر تحميل {0}. {1}"
+ },
+ "{0} down": {
+  "ur": "{0} نیچے",
+  "ar": "{0} للأسفل"
+ },
+ "{0} is saved for offline use.": {
+  "ur": "{0} آف لائن استعمال کے لیے محفوظ ہے۔",
+  "ar": "{0} محفوظ للاستخدام دون اتصال."
+ },
+ "{0} learned": {
+  "ur": "{0} یاد",
+  "ar": "{0} محفوظة"
+ },
+ "{0} of {1}": {
+  "ur": "{1} میں سے {0}",
+  "ar": "{0} من {1}"
+ },
+ "{0} saved · {1} failed · intro clips need connection": {
+  "ur": "{0} محفوظ · {1} ناکام · ابتدائی آوازوں کو انٹرنیٹ درکار",
+  "ar": "{0} محفوظة · {1} فشلت · مقاطع الافتتاح تحتاج إلى اتصال"
+ },
+ "{0} saved · {1} failed · intro clips saved": {
+  "ur": "{0} محفوظ · {1} ناکام · ابتدائی آوازیں محفوظ",
+  "ar": "{0} محفوظة · {1} فشلت · مقاطع الافتتاح محفوظة"
+ },
+ "{0} so far": {
+  "ur": "اب تک {0}",
+  "ar": "{0} حتى الآن"
+ },
+ "{0} surahs · {1} ayahs · {2}": {
+  "ur": "{0} سورتیں · {1} آیات · {2}",
+  "ar": "{0} سورة · {1} آية · {2}"
+ },
+ "{0} up": {
+  "ur": "{0} اوپر",
+  "ar": "{0} للأعلى"
+ },
+ "{0} word clips saved for learned ayahs": {
+  "ur": "یاد کی ہوئی آیات کے لیے {0} الفاظ کی آوازیں محفوظ",
+  "ar": "{0} مقطع كلمات محفوظ للآيات المحفوظة"
+ },
+ "{0} word clips saved for offline playback": {
+  "ur": "{0} الفاظ کی آوازیں آف لائن چلانے کے لیے محفوظ",
+  "ar": "حُفظ {0} مقطع كلمات للتشغيل دون اتصال"
+ },
+ "{0} word clips saved · {1} failed": {
+  "ur": "{0} الفاظ کی آوازیں محفوظ · {1} ناکام",
+  "ar": "حُفظ {0} مقطع كلمات · {1} فشل"
+ },
+ "{0}, under the whole ayah": {
+  "ur": "{0}، پوری آیت کے نیچے",
+  "ar": "{0}، تحت الآية كاملة"
+ },
+ "{0}/{1} words correct": {
+  "ur": "{0}/{1} الفاظ درست",
+  "ar": "{0}/{1} كلمات صحيحة"
+ },
+ "{0}/{1} words correct · {2}% · {3}/{4} ayahs perfect": {
+  "ur": "{0}/{1} الفاظ درست · {2}% · {3}/{4} آیات بہترین",
+  "ar": "{0}/{1} كلمات صحيحة · {2}% · {3}/{4} آيات ممتازة"
+ },
+ "{0}:{1} · word {2}": {
+  "ur": "{0}:{1} · لفظ {2}",
+  "ar": "{0}:{1} · الكلمة {2}"
+ },
+ "{name} by {author}, from {source}. Opens from the Tafsir button in the player.": {
+  "ur": "{name}، از {author}، بذریعہ {source}۔ پلیئر کے تفسیر بٹن سے کھلتی ہے۔",
+  "ar": "{name} لـ{author}، من {source}. يُفتح من زر التفسير في المشغل."
+ },
+ "{name} could not be loaded.": {
+  "ur": "{name} لوڈ نہیں ہو سکی۔",
+  "ar": "تعذّر تحميل {name}."
+ },
+ "{name} is saved for offline use.": {
+  "ur": "{name} آف لائن استعمال کے لیے محفوظ ہے۔",
+  "ar": "{name} محفوظ للاستخدام دون اتصال."
+ },
+ "{name}, under the whole ayah": {
+  "ur": "{name}، پوری آیت کے نیچے",
+  "ar": "{name}، تحت الآية كاملة"
+ },
+ "{n} ayahs": {
+  "ur": "{n} آیات",
+  "ar": "{n} آية"
+ },
+ "{n} ayahs in {surah}": {
+  "ur": "{surah} میں {n} آیات",
+  "ar": "{n} آية في {surah}"
+ },
+ "{n} ayahs · {learned} learned": {
+  "ur": "{n} آیات · {learned} یاد",
+  "ar": "{n} آية · {learned} محفوظة"
+ },
+ "{n} ayahs, {fresh} of them not marked yet.": {
+  "ur": "{n} آیات، ان میں سے {fresh} ابھی نشان زد نہیں۔",
+  "ar": "{n} آية، منها {fresh} غير معلَّمة بعد."
+ },
+ "{n} learned": {
+  "ur": "{n} یاد",
+  "ar": "{n} محفوظة"
+ },
+ "{n} learned ayahs": {
+  "ur": "{n} یاد کی ہوئی آیات",
+  "ar": "{n} آية محفوظة"
+ },
+ "{n} of {total}": {
+  "ur": "{total} میں سے {n}",
+  "ar": "{n} من {total}"
+ },
+ "{n} of {total} words recited": {
+  "ur": "{total} میں سے {n} الفاظ پڑھے گئے",
+  "ar": "تُليت {n} من {total} كلمة"
+ },
+ "{n} words": {
+  "ur": "{n} الفاظ",
+  "ar": "{n} كلمات"
+ },
+ "{percent}% · {perfect} of {total} ayahs perfect · {mistakes} to work on": {
+  "ur": "{percent}% · {total} میں سے {perfect} آیات بہترین · {mistakes} پر محنت درکار",
+  "ar": "{percent}% · {perfect} من {total} آيات ممتازة · {mistakes} تحتاج إلى مراجعة"
+ },
+ "{surahs} surahs · {n} ayahs · {mode}": {
+  "ur": "{surahs} سورتیں · {n} آیات · {mode}",
+  "ar": "{surahs} سورة · {n} آية · {mode}"
+ },
+ "‹ Previous surah": {
+  "ur": "‹ پچھلی سورت",
+  "ar": "‹ السورة السابقة"
+ },
+ "← Next ayah": {
+  "ur": "← اگلی آیت",
+  "ar": "← الآية التالية"
+ }
+}

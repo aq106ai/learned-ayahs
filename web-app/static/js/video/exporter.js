@@ -5,15 +5,17 @@
 // MP4 (H.264 + AAC) where the browser can encode it (Chrome, Edge, Safari), otherwise WebM
 // (VP9 + Opus), which YouTube and most players also take.
 
-import { NO_BISMILLAH_INTRO_SURAHS, surahAyahToGlobal, surahName, verseCount } from '../core/quran.js';
+import { surahAyahToGlobal, surahName, verseCount } from '../core/quran.js';
 import { audioUrls } from '../core/reciters.js';
 import { loadText, loadTimings, loadTranslations, segmentsSync, wordsSync } from '../services/quranData.js';
+import { currentEdition, ensureMeanings, loadCatalog, loadEdition, mushafFamilySync } from '../services/content.js';
+import { creditOf, isRtl } from '../core/catalog.js';
 import { ArrayBufferTarget as Mp4Target, Muxer as Mp4Muxer } from '../lib/mp4-muxer.mjs';
 import { ArrayBufferTarget as WebmTarget, Muxer as WebmMuxer } from '../lib/webm-muxer.mjs';
 import {
   isPhoto, loadPhoto, loadThemeMap, photoCredit, photoFor, photoSubjects, subjectFor, themeKeySync, translation,
 } from './data.js';
-import { planBackgrounds, buildTimeline } from './plan.js';
+import { END_CARD_MS, planBackgrounds, buildTimeline } from './plan.js';
 import { ARABIC_FONT, FrameRenderer, referenceOf } from './renderer.js';
 import { FALLBACK } from './themes.js';
 import { photoSpec, variant } from './scenes.js';
@@ -38,13 +40,23 @@ const AUDHU_WORDS = [
 const AUDHU_TRANSLATION = 'I seek refuge in Allah from Satan, the accursed.';
 
 /**
+ * A separate Bismillah clip is honest here. At-Tawbah has none. Al-Fatihah's first ayah is the
+ * Bismillah, so the clip immediately before it would say it twice.
+ */
+export function bismillahAllowed(surah, fromAyah) {
+  return surah !== 9 && !(surah === 1 && fromAyah === 1);
+}
+
+/**
  * Everything the user chose for one video: {surah, fromAyah, toAyah, reciter, aspect (key),
- * wordByWord, fullTranslation, opening, themeKey (null: matched), photos, credits}.
+ * wordByWord, fullTranslation, opening, bismillah, endCard, themeKey (null: matched), photos, credits}.
+ * [bismillah] defaults to on only where the old opening included it.
  */
 export function clipsOf(request) {
   const list = [];
+  const wantBismillah = request.bismillah ?? (request.opening && request.fromAyah === 1 && bismillahAllowed(request.surah, request.fromAyah));
   if (request.opening) list.push({ kind: 'AUDHU', surah: request.surah, ayah: 0 });
-  if (request.opening && request.fromAyah === 1 && !NO_BISMILLAH_INTRO_SURAHS.has(request.surah)) list.push({ kind: 'BISMILLAH', surah: request.surah, ayah: 0 });
+  if (wantBismillah && bismillahAllowed(request.surah, request.fromAyah)) list.push({ kind: 'BISMILLAH', surah: request.surah, ayah: 0 });
   for (let a = request.fromAyah; a <= request.toAyah; a++) list.push({ kind: 'AYAH', surah: request.surah, ayah: a });
   return list;
 }
@@ -80,6 +92,15 @@ export class VideoExporter {
 
   async prepareText(request) {
     await Promise.all([loadText(), loadTranslations(), loadTimings(request.reciter), loadThemeMap()]);
+    // The chosen translation and word meanings, credited by name. A download that fails leaves
+    // Saheeh International and the English meanings, which are bundled.
+    const [catalog, edition] = await Promise.all([loadCatalog(), currentEdition()]);
+    await loadEdition(edition).catch(() => {});
+    if (request.surah) await ensureMeanings(request.surah).catch(() => {});
+    request.translationCredit = creditOf(edition);
+    request.translationRtl = isRtl(catalog, edition.language);
+    request.arabicFont = mushafFamilySync();
+    await fontReady(request.arabicFont);
   }
 
   async textFor(request, clip) {
@@ -178,7 +199,8 @@ export class VideoExporter {
       onProgress({ stage: 'DOWNLOADING', fraction: (0.15 * i) / plan.length });
       decoded.push(await this.decode(this.urlOf(request, plan[i])));
     }
-    const timeline = buildTimeline(plan.map((c, i) => ({ ...c, durationMs: Math.round((decoded[i].length / SAMPLE_RATE) * 1000) })));
+    const endCardMs = request.endCard === false ? 0 : END_CARD_MS;
+    const timeline = buildTimeline(plan.map((c, i) => ({ ...c, durationMs: Math.round((decoded[i].length / SAMPLE_RATE) * 1000) })), endCardMs);
     if (timeline.totalMs > MAX_DURATION_MS) throw new Error(`That's over ${MAX_DURATION_MS / 60000} minutes of recitation. Choose fewer ayahs.`);
     onProgress({ stage: 'AUDIO', fraction: 0.15 });
     const mix = mixdown(timeline, decoded);
@@ -302,20 +324,9 @@ function makeCanvas(width, height) {
 
 const even = (v) => Math.floor(v / 2) * 2;
 
-async function fontReady() {
+async function fontReady(family = ARABIC_FONT) {
   if (!document.fonts) return;
-  await Promise.all([document.fonts.load(`80px ${ARABIC_FONT}`, 'بِسْمِ'), document.fonts.ready]).catch(() => {});
-}
-
-/** The text shared with a video or picture: what it is, then its sources. */
-export function caption(request, reciterName) {
-  const range = request.fromAyah === request.toAyah ? `${request.fromAyah}` : `${request.fromAyah}-${request.toAyah}`;
-  const lines = [`${surahName(request.surah)} ${request.surah}:${range} · ${reciterName}`, '', `Recitation: ${reciterName} (everyayah.com)`];
-  if (request.fullTranslation) lines.push('Translation: Saheeh International (tanzil.net)');
-  if (request.wordByWord) lines.push('Word meanings: Quran.com');
-  if (request.photos || isPhoto(request.themeKey)) lines.push('Background photos: Wikimedia Commons (CC0)');
-  lines.push('Made with Learned Ayahs');
-  return lines.join('\n');
+  await Promise.all([document.fonts.load(`80px ${family}`, 'بِسْمِ'), document.fonts.ready]).catch(() => {});
 }
 
 export function fileName(request, ext) {

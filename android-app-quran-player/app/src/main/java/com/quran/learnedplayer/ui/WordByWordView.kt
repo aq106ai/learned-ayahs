@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.os.SystemClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -136,7 +137,7 @@ fun WordByWordView(
     if (contentWords.isEmpty()) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
-                text = if (state.ayahTextLoading) "Loading ayah text…" else "Ayah text unavailable.",
+                text = if (state.ayahTextLoading) tx("Loading ayah text…") else tx("Ayah text unavailable."),
                 color = TextMuted,
             )
         }
@@ -332,7 +333,7 @@ fun WordByWordView(
                 .weight(1f)
                 .fillMaxWidth()
                 .testTag(TAG_WORD_PAGER)
-                .advanceOnTap(enabled = tapToAdvance, label = "Next word") {
+                .advanceOnTap(enabled = tapToAdvance, label = tx("Next word")) {
                     stepPage.value?.invoke(1)
                 },
         ) {
@@ -365,8 +366,8 @@ fun WordByWordView(
                 modifier = Modifier.fillMaxSize(),
             ) { page ->
                 when (page) {
-                    0 -> EdgePage("Previous ayah →")
-                    edgePage -> EdgePage("← Next ayah")
+                    0 -> EdgePage(tx("Previous ayah →"))
+                    edgePage -> EdgePage(tx("← Next ayah"))
                     else -> WordPage(
                         word = contentWords[page - 1],
                         isActive = page - 1 == activeIndex,
@@ -383,8 +384,7 @@ fun WordByWordView(
             }
         }
         Text(
-            text = "${pagerState.currentPage.coerceIn(firstWordPage, lastWordPage)} / " +
-                "${contentWords.size}   ·   swipe for the next word",
+            text = tx("{0} / {1}   ·   swipe for the next word", pagerState.currentPage.coerceIn(firstWordPage, lastWordPage), contentWords.size),
             color = TextMuted,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,

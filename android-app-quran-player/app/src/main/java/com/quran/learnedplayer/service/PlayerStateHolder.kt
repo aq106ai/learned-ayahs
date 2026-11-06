@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.service
 
+import com.quran.learnedplayer.ui.i18n.tx
 import com.quran.learnedplayer.data.PlaylistSnapshot
 import com.quran.learnedplayer.player.PlayerSettings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,7 +97,7 @@ object PlayerStateHolder {
                 tracks = snapshot.tracks,
                 currentIndex = safeIndex,
                 downloadProgress = null,
-                loadingMessage = "Ready",
+                loadingMessage = tx("Ready"),
             )
         }
         snapshot.tracks.getOrNull(safeIndex)?.let { PlayerSettings.lastGlobalId = it.globalId }
@@ -182,6 +183,18 @@ object PlayerStateHolder {
                 wordSegments = emptyList(),
                 wordSyncExact = false,
             )
+        }
+    }
+
+    /**
+     * The same ayah's words with different meanings (a word-meaning language arrived). Unlike
+     * [updateAyahText] this keeps the timings: it is the same recording of the same words, and
+     * clearing them would switch highlighting off until the next ayah.
+     */
+    fun replaceWordMeanings(words: List<com.quran.learnedplayer.data.AyahWord>) {
+        _uiState.update { state ->
+            if (state.ayahWords.size != words.size || state.ayahWords.map { it.text } != words.map { it.text }) state
+            else state.copy(ayahWords = words)
         }
     }
 

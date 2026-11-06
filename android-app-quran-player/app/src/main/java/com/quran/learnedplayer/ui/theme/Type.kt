@@ -1,5 +1,10 @@
 package com.quran.learnedplayer.ui.theme
 
+import androidx.annotation.FontRes
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.quran.learnedplayer.player.PlayerSettings
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -35,8 +40,34 @@ val QuranArabicStyle = TextStyle(
     textDirection = TextDirection.Rtl,
 )
 
-/** Arabic text style at an explicit [sizeSp], keeping the line-height ratio consistent. */
-fun quranArabicStyle(sizeSp: Float): TextStyle = QuranArabicStyle.copy(
-    fontSize = sizeSp.sp,
-    lineHeight = (sizeSp * ARABIC_LINE_HEIGHT_RATIO).sp,
-)
+/**
+ * The mushaf styles: one font per catalog id (`content_catalog.json` "mushafStyles"). Both are SIL
+ * OFL and both cover every codepoint of quran_text.json (checked with fontTools, 81 of 81). Faces
+ * that misdraw the Uthmani text — Digital Khatt's Madina breaks صِرَٰطَ at the dagger alif — are
+ * not offered; see CLAUDE.md before adding one.
+ */
+object QuranFonts {
+    const val SCHEHERAZADE = "uthmani-scheherazade"
+    const val AMIRI = "uthmani-amiri"
+
+    @FontRes
+    fun fontRes(style: String): Int = when (style) {
+        AMIRI -> R.font.amiri_quran
+        else -> R.font.scheherazade_new
+    }
+
+    private val amiri = FontFamily(Font(R.font.amiri_quran, FontWeight.Normal))
+
+    fun family(style: String): FontFamily = if (style == AMIRI) amiri else QuranArabicFamily
+}
+
+/** Arabic text style at an explicit [sizeSp] in the chosen mushaf style, keeping the line-height ratio. */
+@Composable
+fun quranArabicStyle(sizeSp: Float): TextStyle {
+    val style by PlayerSettings.mushafStyleFlow.collectAsState()
+    return QuranArabicStyle.copy(
+        fontFamily = QuranFonts.family(style),
+        fontSize = sizeSp.sp,
+        lineHeight = (sizeSp * ARABIC_LINE_HEIGHT_RATIO).sp,
+    )
+}

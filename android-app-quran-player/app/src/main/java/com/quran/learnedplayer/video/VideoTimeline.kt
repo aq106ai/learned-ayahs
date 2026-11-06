@@ -21,7 +21,15 @@ data class TimelineClip(
  * Between clips the screen keeps showing the clip that just finished: [clipAt] answers with the
  * last clip that has started.
  */
-class VideoTimeline private constructor(val clips: List<TimelineClip>, val totalMs: Long) {
+class VideoTimeline private constructor(
+    val clips: List<TimelineClip>,
+    val totalMs: Long,
+    /** Silence after the tail, during which the closing card is on screen. 0 when there is none. */
+    val endCardMs: Long = 0,
+) {
+    /** True while [ms] falls in the closing card, after the recitation and its tail. */
+    fun showsEndCard(ms: Long): Boolean = endCardMs > 0L && ms >= totalMs - endCardMs
+
 
     fun clipAt(ms: Long): TimelineClip? {
         var found: TimelineClip? = null
@@ -46,12 +54,16 @@ class VideoTimeline private constructor(val clips: List<TimelineClip>, val total
         /** Where the next clip's audio goes, once the gap before it is counted. */
         fun nextStartMs(): Long = if (clips.isEmpty()) cursor else cursor + GAP_MS
 
-        fun build(): VideoTimeline = VideoTimeline(clips.toList(), cursor + TAIL_MS)
+        fun build(endCardMs: Long = 0): VideoTimeline =
+            VideoTimeline(clips.toList(), cursor + TAIL_MS + endCardMs, endCardMs)
     }
 
     companion object {
         const val LEAD_IN_MS = 500L
         const val GAP_MS = 400L
         const val TAIL_MS = 1800L
+
+        /** How long the closing card stays up after the tail. */
+        const val END_CARD_MS = 4_000L
     }
 }

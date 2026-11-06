@@ -3,6 +3,9 @@ package com.quran.learnedplayer
 import android.app.Application
 import android.os.Build
 import com.quran.learnedplayer.data.BookmarksStore
+import com.quran.learnedplayer.data.ContentRepository
+import com.quran.learnedplayer.ui.i18n.UiStrings
+import com.quran.learnedplayer.ui.i18n.localesOf
 import com.quran.learnedplayer.data.LearnedAyahsStore
 import com.quran.learnedplayer.data.QuranDataRepository
 import com.quran.learnedplayer.player.PlayerSettings
@@ -16,6 +19,9 @@ class LearnedAyahsApp : Application() {
         PlayerSettings.init(this)
         LearnedAyahsStore.init(this)
         BookmarksStore.init(this)
+        ContentRepository.init(this)
+        // The interface language, before anything builds text.
+        UiStrings.use(this, UiStrings.resolve(PlayerSettings.uiLanguage, localesOf(resources.configuration)))
         // Parse the bundled Qur'an text now, off the main thread: the first screen needs it, and
         // the playback service would otherwise parse ~5 MB of JSON on the main thread at a cold
         // start in Word-by-word mode.

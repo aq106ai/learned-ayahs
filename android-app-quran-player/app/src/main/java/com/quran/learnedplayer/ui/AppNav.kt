@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.ui
 
+import com.quran.learnedplayer.ui.i18n.tx
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -67,7 +68,7 @@ fun AppNav(
     // nothing has to be agreed to before using the app.
     val seenIntro by PlayerSettings.seenIntroFlow.collectAsState()
     if (!seenIntro) {
-        IntroDialog(onDismiss = { PlayerSettings.seenIntro = true })
+        IntroDialog(onDismiss = { PlayerSettings.seenIntro = true }, onReciter = viewModel::setReciter)
     }
 
     // Distinct from `seenIntro`, which flips the instant the modal is dismissed — before the

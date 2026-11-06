@@ -27,8 +27,9 @@ enum class VideoAspect(val label: String, val ratio: String, val width: Int, val
  *
  * [themeKey] null means "match each ayah" (from the bundled map, to a drawn theme or, with
  * [photos], a nature photo); otherwise every ayah gets that theme, drawn or a photo subject
- * ([NaturePhotos.PREFIX]). [opening] puts A'udhu, and Bismillah where the surah has it, before
- * the first ayah.
+ * ([NaturePhotos.PREFIX]). [opening] puts A'udhu before the ayahs. [bismillah] puts the
+ * Bismillah clip before them too, including mid-surah; Al-Fatihah 1 and At-Tawbah never take it.
+ * [endCard] holds a closing page with the Play Store link after the recitation.
  */
 data class VideoRequest(
     val surah: Int,
@@ -44,6 +45,13 @@ data class VideoRequest(
     val photos: Boolean = false,
     /** Print the sources under the card and "Made with Learned Ayahs" at the foot. Off: a clean picture. */
     val credits: Boolean = false,
+    /**
+     * Recite Bismillah before the ayahs. Defaults to on only where the old opening did: the range
+     * starts at ayah 1 and the surah has a Bismillah of its own.
+     */
+    val bismillah: Boolean = opening && fromAyah == 1 && bismillahAllowed(surah, fromAyah),
+    /** A closing page, after the recitation, pointing to the app on Google Play. */
+    val endCard: Boolean = true,
 ) {
     init {
         require(surah in 1..114) { "No surah $surah" }
@@ -53,9 +61,9 @@ data class VideoRequest(
 
     val ayahs: IntRange get() = fromAyah..toAyah
 
-    /** Bismillah is read before every surah but At-Tawbah, and Al-Fatihah's first ayah *is* it. */
+    /** Bismillah before the ayahs, except At-Tawbah and Al-Fatihah 1 (that ayah *is* the Bismillah). */
     val includesBismillahClip: Boolean
-        get() = opening && fromAyah == 1 && surah !in QuranConstants.NO_BISMILLAH_INTRO_SURAHS
+        get() = bismillah && bismillahAllowed(surah, fromAyah)
 
     /** The clips the video plays, in order, as (kind, surah, ayah); intros have ayah 0. */
     fun clips(): List<Triple<ClipKind, Int, Int>> = buildList {
@@ -67,5 +75,15 @@ data class VideoRequest(
     companion object {
         /** Long enough for every surah but the longest; beyond it, the file is too big to share. */
         const val MAX_DURATION_MS = 30L * 60 * 1000
+
+        /** The app's page on Google Play, drawn on the video's closing card. */
+        const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.quran.learnedayahs"
+
+        /**
+         * A separate Bismillah clip is honest here. At-Tawbah has none. Al-Fatihah's first ayah
+         * is the Bismillah, so the clip immediately before it would say it twice.
+         */
+        fun bismillahAllowed(surah: Int, fromAyah: Int): Boolean =
+            surah != 9 && !(surah == 1 && fromAyah == 1)
     }
 }

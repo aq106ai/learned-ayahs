@@ -3,8 +3,9 @@
 import { dialog, downloadText, h, pickFile, toast } from '../lib/dom.js';
 import { exportLearned, parseImport, suggestedFileName } from '../core/learnedExport.js';
 import { formatRefs } from '../core/ayahRef.js';
-import { SURAH_COUNT, globalToSurahAyah, surahName } from '../core/quran.js';
+import { SURAH_COUNT, globalToSurahAyah, surahName, surahNameLatin } from '../core/quran.js';
 
+import { tx } from '../core/i18n.js';
 export function learnedCountsBySurah(ids) {
   const counts = new Map();
   for (const id of ids) {
@@ -20,12 +21,12 @@ export function matchSurahs(query) {
   const q = nameKey(query.trim());
   const all = Array.from({ length: SURAH_COUNT }, (_, i) => i + 1);
   if (!q) return all;
-  return all.filter((s) => String(s) === q || String(s).startsWith(q) || nameKey(surahName(s)).includes(q));
+  return all.filter((s) => String(s) === q || String(s).startsWith(q) || nameKey(surahName(s)).includes(q) || nameKey(surahNameLatin(s)).includes(q));
 }
 
 export function exportFlow(store) {
   downloadText(suggestedFileName(), exportLearned(store.learned, { bookmarks: store.bookmarks }));
-  toast(`Exported ${store.learned.size} ayahs.`);
+  toast(tx('Exported {n} ayahs.', { n: store.learned.size }));
 }
 
 /** Import an Android/web export, a quran_library export, or a plain list. Adds; never removes. */
@@ -35,7 +36,7 @@ export async function importFlow(store) {
   const parsed = parseImport(file.text);
   const ids = parsed.learned.ids;
   if (!ids.size && !parsed.bookmarks?.size) {
-    toast("No ayahs found in that file. Is it a Learned Ayahs export?", { error: true });
+    toast(tx("No ayahs found in that file. Is it a Learned Ayahs export?"), { error: true });
     return;
   }
   const fresh = [...ids].filter((id) => !store.learned.has(id)).length;
@@ -50,25 +51,25 @@ export async function importFlow(store) {
     'div',
     { class: 'stack' },
     h('p', {}, `${file.name} is ${kind}.`),
-    h('p', { class: 'muted' }, `${ids.size} ayahs, ${fresh} of them not marked yet.`),
+    h('p', { class: 'muted' }, tx('{n} ayahs, {fresh} of them not marked yet.', { n: ids.size, fresh })),
     parsed.bookmarks?.size ? h('p', { class: 'muted' }, `Plus ${parsed.bookmarks.size} bookmarks.`) : null,
     parsed.learned.unparsed.length
       ? h('p', { class: 'notice' }, `Ignored: ${parsed.learned.unparsed.slice(0, 12).join(', ')}${parsed.learned.unparsed.length > 12 ? '…' : ''}`)
       : null,
-    h('p', { class: 'tiny muted' }, 'Importing adds to what you have already marked; nothing is removed.'),
+    h('p', { class: 'tiny muted' }, tx('Importing adds to what you have already marked; nothing is removed.')),
   );
   const ok = await dialog({
-    title: 'Import learned ayahs',
+    title: tx('Import learned ayahs'),
     content,
     actions: [
-      { label: 'Cancel', value: false },
-      { label: `Add ${fresh} ayahs`, value: true, primary: true },
+      { label: tx('Cancel'), value: false },
+      { label: tx('Add {n} ayahs', { n: fresh }), value: true, primary: true },
     ],
   });
   if (!ok) return;
   const added = store.addLearned(ids);
   if (parsed.bookmarks?.size) store.addBookmarks(parsed.bookmarks);
-  toast(`Added ${added} ayahs.`);
+  toast(tx('Added {n} ayahs.', { n: added }));
 }
 
 export function refsSummary(ids, max = 40) {

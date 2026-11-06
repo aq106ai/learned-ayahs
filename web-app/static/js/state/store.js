@@ -22,8 +22,13 @@ export const DEFAULT_SETTINGS = Object.freeze({
   theme: 'DARK',
   showWordTranslations: true,
   ayahOverflowMode: 'AUTO_SCROLL',
-  // The whole ayah's English translation (Saheeh International) under the Arabic.
+  // The whole ayah's translation under the Arabic, in translationEdition.
   showAyahTranslation: false,
+  // Content choices, by catalog id (core/catalog.js): never a display name.
+  translationEdition: 'en-saheeh',
+  wordMeaningLanguage: 'en',
+  tafsirEdition: '',
+  mushafStyle: 'uthmani-scheherazade',
   // What the player shows behind the ayah: 'plain', 'matched', 'photos', or one theme key.
   playerBackground: 'plain',
   // Gestures

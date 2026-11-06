@@ -29,8 +29,13 @@ follow word by word, and recite back, so what you have learned stays with you.
   - **Repeat ayah** loops the current ayah, with an optional pause, until you move on.
   - **Repeat surah** loops the surah.
   - **Full surah** plays every ayah of the surah, learned or not.
-- **Five reciters.** Maher Al Muaiqly (default), Abdul Basit (Murattal), Mahmoud Khalil
-  Al-Husary, Abdurrahman As-Sudais and Saud Ash-Shuraym.
+- **Fourteen reciters.** Maher Al Muaiqly (default), Abdul Basit (Murattal and Mujawwad), Mahmoud
+  Khalil Al-Husary (also Muallim and Mujawwad), Abdurrahman As-Sudais, Saud Ash-Shuraym, Mishary
+  Rashid Alafasy, Mohamed Siddiq Al-Minshawi, Abu Bakr Ash-Shatri, Saad Al-Ghamdi, Yasser Ad-Dussary and Khalifa
+  Al-Tunaiji, each with checked word timings.
+- **Translations, tafsir and app languages.** 124 translations from Quran.com, word meanings in
+  English, Urdu, Indonesian, Bengali or Persian, tafsir on the current ayah, and the app itself in
+  English, Urdu or Arabic. Saheeh International and English meanings work offline from the start.
 - **Word-by-word highlighting.** It uses real per-word timings for each reciter's exact
   recording. There are no estimated timings: if an ayah has no validated timings, it simply
   isn't highlighted.
@@ -54,7 +59,7 @@ The same revision app in the browser, on any computer or phone, with every featu
 Android app listed above:
 
 - marking, add by description, and the three playback modes with every repeat option;
-- the five reciters and validated word highlighting;
+- the reciters and validated word highlighting;
 - the word-by-word reader, offline audio, and Recite & review;
 - lock-screen and headset controls.
 

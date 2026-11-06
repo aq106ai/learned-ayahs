@@ -36,6 +36,11 @@ jobs:
       - name: Word timings carry the audit's fixes
         run: python3 .setup/apply_timing_fixes.py --check
 
+      # Both apps' interface strings: every tx("…") in either codebase has an Urdu and an Arabic
+      # translation with the same placeholders, and the generated tables are current.
+      - name: Interface translations are complete
+        run: python3 .setup/make_ui_strings.py --check
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
 
@@ -97,4 +102,18 @@ jobs:
 
       - name: Browser tests (Playwright)
         timeout-minutes: 15
-        run: npm run test:e2e
+        # Failures become annotations, so the failing test and its error show on the run's
+        # summary page (logs need a GitHub sign-in; annotations are readable by anyone).
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:e2e 2>&1 | tee e2e.log || {
+            # Each failing test's TAP block, from "not ok" to the next test, one annotation each.
+            awk '{gsub(/%/, "%25")}
+                 on && /^(ok |not ok |# Subtest)/{print b; on=0}
+                 /^not ok /{b=$0; on=1; next}
+                 on && length(b) < 3000 {b=b "%0A" $0}
+                 END{if(on) print b}' e2e.log \
+              | while IFS= read -r block; do echo "::error title=Browser test failed::$block"; done
+            exit 1
+          }

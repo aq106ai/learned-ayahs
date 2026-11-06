@@ -1,5 +1,6 @@
 package com.quran.learnedplayer.player
 
+import com.quran.learnedplayer.ui.i18n.tx
 import android.app.Application
 import android.os.SystemClock
 import androidx.annotation.VisibleForTesting
@@ -247,7 +248,7 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
             }
             val tracks = learnedTracks()
             if (tracks.isNotEmpty()) {
-                _packProgress.value = RecitePackProgress("Saving word clips for review…", 0.05f)
+                _packProgress.value = RecitePackProgress(tx("Saving word clips for review…"), 0.05f)
                 withContext(Dispatchers.IO) {
                     wordAudioDownloader.downloadForTracks(
                         tracks = tracks,
@@ -255,7 +256,7 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
                         onProgress = { done, total, _ ->
                             val frac = if (total > 0) done.toFloat() / total else 1f
                             _packProgress.value = RecitePackProgress(
-                                "Saving word clips… $done/$total",
+                                tx("Saving word clips… {0}/{1}", done, total),
                                 frac,
                             )
                         },
@@ -577,7 +578,7 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
                 val (surah, ayah) = AyahMapping.globalToSurahAyah(wrongAyahId)
                 _detectedWrongAyahId.value = wrongAyahId
                 _wrongAyahFeedback.value =
-                    "That sounds like a different ayah ($surah:$ayah). Stay on this one, or change ayah."
+                    tx("That sounds like a different ayah ({0}:{1}). Stay on this one, or change ayah.", surah, ayah)
                 return
             }
         }
@@ -834,7 +835,7 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
         return skipped.copy(
             status = WordEvaluationStatus.MISTAKE,
             spokenWord = null,
-            feedback = "Skipped word '${skipped.originalWord.text}'",
+            feedback = tx("Skipped word '{0}'", skipped.originalWord.text),
         )
     }
 

@@ -68,7 +68,7 @@ export async function startServer({ registration = 'open', audio = DEFAULT_AUDIO
   const cache = join(dir, 'audio-cache');
   seedAudio(cache, audio);
   const proc = spawn(
-    'python3',
+    (process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3')),
     ['server.py', '--port', '0', '--db', join(dir, 'test.db'), '--audio-cache', cache, '--no-fetch-audio', '--registration', registration],
     { cwd: WEB_APP, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PYTHONUNBUFFERED: '1' } },
   );
@@ -85,7 +85,8 @@ export async function startServer({ registration = 'open', audio = DEFAULT_AUDIO
         resolve(`http://127.0.0.1:${m[1]}/`);
       }
     });
-    proc.on('exit', (code) => reject(new Error(`server exited (${code}):\n${stderr}`)));
+    proc.on('exit', (code) => { clearTimeout(timer); reject(new Error(`server exited (${code}):\n${stderr}`)); });
+    proc.on('error', (error) => { clearTimeout(timer); reject(error); });
   });
   return {
     url,
@@ -112,16 +113,19 @@ export function launchBrowser() {
 /**
  * A fresh page that fails the test on uncaught page errors / console errors.
  * `seenIntro` skips the welcome dialog (the sources and disclaimer are always pre-accepted); `settings` and `learned` pre-seed a guest profile.
+ * `setup(context)` runs before the page loads (e.g. to stub a provider with `context.route`), and
+ * `context` reuses an existing browser context (its storage and caches) instead of a fresh one.
  */
-export async function openApp(browser, server, { path = '', seenIntro = true, learned, settings, query = '' } = {}) {
-  const context = await browser.newContext({ serviceWorkers: 'block', viewport: { width: 1280, height: 860 } });
+export async function openApp(browser, server, { path = '', seenIntro = true, learned, settings, query = '', setup, context: reuse } = {}) {
+  const context = reuse ?? await browser.newContext({ serviceWorkers: 'block', viewport: { width: 1280, height: 860 } });
+  if (setup) await setup(context);
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (err) => errors.push(`pageerror: ${err.message}`));
   page.on('console', (msg) => {
     if (msg.type() === 'error' && !/Failed to load resource/.test(msg.text())) errors.push(`console: ${msg.text()}`);
   });
-  if (seenIntro || learned || settings) {
+  if (!reuse && (seenIntro || learned || settings)) {
     const profile = {
       learned: learned ?? [],
       bookmarks: [],

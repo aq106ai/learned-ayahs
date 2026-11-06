@@ -4,7 +4,9 @@
 import { h, icon } from '../lib/dom.js';
 import { VERSE_COUNTS, surahAyahToGlobal, surahName } from '../core/quran.js';
 import * as quran from '../services/quranData.js';
+import { ensureMeanings } from '../services/content.js';
 
+import { tx } from '../core/i18n.js';
 export function surahView({ store, engine, go, params }) {
   const surah = Math.min(Math.max(Number(params[0]) || 1, 1), 114);
   const total = VERSE_COUNTS[surah - 1];
@@ -39,8 +41,8 @@ export function surahView({ store, engine, go, params }) {
     const listen = h('button', {
       class: 'btn ghost small',
       type: 'button',
-      title: 'Listen from this ayah',
-      'aria-label': `Listen from ayah ${ayah}`,
+      title: tx('Listen from this ayah'),
+      'aria-label': tx('Listen from ayah {n}', { n: ayah }),
       onClick: () => {
         engine.playSurahFrom(surah, ayah);
         go('/player');
@@ -77,7 +79,7 @@ export function surahView({ store, engine, go, params }) {
       r.star.setAttribute('aria-label', marked ? 'Remove bookmark' : 'Bookmark this ayah');
     }
     if (!rows.size) learned = ids.filter((id) => store.learned.has(id)).length;
-    summary.textContent = `${total} ayahs · ${learned} learned`;
+    summary.textContent = tx('{n} ayahs · {learned} learned', { n: total, learned });
     const all = learned === total;
     markAll.replaceChildren(icon('check'), all ? 'Unmark all ayahs' : 'Mark all ayahs learned');
   }
@@ -85,7 +87,7 @@ export function surahView({ store, engine, go, params }) {
   async function load() {
     list.append(h('div', { class: 'boot' }, h('div', { class: 'spinner' })));
     await quran.loadText();
-    if (showTranslation) await quran.loadTranslations().catch(() => {});
+    if (showTranslation) await Promise.all([quran.loadTranslations().catch(() => {}), ensureMeanings(surah).catch(() => {})]);
     list.replaceChildren(...Array.from({ length: total }, (_, i) => ayahRow(i + 1, quran.wordsSync(surah, i + 1))));
     refresh();
   }
@@ -93,15 +95,15 @@ export function surahView({ store, engine, go, params }) {
   const nav = h(
     'div',
     { class: 'row' },
-    surah > 1 ? h('a', { class: 'btn ghost small', href: `#/surah/${surah - 1}` }, '‹ Previous surah') : null,
+    surah > 1 ? h('a', { class: 'btn ghost small', href: `#/surah/${surah - 1}` }, tx('‹ Previous surah')) : null,
     h('span', { class: 'spacer' }),
-    surah < 114 ? h('a', { class: 'btn ghost small', href: `#/surah/${surah + 1}` }, 'Next surah ›') : null,
+    surah < 114 ? h('a', { class: 'btn ghost small', href: `#/surah/${surah + 1}` }, tx('Next surah ›')) : null,
   );
 
   const el = h(
     'div',
     { class: 'page' },
-    h('a', { class: 'btn ghost small', href: '#/surahs' }, icon('chevronLeft'), 'All surahs'),
+    h('a', { class: 'btn ghost small', href: '#/surahs' }, icon('chevronLeft'), tx('All surahs')),
     h(
       'header',
       { class: 'page-head', style: { marginTop: '12px' } },
@@ -117,7 +119,7 @@ export function surahView({ store, engine, go, params }) {
             engine.playSurahFrom(surah, 1);
             go('/player');
           },
-        }, icon('headphones'), 'Listen'),
+        }, icon('headphones'), tx('Listen')),
       ),
     ),
     list,

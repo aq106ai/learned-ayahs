@@ -58,6 +58,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         try {
             val (timeline, audio) = AudioPipeline.build(
                 clips, scratch,
+                endCardMs = if (request.endCard) VideoTimeline.END_CARD_MS else 0L,
                 onClipDone = { onProgress(Progress(Stage.AUDIO, 0.1f + 0.15f * (it + 1) / clips.size)) },
                 checkCancelled = checkCancelled,
             )

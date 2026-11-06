@@ -2202,6 +2202,13 @@
    "folder": "Abu_Bakr_Ash-Shaatree_128kbps",
    "timingsAsset": "word_timings_shatri.json",
    "highlighting": true
+  },
+  {
+   "id": "AL_AFASY",
+   "name": "Mishary Rashid Alafasy",
+   "folder": "Alafasy_128kbps",
+   "timingsAsset": "word_timings_alafasy.json",
+   "highlighting": true
   }
  ],
  "retired": {}

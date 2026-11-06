@@ -60,6 +60,7 @@ RECITER_FOLDERS = frozenset(
         "khalefa_al_tunaiji_64kbps",
         "Minshawy_Murattal_128kbps",
         "Abu_Bakr_Ash-Shaatree_128kbps",
+        "Alafasy_128kbps",
     }
 )
 EVERYAYAH = "https://everyayah.com/data"

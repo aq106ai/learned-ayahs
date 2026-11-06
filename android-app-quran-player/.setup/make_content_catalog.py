@@ -91,6 +91,7 @@ RECITERS = [
     ("AL_TUNAIJI", "Khalifa Al-Tunaiji", "khalefa_al_tunaiji_64kbps", "word_timings_tunaiji.json"),
     ("AL_MINSHAWI", "Mohamed Siddiq Al-Minshawi (Murattal)", "Minshawy_Murattal_128kbps", "word_timings_minshawi_murattal.json"),
     ("ASH_SHATRI", "Abu Bakr Ash-Shatri", "Abu_Bakr_Ash-Shaatree_128kbps", "word_timings_shatri.json"),
+    ("AL_AFASY", "Mishary Rashid Alafasy", "Alafasy_128kbps", "word_timings_alafasy.json"),
 ]
 
 # How the Arabic is drawn. Each font is bundled (res/font, served by the web app), SIL OFL, and

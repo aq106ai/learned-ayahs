@@ -86,6 +86,12 @@ export const RECITERS = [
     folder: 'Abu_Bakr_Ash-Shaatree_128kbps',
     timingsAsset: 'word_timings_shatri.json',
   },
+  {
+    key: 'AL_AFASY',
+    displayName: 'Mishary Rashid Alafasy',
+    folder: 'Alafasy_128kbps',
+    timingsAsset: 'word_timings_alafasy.json',
+  },
 ];
 
 export const DEFAULT_RECITER = RECITERS[0];

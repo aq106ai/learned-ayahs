@@ -29,9 +29,9 @@ follow word by word, and recite back, so what you have learned stays with you.
   - **Repeat ayah** loops the current ayah, with an optional pause, until you move on.
   - **Repeat surah** loops the surah.
   - **Full surah** plays every ayah of the surah, learned or not.
-- **Thirteen reciters.** Maher Al Muaiqly (default), Abdul Basit (Murattal and Mujawwad), Mahmoud
-  Khalil Al-Husary (also Muallim and Mujawwad), Abdurrahman As-Sudais, Saud Ash-Shuraym, Mohamed
-  Siddiq Al-Minshawi, Abu Bakr Ash-Shatri, Saad Al-Ghamdi, Yasser Ad-Dussary and Khalifa
+- **Fourteen reciters.** Maher Al Muaiqly (default), Abdul Basit (Murattal and Mujawwad), Mahmoud
+  Khalil Al-Husary (also Muallim and Mujawwad), Abdurrahman As-Sudais, Saud Ash-Shuraym, Mishary
+  Rashid Alafasy, Mohamed Siddiq Al-Minshawi, Abu Bakr Ash-Shatri, Saad Al-Ghamdi, Yasser Ad-Dussary and Khalifa
   Al-Tunaiji, each with checked word timings.
 - **Translations, tafsir and app languages.** 124 translations from Quran.com, word meanings in
   English, Urdu, Indonesian, Bengali or Persian, tafsir on the current ayah, and the app itself in

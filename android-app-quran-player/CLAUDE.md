@@ -35,7 +35,8 @@ audit under `assets/`). Highlighting inside an ayah MP3 is only honest with real
 for that exact recording, so an
 ayah reciter may only be added if QUL has segment data for it *and* everyayah's audio is the audio
 those timings describe. Maher, Abdul Basit, Al-Husary, Sudais and Shuraym shipped first; 1.13 adds
-Abdul Basit (Mujawwad), Husary (Muallim), Husary (Mujawwad), Al-Ghamdi, Ad-Dussary and Al-Tunaiji,
+Abdul Basit (Mujawwad), Husary (Muallim), Husary (Mujawwad), Al-Ghamdi, Ad-Dussary, Al-Tunaiji,
+Al-Minshawi (Murattal) and Ash-Shatri,
 pinned by `.setup/pin_qul_ids.py` (everyayah's MP3 byte-identical to the audio QUL timed — QUL now
 returns `audio_url` — plus one segment per word) and audited like the first five. The pin's end
 check is ±250 ms: ffprobe's MP3 duration is that imprecise (shipped Maher reads -177..+7 ms), so

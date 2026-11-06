@@ -2188,6 +2188,20 @@
    "folder": "khalefa_al_tunaiji_64kbps",
    "timingsAsset": "word_timings_tunaiji.json",
    "highlighting": true
+  },
+  {
+   "id": "AL_MINSHAWI",
+   "name": "Mohamed Siddiq Al-Minshawi (Murattal)",
+   "folder": "Minshawy_Murattal_128kbps",
+   "timingsAsset": "word_timings_minshawi_murattal.json",
+   "highlighting": true
+  },
+  {
+   "id": "ASH_SHATRI",
+   "name": "Abu Bakr Ash-Shatri",
+   "folder": "Abu_Bakr_Ash-Shaatree_128kbps",
+   "timingsAsset": "word_timings_shatri.json",
+   "highlighting": true
   }
  ],
  "retired": {}

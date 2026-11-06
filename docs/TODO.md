@@ -51,9 +51,10 @@ language-aware pickers. Do not promise every translation or recording worldwide.
   for offline use. `TafsirSheetTest` (instrumented) is written but not yet run on a device.
 - [x] Reciters with checked timings only (the user asked to keep accurate highlighting, so no
   audio-only catalog): Abdul Basit Mujawwad (QUL 14), Husary Muallim (22), Husary Mujawwad (21),
-  Ghamdi (19), Dussary (26), Tunaiji (23) pinned by `pin_qul_ids.py` and audited by CI.
-- [ ] Alafasy (18), Minshawi Murattal (24) and Shatri (17) are pinned; their first audit ran
-  near the 90-minute job limit. Add them once `timing-audit.yml` has committed their assets.
+  Ghamdi (19), Dussary (26), Tunaiji (23), Minshawi Murattal (24), Shatri (17) pinned by
+  `pin_qul_ids.py` and audited by CI.
+- [ ] Alafasy (18) is pinned; its first audit ran near the 90-minute job limit. Add it once
+  `timing-audit.yml` has committed its asset.
 - [ ] Out: Tablawi (QUL 11: 0.65-5 s of slack on every probe), Hani Rifai (5) and Minshawi
   Mujawwad (8) (segments span several words).
 - [ ] Add reciters only with verified complete audio and timing data for the exact recording,

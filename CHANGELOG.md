@@ -17,8 +17,9 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 - Shared text, images and videos use the chosen edition and credit it by name.
 - App languages: English, Urdu and Arabic (or the phone's/browser's), in the intro and Settings,
   with the layout mirrored right to left for Urdu and Arabic and surah names in Arabic script.
-- Six more reciters, each with word timings checked against its own recording: Abdul Basit
-  (Mujawwad), Husary (Muallim and Mujawwad), Saad Al-Ghamdi, Yasser Ad-Dussary, Khalifa Al-Tunaiji.
+- Eight more reciters, each with word timings checked against its own recording: Abdul Basit
+  (Mujawwad), Husary (Muallim and Mujawwad), Al-Minshawi (Murattal), Ash-Shatri, Saad Al-Ghamdi,
+  Yasser Ad-Dussary, Khalifa Al-Tunaiji.
 - Mushaf style: Uthmani in Scheherazade New or Amiri Quran (both open-licensed and bundled), in
   the intro and Settings; the reader, shared images and videos follow it.
 - Tafsir: a Tafsir button in the player opens the chosen commentary on the current ayah, with its

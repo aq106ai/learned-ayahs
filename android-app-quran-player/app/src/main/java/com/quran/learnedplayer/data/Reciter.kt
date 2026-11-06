@@ -82,6 +82,16 @@ enum class Reciter(
         folder = "khalefa_al_tunaiji_64kbps",
         timingsAsset = "word_timings_tunaiji.json",
     ),
+    AL_MINSHAWI(
+        displayName = "Mohamed Siddiq Al-Minshawi (Murattal)",
+        folder = "Minshawy_Murattal_128kbps",
+        timingsAsset = "word_timings_minshawi_murattal.json",
+    ),
+    ASH_SHATRI(
+        displayName = "Abu Bakr Ash-Shatri",
+        folder = "Abu_Bakr_Ash-Shaatree_128kbps",
+        timingsAsset = "word_timings_shatri.json",
+    ),
     ;
 
     companion object {

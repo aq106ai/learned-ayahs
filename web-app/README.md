@@ -52,7 +52,7 @@ The table compares the web app with the Android app.
 | Revise learned ayahs · Full surah · Word by word | ✓ | ✓ |
 | Repeat off / surah / ayah (word), pause before repeat (0/3/5/10 s) | ✓ | ✓ |
 | A'udhu + Bismillah before ayah 1 (not 1 or 9, never word by word) | ✓ | ✓ |
-| Eleven reciters, validated per-word highlighting (never estimated) | ✓ | ✓ |
+| Thirteen reciters, validated per-word highlighting (never estimated) | ✓ | ✓ |
 | Translations (124), word meanings in 5 languages, tafsir, mushaf style | ✓ | ✓ |
 | App in English, Urdu or Arabic (right to left) | ✓ | ✓ |
 | Word-by-word reader and overlay, word clips or cut from the ayah | ✓ | ✓ |

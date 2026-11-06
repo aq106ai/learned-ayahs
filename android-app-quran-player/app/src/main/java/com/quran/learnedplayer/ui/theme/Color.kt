@@ -261,4 +261,14 @@ val TextPrimary: Color get() = currentPalette.textPrimary
 val TextMuted: Color get() = currentPalette.textMuted
 val Accent: Color get() = currentPalette.accent
 val AccentGreen: Color get() = currentPalette.accentGreen
+
+/**
+ * Icons and labels drawn on [accent]: white, or the panel colour when the accent is light (a
+ * photo's near-white highlight), so they never vanish into it. Web: palette.js `onAccent`.
+ */
+fun onAccentFor(accent: Color, panel: Color): Color =
+    if (contrastRatio(Color.White, accent) >= contrastRatio(panel, accent)) Color.White else panel
+
+val OnAccent: Color get() = onAccentFor(currentPalette.accent, currentPalette.panel)
+val OnAccentGreen: Color get() = onAccentFor(currentPalette.accentGreen, currentPalette.panel)
 val Border: Color get() = currentPalette.border

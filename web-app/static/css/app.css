@@ -455,7 +455,7 @@ h3 {
 .btn.primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent, #fff);
 }
 .btn.primary:hover {
   background: var(--accent-2);
@@ -504,7 +504,7 @@ h3 {
 .chip[aria-pressed='true'] {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent, #fff);
 }
 
 .field {
@@ -773,7 +773,7 @@ textarea.input:focus {
 .check-btn[aria-pressed='true'] {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent, #fff);
 }
 .check-btn.partial {
   border-color: var(--accent);
@@ -1039,7 +1039,7 @@ textarea.input:focus {
   height: 60px;
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent, #fff);
 }
 .round.play .icon {
   width: 26px;
@@ -1288,7 +1288,7 @@ details.group summary::-webkit-details-marker {
   border-radius: 50%;
   border: 0;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent, #fff);
   display: grid;
   place-items: center;
   cursor: pointer;

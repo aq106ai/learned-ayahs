@@ -74,12 +74,16 @@ export function paletteFor(scene) {
   let panel = mix(bg, WHITE, 0.08);
   if (contrastRatio(text, panel) < TEXT_CONTRAST) panel = darkenUntil(panel, text, TEXT_CONTRAST);
   const accent = contrastingAccent(panel, [rawLight, mid, GREEN, WHITE]);
+  // Labels and icons drawn on the accent (play button, selected chips): a light accent (a photo's
+  // highlight, often near white) needs the dark panel colour, or they vanish into it.
+  const onAccent = contrastRatio(WHITE, accent) >= contrastRatio(panel, accent) ? WHITE : panel;
   return {
     bg,
     panel,
     text,
     muted: mix(text, panel, 0.42),
     accent,
+    onAccent,
     border: mix(panel, text, 0.18),
     isLight: false,
   };
@@ -98,7 +102,7 @@ function rgba(c, a) {
   return `rgba(${byte(c[0])},${byte(c[1])},${byte(c[2])},${a})`;
 }
 
-const ROLES = ['--bg', '--bg-2', '--panel', '--panel-2', '--panel-3', '--text', '--muted', '--accent', '--accent-2', '--accent-ink', '--border', '--highlight'];
+const ROLES = ['--bg', '--bg-2', '--panel', '--panel-2', '--panel-3', '--text', '--muted', '--accent', '--accent-2', '--accent-ink', '--on-accent', '--border', '--highlight'];
 
 /** Puts [palette] on [el] so it wins over the stylesheet. Null clears it. */
 export function applyPalette(el, palette) {
@@ -117,6 +121,7 @@ export function applyPalette(el, palette) {
   el.style.setProperty('--accent', hex(palette.accent));
   el.style.setProperty('--accent-2', hex(palette.accent));
   el.style.setProperty('--accent-ink', hex(palette.panel));
+  el.style.setProperty('--on-accent', hex(palette.onAccent));
   el.style.setProperty('--border', hex(palette.border));
   el.style.setProperty('--highlight', rgba(palette.accent, 0.18));
 }

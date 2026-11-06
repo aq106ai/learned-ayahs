@@ -43,7 +43,7 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
             onBackground = palette.textPrimary,
             onSurface = palette.textPrimary,
             onSurfaceVariant = palette.textMuted,
-            onPrimary = Color.White,
+            onPrimary = onAccentFor(palette.accent, palette.panel),
         )
     } else {
         darkColorScheme(
@@ -53,7 +53,7 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
             surface = palette.panel,
             onBackground = palette.textPrimary,
             onSurface = palette.textPrimary,
-            onPrimary = Color.White,
+            onPrimary = onAccentFor(palette.accent, palette.panel),
         )
     }
 

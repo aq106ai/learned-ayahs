@@ -101,11 +101,14 @@ test('a scene palette keeps text readable, and Bismillah follows the same rules 
       assert.ok(contrastRatio(palette.text, palette.panel) >= 4.5, theme.key);
       assert.ok(contrastRatio(palette.text, palette.bg) >= 4.5, theme.key);
       assert.ok(contrastRatio(palette.accent, palette.panel) >= 4.5, theme.key);
+      assert.ok(contrastRatio(palette.onAccent, palette.accent) >= 4.5, theme.key);
       assert.equal(palette.isLight, false);
     }
   }
   const photos = paletteFor(photo);
   assert.ok(contrastRatio(photos.text, photos.panel) >= 4.5);
+  // A photo's near-white highlight becomes the accent: the play icon and chip labels on it go dark.
+  assert.ok(contrastRatio(photos.onAccent, photos.accent) >= 4.5);
   assert.equal(photos.isLight, false);
   assert.equal(bismillahAllowed(9, 1), false);
   assert.equal(bismillahAllowed(1, 1), false);

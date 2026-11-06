@@ -86,6 +86,7 @@ import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.video.PlayerBackgrounds
 import com.quran.learnedplayer.ui.theme.Bg
 import com.quran.learnedplayer.ui.theme.Border
+import com.quran.learnedplayer.ui.theme.OnAccentGreen
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
@@ -240,13 +241,13 @@ fun PlayerScreen(
                             Icon(
                                 imageVector = Icons.Default.Mic,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = OnAccentGreen,
                                 modifier = Modifier.size(20.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = tx("Recite & review"),
-                                color = Color.White,
+                                color = OnAccentGreen,
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
                             )

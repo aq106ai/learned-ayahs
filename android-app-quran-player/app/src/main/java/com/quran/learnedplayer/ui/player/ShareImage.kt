@@ -38,7 +38,7 @@ object ShareImage {
      * lights an example word, for an ayah that isn't playing. Downloads a photo it needs.
      */
     suspend fun make(context: Context, options: VideoOptions, atMs: Long?): File = withContext(Dispatchers.IO) {
-        val font = ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF
+        val font = ResourcesCompat.getFont(context, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes(PlayerSettings.mushafStyle)) ?: android.graphics.Typeface.SERIF
         val bitmap = VideoExporter(context, font).still(options.toRequest(), options.aspect.width, atMs)
         val dir = File(context.cacheDir, "images").apply { mkdirs() }
         // Clear out old pictures, but not recent ones: an app shared one may not have read it yet.

@@ -19,6 +19,17 @@ language-aware pickers. Do not promise every translation or recording worldwide.
   tafsir and reciter chosen in the intro and changeable in Settings, on both apps. The chosen
   edition is used in the reader, text share, images and videos (credited by name); downloads
   are kept for offline use and Saheeh International shows when one can't be had.
+- [x] Mushaf style (intro and Settings): Uthmani in Scheherazade New (default) or Amiri Quran,
+  both SIL OFL, bundled, covering all 81 codepoints of the text; the reader, word reader, images
+  and videos follow it (`QuranFonts` / `--quran-font`).
+- [ ] More mushaf styles need a licence or a matching text (checked 2026-11-06):
+  Quran.com's KFGQPC V1/V2 page fonts, V4 tajweed and IndoPak Nastaleeq have no licence available
+  to us (QUL lists none; Quran.com's frontend repo has no licence) — ask Quran Foundation / the
+  King Fahd Complex for permission. Digital Khatt's Madina, Old Madina and IndoPak fonts are OFL
+  but misdraw Quran.com's text (صِرَٰطَ breaks at the dagger alif; IndoPak waqf marks missing);
+  they would need their own text and a word-position check. Tajweed colours: Quran.com's tajweed
+  text differs from ours in 165 of 761 words checked (marks, not only colour), so the colours
+  would have to be carried onto our text first.
 - [ ] Word meanings beyond en/ur/id/bn/fa: Quran.com returned 9% (tr, hi) to 21% (ta) of words in
   English (`make_content_catalog.py --verify-words`). Find a complete source or leave them out.
 - [ ] Refresh `content_catalog.json` on a schedule (a workflow, like `nature-photos.yml`), and

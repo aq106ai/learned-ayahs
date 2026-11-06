@@ -212,6 +212,12 @@ style, word-meaning language, tafsir and reciter (through `PlayerViewModel.setRe
   render provider HTML** — no `AndroidView`/WebView/`Html.fromHtml` for it. An entry often covers
   a group of ayahs (`verses`, e.g. 112:1–4), which the sheet says. The sheet is a bottom sheet,
   so like the dialogs it is tested on a device (`TafsirSheetTest`), not under Robolectric.
+- **Mushaf style** (`PlayerSettings.mushafStyle`, catalog `mushafStyles`, `ui/theme/Type.kt`
+  `QuranFonts`): `quranArabicStyle` is `@Composable` so every Arabic line follows the choice;
+  images and videos take `QuranFonts.fontRes`. A face is only offered if it is licensed for us
+  to bundle **and** draws our text correctly: render real ayahs (1:7's صِرَٰطَ, 2:181, 112) and
+  check every codepoint of quran_text.json is in its cmap (fontTools). The rejected candidates and
+  why are in `make_content_catalog.py` above MUSHAF_STYLES.
 - **JVM tests**: `ContentCatalogTest`, `ContentRepositoryTest` (stubbed `ContentRepository.fetcher`,
   no network) and `ContentChoicesTest` (Compose on Robolectric). **Robolectric never settles
   with a Compose `Dialog` open** ("Compose did not get idle"), so the picker's list dialogs are

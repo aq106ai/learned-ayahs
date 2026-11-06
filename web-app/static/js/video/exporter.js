@@ -8,7 +8,7 @@
 import { surahAyahToGlobal, surahName, verseCount } from '../core/quran.js';
 import { audioUrls } from '../core/reciters.js';
 import { loadText, loadTimings, loadTranslations, segmentsSync, wordsSync } from '../services/quranData.js';
-import { currentEdition, ensureMeanings, loadCatalog, loadEdition } from '../services/content.js';
+import { currentEdition, ensureMeanings, loadCatalog, loadEdition, mushafFamilySync } from '../services/content.js';
 import { creditOf, isRtl } from '../core/catalog.js';
 import { ArrayBufferTarget as Mp4Target, Muxer as Mp4Muxer } from '../lib/mp4-muxer.mjs';
 import { ArrayBufferTarget as WebmTarget, Muxer as WebmMuxer } from '../lib/webm-muxer.mjs';
@@ -99,6 +99,8 @@ export class VideoExporter {
     if (request.surah) await ensureMeanings(request.surah).catch(() => {});
     request.translationCredit = creditOf(edition);
     request.translationRtl = isRtl(catalog, edition.language);
+    request.arabicFont = mushafFamilySync();
+    await fontReady(request.arabicFont);
   }
 
   async textFor(request, clip) {
@@ -322,9 +324,9 @@ function makeCanvas(width, height) {
 
 const even = (v) => Math.floor(v / 2) * 2;
 
-async function fontReady() {
+async function fontReady(family = ARABIC_FONT) {
   if (!document.fonts) return;
-  await Promise.all([document.fonts.load(`80px ${ARABIC_FONT}`, 'بِسْمِ'), document.fonts.ready]).catch(() => {});
+  await Promise.all([document.fonts.load(`80px ${family}`, 'بِسْمِ'), document.fonts.ready]).catch(() => {});
 }
 
 export function fileName(request, ext) {

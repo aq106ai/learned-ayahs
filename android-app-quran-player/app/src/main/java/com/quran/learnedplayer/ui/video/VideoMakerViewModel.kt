@@ -91,7 +91,7 @@ data class VideoOptions(
 class VideoMakerViewModel(application: Application) : AndroidViewModel(application) {
     private val context: Context get() = getApplication()
     private val exporter by lazy {
-        VideoExporter(context, ResourcesCompat.getFont(context, R.font.scheherazade_new) ?: android.graphics.Typeface.SERIF)
+        VideoExporter(context, ResourcesCompat.getFont(context, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes(PlayerSettings.mushafStyle)) ?: android.graphics.Typeface.SERIF)
     }
     private val texts = VideoTexts(application)
     private val naturePhotos = NaturePhotos(application)

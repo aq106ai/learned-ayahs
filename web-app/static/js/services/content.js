@@ -26,6 +26,13 @@ export const loadCatalog = () => loadData('content_catalog.json').then((c) => (c
 export function currentEditionSync() {
   return catalogLoaded ? catalogRules.translationById(catalogLoaded, getSettings().translationEdition) : null;
 }
+/** The chosen mushaf style's CSS font family (the default face until the catalog loads). */
+export function mushafFamilySync() {
+  const id = getSettings().mushafStyle;
+  const style = catalogLoaded?.mushafStyles?.find((m) => m.id === id) ?? catalogLoaded?.mushafStyles?.[0];
+  return `"${style?.family ?? 'Scheherazade New'}"`;
+}
+
 /** For labels: the chosen edition's name, before and after the catalog loads. */
 export const editionNameSync = () => currentEditionSync()?.name ?? 'Saheeh International';
 /** For labels like the Arabic / English chips: the chosen translation's language. */

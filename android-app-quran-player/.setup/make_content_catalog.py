@@ -85,6 +85,22 @@ RECITERS = [
     ("ASH_SHURAYM", "Saud Ash-Shuraym", "Saood_ash-Shuraym_128kbps", "word_timings_shuraym.json"),
 ]
 
+# How the Arabic is drawn. Each font is bundled (res/font, served by the web app), SIL OFL, and
+# covers every codepoint of quran_text.json. Checked 2026-11-06 and left out: Quran.com's own
+# KFGQPC page fonts (V1/V2/V4 tajweed) and IndoPak Nastaleeq — no licence available to us (QUL:
+# "no copyright information"; Quran.com's frontend repo has no licence); Digital Khatt Madina /
+# Old Madina / IndoPak (OFL, but they misdraw Quran.com's text: صِرَٰطَ breaks at the dagger alif,
+# IndoPak waqf marks are missing glyphs). Tajweed colours need Quran.com's tajweed text, which
+# differs from ours in 165 of 761 words checked (other marks, not just colour).
+MUSHAF_STYLES = [
+    {"id": "uthmani-scheherazade", "name": "Uthmani · Scheherazade New", "family": "Scheherazade New",
+     "font": "scheherazade_new.ttf", "author": "SIL International", "source": "software.sil.org/scheherazade",
+     "licence": "SIL Open Font License 1.1", "script": "uthmani"},
+    {"id": "uthmani-amiri", "name": "Uthmani · Amiri Quran", "family": "Amiri Quran",
+     "font": "amiri_quran.ttf", "author": "Khaled Hosny (The Amiri Project, 1.003)", "source": "github.com/aliftype/amiri",
+     "licence": "SIL Open Font License 1.1", "script": "uthmani"},
+]
+
 # Languages Quran.com lists without an ISO code we can use.
 EXTRA_ISO = {"arabic": "ar", "divehi, dhivehi, maldivian": "dv", "divehi": "dv"}
 RTL_FALLBACK = {"ar", "ur", "fa", "he", "ps", "sd", "ug", "dv", "ku", "ks"}
@@ -192,11 +208,12 @@ def build(offline=None):
         "format": "learned-ayahs-content-catalog",
         "version": 1,
         "api": API,
-        "defaults": {"translation": "en-saheeh", "wordMeanings": "en", "tafsir": "", "reciter": "MAHER_AL_MUAIQLY"},
+        "defaults": {"translation": "en-saheeh", "wordMeanings": "en", "tafsir": "", "reciter": "MAHER_AL_MUAIQLY", "mushafStyle": "uthmani-scheherazade"},
         "languages": {code: langs[code] for code in sorted(used)},
         "translations": translations,
         "wordMeanings": word_meanings,
         "tafsirs": tafsirs,
+        "mushafStyles": MUSHAF_STYLES,
         "reciters": [{"id": i, "name": n, "folder": f, "timingsAsset": a, "highlighting": True} for i, n, f, a in RECITERS],
         "retired": RETIRED,
     }

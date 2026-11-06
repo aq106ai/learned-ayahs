@@ -189,6 +189,8 @@ function applyTheme() {
   const pref = store.settings.theme;
   const theme = pref === 'LIGHT' ? 'light' : pref === 'SYSTEM' ? (systemDark.matches ? 'dark' : 'light') : 'dark';
   document.documentElement.dataset.theme = theme;
+  // The mushaf style's face for every Arabic line (.arabic uses var(--quran-font)).
+  document.documentElement.style.setProperty('--quran-font', content.mushafFamilySync());
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme]);
 }
 
@@ -216,7 +218,7 @@ async function boot() {
 
   // The chosen translation and word-meaning language (by catalog id) follow the settings.
   content.bindSettings(() => store.settings);
-  content.loadCatalog().catch(() => {});
+  content.loadCatalog().then(applyTheme, () => {});
   quran.setMeaningSource((surah, ayah) => content.meaningsSync(surah, ayah));
 
   engine = new PlayerEngine(store, { proxy: Boolean(server.available && server.audioProxy) });

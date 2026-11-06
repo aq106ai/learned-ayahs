@@ -147,10 +147,13 @@ object PlayerSettings {
     private const val KEY_TRANSLATION_EDITION = "translation_edition"
     private const val KEY_WORD_MEANING_LANGUAGE = "word_meaning_language"
     private const val KEY_TAFSIR_EDITION = "tafsir_edition"
+    private const val KEY_MUSHAF_STYLE = "mushaf_style"
 
     /** Catalog ids (`data/ContentCatalog.kt`). A saved id the catalog no longer has falls back there. */
     const val DEFAULT_TRANSLATION_EDITION = "en-saheeh"
     const val DEFAULT_WORD_MEANING_LANGUAGE = "en"
+    /** `ui/theme/Type.kt` QuranFonts; the catalog's `mushafStyles`. */
+    const val DEFAULT_MUSHAF_STYLE = "uthmani-scheherazade"
 
     /** Selectable pause lengths (seconds) between repeats under [RepeatMode.AYAH]. 0 = no pause. */
     val REVISION_DELAY_CHOICES = listOf(0, 3, 5, 10)
@@ -187,6 +190,7 @@ object PlayerSettings {
         _translationEdition.value = prefs?.getString(KEY_TRANSLATION_EDITION, null) ?: DEFAULT_TRANSLATION_EDITION
         _wordMeaningLanguage.value = prefs?.getString(KEY_WORD_MEANING_LANGUAGE, null) ?: DEFAULT_WORD_MEANING_LANGUAGE
         _tafsirEdition.value = prefs?.getString(KEY_TAFSIR_EDITION, null).orEmpty()
+        _mushafStyle.value = prefs?.getString(KEY_MUSHAF_STYLE, null) ?: DEFAULT_MUSHAF_STYLE
     }
 
     private val _mode = MutableStateFlow(PlaybackMode.DEFAULT)
@@ -458,6 +462,17 @@ object PlayerSettings {
         set(value) {
             _tafsirEdition.value = value
             prefs?.edit()?.putString(KEY_TAFSIR_EDITION, value)?.apply()
+        }
+
+    private val _mushafStyle = MutableStateFlow(DEFAULT_MUSHAF_STYLE)
+    val mushafStyleFlow: StateFlow<String> = _mushafStyle.asStateFlow()
+
+    /** How the Arabic is drawn, by catalog id (font and script). Unknown ids draw the default. */
+    var mushafStyle: String
+        get() = _mushafStyle.value
+        set(value) {
+            _mushafStyle.value = value
+            prefs?.edit()?.putString(KEY_MUSHAF_STYLE, value)?.apply()
         }
 
     private val _seekInsideAyahAudio = MutableStateFlow(false)

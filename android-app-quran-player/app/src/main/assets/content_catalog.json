@@ -6,7 +6,8 @@
   "translation": "en-saheeh",
   "wordMeanings": "en",
   "tafsir": "",
-  "reciter": "MAHER_AL_MUAIQLY"
+  "reciter": "MAHER_AL_MUAIQLY",
+  "mushafStyle": "uthmani-scheherazade"
  },
  "languages": {
   "am": {
@@ -2086,6 +2087,28 @@
    "resourceId": 818,
    "licence": "Not stated by the provider; fetched from Quran.com when opened",
    "recommended": false
+  }
+ ],
+ "mushafStyles": [
+  {
+   "id": "uthmani-scheherazade",
+   "name": "Uthmani · Scheherazade New",
+   "family": "Scheherazade New",
+   "font": "scheherazade_new.ttf",
+   "author": "SIL International",
+   "source": "software.sil.org/scheherazade",
+   "licence": "SIL Open Font License 1.1",
+   "script": "uthmani"
+  },
+  {
+   "id": "uthmani-amiri",
+   "name": "Uthmani · Amiri Quran",
+   "family": "Amiri Quran",
+   "font": "amiri_quran.ttf",
+   "author": "Khaled Hosny (The Amiri Project, 1.003)",
+   "source": "github.com/aliftype/amiri",
+   "licence": "SIL Open Font License 1.1",
+   "script": "uthmani"
   }
  ],
  "reciters": [

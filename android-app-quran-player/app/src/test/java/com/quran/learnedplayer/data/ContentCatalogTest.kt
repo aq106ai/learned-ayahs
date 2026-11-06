@@ -75,6 +75,18 @@ class ContentCatalogTest {
     }
 
     @Test
+    fun every_mushaf_style_has_a_bundled_font_and_unknown_ids_draw_the_default() {
+        assertEquals(
+            listOf(com.quran.learnedplayer.ui.theme.QuranFonts.SCHEHERAZADE, com.quran.learnedplayer.ui.theme.QuranFonts.AMIRI),
+            catalog.mushafStyles.map { it.id },
+        )
+        catalog.mushafStyles.forEach { assertTrue(it.id, it.licence.contains("Open Font License")) }
+        assertEquals(com.quran.learnedplayer.R.font.amiri_quran, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes("uthmani-amiri"))
+        assertEquals(com.quran.learnedplayer.R.font.scheherazade_new, com.quran.learnedplayer.ui.theme.QuranFonts.fontRes("gone"))
+        assertEquals("uthmani-scheherazade", catalog.mushafStyle("gone")?.id)
+    }
+
+    @Test
     fun right_to_left_languages_are_marked() {
         listOf("ar", "ur", "fa").forEach { assertTrue(it, catalog.isRtl(it)) }
         listOf("en", "id", "bn").forEach { assertFalse(it, catalog.isRtl(it)) }

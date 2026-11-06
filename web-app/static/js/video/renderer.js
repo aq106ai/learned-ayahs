@@ -42,6 +42,8 @@ export class FrameRenderer {
     this.arabicSize = (this.landscape ? 64 : height > width * 1.5 ? 82 : 72) * this.u;
     this.pagesCache = new Map();
     this.translationCache = new Map();
+    // The mushaf style's face first (VideoExporter.prepareText sets it), then the bundled default.
+    this.arabicFont = request.arabicFont ? `${request.arabicFont}, ${ARABIC_FONT}` : ARABIC_FONT;
     this.measureCtx = null;
     this.qr = timeline.endCardMs > 0 ? qrModules(PLAY_STORE_URL) : null;
   }
@@ -49,7 +51,7 @@ export class FrameRenderer {
   measurer(ctx) {
     return {
       arabicWidth: (text, px) => {
-        ctx.font = `${px}px ${ARABIC_FONT}`;
+        ctx.font = `${px}px ${this.arabicFont}`;
         return ctx.measureText(text).width;
       },
       glossWidth: (text, px) => {
@@ -129,7 +131,7 @@ export class FrameRenderer {
       const isActive = placed.word.contentIndex >= 0 && placed.word.contentIndex === active;
       const isEnd = placed.word.contentIndex < 0;
       ctx.direction = 'rtl';
-      ctx.font = `${pages.arabicSize}px ${ARABIC_FONT}`;
+      ctx.font = `${pages.arabicSize}px ${this.arabicFont}`;
       ctx.fillStyle = isActive ? HIGHLIGHT : isEnd ? END_GLYPH : '#fff';
       ctx.fillText(placed.word.arabic, centre, baseline);
       if (pages.showGloss && placed.word.gloss) {

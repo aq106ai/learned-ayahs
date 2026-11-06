@@ -28,6 +28,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   translationEdition: 'en-saheeh',
   wordMeaningLanguage: 'en',
   tafsirEdition: '',
+  mushafStyle: 'uthmani-scheherazade',
   // What the player shows behind the ayah: 'plain', 'matched', 'photos', or one theme key.
   playerBackground: 'plain',
   // Gestures

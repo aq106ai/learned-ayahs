@@ -34,5 +34,8 @@ npm run test:e2e         # Playwright, against server.py with seeded audio; no n
 - Tafsir: `views/tafsir.js` (player header's book button) shows `content.ayahTafsir`, whose HTML
   `core/tafsirText.js` has turned into plain blocks; the view builds its own elements and sets only
   textContent. Never insert provider HTML (`innerHTML`, `DOMParser` into the page, …).
+- Mushaf style: `main.js` sets `--quran-font` from `content.mushafFamilySync()`; Arabic CSS uses
+  `var(--quran-font)`, video frames `request.arabicFont`. Fonts are served from the Android app's
+  `res/font` (`QURAN_FONTS` in server.py, also copied by `--export-static`).
 - `views/contentChoices.js` is the picker the intro and Settings share (Android:
   `ui/settings/ContentChoices.kt`).

@@ -13,6 +13,7 @@ corrected promptly.
 
 | What | Where | Source | Terms |
 |---|---|---|---|
+| **Amiri Quran** Arabic font (mushaf style "Amiri Quran") | `android-app-quran-player/app/src/main/res/font/amiri_quran.ttf` (the web app serves the same file) | [The Amiri Project](https://github.com/aliftype/amiri), Khaled Hosny, release 1.003 | SIL Open Font License 1.1. Full text in [`OFL_amiri_quran.txt`](android-app-quran-player/app/src/main/assets/OFL_amiri_quran.txt) |
 | **Scheherazade New** Arabic font | `android-app-quran-player/app/src/main/res/font/scheherazade_new.ttf` | [SIL International](https://software.sil.org/scheherazade/) | SIL Open Font License 1.1. Full text in [`OFL_scheherazade_new.txt`](android-app-quran-player/app/src/main/assets/OFL_scheherazade_new.txt) |
 | Qur'an text (Uthmani script, word by word, all 6236 ayahs) | `android-app-quran-player/app/src/main/assets/quran_text.json` | [Quran.com](https://quran.com/) API (`api.qurancdn.com`) | See Quran.com's terms |
 | English word-by-word translation | `android-app-quran-player/app/src/main/assets/word_translations.json` | [Quran.com](https://quran.com/) API | See Quran.com's terms |

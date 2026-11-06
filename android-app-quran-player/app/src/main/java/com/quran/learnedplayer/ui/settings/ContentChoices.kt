@@ -1,6 +1,8 @@
 package com.quran.learnedplayer.ui.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -58,6 +60,7 @@ const val TAG_CHOICE_SEARCH = "choice_search"
 const val TAG_CHOICE_LIST = "choice_list"
 fun contentStyleTag(style: TranslationStyle) = "content_style_${style.name}"
 fun contentReciterTag(reciter: Reciter) = "content_reciter_${reciter.name}"
+fun contentMushafTag(id: String) = "content_mushaf_$id"
 fun choiceTag(id: String) = "choice_${id.ifEmpty { "none" }}"
 
 private enum class Picking { LANGUAGE, EDITION, WORDS, TAFSIR }
@@ -111,6 +114,7 @@ fun ContentChoices(
     val showWords by PlayerSettings.showWordTranslationsFlow.collectAsState()
     val showAyah by PlayerSettings.showAyahTranslationFlow.collectAsState()
     val reciter by PlayerSettings.reciterFlow.collectAsState()
+    val mushaf by PlayerSettings.mushafStyleFlow.collectAsState()
     val edition = catalog.translation(editionId)
     val style = TranslationStyle.of(showWords, showAyah)
     val words = catalog.wordMeanings(wordsId)
@@ -132,6 +136,17 @@ fun ContentChoices(
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (catalog.mushafStyles.size > 1) {
+            Text("Mushaf style", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+            val chosen = catalog.mushafStyle(mushaf)?.id
+            Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                catalog.mushafStyles.forEach { style ->
+                    MushafTile(style, selected = style.id == chosen, modifier = Modifier.testTag(contentMushafTag(style.id))) {
+                        PlayerSettings.mushafStyle = style.id
+                    }
+                }
+            }
+        }
         ChoiceRow("Translation language", catalog.languageName(edition.language, native = true), TAG_CONTENT_LANGUAGE) { picking = Picking.LANGUAGE }
         ChoiceRow("Translation", edition.label, TAG_CONTENT_EDITION) { picking = Picking.EDITION }
         Text(status, style = MaterialTheme.typography.bodySmall, color = TextMuted, modifier = Modifier.testTag(TAG_CONTENT_STATUS))
@@ -210,6 +225,29 @@ fun ContentChoices(
             picking = null
         }
         null -> Unit
+    }
+}
+
+/** A mushaf style, shown in its own font so the choice is made by eye. */
+@Composable
+private fun MushafTile(style: com.quran.learnedplayer.data.MushafStyle, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    Column(
+        modifier = modifier
+            .border(if (selected) 2.dp else 1.dp, if (selected) AccentGreen else Border, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+            style = androidx.compose.ui.text.TextStyle(
+                fontFamily = com.quran.learnedplayer.ui.theme.QuranFonts.family(style.id),
+                fontSize = 20.sp,
+                textDirection = TextDirection.Rtl,
+            ),
+            color = TextPrimary,
+        )
+        Text(style.name.substringAfter("· "), style = MaterialTheme.typography.labelSmall, color = if (selected) AccentGreen else TextMuted)
     }
 }
 

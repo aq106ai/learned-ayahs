@@ -14,6 +14,7 @@ const SOURCES = [
   ['Nature photos for backgrounds (CC0)', 'Wikimedia Commons', 'https://commons.wikimedia.org'],
   ['Word timings used to highlight each word', 'Quranic Universal Library (QUL) by Tarteel', 'https://qul.tarteel.ai'],
   ['Arabic font Scheherazade New', 'SIL International', 'https://software.sil.org/scheherazade/'],
+  ['Arabic font Amiri Quran (the "Amiri Quran" mushaf style)', 'The Amiri Project, Khaled Hosny', 'https://github.com/aliftype/amiri'],
 ];
 
 const INTRO = 'Learned Ayahs is a free tool that makes it easier to revise what you have memorised. ' +

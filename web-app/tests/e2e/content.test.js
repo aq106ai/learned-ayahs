@@ -242,3 +242,22 @@ test('Tafsir with none chosen offers the list; a failed download can be retried'
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('the mushaf style draws every Arabic line in its face, and is saved by id', async () => {
+  const stub = quranComStub();
+  const { page, context, errors } = await openApp(browser, server, { path: 'settings', query: '?test', setup: stub.setup });
+  await page.waitForSelector('[data-testid=content-mushaf-uthmani-amiri]');
+  const face = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--quran-font').trim());
+  assert.equal(await face(), '"Scheherazade New"');
+  await page.click('[data-testid=content-mushaf-uthmani-amiri]');
+  assert.equal(await page.evaluate(() => window.__app.store.settings.mushafStyle), 'uthmani-amiri');
+  assert.equal(await face(), '"Amiri Quran"');
+  await learn(page, [[112, 1]]);
+  await page.click('[data-testid=nav-player]');
+  await page.waitForSelector('[data-testid=ayah-text]');
+  assert.match(await page.locator('[data-testid=ayah-text] .word .ar').first().evaluate((el) => getComputedStyle(el).fontFamily), /^"Amiri Quran"/);
+  // The face is really there, not a fallback.
+  assert.equal(await page.evaluate(async () => { await document.fonts.load('30px "Amiri Quran"', 'بِسْمِ'); return document.fonts.check('30px "Amiri Quran"', 'بِسْمِ'); }), true);
+  assert.deepEqual(errors, []);
+  await context.close();
+});

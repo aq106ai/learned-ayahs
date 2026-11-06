@@ -19,6 +19,7 @@ const SHELL = [
   'icons/icon.svg',
   'icons/logo.svg',
   'fonts/scheherazade_new.ttf',
+  'fonts/amiri_quran.ttf',
 ];
 
 self.addEventListener('install', (event) => {

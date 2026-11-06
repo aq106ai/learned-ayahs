@@ -38,6 +38,9 @@ data class Edition(
 
 data class WordMeanings(val id: String, val language: String, val source: String, val bundled: Boolean)
 
+/** How the Arabic is drawn: a bundled font for a script (`ui/theme/Type.kt` QuranFonts). */
+data class MushafStyle(val id: String, val name: String, val author: String, val licence: String, val script: String)
+
 data class CatalogReciter(val id: String, val name: String, val folder: String, val timingsAsset: String, val highlighting: Boolean)
 
 /** How translations show beside the Arabic: the two existing switches, read as one choice. */
@@ -71,7 +74,12 @@ class ContentCatalog(
     val tafsirs: List<Edition>,
     val reciters: List<CatalogReciter>,
     val retired: Map<String, String>,
+    val mushafStyles: List<MushafStyle> = emptyList(),
+    val defaultMushafStyle: String = "uthmani-scheherazade",
 ) {
+    fun mushafStyle(id: String?): MushafStyle? =
+        mushafStyles.firstOrNull { it.id == id } ?: mushafStyles.firstOrNull { it.id == defaultMushafStyle }
+
     private fun follow(id: String?): String? {
         var current = id
         var steps = 0
@@ -184,6 +192,12 @@ class ContentCatalog(
                     CatalogReciter(r.getString("id"), r.getString("name"), r.getString("folder"), r.getString("timingsAsset"), r.optBoolean("highlighting"))
                 }
             }
+            val styles = root.optJSONArray("mushafStyles")?.let { arr ->
+                List(arr.length()) { i ->
+                    val m = arr.getJSONObject(i)
+                    MushafStyle(m.getString("id"), m.getString("name"), m.optString("author"), m.optString("licence"), m.optString("script"))
+                }
+            }.orEmpty()
             val retired = root.optJSONObject("retired")?.let { o -> o.keys().asSequence().associateWith { o.getString(it) } }.orEmpty()
             return ContentCatalog(
                 api = root.getString("api"),
@@ -196,6 +210,8 @@ class ContentCatalog(
                 tafsirs = editions("tafsirs"),
                 reciters = reciters,
                 retired = retired,
+                mushafStyles = styles,
+                defaultMushafStyle = defaults.optString("mushafStyle", "uthmani-scheherazade"),
             )
         }
 

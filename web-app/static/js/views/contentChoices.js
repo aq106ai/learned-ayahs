@@ -70,7 +70,16 @@ export function contentChoices(store, { reciter = false } = {}) {
     const wordOptions = catalog.wordMeanings.map((w) => [w.id, languageName(catalog, w.language, { native: true })]);
     const tafsirOptions = [['', 'None'], ...tafsirsFor(catalog, lang).map((t) => [t.id, `${languageName(catalog, t.language)} · ${editionLabel(t)}`])];
 
+    const styles = catalog.mushafStyles ?? [];
+    const chosenStyle = (styles.find((m) => m.id === s.mushafStyle) ?? styles[0])?.id;
     el.replaceChildren(
+      styles.length > 1 ? h('div', { class: 'small muted' }, 'Mushaf style') : null,
+      styles.length > 1 ? h('div', { class: 'theme-row', role: 'radiogroup', 'aria-label': 'Mushaf style' }, styles.map((m) => h('button', {
+        class: `theme-tile mushaf-tile${m.id === chosenStyle ? ' selected' : ''}`, type: 'button', role: 'radio',
+        'aria-checked': String(m.id === chosenStyle), 'aria-pressed': String(m.id === chosenStyle), title: `${m.name} — ${m.author}, ${m.licence}`,
+        'data-testid': `content-mushaf-${m.id}`, onClick: () => set('mushafStyle', m.id),
+      }, h('span', { class: 'arabic mushaf-sample', lang: 'ar', style: { fontFamily: `"${m.family}"` } }, 'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ'),
+      h('span', { class: 'theme-name' }, m.name.split('· ').pop())))) : null,
       select('content-translation-language', 'Translation language', languageOptions, lang, (code) => {
         const first = translationsIn(catalog, code)[0];
         if (!first) return;

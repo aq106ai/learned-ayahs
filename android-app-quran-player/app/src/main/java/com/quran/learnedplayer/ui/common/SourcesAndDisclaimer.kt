@@ -48,6 +48,7 @@ object SourcesAndDisclaimer {
         Source("Nature photos for backgrounds (CC0)", "Wikimedia Commons · commons.wikimedia.org"),
         Source("Word timings used to highlight each word", "Quranic Universal Library (QUL) by Tarteel · qul.tarteel.ai"),
         Source("Arabic font Scheherazade New", "SIL International · software.sil.org"),
+        Source("Arabic font Amiri Quran (the \"Amiri Quran\" mushaf style)", "The Amiri Project, Khaled Hosny · github.com/aliftype/amiri"),
     )
 
     const val INTRO =

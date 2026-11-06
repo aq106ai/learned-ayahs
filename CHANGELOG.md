@@ -15,6 +15,8 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
   text, checked for completeness and kept for offline use; Saheeh International and the English
   meanings stay bundled and are shown when a download fails.
 - Shared text, images and videos use the chosen edition and credit it by name.
+- Mushaf style: Uthmani in Scheherazade New or Amiri Quran (both open-licensed and bundled), in
+  the intro and Settings; the reader, shared images and videos follow it.
 - Tafsir: a Tafsir button in the player opens the chosen commentary on the current ayah, with its
   source and the ayahs it covers, kept for offline use once read. Provider markup is never shown;
   the text is rebuilt as plain headings, paragraphs and emphasis.

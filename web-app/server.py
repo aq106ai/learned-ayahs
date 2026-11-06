@@ -57,6 +57,7 @@ RECITER_FOLDERS = frozenset(
 EVERYAYAH = "https://everyayah.com/data"
 WORD_CLIPS = "https://audio.qurancdn.com/wbw"
 
+QURAN_FONTS = ("scheherazade_new.ttf", "amiri_quran.ttf")
 DATA_FILES = re.compile(r"^(quran_text|word_translations|word_timings_[a-z_]+|translation_en_saheeh|video_themes|nature_photos|content_catalog)\.json$")
 # The CC0 nature photos video and player backgrounds can use (see backgrounds/README).
 PHOTO_FILE = re.compile(r"^[a-z_]+_\d+(_thumb)?\.jpg$")
@@ -685,8 +686,10 @@ def make_handler(app: App):
                     if not PHOTO_FILE.match(name):
                         raise ApiError(404, "not_found", "Not found.")
                     self.serve_file(config.photos_dir / name, "image/jpeg", "public, max-age=604800")
-                elif path == "/fonts/scheherazade_new.ttf":
-                    self.serve_file(config.font_path, "font/ttf", "public, max-age=604800")
+                elif path.startswith("/fonts/") and path[len("/fonts/"):] in QURAN_FONTS:
+                    # The mushaf styles' fonts (content_catalog.json "mushafStyles"), from the
+                    # Android app's res/font, like the Qur'an data from its assets.
+                    self.serve_file(config.font_path.parent / path[len("/fonts/"):], "font/ttf", "public, max-age=604800")
                 else:
                     self.serve_static(path)
             except ApiError as err:
@@ -1063,7 +1066,8 @@ def export_static(config: Config, out: Path) -> int:
             shutil.copy2(f, out / "data" / f.name)
             copied += 1
     (out / "fonts").mkdir(exist_ok=True)
-    shutil.copy2(config.font_path, out / "fonts" / config.font_path.name)
+    for name in QURAN_FONTS:
+        shutil.copy2(config.font_path.parent / name, out / "fonts" / name)
     photos = 0
     if config.photos_dir.is_dir():
         (out / "backgrounds" / "nature").mkdir(parents=True, exist_ok=True)

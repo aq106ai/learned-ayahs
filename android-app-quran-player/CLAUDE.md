@@ -34,8 +34,14 @@ recording** (the one exception, an ayah's last word, is measured and scored — 
 audit under `assets/`). Highlighting inside an ayah MP3 is only honest with real per-word segments
 for that exact recording, so an
 ayah reciter may only be added if QUL has segment data for it *and* everyayah's audio is the audio
-those timings describe. Five ship: Maher, Abdul Basit, Al-Husary, and — added in 1.9.0 — Sudais
-and Shuraym.
+those timings describe. Maher, Abdul Basit, Al-Husary, Sudais and Shuraym shipped first; 1.13 adds
+Abdul Basit (Mujawwad), Husary (Muallim), Husary (Mujawwad), Al-Ghamdi, Ad-Dussary and Al-Tunaiji,
+pinned by `.setup/pin_qul_ids.py` (everyayah's MP3 byte-identical to the audio QUL timed — QUL now
+returns `audio_url` — plus one segment per word) and audited like the first five. The pin's end
+check is ±250 ms: ffprobe's MP3 duration is that imprecise (shipped Maher reads -177..+7 ms), so
+the old "0-50 ms of trailing silence" cannot be re-measured that way. Mujawwad recordings' last-word
+estimate is the weakest (p50 560 ms, p90 1.4 s, against Maher's 160/460). Pinned but failed or
+not yet audited: see `docs/TODO.md`; Tablawi, Hani Rifai and Minshawi (Mujawwad) don't fit.
 
 **QUL's API does not name its reciters, so an id is confirmed by measurement, not by a label.**
 `ayah_segments/{id}` returns segments and nothing else; the check is that the last segment of an

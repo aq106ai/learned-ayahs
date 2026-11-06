@@ -83,6 +83,12 @@ RECITERS = [
     ("AL_HUSARY", "Mahmoud Khalil Al-Husary", "Husary_128kbps", "word_timings_husary.json"),
     ("AS_SUDAIS", "Abdurrahman As-Sudais", "Abdurrahmaan_As-Sudais_192kbps", "word_timings_sudais.json"),
     ("ASH_SHURAYM", "Saud Ash-Shuraym", "Saood_ash-Shuraym_128kbps", "word_timings_shuraym.json"),
+    ("ABDUL_BASIT_MUJAWWAD", "Abdul Basit (Mujawwad)", "Abdul_Basit_Mujawwad_128kbps", "word_timings_abdulbasit_mujawwad.json"),
+    ("AL_HUSARY_MUALLIM", "Mahmoud Khalil Al-Husary (Muallim)", "Husary_Muallim_128kbps", "word_timings_husary_muallim.json"),
+    ("AL_HUSARY_MUJAWWAD", "Mahmoud Khalil Al-Husary (Mujawwad)", "Husary_128kbps_Mujawwad", "word_timings_husary_mujawwad.json"),
+    ("AL_GHAMDI", "Saad Al-Ghamdi", "Ghamadi_40kbps", "word_timings_ghamadi.json"),
+    ("AD_DUSSARY", "Yasser Ad-Dussary", "Yasser_Ad-Dussary_128kbps", "word_timings_dussary.json"),
+    ("AL_TUNAIJI", "Khalifa Al-Tunaiji", "khalefa_al_tunaiji_64kbps", "word_timings_tunaiji.json"),
 ]
 
 # How the Arabic is drawn. Each font is bundled (res/font, served by the web app), SIL OFL, and

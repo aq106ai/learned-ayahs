@@ -49,11 +49,13 @@ language-aware pickers. Do not promise every translation or recording worldwide.
   and the ayahs the entry covers. The provider's HTML becomes plain blocks (`tafsirText.js` /
   `TafsirText.kt`) — no element or attribute of it is ever rendered — and each entry read is kept
   for offline use. `TafsirSheetTest` (instrumented) is written but not yet run on a device.
-- [ ] Reciters (stage 3; the user asked to keep accurate highlighting for every reciter, so no
-  audio-only catalog). Candidates with an everyayah folder and a Quran.com/QUL recitation:
-  Alafasy_128kbps, Minshawy_Murattal_128kbps, Abu_Bakr_Ash-Shaatree_128kbps, Hani_Rifai_192kbps,
-  Husary_Muallim_128kbps, Minshawy_Mujawwad_192kbps, Mohammad_al_Tablaway_128kbps,
-  Abdul_Basit_Mujawwad_128kbps. Pin each QUL id by measurement and run the timing audit.
+- [x] Reciters with checked timings only (the user asked to keep accurate highlighting, so no
+  audio-only catalog): Abdul Basit Mujawwad (QUL 14), Husary Muallim (22), Husary Mujawwad (21),
+  Ghamdi (19), Dussary (26), Tunaiji (23) pinned by `pin_qul_ids.py` and audited by CI.
+- [ ] Alafasy (18), Minshawi Murattal (24) and Shatri (17) are pinned; their first audit ran
+  near the 90-minute job limit. Add them once `timing-audit.yml` has committed their assets.
+- [ ] Out: Tablawi (QUL 11: 0.65-5 s of slack on every probe), Hani Rifai (5) and Minshawi
+  Mujawwad (8) (segments span several words).
 - [ ] Add reciters only with verified complete audio and timing data for the exact recording,
   following CONTRIBUTING.md. Never fabricate segments or borrow another recording's timings.
   If an audio-only catalog is wanted, design that separately with explicit feature capabilities

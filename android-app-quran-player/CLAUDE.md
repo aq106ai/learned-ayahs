@@ -206,6 +206,12 @@ style, word-meaning language, tafsir and reciter (through `PlayerViewModel.setRe
 - **Only languages Quran.com returns (nearly) complete are offered**: en, ur (0.4% missing), id,
   bn, fa. tr/hi/ta came back 9–21% English (`--verify-words`); a mixed-language line under the
   Arabic is worse than English, so they are left out until there's a complete source.
+- **Tafsir** (`ui/player/TafsirSheet.kt`, the player header's book icon) reads
+  `ContentRepository.ayahTafsir`: Quran.com's JSON for that ayah is kept on disk and only ever
+  becomes `TafsirText` blocks (headings, paragraphs, items, quotes, bold/italic runs). **Never
+  render provider HTML** — no `AndroidView`/WebView/`Html.fromHtml` for it. An entry often covers
+  a group of ayahs (`verses`, e.g. 112:1–4), which the sheet says. The sheet is a bottom sheet,
+  so like the dialogs it is tested on a device (`TafsirSheetTest`), not under Robolectric.
 - **JVM tests**: `ContentCatalogTest`, `ContentRepositoryTest` (stubbed `ContentRepository.fetcher`,
   no network) and `ContentChoicesTest` (Compose on Robolectric). **Robolectric never settles
   with a Compose `Dialog` open** ("Compose did not get idle"), so the picker's list dialogs are

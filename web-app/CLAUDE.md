@@ -31,5 +31,8 @@ npm run test:e2e         # Playwright, against server.py with seeded audio; no n
   `https://api.quran.com`.
 - The engine caches each ayah's words: when meanings arrive, `engine.refreshWords()` (wired in
   `main.js` via `onContentLoaded`) swaps them in and re-emits `track`.
+- Tafsir: `views/tafsir.js` (player header's book button) shows `content.ayahTafsir`, whose HTML
+  `core/tafsirText.js` has turned into plain blocks; the view builds its own elements and sets only
+  textContent. Never insert provider HTML (`innerHTML`, `DOMParser` into the page, …).
 - `views/contentChoices.js` is the picker the intro and Settings share (Android:
   `ui/settings/ContentChoices.kt`).

@@ -1503,3 +1503,32 @@ button.link {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Tafsir (views/tafsir.js): long commentary, read in the dialog's own scroll. */
+.tafsir {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tafsir-text {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.tafsir-text h3 {
+  font-size: 1rem;
+  margin: 14px 0 4px;
+}
+.tafsir-text p,
+.tafsir-text li {
+  margin: 0 0 10px;
+}
+.tafsir-text blockquote {
+  margin: 0 0 10px;
+  padding-inline-start: 12px;
+  border-inline-start: 3px solid var(--border);
+  color: var(--muted);
+}
+.tafsir-text[dir='rtl'] {
+  font-size: 1.08rem;
+  line-height: 1.9;
+}

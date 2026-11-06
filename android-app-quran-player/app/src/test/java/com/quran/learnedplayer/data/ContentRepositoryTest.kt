@@ -161,6 +161,38 @@ class ContentRepositoryTest {
     }
 
     @Test
+    fun a_tafsir_is_fetched_once_as_blocks_and_read_offline_afterwards() {
+        var calls = 0
+        ContentRepository.fetcher = { url ->
+            calls++
+            assertTrue(url, url.endsWith("/tafsirs/169/by_ayah/112:2"))
+            JSONObject().put(
+                "tafsir",
+                JSONObject()
+                    .put("verses", JSONObject().put("112:1", JSONObject()).put("112:2", JSONObject()).put("112:3", JSONObject()).put("112:4", JSONObject()))
+                    .put("text", "<h2 style=\"color:red\">On Al-Ikhlas</h2><p>First <strong>point</strong>.<script>x()</script></p>"),
+            ).toString()
+        }
+        val t = ContentRepository.ayahTafsir(112, 2, "qc-tafsir-169")
+        assertEquals("Ibn Kathir (Abridged)", t.edition.name)
+        assertEquals("112:1–4", TafsirText.coveredRange(t.verses))
+        assertEquals("On Al-Ikhlas\n\nFirst point.", TafsirText.text(t.blocks))
+        ContentRepository.fetcher = { throw IOException("offline") }
+        assertEquals("On Al-Ikhlas\n\nFirst point.", TafsirText.text(ContentRepository.ayahTafsir(112, 2, "qc-tafsir-169").blocks))
+        assertEquals(1, calls)
+    }
+
+    @Test
+    fun no_tafsir_chosen_or_a_failed_download_is_an_error_and_nothing_is_kept() {
+        assertTrue(runCatching { ContentRepository.ayahTafsir(1, 1, "") }.isFailure)
+        ContentRepository.fetcher = { throw IOException("The download failed (503).") }
+        assertTrue(runCatching { ContentRepository.ayahTafsir(1, 1, "qc-tafsir-169") }.isFailure)
+        ContentRepository.fetcher = { "<html>captive portal</html>" }
+        assertTrue(runCatching { ContentRepository.ayahTafsir(1, 1, "qc-tafsir-169") }.isFailure)
+        assertEquals(0L, ContentRepository.downloadedBytes())
+    }
+
+    @Test
     fun saved_settings_default_to_what_shipped_before() {
         assertEquals("en-saheeh", PlayerSettings.translationEdition)
         assertEquals("en", PlayerSettings.wordMeaningLanguage)

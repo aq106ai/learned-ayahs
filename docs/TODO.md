@@ -26,8 +26,11 @@ language-aware pickers. Do not promise every translation or recording worldwide.
 - [ ] UI languages: almost every Android string is hard-coded in Compose (strings.xml has 3) and
   the web's are in the views. Move them to resources/message tables, then add an app-language
   choice to the intro and Settings, starting with English, Urdu and Arabic, with RTL layout tests.
-- [ ] Tafsir reader (stage 2): a "Tafsir" action on the current ayah opens a bottom sheet / popup
-  with the chosen edition, its name and source, sanitized HTML, cached for offline use.
+- [x] Tafsir reader: the player's Tafsir button opens a popup (web `views/tafsir.js`) / bottom
+  sheet (Android `ui/player/TafsirSheet.kt`) with the chosen edition, its name, author and source,
+  and the ayahs the entry covers. The provider's HTML becomes plain blocks (`tafsirText.js` /
+  `TafsirText.kt`) — no element or attribute of it is ever rendered — and each entry read is kept
+  for offline use. `TafsirSheetTest` (instrumented) is written but not yet run on a device.
 - [ ] Reciters (stage 3; the user asked to keep accurate highlighting for every reciter, so no
   audio-only catalog). Candidates with an everyayah folder and a Quran.com/QUL recitation:
   Alafasy_128kbps, Minshawy_Murattal_128kbps, Abu_Bakr_Ash-Shaatree_128kbps, Hani_Rifai_192kbps,
@@ -38,8 +41,6 @@ language-aware pickers. Do not promise every translation or recording worldwide.
   If an audio-only catalog is wanted, design that separately with explicit feature capabilities
   before changing this rule: no synchronized highlighting or word seeking without valid timings.
 - [ ] Keep isolated-word reciters separate; require complete word files and stable word mapping.
-- [ ] Tafsir: keep commentary separate from translations; ayah references and on-demand offline
-  storage (the edition choice already exists, see above).
 - [ ] Handle missing verses, unavailable resources, download retries, cache limits/deletion,
   provider updates and old saved selections consistently across Android and web.
 - [ ] Verify all 6,236 ayah mappings; test RTL/LTR layouts, long translations, large fonts,

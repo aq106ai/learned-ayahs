@@ -15,6 +15,9 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
   text, checked for completeness and kept for offline use; Saheeh International and the English
   meanings stay bundled and are shown when a download fails.
 - Shared text, images and videos use the chosen edition and credit it by name.
+- Tafsir: a Tafsir button in the player opens the chosen commentary on the current ayah, with its
+  source and the ayahs it covers, kept for offline use once read. Provider markup is never shown;
+  the text is rebuilt as plain headings, paragraphs and emphasis.
 - A flaky browser test (scene colours after leaving the player) now waits for the route change.
 
 Android 1.12.1 (versionCode 46), including the previous unreleased 1.12.0 changes.

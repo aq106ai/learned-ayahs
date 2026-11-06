@@ -18,6 +18,7 @@ import { learnedCountsBySurah, matchSurahs } from './common.js';
 import { wordReader } from './wordReader.js';
 import { playerBackground } from './playerBackground.js';
 import { download } from './video.js';
+import { showTafsir } from './tafsir.js';
 import { photoSubjects, thumbUrl, translation } from '../video/data.js';
 import { ASPECTS, VideoExporter, fileName } from '../video/exporter.js';
 import { applyPalette, paletteFor } from '../video/palette.js';
@@ -52,6 +53,7 @@ export function playerView({ store, engine, server, go }) {
     h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Playlist', 'data-testid': 'open-playlist', onClick: () => openPlaylistPanel() }, icon('layers')),
     wordToggle,
     h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Background', 'data-testid': 'open-background', onClick: () => openBackgroundDialog() }, icon('image')),
+    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Tafsir on this ayah', title: 'Tafsir', 'data-testid': 'tafsir', onClick: () => { if (engine.track) showTafsir(store, engine.track.surah, engine.track.ayah); } }, icon('book')),
     h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': 'Share this ayah', 'data-testid': 'share', onClick: () => openShareDialog() }, icon('share')),
   );
   const background = playerBackground({ engine, store });

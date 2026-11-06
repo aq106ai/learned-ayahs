@@ -120,6 +120,37 @@ object ContentRepository {
         return runCatching { load(saheeh) }.getOrNull()?.getOrNull(index)
     }
 
+    // -- tafsir -----------------------------------------------------------------------------------
+
+    /** One tafsir entry: it may explain a group of ayahs together ([verses]). */
+    data class Tafsir(val edition: Edition, val verses: List<String>, val blocks: List<TafsirText.Block>)
+
+    private fun tafsirFile(edition: Edition, surah: Int, ayah: Int): File? =
+        root()?.let { File(it, "tafsir/${edition.id}/${surah}_$ayah.json") }
+
+    /**
+     * Blocking. The chosen tafsir (or [id]) on one ayah, from disk or Quran.com (then kept).
+     * The provider's JSON is what is stored; it only ever becomes [TafsirText] blocks.
+     * Throws when none is chosen or it can't be had.
+     */
+    fun ayahTafsir(surah: Int, ayah: Int, id: String? = PlayerSettings.tafsirEdition): Tafsir {
+        val catalog = catalog() ?: throw IOException("No catalog")
+        val edition = catalog.tafsir(id) ?: throw IOException("Choose a tafsir first.")
+        val file = tafsirFile(edition, surah, ayah) ?: throw IOException("Not initialised")
+        val body = if (file.isFile) {
+            file.readText()
+        } else {
+            val resource = edition.resourceId ?: throw IOException("${edition.name} has no Quran.com id")
+            fetcher("${catalog.api}/tafsirs/$resource/by_ayah/$surah:$ayah").also { text ->
+                JSONObject(text).getJSONObject("tafsir") // refuse anything that isn't a tafsir before keeping it
+                writeAtomically(file, text)
+            }
+        }
+        val t = JSONObject(body).getJSONObject("tafsir")
+        val verses = t.optJSONObject("verses")?.keys()?.asSequence()?.toList().orEmpty().ifEmpty { listOf("$surah:$ayah") }
+        return Tafsir(edition, verses, TafsirText.blocks(t.optString("text")))
+    }
+
     // -- word meanings ---------------------------------------------------------------------------
 
     private fun meaningsFile(lang: String, surah: Int): File? = root()?.let { File(it, "words/$lang/$surah.json") }

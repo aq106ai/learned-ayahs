@@ -31,7 +31,7 @@ after(async () => {
  * Answers api.quran.com like the real one, in the shapes the app reads. `requests` counts what
  * was asked for; `fail` makes translation downloads fail.
  */
-function quranComStub({ fail = false } = {}) {
+function quranComStub({ fail = false, failTafsir = false } = {}) {
   const requests = [];
   const setup = (context) => context.route('https://api.quran.com/**', (route) => {
     const url = new URL(route.request().url());
@@ -42,6 +42,20 @@ function quranComStub({ fail = false } = {}) {
       if (fail) return route.fulfill({ status: 503, headers: { 'access-control-allow-origin': '*' }, body: 'down' });
       return json({
         translations: VERSE_KEYS.map((k) => ({ resource_id: Number(m[1]), verse_key: k, text: `UR(${m[1]}) ${k}<sup foot_note=9>1</sup>` })),
+      });
+    }
+    m = url.pathname.match(/\/tafsirs\/(\d+)\/by_ayah\/(\d+):(\d+)$/);
+    if (m) {
+      if (failTafsir) return route.fulfill({ status: 503, headers: { 'access-control-allow-origin': '*' }, body: 'down' });
+      const [, id, s, a] = m;
+      // Ibn Kathir explains Al-Ikhlas as one group; everything else stands alone.
+      const verses = s === '112' ? ['112:1', '112:2', '112:3', '112:4'] : [`${s}:${a}`];
+      return json({
+        tafsir: {
+          resource_id: Number(id),
+          verses: Object.fromEntries(verses.map((k, i) => [k, { id: i }])),
+          text: `<h2 style="color: red">Tafsir ${id} on ${s}:${a}</h2><p onclick="x()">First <strong>point</strong>.<script>window.__pwned = true</script></p><img src=x onerror="window.__pwned = true"><p>Second.</p>`,
+        },
       });
     }
     m = url.pathname.match(/\/verses\/by_chapter\/(\d+)$/);
@@ -171,6 +185,60 @@ test('Settings changes the style and the edition; the choice is saved as an id; 
   await learn(page, [[112, 1]]);
   await page.click('[data-testid=nav-player]');
   await page.waitForFunction(() => document.querySelector('[data-testid=ayah-translation]')?.textContent === 'UR(85) 112:1');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('Tafsir on the current ayah: the chosen edition, its source, the ayahs it covers, and no provider markup', async () => {
+  const stub = quranComStub();
+  const first = await openApp(browser, server, { path: 'player', query: '?test', settings: { tafsirEdition: 'qc-tafsir-169' }, setup: stub.setup });
+  const { page } = first;
+  await learn(page, [[112, 2]]);
+  await page.click('[data-testid=tafsir]');
+  await page.waitForSelector('[data-testid=tafsir-text]');
+  assert.match(await page.textContent('[data-testid=tafsir-source]'), /Ibn Kathir \(Abridged\) by Hafiz Ibn Kathir, from Quran\.com/);
+  assert.match(await page.textContent('[data-testid=tafsir-range]'), /112:1–4/);
+  assert.equal(await page.textContent('[data-testid=tafsir-text] h3'), 'Tafsir 169 on 112:2');
+  assert.equal(await page.textContent('[data-testid=tafsir-text] strong'), 'point');
+  assert.deepEqual(await page.evaluate(() => {
+    const el = document.querySelector('[data-testid=tafsir-text]');
+    return {
+      scripts: el.querySelectorAll('script, img, iframe').length,
+      attrs: [...el.querySelectorAll('*')].flatMap((n) => [...n.attributes].map((a) => a.name)).filter((n) => n !== 'dir'),
+      pwned: Boolean(window.__pwned),
+    };
+  }), { scripts: 0, attrs: [], pwned: false });
+  await page.keyboard.press('Escape');
+  await page.close();
+
+  // Read once, kept: it opens again with the provider gone.
+  await first.context.unroute('https://api.quran.com/**');
+  const offline = await openApp(browser, server, { path: 'player', query: '?test', context: first.context, setup: (c) => c.route('https://api.quran.com/**', (r) => r.abort()) });
+  await offline.page.click('[data-testid=tafsir]');
+  await offline.page.waitForSelector('[data-testid=tafsir-text]');
+  assert.equal(await offline.page.textContent('[data-testid=tafsir-text] h3'), 'Tafsir 169 on 112:2');
+  assert.deepEqual([...first.errors, ...offline.errors], []);
+  await first.context.close();
+});
+
+test('Tafsir with none chosen offers the list; a failed download can be retried', async () => {
+  const stub = quranComStub({ failTafsir: true });
+  const { page, context, errors } = await openApp(browser, server, { path: 'player', query: '?test', settings: { translationEdition: 'qc-54' }, setup: stub.setup });
+  await learn(page, [[1, 2]]);
+  await page.click('[data-testid=tafsir]');
+  await page.waitForSelector('[data-testid=tafsir-none]');
+  // Urdu reader: Urdu tafsirs first.
+  const firstOption = await page.locator('[data-testid=tafsir-edition] option').nth(1).textContent();
+  assert.match(firstOption, /^Urdu · /);
+  await page.selectOption('[data-testid=tafsir-edition]', 'qc-tafsir-160');
+  await page.waitForSelector('[data-testid=tafsir-error]');
+  assert.equal(await page.evaluate(() => window.__app.store.settings.tafsirEdition), 'qc-tafsir-160');
+  await context.unroute('https://api.quran.com/**');
+  await quranComStub().setup(context);
+  await page.click('[data-testid=tafsir-retry]');
+  await page.waitForSelector('[data-testid=tafsir-text]');
+  assert.equal(await page.getAttribute('[data-testid=tafsir-text]', 'dir'), 'rtl');
+  assert.equal(await page.locator('[data-testid=tafsir-range]').count(), 0, 'a single ayah needs no range');
   assert.deepEqual(errors, []);
   await context.close();
 });

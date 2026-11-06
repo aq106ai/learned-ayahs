@@ -20,6 +20,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import com.quran.learnedplayer.ui.player.TafsirSheet
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
@@ -98,6 +100,7 @@ const val TAG_SURAH_PANEL_LIST = "surah_panel_list"
 const val TAG_MANAGE_AYAHS = "manage_ayahs"
 const val TAG_OPEN_SETTINGS = "open_settings_from_player"
 const val TAG_SHARE = "share_from_player"
+const val TAG_OPEN_TAFSIR = "open_tafsir"
 const val TAG_OPEN_BACKGROUND = "open_background_sheet"
 const val TAG_READER_CARD = "reader_card"
 const val TAG_EXPAND_PANEL = "expand_playback_panel"
@@ -131,6 +134,7 @@ fun PlayerScreen(
     var showPlaylistPanel by remember { mutableStateOf(false) }
     var showBackgroundSheet by remember { mutableStateOf(false) }
     var showShare by remember { mutableStateOf(false) }
+    var showTafsir by remember { mutableStateOf(false) }
     val background by PlayerSettings.playerBackgroundFlow.collectAsState()
     val withBackground = background != PlayerBackgrounds.PLAIN
 
@@ -168,6 +172,7 @@ fun PlayerScreen(
                     onOpenPlaylistPanel = { showPlaylistPanel = true },
                     onOpenSettings = onOpenSettings,
                     onShare = if (state.currentTrack != null) ({ showShare = true }) else null,
+                    onTafsir = if (state.currentTrack != null) ({ showTafsir = true }) else null,
                     chrome = chrome,
                 )
 
@@ -291,6 +296,7 @@ fun PlayerScreen(
 
     if (showBackgroundSheet) BackgroundSheet(onDismiss = { showBackgroundSheet = false })
     val track = state.currentTrack
+    if (showTafsir && track != null) TafsirSheet(track.surah, track.ayah, onDismiss = { showTafsir = false })
     if (showShare && track != null) {
         ShareDialog(
             surah = track.surah,
@@ -323,6 +329,7 @@ private fun ReaderHeader(
     onOpenPlaylistPanel: () -> Unit,
     onOpenSettings: () -> Unit,
     onShare: (() -> Unit)?,
+    onTafsir: (() -> Unit)? = null,
     chrome: Color,
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -352,6 +359,11 @@ private fun ReaderHeader(
                     modifier = Modifier.testTag(TAG_TOGGLE_WORD_BY_WORD),
                 ) {
                     Text(if (wordByWord) "Whole ayah" else "Word by word")
+                }
+            }
+            if (onTafsir != null) {
+                IconButton(onClick = onTafsir, modifier = Modifier.testTag(TAG_OPEN_TAFSIR)) {
+                    Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Tafsir on this ayah", tint = TextMuted)
                 }
             }
             if (onShare != null) {

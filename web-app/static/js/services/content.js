@@ -6,6 +6,7 @@
 // offline from then on. A failed or partial download is never kept.
 
 import * as catalogRules from '../core/catalog.js';
+import { tafsirBlocks } from '../core/tafsirText.js';
 import { surahAyahToGlobal, verseCount } from '../core/quran.js';
 import { loadData, loadText, rawAyah } from './quranData.js';
 
@@ -115,6 +116,34 @@ export async function prepareEdition(id) {
   return loadEdition(await currentEdition(id));
 }
 
+// -- tafsir ------------------------------------------------------------------------------------
+
+const tafsirMemory = new Map(); // `${id}:${s}:${a}` -> Promise<{verses, blocks}>
+
+/**
+ * The chosen tafsir (or [id]) on one ayah: {edition, verses: ["112:1", …], blocks} — the
+ * entry may cover a group of ayahs. Read from the cache, else fetched and kept. Throws when
+ * there is no tafsir chosen, or it can't be had.
+ */
+export async function ayahTafsir(surah, ayah, id = getSettings().tafsirEdition) {
+  const catalog = await loadCatalog();
+  const edition = catalogRules.tafsirById(catalog, id);
+  if (!edition) throw new Error('Choose a tafsir first.');
+  const key = `${edition.id}:${surah}:${ayah}`;
+  if (!tafsirMemory.has(key)) {
+    const p = stored(`tafsir/${edition.id}/${surah}_${ayah}.json`, async () => {
+      const data = await getJson(`${catalog.api}/tafsirs/${edition.resourceId}/by_ayah/${surah}:${ayah}`);
+      const t = data.tafsir ?? {};
+      const blocks = tafsirBlocks(t.text ?? '');
+      const verses = Object.keys(t.verses ?? {});
+      return { verses: verses.length ? verses : [`${surah}:${ayah}`], blocks };
+    });
+    tafsirMemory.set(key, p);
+    p.catch(() => tafsirMemory.delete(key));
+  }
+  return { edition, ...(await tafsirMemory.get(key)) };
+}
+
 // -- word meanings ------------------------------------------------------------------------------
 
 const meanings = new Map(); // `${lang}:${surah}` -> {"s:a": [meaning|null, ...]}
@@ -167,6 +196,7 @@ export function ensureMeanings(surah, lang = meaningLanguage()) {
 export async function clearDownloaded() {
   for (const [id] of editions) if (id !== 'en-saheeh') editions.delete(id);
   meanings.clear();
+  tafsirMemory.clear();
   if ('caches' in globalThis) await caches.delete(CONTENT_CACHE);
 }
 

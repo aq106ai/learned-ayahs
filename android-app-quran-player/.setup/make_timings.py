@@ -46,6 +46,20 @@ RECITERS = {
     "husary": 20,
     "sudais": 16,
     "shuraym": 25,
+    # Pinned 2026-11-06 by .setup/pin_qul_ids.py: everyayah's MP3 is byte-identical to the audio
+    # QUL says it timed (audio_url) on 1:1, 1:7, 2:255, 112:1 and 112:2, one segment per word,
+    # and no other id comes close. The shipped five come out at the ids above by the same check.
+    # Each still has to pass audit_timings.py and the coverage floor before it ships.
+    "alafasy": 18,
+    "minshawi_murattal": 24,
+    "shatri": 17,
+    "husary_muallim": 22,
+    "husary_mujawwad": 21,
+    "abdulbasit_mujawwad": 14,
+    "ghamadi": 19,
+    "dussary": 26,
+    # Same bytes, but on 1:1 QUL's last word ends 709 ms after the file: the audit decides.
+    "tunaiji": 23,
 }
 
 VERSE_COUNTS = [

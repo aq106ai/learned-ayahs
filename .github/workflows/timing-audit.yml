@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       reciter:
-        description: "maher, abdulbasit_murattal, husary, sudais or shuraym (empty: all five)"
+        description: "one reciter key from make_timings.RECITERS (empty: all of them)"
         default: ""
       inspect:
         description: "Ayahs to show in detail afterwards (QUL's raw segments, the asset's, the voiced stretches)"
@@ -31,7 +31,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        reciter: ${{ fromJSON(inputs.reciter && format('["{0}"]', inputs.reciter) || '["maher","abdulbasit_murattal","husary","sudais","shuraym"]') }}
+        # The shipped five, then the candidates pinned by .setup/pin_qul_ids.py (2026-11-06): a
+        # candidate ships only if its audit passes and its asset clears TimingDataIntegrityTest.
+        reciter: ${{ fromJSON(inputs.reciter && format('["{0}"]', inputs.reciter) || '["maher","abdulbasit_murattal","husary","sudais","shuraym","alafasy","minshawi_murattal","shatri","husary_muallim","husary_mujawwad","abdulbasit_mujawwad","ghamadi","dussary","tunaiji"]') }}
     steps:
       - uses: actions/checkout@v4
 

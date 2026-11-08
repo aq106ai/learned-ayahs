@@ -4,10 +4,15 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
@@ -17,7 +22,10 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
 /**
@@ -29,6 +37,32 @@ internal tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()
     else -> null
+}
+
+/**
+ * Status bar, navigation bar and cutout, plus the keyboard only while it is actually open.
+ * Each bar edge is capped: a stuck inset (seen as ~900px of top padding on a phone whose
+ * status bar is 75px) must not shove the whole screen down.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun Modifier.appSafePadding(): Modifier {
+    val density = LocalDensity.current
+    val direction = LocalLayoutDirection.current
+    val bars = WindowInsets.systemBars.union(WindowInsets.displayCutout)
+    val cap = 128.dp
+    fun Int.capped() = with(density) { toDp().coerceAtMost(cap) }
+    val imeBottom = if (WindowInsets.isImeVisible) {
+        with(density) { WindowInsets.ime.getBottom(density).toDp() }
+    } else {
+        0.dp
+    }
+    return padding(
+        start = bars.getLeft(density, direction).capped(),
+        top = bars.getTop(density).capped(),
+        end = bars.getRight(density, direction).capped(),
+        bottom = maxOf(bars.getBottom(density).capped(), imeBottom),
+    )
 }
 
 @Composable
@@ -84,12 +118,11 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
             color = palette.bg,
             contentColor = palette.textPrimary,
         ) {
-            // Android 15+ draws apps targeting 35+ edge to edge, under the status and navigation
-            // bars. The Surface fills the whole window — so the bars sit on the app's background —
-            // and the screens stay inside the safe area, as they did before. Below 35 the insets
-            // are already applied by the system and this pads nothing. Screens that apply
-            // safeDrawing themselves (the player) see it consumed here and don't pad twice.
-            Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+            // Android 15+ draws apps targeting 35+ edge to edge. Pad once, for the status bar,
+            // navigation bar and cutout only. safeDrawing also includes the IME, and on Android 16
+            // a cancelled keyboard inset was applied as a top pad of roughly a keyboard's height,
+            // which pushed the player header down and left the ayah slot empty.
+            Box(modifier = Modifier.fillMaxSize().appSafePadding()) {
                 content()
             }
         }

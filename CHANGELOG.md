@@ -4,6 +4,13 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the Android app uses
 `versionName` from `android-app-quran-player/app/build.gradle.kts`.
 
+## [1.12.2] - 2026-11-08
+
+### Fixed
+- The player could open with the ayah text off screen, header shoved down, after switching from word-by-word to learned ayahs (including while offline). The ayah stays in the visible reader.
+- A missing audio clip while offline no longer skips through every following word. Playback pauses on that ayah instead.
+- The surah title in the player header is shown on its own line, so the row of buttons no longer squeezes it away.
+
 ## [Unreleased]
 
 ### Translations and tafsir choices (both apps)

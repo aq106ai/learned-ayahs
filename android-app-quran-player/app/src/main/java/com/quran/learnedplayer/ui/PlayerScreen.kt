@@ -8,12 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -158,12 +156,7 @@ fun PlayerScreen(
                 modifier = Modifier.fillMaxSize(),
             )
         }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                // Keep controls clear of cutouts / gesture bars while immersive.
-                .windowInsetsPadding(WindowInsets.safeDrawing),
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
                 ReaderHeader(
                     state = state,
@@ -182,6 +175,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
+                        .clipToBounds()
                         .then(
                             // The translucent card a shared video puts behind its text.
                             if (withBackground) {
@@ -335,46 +329,54 @@ private fun ReaderHeader(
     chrome: Color,
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(chrome)
-                .padding(start = 4.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onOpenSurahPanel, modifier = Modifier.testTag(TAG_OPEN_SURAH_PANEL)) {
-                Icon(Icons.AutoMirrored.Filled.List, contentDescription = tx("Browse surahs"), tint = TextMuted)
+        Column(modifier = Modifier.fillMaxWidth().background(chrome)) {
+            if (state.fullscreenMeta.isNotEmpty()) {
+                Text(
+                    text = state.fullscreenMeta,
+                    color = TextMuted,
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            Text(
-                text = state.fullscreenMeta,
-                color = TextMuted,
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center,
-            )
-            IconButton(onClick = onOpenPlaylistPanel, modifier = Modifier.testTag(TAG_OPEN_PLAYLIST_PANEL)) {
-                Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = tx("Playlist"), tint = TextMuted)
-            }
-            if (showWordToggle) {
-                OutlinedButton(
-                    onClick = onToggleWordByWord,
-                    modifier = Modifier.testTag(TAG_TOGGLE_WORD_BY_WORD),
-                ) {
-                    Text(if (wordByWord) tx("Whole ayah") else tx("Word by word"))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 4.dp, end = 8.dp, top = 4.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                IconButton(onClick = onOpenSurahPanel, modifier = Modifier.testTag(TAG_OPEN_SURAH_PANEL)) {
+                    Icon(Icons.AutoMirrored.Filled.List, contentDescription = tx("Browse surahs"), tint = TextMuted)
                 }
-            }
-            if (onTafsir != null) {
-                IconButton(onClick = onTafsir, modifier = Modifier.testTag(TAG_OPEN_TAFSIR)) {
-                    Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = tx("Tafsir on this ayah"), tint = TextMuted)
+                IconButton(onClick = onOpenPlaylistPanel, modifier = Modifier.testTag(TAG_OPEN_PLAYLIST_PANEL)) {
+                    Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = tx("Playlist"), tint = TextMuted)
                 }
-            }
-            if (onShare != null) {
-                IconButton(onClick = onShare, modifier = Modifier.testTag(TAG_SHARE)) {
-                    Icon(Icons.Filled.Share, contentDescription = tx("Share this ayah"), tint = TextMuted)
+                if (showWordToggle) {
+                    OutlinedButton(
+                        onClick = onToggleWordByWord,
+                        modifier = Modifier.testTag(TAG_TOGGLE_WORD_BY_WORD),
+                    ) {
+                        Text(if (wordByWord) tx("Whole ayah") else tx("Word by word"))
+                    }
                 }
-            }
-            IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(TAG_OPEN_SETTINGS)) {
-                Icon(Icons.Filled.Settings, contentDescription = tx("Settings"), tint = TextMuted)
+                if (onTafsir != null) {
+                    IconButton(onClick = onTafsir, modifier = Modifier.testTag(TAG_OPEN_TAFSIR)) {
+                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = tx("Tafsir on this ayah"), tint = TextMuted)
+                    }
+                }
+                if (onShare != null) {
+                    IconButton(onClick = onShare, modifier = Modifier.testTag(TAG_SHARE)) {
+                        Icon(Icons.Filled.Share, contentDescription = tx("Share this ayah"), tint = TextMuted)
+                    }
+                }
+                IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(TAG_OPEN_SETTINGS)) {
+                    Icon(Icons.Filled.Settings, contentDescription = tx("Settings"), tint = TextMuted)
+                }
             }
         }
     }

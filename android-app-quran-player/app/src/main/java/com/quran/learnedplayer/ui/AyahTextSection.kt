@@ -4,8 +4,8 @@ import com.quran.learnedplayer.ui.i18n.tx
 import android.os.SystemClock
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +20,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +42,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -61,6 +61,7 @@ import com.quran.learnedplayer.ui.theme.TextPrimary
 import com.quran.learnedplayer.ui.theme.findActivity
 import com.quran.learnedplayer.ui.theme.quranArabicStyle
 import com.quran.learnedplayer.video.VideoTexts
+import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -105,9 +106,8 @@ fun AyahReaderContent(
 
     // The word reader pages horizontally and must fill this area exactly; the whole-ayah view
     // instead needs to handle a long ayah (2:282 is the extreme) outgrowing it — either by
-    // scrolling or by shrinking, see WholeAyahReader. BoxWithConstraints supplies the viewport
-    // height both branches size themselves against.
-    BoxWithConstraints(
+    // scrolling or by shrinking, see WholeAyahReader.
+    Box(
         modifier = modifier
             .testTag(TAG_FULLSCREEN_WHOLE_AYAH)
             .swipeToAdvance(
@@ -131,8 +131,7 @@ fun AyahReaderContent(
         } else {
             WholeAyahReader(
                 state = state,
-                maxHeight = maxHeight,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -147,56 +146,70 @@ fun AyahReaderContent(
 @Composable
 private fun WholeAyahReader(
     state: PlayerUiState,
-    maxHeight: Dp,
     modifier: Modifier = Modifier,
 ) {
     val overflowMode by PlayerSettings.ayahOverflowModeFlow.collectAsState()
     val translation = rememberAyahTranslation(state)
-    when (overflowMode) {
-        AyahOverflowMode.FIT_TO_SCREEN -> {
-            val density = LocalDensity.current
-            val maxHeightPx = with(density) { (maxHeight - 48.dp).coerceAtLeast(0.dp).roundToPx() }
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .heightIn(min = maxHeight)
-                    .padding(horizontal = 16.dp, vertical = 24.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                ShrinkToFit(maxHeightPx = maxHeightPx, modifier = Modifier.fillMaxWidth()) { fontScale ->
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        AyahWordsContent(
-                            state = state,
-                            large = true,
-                            fontScale = fontScale,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                        translation?.let { AyahTranslation(it, fontScale) }
+    val density = LocalDensity.current
+    // Measured from this slot, not from the window. A min-height taken from the full window
+    // centers a short ayah below the fold, so the gap between the header and the controls
+    // stays blank and the text never reaches the accessibility tree.
+    var viewportPx by remember { mutableIntStateOf(0) }
+    var containerCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .onGloballyPositioned {
+                viewportPx = it.size.height
+                containerCoordinates = it
+            },
+    ) {
+        when (overflowMode) {
+            AyahOverflowMode.FIT_TO_SCREEN -> {
+                val maxHeightPx = (viewportPx - with(density) { 48.dp.roundToPx() }).coerceAtLeast(0)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 24.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    ShrinkToFit(maxHeightPx = maxHeightPx, modifier = Modifier.fillMaxWidth()) { fontScale ->
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            AyahWordsContent(
+                                state = state,
+                                large = true,
+                                fontScale = fontScale,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            translation?.let { AyahTranslation(it, fontScale) }
+                        }
                     }
                 }
             }
-        }
-        AyahOverflowMode.AUTO_SCROLL -> {
-            val scrollState = rememberScrollState()
-            var containerCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .onGloballyPositioned { containerCoordinates = it }
-                    .verticalScroll(scrollState)
-                    .heightIn(min = maxHeight)
-                    .padding(horizontal = 16.dp, vertical = 24.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AyahWordsContent(
-                        state = state,
-                        large = true,
-                        scrollState = scrollState,
-                        containerCoordinates = { containerCoordinates },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    translation?.let { AyahTranslation(it) }
+            AyahOverflowMode.AUTO_SCROLL -> {
+                val scrollState = rememberScrollState()
+                val ayahId = state.currentTrack?.globalId
+                LaunchedEffect(ayahId) { scrollState.scrollTo(0) }
+                val viewport = with(density) { viewportPx.toDp() }
+                Box(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(if (viewportPx > 0) Modifier.heightIn(min = viewport) else Modifier)
+                            .padding(horizontal = 16.dp, vertical = 24.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        AyahWordsContent(
+                            state = state,
+                            large = true,
+                            scrollState = scrollState,
+                            containerCoordinates = { containerCoordinates },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        translation?.let { AyahTranslation(it) }
+                    }
                 }
             }
         }
@@ -331,6 +344,9 @@ private suspend fun centerOn(
         return
     }
     val delta = pointInContainer.y - container.size.height / 2f
+    // A broken coordinate space (insets, a not-yet-placed child) used to fling the ayah
+    // far past the viewport and leave the reader looking empty.
+    if (!delta.isFinite() || abs(delta) > 100_000f) return
     scrollState.animateScrollBy(delta)
 }
 

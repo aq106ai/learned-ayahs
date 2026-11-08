@@ -78,6 +78,9 @@ class PlaybackService : MediaSessionService() {
     private var introStep = IntroStep.NONE
     private var introResumeIndex = 0
 
+    /** Stops a single bad clip from skipping into the next one, which fails the same way. */
+    private var playerErrorBurst = 0
+
     private fun resolveIntroUri(filename: String, remoteUrl: String): Uri {
         val local = File(filesDir, "audio/${QuranConstants.RECITER_FOLDER}/$filename")
         return if (local.exists() && local.length() > 0L) {
@@ -273,9 +276,21 @@ class PlaybackService : MediaSessionService() {
                 finishIntroAndResume()
                 return
             }
-            if (mode == PlaybackMode.WORD_BY_WORD) {
-                skipWord(forward = true)
+            // Offline, or the clip was never cached: every word fails the same way.
+            // Skipping on each error walked the queue (and, while leaving word-by-word,
+            // reloaded word clips over the learned-ayah queue). Stop on the current item.
+            if (isUnplayableSource(error)) {
+                playerErrorBurst = 0
+                pause()
+                return
             }
+            if (mode == PlaybackMode.WORD_BY_WORD && playerErrorBurst < 1) {
+                playerErrorBurst++
+                skipWord(forward = true)
+                return
+            }
+            playerErrorBurst = 0
+            pause()
         }
 
         override fun onEvents(player: Player, events: Player.Events) {
@@ -291,6 +306,7 @@ class PlaybackService : MediaSessionService() {
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
+            if (playbackState == Player.STATE_READY) playerErrorBurst = 0
             if (playbackState != Player.STATE_ENDED) return
             if (introStep != IntroStep.NONE) {
                 when (introStep) {
@@ -616,6 +632,7 @@ class PlaybackService : MediaSessionService() {
         hasLoadedQueue = true
         cancelRevisionGap()
         clearIntroState()
+        playerErrorBurst = 0
         mode = requestedMode
         repeatMode = requestedRepeat
         // The session always moves to the requested mode; only the *saved* choice is conditional,
@@ -1022,6 +1039,20 @@ class PlaybackService : MediaSessionService() {
         }
         cancelRevisionGap()
         advanceWordAyah(forward)
+    }
+
+    /** Network and file errors. Retrying the next word hits the same failure when offline. */
+    private fun isUnplayableSource(error: androidx.media3.common.PlaybackException): Boolean {
+        val code = error.errorCode
+        return code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_UNSPECIFIED ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_NO_PERMISSION ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED ||
+            code == androidx.media3.common.PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE
     }
 
     private fun skipWord(forward: Boolean) {

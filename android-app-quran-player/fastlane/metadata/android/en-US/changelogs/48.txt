@@ -1,0 +1,1 @@
+Fixed the player opening with a blank ayah after switching from word-by-word to learned ayahs, including while offline. A missing audio clip now pauses instead of skipping ahead, and the surah title stays visible in the header.

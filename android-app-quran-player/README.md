@@ -27,14 +27,20 @@ word, and recite from memory.
 |---|---|
 | **Learned ayahs** | Your marked ayahs, in mushaf order |
 | **Full surah** | Every ayah of the current surah, learned or not |
-| **Word by word** | Your marked ayahs, one word at a time, with the English meaning of each word |
 
-Each mode combines with a **repeat** setting: **Off**, **Surah** (loop the surah) or **Ayah**
+**Word by Word / View Full Ayah** in the three-dot menu changes the reader without changing the
+queue or the audio. In the expanded player controls, **Repeat** is one choice of Ayah, Surah,
+Word or Off: Word loops the word being recited until Next, with either view on screen. **Word
+clips** plays each word from Quran.com's own recording, one at a time, in place of the chosen
+reciter. Without clips, repeating a word needs validated timings for that reciter.
+
+Each queue choice combines with a **repeat** setting: **Off**, **Surah** (loop the surah) or **Ayah**
 (loop the current ayah, with an optional pause between repeats so you can recite it yourself).
 
 - A'udhu billah and Bismillah play before ayah 1 of each surah. Surah 9 has no Bismillah.
 - **Word highlighting** follows the recitation using real per-word timings for the selected
-  reciter. Long ayahs auto-scroll or shrink to fit.
+  reciter. Long ayahs auto-scroll or shrink to fit, with scrolling retained when the minimum
+  readable size still exceeds the available space.
 - **Reciters:** Maher Al Muaiqly (default), Abdul Basit (Murattal), Mahmoud Khalil Al-Husary,
   Abdurrahman As-Sudais, Saud Ash-Shuraym.
 - The app remembers where you left off, even across restarts.
@@ -62,7 +68,11 @@ speech pack from Settings.
   Next always advances, so a headset button moves you to the next ayah.
 - Optional **swipe to navigate** and **tap to advance** gestures.
 - **Settings → Offline** saves your learned ayahs' audio (and word clips) to the phone. The full
-  Qur'an text, the word-by-word translation and the word timings are built into the app.
+  Qur'an text, English word meanings and word timings are built into the app. Other word-meaning
+  languages download by surah and remain available offline; missing meanings fall back to English.
+- Settings and onboarding have separate switches for word meanings and full-ayah translation.
+  Both may be off. Word meanings support English, Urdu, Indonesian, Bengali, Persian, Hindi,
+  Tamil, Turkish and Ingush, with coverage varying by language.
 - Dark and light themes.
 
 ## Install
@@ -179,3 +189,5 @@ explains the non-obvious decisions and the bugs they prevent.
   service that supports Arabic. Settings explains what your phone supports.
 - **A word isn't highlighted.** A few ayahs have no validated timings for some reciters. These
   are left unhighlighted rather than guessed.
+
+The player’s **Actions** menu contains **Mode** (Learned ayahs or Full surah), Tafsir, Share, Background and Settings; playback controls remain in the footer. Juz queues and multi-ayah pages are not offered yet.

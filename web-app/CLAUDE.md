@@ -48,3 +48,14 @@ npm run test:e2e         # Playwright, against server.py with seeded audio; no n
   Arabic; `surahNameLatin` is for the ref parser and search.
 - `views/contentChoices.js` is the picker the intro and Settings share (Android:
   `ui/settings/ContentChoices.kt`).
+
+## Player: views, word playback and colours
+
+- What is on screen and what plays are separate. `settings.wordView` picks the word reader or the
+  whole ayah. `engine.wordPlayback` (`settings.useWordClips || settings.repeatWord`) plays one
+  word at a time in either view and either mode; there is no word-by-word `PlaybackMode`.
+- The footer's Repeat row is one choice of four (Ayah, Surah, Word, Off): `engine.setRepeat`
+  clears `repeatWord`, `engine.setRepeatWord` sets repeat to OFF. Word clips hides the reciter.
+- `views/sceneColours.js` owns the scene palette: it is set on `<html>` so every page and dialog
+  follows the player's background, and the last scene is kept in localStorage `la.sceneColours`.
+  The player only adds the `scene` / `light-scene` classes that make its bars see-through.

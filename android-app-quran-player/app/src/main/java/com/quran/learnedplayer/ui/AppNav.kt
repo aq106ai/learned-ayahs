@@ -1,11 +1,15 @@
 package com.quran.learnedplayer.ui
 
 import com.quran.learnedplayer.ui.i18n.tx
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import com.quran.learnedplayer.video.PlayerBackgrounds
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -57,7 +61,7 @@ fun AppNav(
 ) {
     // Computed once for the activity's lifetime: onboarding completing mid-session must not yank
     // the user off Home onto the player. It only takes effect on the next cold start.
-    val startDestination = remember { if (PlayerSettings.seenIntro) Routes.PLAYER else Routes.HOME }
+    val startDestination = rememberSaveable { if (PlayerSettings.seenIntro) Routes.PLAYER else Routes.HOME }
 
     // Onboarding is an app-level concern, not the picker's: `seenIntro` is global, but the
     // dialog used to live inside SurahListScreen, so it could only ever appear if the app
@@ -76,7 +80,7 @@ fun AppNav(
     // actually been reached *this session*, which is what the Home/SurahDetail "back to main"
     // button needs: while it's false there's nothing to pop back to (Home is the stack root), so
     // the button reads "Proceed" and pushes forward; once true, it reads "Back" and pops.
-    var hasReachedPlayer by remember { mutableStateOf(startDestination == Routes.PLAYER) }
+    var hasReachedPlayer by rememberSaveable { mutableStateOf(startDestination == Routes.PLAYER) }
     val isOnboarding = !hasReachedPlayer
     val backToMain: () -> Unit = {
         if (hasReachedPlayer) {
@@ -87,86 +91,94 @@ fun AppNav(
         }
     }
 
-    NavHost(navController = navController, startDestination = startDestination) {
-        composable(Routes.HOME) {
-            SurahListScreen(
-                viewModel = viewModel,
-                onOpenSurah = { navController.navigate(Routes.surah(it)) },
-                onAddByDescription = { navController.navigate(Routes.ADD_BY_DESCRIPTION) },
-                onExportLearnedAyahs = onExportLearnedAyahs,
-                onImportLearnedAyahs = onImportLearnedAyahs,
-                isOnboarding = isOnboarding,
-                onBackToMain = backToMain,
-            )
-        }
+    // Scenes or photos picked in the intro show behind it straight away, on the opening ayah,
+    // so the choice is seen and not only described. It goes when the intro does.
+    val introBackground by PlayerSettings.playerBackgroundFlow.collectAsState()
+    Box(Modifier.fillMaxSize()) {
+        NavHost(navController = navController, startDestination = startDestination) {
+            composable(Routes.HOME) {
+                SurahListScreen(
+                    viewModel = viewModel,
+                    onOpenSurah = { navController.navigate(Routes.surah(it)) },
+                    onAddByDescription = { navController.navigate(Routes.ADD_BY_DESCRIPTION) },
+                    onExportLearnedAyahs = onExportLearnedAyahs,
+                    onImportLearnedAyahs = onImportLearnedAyahs,
+                    isOnboarding = isOnboarding,
+                    onBackToMain = backToMain,
+                )
+            }
 
-        composable(
-            route = Routes.SURAH,
-            arguments = listOf(navArgument("surah") { type = NavType.IntType }),
-        ) { entry ->
-            val surah = entry.arguments?.getInt("surah") ?: 1
-            SurahDetailScreen(
-                surah = surah,
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() },
-                isOnboarding = isOnboarding,
-                onBackToMain = backToMain,
-                onPlayRequested = onPlayRequested,
-                onMakeVideo = { navController.navigate(Routes.video(surah)) },
-            )
-        }
+            composable(
+                route = Routes.SURAH,
+                arguments = listOf(navArgument("surah") { type = NavType.IntType }),
+            ) { entry ->
+                val surah = entry.arguments?.getInt("surah") ?: 1
+                SurahDetailScreen(
+                    surah = surah,
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    isOnboarding = isOnboarding,
+                    onBackToMain = backToMain,
+                    onPlayRequested = onPlayRequested,
+                )
+            }
 
-        composable(Routes.PLAYER) {
-            PlayerScreen(
-                viewModel = viewModel,
-                onPlayRequested = onPlayRequested,
-                onBrowseSurahs = { navController.navigate(Routes.HOME) { launchSingleTop = true } },
-                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-                onOpenRecitation = { globalId -> navController.navigate(Routes.recitation(globalId)) },
-                onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah, fromPlayer = true)) },
-            )
-        }
+            composable(Routes.PLAYER) {
+                PlayerScreen(
+                    viewModel = viewModel,
+                    onPlayRequested = onPlayRequested,
+                    onBrowseSurahs = { navController.navigate(Routes.HOME) { launchSingleTop = true } },
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                    onOpenRecitation = { globalId -> navController.navigate(Routes.recitation(globalId)) },
+                    onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah, fromPlayer = true)) },
+                )
+            }
 
-        composable(
-            route = Routes.VIDEO,
-            arguments = listOf(
-                navArgument("surah") { type = NavType.IntType; defaultValue = 1 },
-                navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
-                navArgument("fromPlayer") { type = NavType.BoolType; defaultValue = false },
-            ),
-        ) { entry ->
-            VideoMakerScreen(
-                surah = entry.arguments?.getInt("surah") ?: 1,
-                ayah = entry.arguments?.getInt("ayah") ?: 0,
-                fromPlayer = entry.arguments?.getBoolean("fromPlayer") ?: false,
-                onBack = { navController.popBackStack() },
-            )
-        }
+            composable(
+                route = Routes.VIDEO,
+                arguments = listOf(
+                    navArgument("surah") { type = NavType.IntType; defaultValue = 1 },
+                    navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
+                    navArgument("fromPlayer") { type = NavType.BoolType; defaultValue = false },
+                ),
+            ) { entry ->
+                VideoMakerScreen(
+                    surah = entry.arguments?.getInt("surah") ?: 1,
+                    ayah = entry.arguments?.getInt("ayah") ?: 0,
+                    fromPlayer = entry.arguments?.getBoolean("fromPlayer") ?: false,
+                    onBack = { navController.popBackStack() },
+                )
+            }
 
-        composable(
-            route = Routes.RECITATION,
-            arguments = listOf(navArgument("globalId") { type = NavType.IntType; defaultValue = 1 }),
-        ) { entry ->
-            val globalId = entry.arguments?.getInt("globalId") ?: 1
-            RecitationScreen(
-                initialGlobalId = globalId,
-                playerViewModel = viewModel,
-                onBack = { navController.popBackStack() },
-            )
-        }
+            composable(
+                route = Routes.RECITATION,
+                arguments = listOf(navArgument("globalId") { type = NavType.IntType; defaultValue = 1 }),
+            ) { entry ->
+                val globalId = entry.arguments?.getInt("globalId") ?: 1
+                RecitationScreen(
+                    initialGlobalId = globalId,
+                    playerViewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                )
+            }
 
-        composable(Routes.SETTINGS) {
-            SettingsScreen(
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() },
-            )
-        }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                )
+            }
 
-        composable(Routes.ADD_BY_DESCRIPTION) {
-            AddByDescriptionScreen(
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() },
-            )
+            composable(Routes.ADD_BY_DESCRIPTION) {
+                AddByDescriptionScreen(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                )
+            }
+        }
+        if (!seenIntro && introBackground != PlayerBackgrounds.PLAIN) {
+            // Held still: nothing is being recited yet.
+            PlayerBackground(choice = introBackground, surah = 1, ayah = 1, animating = false, modifier = Modifier.fillMaxSize())
         }
     }
 }

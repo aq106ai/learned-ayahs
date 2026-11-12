@@ -4,6 +4,26 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the Android app uses
 `versionName` from `android-app-quran-player/app/build.gradle.kts`.
 
+## [1.14.0] - 2026-11-13
+
+### Changed (both apps)
+- The player is called **Revise** and the surah list **Manage**. The header has one row: surahs, where you are, the playlist and a three-dot menu.
+- The menu holds Revise Full Surah / Revise Learned Ayahs (left out when the surah is learned in full), Word by Word / View Full Ayah, the translation and word-meaning switches, Tafsir, Share, Theme and Settings.
+- Dark or Light moved from Settings into the **Theme** sheet with the backgrounds. A scene or photo now colours the whole app, in its dark or light version.
+- The reciter is chosen in the player's controls only. **Word clips** (Quran.com) sits above it and replaces it when on.
+- **Repeat** is one choice of Ayah, Surah (or "Surah learned ayahs"), Word or Off. Word repeats the word being recited in either mode and either view. While words play one at a time, swipe, tap, Previous and Next step words, and two outer buttons move by ayah.
+- Choosing scenes or photos in the welcome shows them behind it straight away.
+- On Android, an open surah has a play button that opens Revise, in place of the video button.
+- The video end card names the app as a free, open-source tool and carries two codes: the Android app and the web app.
+
+### Fixed
+- An ayah whose recitation file also holds the next ayah (EveryAyah's Maher Al Muaiqly 2:258) now ends where its words do, in playback, repeats and videos. The words used to finish at a third of the slider while the next ayah played under the same screen.
+- An audio error no longer replaces the ayah with an error screen; it shows above the controls.
+- Play no longer stays disabled after an ayah without word timings under Repeat: Word.
+- Leaving the word view no longer turns Word clips off.
+- Copying an ayah's text no longer fails with an error and leaves the share dialog open.
+- Web: word timings that finished loading after the learned list changed were dropped, so the ayah had no highlight.
+
 ## [1.12.2] - 2026-11-08
 
 ### Fixed

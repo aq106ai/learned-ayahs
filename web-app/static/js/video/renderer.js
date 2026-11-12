@@ -4,7 +4,7 @@
 
 import qrcode from '../lib/qrcode.js';
 import { activeWordIndex, layoutAyah, pageAt, splitTranslation } from './layout.js';
-import { PLAY_STORE_URL, backgroundAt, clipAt, showsEndCard } from './plan.js';
+import { PLAY_STORE_URL, WEB_APP_URL, backgroundAt, clipAt, showsEndCard } from './plan.js';
 import { BackgroundScenes } from './scenes.js';
 
 export const ARABIC_FONT = '"Scheherazade New", "Amiri", serif';
@@ -45,7 +45,7 @@ export class FrameRenderer {
     // The mushaf style's face first (VideoExporter.prepareText sets it), then the bundled default.
     this.arabicFont = request.arabicFont ? `${request.arabicFont}, ${ARABIC_FONT}` : ARABIC_FONT;
     this.measureCtx = null;
-    this.qr = timeline.endCardMs > 0 ? qrModules(PLAY_STORE_URL) : null;
+    this.qr = timeline.endCardMs > 0 ? { android: qrModules(PLAY_STORE_URL), web: qrModules(WEB_APP_URL) } : null;
   }
 
   measurer(ctx) {
@@ -228,7 +228,11 @@ export class FrameRenderer {
     ctx.restore();
   }
 
-  /** The closing page: who made the video, and where to get the app. */
+  /**
+   * The closing page, the same as Android's (FrameRenderer.drawEndCard): what made the video, what
+   * the app is for, a code for each way to get it (Android on the left, the web app on the right),
+   * and where the words and recitations come from.
+   */
   drawEndCard(ctx) {
     const { u, width: w } = this;
     this.drawCard(ctx);
@@ -240,49 +244,77 @@ export class FrameRenderer {
     ctx.shadowBlur = 8 * u;
     ctx.shadowOffsetY = 2 * u;
     ctx.fillStyle = '#fff';
-    let y = this.card.top + 72 * u;
-    ctx.font = `${48 * u}px ${LATIN_FONT}`;
-    ctx.fillText('This video was made with', w / 2, y);
-    y += 64 * u;
-    ctx.font = `${56 * u}px ${LATIN_FONT}`;
-    ctx.fillText('Learned Ayahs', w / 2, y);
-    y += 52 * u;
+    // Both codes on one grid, so they come out the same size whatever their URLs' lengths.
+    const size = Math.max(64, Math.round(Math.min(this.width, this.height) * 0.24));
+    const modules = this.qr ? Math.max(this.qr.android.length, this.qr.web.length) : 0;
+    const cell = Math.max(1, Math.floor(size / (modules + 8)));
+    const block = this.qr ? cell * (modules + 8) + 44 * u + 46 * u : 0;
+    // Centred in the card: the lines above the codes, the codes and their captions, the two below.
+    const height = (54 + 52 + 40) * u + block + (46 + 40) * u;
+    let y = this.card.top + Math.max(76 * u, (this.card.height - height) / 2 + 54 * u);
+    ctx.font = `${54 * u}px ${LATIN_FONT}`;
+    ctx.fillText('Made with Learned Ayahs', w / 2, y);
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.font = `${34 * u}px ${LATIN_FONT}`;
-    ctx.fillText('Download on Google Play', w / 2, y);
-    const modules = this.qr;
-    if (modules) {
-      const n = modules.length;
-      const size = Math.max(64, Math.round(Math.min(this.width, this.height) * 0.34));
-      const cell = Math.max(1, Math.floor(size / (n + 8)));
-      const codeSize = cell * n;
-      const margin = cell * 4;
-      const left = Math.round(w / 2 - codeSize / 2);
-      const top = Math.round(y + 28 * u + margin);
+    ctx.font = `${30 * u}px ${LATIN_FONT}`;
+    y += 52 * u;
+    ctx.fillText('A free, open-source tool to revise', w / 2, y);
+    y += 40 * u;
+    ctx.fillText('the ayahs you have memorised', w / 2, y);
+    if (this.qr) {
+      const gap = Math.round(size * 0.45);
+      const top = Math.round(y + 44 * u);
       ctx.shadowColor = 'transparent';
-      ctx.beginPath();
-      ctx.rect(left - margin, top - margin, codeSize + margin * 2, codeSize + margin * 2);
+      const bottom = Math.max(
+        drawQr(ctx, this.qr.android, w / 2 - gap / 2 - size / 2, top, cell, modules),
+        drawQr(ctx, this.qr.web, w / 2 + gap / 2 + size / 2, top, cell, modules),
+      );
+      y = bottom + 46 * u;
+      ctx.shadowColor = 'rgba(0,0,0,0.67)';
       ctx.fillStyle = '#fff';
-      ctx.fill();
-      ctx.fillStyle = '#000';
-      for (let r = 0; r < n; r++) {
-        for (let c = 0; c < n; c++) {
-          if (!modules[r][c]) continue;
-          ctx.fillRect(left + c * cell, top + r * cell, Math.ceil(cell), Math.ceil(cell));
-        }
-      }
-      y = top + codeSize + margin + 48 * u;
+      ctx.font = `${28 * u}px ${LATIN_FONT}`;
+      ctx.fillText('Android app', w / 2 - gap / 2 - size / 2, y);
+      ctx.fillText('Web app', w / 2 + gap / 2 + size / 2, y);
     }
-    ctx.fillStyle = 'rgba(255,255,255,0.78)';
-    let urlSize = 22 * u;
-    ctx.font = `${urlSize}px ${LATIN_FONT}`;
-    while (ctx.measureText(PLAY_STORE_URL).width > w * 0.9 && urlSize > 12 * u) {
-      urlSize *= 0.9;
-      ctx.font = `${urlSize}px ${LATIN_FONT}`;
-    }
-    ctx.fillText(PLAY_STORE_URL, w / 2, y);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    y += 46 * u;
+    fitText(ctx, WEB_APP_URL.replace('https://', '').replace(/\/$/, ''), w / 2, y, w * 0.86, 24 * u);
+    ctx.fillStyle = 'rgba(255,255,255,0.66)';
+    y += 40 * u;
+    fitText(ctx, "The Qur'an text, meanings and recitations come from public sources.", w / 2, y, w * 0.86, 20 * u);
     ctx.restore();
   }
+}
+
+/**
+ * One code on its white mat, centred on cx. The mat is sized for `span` modules, so two codes of
+ * different versions still sit on mats of one size. Returns the mat's bottom edge.
+ */
+function drawQr(ctx, modules, cx, top, cell, span) {
+  const n = modules.length;
+  const matSize = cell * (span + 8);
+  const matLeft = Math.round(cx - matSize / 2);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(matLeft, top, matSize, matSize);
+  const left = Math.round(cx - (cell * n) / 2);
+  const y = Math.round(top + (matSize - cell * n) / 2);
+  ctx.fillStyle = '#000';
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (modules[r][c]) ctx.fillRect(left + c * cell, y + r * cell, cell, cell);
+    }
+  }
+  return top + matSize;
+}
+
+/** Centred text, shrunk until it fits `maxWidth` (never below 12 px). */
+function fitText(ctx, text, x, y, maxWidth, px) {
+  let size = px;
+  ctx.font = `${size}px ${LATIN_FONT}`;
+  while (ctx.measureText(text).width > maxWidth && size > 12) {
+    size *= 0.92;
+    ctx.font = `${size}px ${LATIN_FONT}`;
+  }
+  ctx.fillText(text, x, y);
 }
 
 function qrModules(text) {

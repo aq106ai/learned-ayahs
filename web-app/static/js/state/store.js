@@ -16,7 +16,12 @@ export const DEFAULT_SETTINGS = Object.freeze({
   revisionDelaySeconds: 0,
   reciter: 'MAHER_AL_MUAIQLY',
   wordReciter: 'QURAN_COM',
+  // Word clips: each word from Quran.com, one at a time, in place of the ayah reciter.
   useWordClips: false,
+  // Repeat: Word (the footer's fourth repeat choice): the word being recited repeats.
+  repeatWord: false,
+  // The reader shows one word at a time instead of the whole ayah.
+  wordView: false,
   seekInsideAyahAudio: false,
   // Reading
   theme: 'DARK',

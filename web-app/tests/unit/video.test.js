@@ -103,6 +103,14 @@ test('a scene palette keeps text readable, and Bismillah follows the same rules 
       assert.ok(contrastRatio(palette.accent, palette.panel) >= 4.5, theme.key);
       assert.ok(contrastRatio(palette.onAccent, palette.accent) >= 4.5, theme.key);
       assert.equal(palette.isLight, false);
+      // The Light theme's version of the same scene: dark text on pale surfaces.
+      const light = paletteFor(variant(theme.key, i), true);
+      assert.ok(contrastRatio(light.text, light.panel) >= 4.5, theme.key);
+      assert.ok(contrastRatio(light.text, light.bg) >= 4.5, theme.key);
+      assert.ok(contrastRatio(light.muted, light.bg) >= 4.5, theme.key);
+      assert.ok(contrastRatio(light.accent, light.border) >= 4.5, theme.key);
+      assert.ok(contrastRatio(light.onAccent, light.accent) >= 4.5, theme.key);
+      assert.equal(light.isLight, true);
     }
   }
   const photos = paletteFor(photo);

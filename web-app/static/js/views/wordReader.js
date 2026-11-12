@@ -4,16 +4,16 @@
 // next word. Running past either end of the ayah moves to the neighbouring ayah.
 //
 // Two ways it is used:
-//   - PlaybackMode.WORD_BY_WORD: the engine plays words; the reader follows engine.wordIndex.
-//   - The overlay in the other modes: the reader keeps its own position, follows playback
+//   - Word playback (engine.wordPlayback: Word clips, or Repeat: Word): the engine plays words;
+//     the reader follows engine.wordIndex.
+//   - Otherwise the ayah plays whole: the reader keeps its own position, follows playback
 //     while audio plays, and claims Next/Previous from every controller (stepWordHook).
 
 import { h } from '../lib/dom.js';
-import { PlaybackMode } from '../core/quran.js';
 
 import { tx } from '../core/i18n.js';
 export function wordReader({ engine, store }) {
-  const wordFileMode = () => engine.mode === PlaybackMode.WORD_BY_WORD;
+  const wordFileMode = () => engine.wordPlayback;
   let local = 0; // overlay position
   let followUntil = 0;
   let drag = null;
@@ -40,7 +40,7 @@ export function wordReader({ engine, store }) {
     const i = Math.min(position(), ws.length - 1);
     big.textContent = ws[i].text;
     meaning.textContent = store.settings.showWordTranslations ? ws[i].translation ?? '' : '';
-    counter.textContent = `${i + 1} / ${ws.length}   ·   ${tx('swipe or tap for the next word')}`;
+    counter.textContent = `${i + 1} / ${ws.length}`;
     if (dots.children.length !== ws.length) {
       dots.replaceChildren(...ws.map(() => h('span')));
     }
@@ -88,7 +88,8 @@ export function wordReader({ engine, store }) {
   const offState = engine.on('state', render);
 
   // Every controller's Next/Previous steps words while the overlay is open.
-  if (!wordFileMode()) engine.stepWordHook = (delta) => step(delta);
+  // (In word playback the engine steps words itself and never asks.)
+  engine.stepWordHook = (delta) => step(delta);
 
   // The word follows the finger. Past half the width it settles on the next word (a rightward
   // swipe advances, the way an Arabic book turns); short of that it snaps back. A drag is not a tap.

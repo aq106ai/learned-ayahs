@@ -85,6 +85,7 @@ fun reciterTag(reciter: Reciter) = "reciter_${reciter.name}"
 fun wordReciterTag(reciter: WordReciter) = "word_reciter_${reciter.name}"
 const val TAG_SEEK_INSIDE_AYAH = "seek_inside_ayah_audio"
 const val TAG_USE_WORD_CLIPS = "use_word_clips"
+/** The Dark and Light chips, which live in the player's Background and theme sheet. */
 fun appThemeTag(theme: AppTheme) = "app_theme_${theme.name}"
 fun ayahOverflowModeTag(mode: AyahOverflowMode) = "ayah_overflow_mode_${mode.name}"
 
@@ -98,7 +99,6 @@ fun SettingsScreen(
     val reciter by viewModel.reciter.collectAsState()
     val showTranslations by viewModel.showWordTranslations.collectAsState()
     val showAyahTranslation by PlayerSettings.showAyahTranslationFlow.collectAsState()
-    val appTheme by PlayerSettings.appThemeFlow.collectAsState()
     val swipeToNavigate by viewModel.swipeToNavigate.collectAsState()
     val tapToAdvance by viewModel.tapToAdvance.collectAsState()
     val ayahOverflowMode by PlayerSettings.ayahOverflowModeFlow.collectAsState()
@@ -176,55 +176,6 @@ fun SettingsScreen(
             UiLanguagePicker()
         }
 
-        Section(tx("Ayah reciter")) {
-            Text(
-                text = tx("Whole-ayah recitations stream from everyayah.com. Each one ships exact word timings for optional highlight-while-playing."),
-                style = MaterialTheme.typography.bodySmall,
-                color = TextMuted,
-            )
-            Column(modifier = Modifier.padding(top = 8.dp)) {
-                Reciter.entries.forEach { option ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { viewModel.setReciter(option) }
-                            .padding(vertical = 8.dp)
-                            .testTag(reciterTag(option)),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = reciter == option,
-                            onClick = { viewModel.setReciter(option) },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = AccentGreen,
-                                unselectedColor = TextMuted,
-                            ),
-                        )
-                        Text(
-                            text = option.displayName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(start = 4.dp),
-                        )
-                    }
-                }
-            }
-        }
-
-        Section(tx("Theme")) {
-            Row(
-                modifier = Modifier.padding(top = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                AppTheme.entries.forEach { option ->
-                    Choice(
-                        label = tx(option.label),
-                        selected = appTheme == option,
-                        tag = appThemeTag(option),
-                    ) { PlayerSettings.appTheme = option }
-                }
-            }
-        }
-
         Section(tx("Translation and tafsir")) {
             Text(
                 text = tx("Shown beside the Arabic in the player, the surah pages, shared text and videos. Saheeh International and the English word meanings come with the app; other editions download from Quran.com when chosen and are kept for offline use."),
@@ -253,56 +204,6 @@ fun SettingsScreen(
         }
 
         Section(tx("Reading")) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { viewModel.setShowWordTranslations(!showTranslations) }
-                    .padding(top = 12.dp)
-                    .testTag(TAG_WORD_TRANSLATIONS_TOGGLE),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(tx("Word-by-word translation"), style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = tx("Show each word's meaning beneath it in the ayah views."),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted,
-                    )
-                }
-                Switch(
-                    checked = showTranslations,
-                    onCheckedChange = { viewModel.setShowWordTranslations(it) },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Panel,
-                        checkedTrackColor = AccentGreen,
-                    ),
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { PlayerSettings.showAyahTranslation = !showAyahTranslation }
-                    .padding(top = 12.dp)
-                    .testTag(TAG_SETTINGS_AYAH_TRANSLATION),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(tx("Ayah translation"), style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = tx("Show the whole ayah's translation ({0}) under it in the player.", rememberEditionName()),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted,
-                    )
-                }
-                Switch(
-                    checked = showAyahTranslation,
-                    onCheckedChange = { PlayerSettings.showAyahTranslation = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Panel,
-                        checkedTrackColor = AccentGreen,
-                    ),
-                )
-            }
             Text(
                 text = tx("When whole ayah is too long to fit on screen while playing:"),
                 style = MaterialTheme.typography.bodySmall,
@@ -576,7 +477,7 @@ fun SettingsScreen(
             val total = state.tracks.size
             val introsCached = state.audhuCached && state.bismillahCached
             val allCached = total > 0 && cached == total && (!queueIsMaster || introsCached)
-            val wordMode = state.mode == PlaybackMode.WORD_BY_WORD
+            val wordMode = state.wordPlayback && PlayerSettings.useWordClips
             val statusText = when {
                 state.downloadProgress != null -> state.downloadProgress
                 total == 0 -> null

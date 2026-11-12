@@ -53,6 +53,14 @@ moves through the word overlay in REVISE/FULL_SURAH is a Settings toggle (`seekI
 **off by default**); `PlaybackMode.WORD_BY_WORD` ignores it. An ayah with no validated timings
 simply doesn't highlight — `WordSync` has no fallback.
 
+**A recitation file can hold more than its ayah.** EveryAyah's Maher Al Muaiqly `002258.mp3` is
+93 s: 2:258 (33.6 s) and all of 2:259. `WordSync.ayahEndMs` (web: `core/wordSync.js`) treats a
+file that runs more than 5 s and a quarter past its last word timing as ending 400 ms after that
+word, and every player of ayah files follows it: the service's ticker (`maybeCutAtAyahEnd`, the
+slider's duration, the last word of a word cut from the ayah), the web engine (`cutAtAyahEnd`,
+`wordBoundaryHit`) and both video makers (`AudioPipeline.trimToAyah`, `exporter.js trimToAyah`).
+Tested with overlong fixtures: web e2e 114:2 (9 s), `AdaptivePlaybackTest` (30 s files).
+
 Single-module Gradle project. Kotlin + Jetpack Compose UI, Media3 (ExoPlayer + MediaSession)
 for playback. `minSdk 26`, `targetSdk`/`compileSdk 36`, Java/Kotlin 17, AGP 8.10 on Gradle 8.11,
 Kotlin 2.0 (the Compose compiler is the `org.jetbrains.kotlin.plugin.compose` Gradle plugin).
@@ -288,8 +296,10 @@ the player's Share button → Video, and the film icon on a surah's page) → `V
   English or both, then the reference).
 - **Bismillah and the end card** are their own options (`VideoRequest.bismillah`, `endCard`).
   `VideoRequest.bismillahAllowed` refuses At-Tawbah and Al-Fatihah 1 (that ayah *is* the
-  Bismillah). The end card adds `VideoTimeline.END_CARD_MS` of silence with a ZXing QR code for
-  `VideoRequest.PLAY_STORE_URL`; the web app's `video/renderer.js` draws the same card.
+  Bismillah). The end card adds `VideoTimeline.END_CARD_MS` of silence: what the app is (a free,
+  open-source tool to revise memorised ayahs), two QR codes side by side (Android on the left,
+  `VideoRequest.PLAY_STORE_URL`; the web app on the right, `WEB_APP_URL`) and a one-line note on
+  sources. The web app's `video/renderer.js` draws the same card; `VideoExportTest` decodes each half.
 - **Saving needs no storage permission**: MediaStore (Movies/Learned Ayahs) on Android 10+, the
   SAF "save as" picker below that; sharing goes through the `FileProvider` (`res/xml/shared_files.xml`,
   cache `videos/` and `images/` only).
@@ -301,9 +311,14 @@ button in its playback panel (`ui/player/BackgroundSheet.kt`); `PlayerSettings.p
 clock. The scene is drawn by `BackgroundScenes` at half resolution and scaled up (a full-screen
 still is ~10 MB), moves only while playing, and only asks for a photo once it's downloaded. While a
 background is chosen, the app's colours come from the scene on screen (`ui/theme/Color.kt`:
-`paletteFor`, `applyShownScene`, eased by `animatedPalette`) on every screen, whatever the theme;
-plain brings the Dark or Light theme back. The web app applies the scene palette only in the
-player and its sidebar, and clears it on leaving — a deliberate difference, tested on both sides. The whole-ayah translation (`showAyahTranslation`, off by
+`paletteFor`, `applyShownScene`, eased by `animatedPalette`) on every screen, in the dark or the
+light version of that scene as the theme says (`paletteFor(scene, light)`); plain brings the green
+Dark or Light palette back. Dark/Light is picked in the same sheet ("Theme"), not
+in Settings, and the sheet opens from the three-dot menu in the player header, which also holds the
+mode switch (left out when the surah on screen is learned in full: both lists are the same), Word
+by Word / View Full Ayah, the translation and word-meanings switches, Tafsir, Share and Settings. The web app does the same
+(`views/sceneColours.js` puts the palette on the page root and remembers the last scene); only the
+picture itself stays in the player. The whole-ayah translation (`showAyahTranslation`, off by
 default, turned on by choosing a background) sits under the Arabic in `WholeAyahReader`.
 **Share** in the player header offers Video (the maker set up like the player, via
 `VideoOptions.likeThePlayer` and the route's `fromPlayer`) or an image (`ui/player/ShareImage.kt`:
@@ -647,8 +662,18 @@ together; all are covered by `WordByWordTest`:
 
 ### Playback modes (`PlaybackMode` × `RepeatMode`)
 
-Two independent axes:
+Two independent axes, plus word playback:
 
+- **Word playback is not a mode any more** (the `WORD_BY_WORD` notes below describe how the
+  service plays words; the enum value only survives for migrating old settings).
+  `PlayerSettings.wordPlayback = useWordClips || repeatWord`, in either mode and **with either
+  view on screen**: `wordView` only chooses between `WordByWordView` and the whole ayah, and the
+  whole-ayah view lights `currentWordIndex` while words play one at a time. The player footer's
+  Repeat row is one choice of four, Ayah, Surah, Word, Off: Word is `repeatWord`
+  (`PlayerViewModel.setRepeatWord` sets `repeatMode` to OFF, `setRepeatMode` clears `repeatWord`).
+  *Word clips* sits above the reciter picker and hides it when on (the clips are Quran.com's own
+  recording). The web engine is the same: `engine.wordPlayback`, `settings.repeatWord`,
+  `settings.useWordClips`, `settings.wordView`.
 - `PlaybackMode.REVISE` — play through your learned ayahs (whole-ayah MP3s).
   `FULL_SURAH` — stream every ayah of the current surah, learned or not.
   `WORD_BY_WORD` — same learned-ayahs queue as REVISE, one word at a time. By default the

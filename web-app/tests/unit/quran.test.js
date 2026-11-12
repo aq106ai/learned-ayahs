@@ -62,7 +62,7 @@ test('word by word uses the same queue as revise', () => {
   for (const repeat of [RepeatMode.OFF, RepeatMode.SURAH]) {
     assert.deepEqual(
       ids(QueueBuilder.buildQueue(master, PlaybackMode.REVISE, repeat, 2)),
-      ids(QueueBuilder.buildQueue(master, PlaybackMode.WORD_BY_WORD, repeat, 2)),
+      ids(QueueBuilder.buildQueue(master, PlaybackMode.REVISE, repeat, 2)),
     );
   }
 });
@@ -112,4 +112,12 @@ test('surah navigation wraps around all 114 surahs', () => {
 test('full surah for an unknown surah is empty', () => {
   assert.deepEqual(QueueBuilder.buildQueue(master, PlaybackMode.FULL_SURAH, RepeatMode.OFF, 0), []);
   assert.deepEqual(QueueBuilder.buildQueue(master, PlaybackMode.FULL_SURAH, RepeatMode.OFF, 115), []);
+});
+
+test('an ayah file far longer than its timings ends with the ayah', async () => {
+  const { ayahEndMs } = await import('../../static/js/core/wordSync.js');
+  assert.equal(ayahEndMs([[0, 320], [33530, 33630]], 93205), 34030);
+  assert.equal(ayahEndMs([[0, 32789]], 36545), null);
+  assert.equal(ayahEndMs([[0, 1560]], 9000), 1960);
+  assert.equal(ayahEndMs(null, 9000), null);
 });

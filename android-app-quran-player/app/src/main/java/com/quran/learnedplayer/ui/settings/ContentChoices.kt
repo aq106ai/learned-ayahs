@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.window.Dialog
@@ -117,7 +118,6 @@ fun ContentChoices(
     val reciter by PlayerSettings.reciterFlow.collectAsState()
     val mushaf by PlayerSettings.mushafStyleFlow.collectAsState()
     val edition = catalog.translation(editionId)
-    val style = TranslationStyle.of(showWords, showAyah)
     val words = catalog.wordMeanings(wordsId)
     val tafsir = catalog.tafsir(tafsirId)
     var picking by remember { mutableStateOf<Picking?>(null) }
@@ -151,19 +151,10 @@ fun ContentChoices(
         ChoiceRow(tx("Translation language"), catalog.languageName(edition.language, native = true), TAG_CONTENT_LANGUAGE) { picking = Picking.LANGUAGE }
         ChoiceRow(tx("Translation"), edition.label, TAG_CONTENT_EDITION) { picking = Picking.EDITION }
         Text(status, style = MaterialTheme.typography.bodySmall, color = TextMuted, modifier = Modifier.testTag(TAG_CONTENT_STATUS))
-        if (includeStyle) {
-            Text(tx("Show"), style = MaterialTheme.typography.labelMedium, color = TextMuted)
-            Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TranslationStyle.entries.forEach { option ->
-                    Chip(tx(option.label), style == option, Modifier.testTag(contentStyleTag(option))) {
-                        PlayerSettings.showWordTranslations = option.showWordTranslations
-                        PlayerSettings.showAyahTranslation = option.showAyahTranslation
-                    }
-                }
-            }
-        }
-        if (style != TranslationStyle.AYAH) {
+        TranslationVisibilitySwitches()
+        if (showWords) {
             ChoiceRow(tx("Word meanings in"), catalog.languageName(words.language, native = true), TAG_CONTENT_WORD_LANGUAGE) { picking = Picking.WORDS }
+            WordMeaningsStatus(wordsId)
         }
         ChoiceRow(tx("Tafsir (optional)"), tafsir?.let { "${catalog.languageName(it.language)} · ${it.label}" } ?: tx("None"), TAG_CONTENT_TAFSIR) { picking = Picking.TAFSIR }
         Text(
@@ -312,7 +303,7 @@ private fun ChoiceDialog(
                         modifier = Modifier.fillMaxWidth().testTag(TAG_CHOICE_SEARCH),
                     )
                 }
-                LazyColumn(modifier = Modifier.fillMaxWidth().height(380.dp).testTag(TAG_CHOICE_LIST)) {
+                LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f, fill = false).testTag(TAG_CHOICE_LIST)) {
                     items(shown, key = { it.first }) { (id, label) ->
                         Row(
                             modifier = Modifier
@@ -336,4 +327,44 @@ private fun ChoiceDialog(
             }
         }
     }
+}
+
+@Composable
+private fun TranslationVisibilitySwitches() {
+    val words by PlayerSettings.showWordTranslationsFlow.collectAsState()
+    val ayah by PlayerSettings.showAyahTranslationFlow.collectAsState()
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(tx("Show word meanings"), Modifier.weight(1f))
+        Switch(words, { PlayerSettings.showWordTranslations = it }, Modifier.testTag(TAG_WORD_TRANSLATIONS_TOGGLE))
+    }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(tx("Show full-ayah translation"), Modifier.weight(1f))
+        Switch(ayah, { PlayerSettings.showAyahTranslation = it }, Modifier.testTag(TAG_SETTINGS_AYAH_TRANSLATION))
+    }
+}
+
+@Composable
+private fun WordMeaningsStatus(language: String) {
+    val context = LocalContext.current
+    val surah = com.quran.learnedplayer.data.AyahMapping.globalToSurahAyah(PlayerSettings.lastGlobalId.coerceAtLeast(1)).first
+    var retry by remember { mutableStateOf(0) }
+    var status by remember(language, surah) { mutableStateOf("") }
+    var failed by remember(language, surah) { mutableStateOf(false) }
+    LaunchedEffect(language, surah, retry) {
+        failed = false
+        if (language == "en") {
+            status = tx("Included with the app — works offline.")
+        } else {
+            status = tx("Downloading word meanings…")
+            val ready = withContext(Dispatchers.IO) {
+                val data = com.quran.learnedplayer.data.QuranDataRepository(context)
+                ContentRepository.ensureMeanings(surah, language, data::wordsForSync)
+            }
+            failed = !ready
+            status = if (ready) tx("Word meanings saved for surah {0}. Missing meanings use English.", surah)
+                else tx("Word meanings unavailable for surah {0}. English is shown until they download.", surah)
+        }
+    }
+    Text(status, style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("word_meanings_status"))
+    if (failed) TextButton(onClick = { retry++ }) { Text(tx("Retry")) }
 }

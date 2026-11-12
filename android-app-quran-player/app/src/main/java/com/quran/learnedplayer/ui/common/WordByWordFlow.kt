@@ -108,6 +108,7 @@ fun WordByWordFlow(
                                 fontSize = (fontSize * 0.42f).sp,
                             ),
                             textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(top = 4.dp),
                         )
                     }
                 }

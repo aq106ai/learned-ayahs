@@ -44,7 +44,7 @@ class PlayerBackgroundShots : BaseAppTest() {
         shot("player_photo_sunrise", settleMs = 3_000)
 
         PlayerSettings.playerBackground = PlayerBackgrounds.PHOTOS
-        PlayerSettings.appTheme = AppTheme.LIGHT // the background keeps the text light regardless
+        PlayerSettings.appTheme = AppTheme.LIGHT // the light version of each scene's colours
         shot("player_photos_light_theme", settleMs = 3_000)
 
         PlayerSettings.playerBackground = PlayerBackgrounds.PLAIN

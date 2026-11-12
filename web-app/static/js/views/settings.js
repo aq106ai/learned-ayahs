@@ -1,8 +1,8 @@
-// Settings: reciter, theme, reading, gestures, playback, Recite & review, offline, your data.
+// Settings: reciter, reading, gestures, playback, Recite & review, offline, your data.
 // Port of ui/settings/SettingsScreen.kt, plus web-only options.
 
 import { confirmDialog, h, icon, toast } from '../lib/dom.js';
-import { RECITERS, WORD_RECITERS, reciterFromKey } from '../core/reciters.js';
+import { reciterFromKey } from '../core/reciters.js';
 import { buildMaster } from '../core/quran.js';
 import * as quran from '../services/quranData.js';
 import { clearOfflineAudio, countCached, saveForOffline } from '../services/offline.js';
@@ -129,18 +129,6 @@ export function settingsView({ store, engine, server }) {
     h('header', { class: 'page-head' }, h('div', {}, h('h1', {}, tx('Settings')))),
     card(tx('App language'), tx("The language of the app's menus and messages. The Qur'an, translations and tafsir have their own choices below."), uiLanguagePicker()),
     card(
-      tx('Ayah reciter'),
-      tx('Whole-ayah recitations from everyayah.com. Each one ships exact per-word timings, so the word being recited is highlighted.'),
-      radios('reciter', RECITERS.map((r) => [r.key, r.displayName]), s().reciter, (v) => {
-        store.setSetting('reciter', v);
-        refreshOffline();
-      }),
-      h('p', { class: 'tiny muted', style: { marginTop: '10px' } }, tx('Word clips: {name}.', { name: WORD_RECITERS[0].displayName })),
-    ),
-    card(tx('Theme'), null, radios('theme', [['DARK', tx('Dark')], ['LIGHT', tx('Light')], ['SYSTEM', tx('Match system')]], s().theme, (v) => {
-      store.setSetting('theme', v);
-    })),
-    card(
       tx('Translation and tafsir'),
       tx('Shown beside the Arabic in the player, the surah pages, shared text and videos. Saheeh International and the English word meanings come with the app; other editions download from Quran.com when chosen and are kept for offline use.'),
       contentChoices(store),
@@ -177,7 +165,6 @@ export function settingsView({ store, engine, server }) {
     card(
       tx('Playback'),
       null,
-      toggle('useWordClips', tx('Word clips (Quran.com)'), tx('In Word by word mode, play isolated pronunciation clips instead of cutting each word from your ayah reciter.')),
       toggle('seekInsideAyahAudio', tx('Seek to the word in the reader'), tx('When you move through words in the word-by-word reader, jump the ayah audio to that word.')),
       server.available
         ? toggle('streamDirect', tx('Stream directly from everyayah.com'), tx("Bypass this server's audio cache. Turn on if the server has no internet access."))

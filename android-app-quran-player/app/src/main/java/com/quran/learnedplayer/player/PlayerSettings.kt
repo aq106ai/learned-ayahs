@@ -105,7 +105,13 @@ enum class AyahOverflowMode {
 }
 
 /** The label shown wherever the active mode is surfaced (notification, mini bar, playlist headers). */
-fun playbackModeLabel(mode: PlaybackMode, repeatMode: RepeatMode): String = when (mode) {
+fun playbackModeLabel(mode: PlaybackMode, repeatMode: RepeatMode, repeatWord: Boolean = PlayerSettings.repeatWord): String = when {
+    repeatWord && mode == PlaybackMode.FULL_SURAH -> tx("Full surah · repeat word")
+    repeatWord && mode == PlaybackMode.REVISE -> tx("Learned ayahs · repeat word")
+    else -> playbackModeLabelOf(mode, repeatMode)
+}
+
+private fun playbackModeLabelOf(mode: PlaybackMode, repeatMode: RepeatMode): String = when (mode) {
     PlaybackMode.FULL_SURAH -> when (repeatMode) {
         RepeatMode.OFF -> tx("Full surah")
         RepeatMode.SURAH -> tx("Full surah · repeat")
@@ -194,7 +200,31 @@ object PlayerSettings {
         _tafsirEdition.value = prefs?.getString(KEY_TAFSIR_EDITION, null).orEmpty()
         _mushafStyle.value = prefs?.getString(KEY_MUSHAF_STYLE, null) ?: DEFAULT_MUSHAF_STYLE
         _uiLanguage.value = prefs?.getString(KEY_UI_LANGUAGE, null).orEmpty()
+        _wordView.value = prefs?.getBoolean("word_view", false) ?: false
+        _repeatWord.value = prefs?.getBoolean("repeat_word", false) ?: false
+        // Legacy word mode selected the learned queue and reused AYAH for word repeat.
+        if (_mode.value == PlaybackMode.WORD_BY_WORD) {
+            wordView = true
+            repeatWord = _repeatMode.value == RepeatMode.AYAH
+            repeatMode = RepeatMode.OFF
+            playbackMode = PlaybackMode.REVISE
+        }
     }
+
+    private val _wordView = MutableStateFlow(false)
+    val wordViewFlow: StateFlow<Boolean> = _wordView.asStateFlow()
+    var wordView: Boolean
+        get() = _wordView.value
+        set(value) { _wordView.value = value; prefs?.edit()?.putBoolean("word_view", value)?.apply() }
+
+    private val _repeatWord = MutableStateFlow(false)
+    val repeatWordFlow: StateFlow<Boolean> = _repeatWord.asStateFlow()
+    var repeatWord: Boolean
+        get() = _repeatWord.value
+        set(value) { _repeatWord.value = value; prefs?.edit()?.putBoolean("repeat_word", value)?.apply() }
+
+    /** Words play one at a time, in either view: Word clips is on, or Repeat is set to Word. */
+    val wordPlayback: Boolean get() = useWordClips || repeatWord
 
     private val _mode = MutableStateFlow(PlaybackMode.DEFAULT)
     val mode: StateFlow<PlaybackMode> = _mode.asStateFlow()
@@ -521,6 +551,7 @@ data class PlayerUiState(
     val durationMs: Long = 0L,
     val mode: PlaybackMode = PlaybackMode.DEFAULT,
     val repeatMode: RepeatMode = RepeatMode.DEFAULT,
+    val wordPlayback: Boolean = false,
     val ayahWords: List<com.quran.learnedplayer.data.AyahWord> = emptyList(),
     val ayahTextLoading: Boolean = false,
     /** Exact per-word [startMs, endMs) recitation segments for the current ayah. */

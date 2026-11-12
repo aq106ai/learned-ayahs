@@ -61,6 +61,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
                 endCardMs = if (request.endCard) VideoTimeline.END_CARD_MS else 0L,
                 onClipDone = { onProgress(Progress(Stage.AUDIO, 0.1f + 0.15f * (it + 1) / clips.size)) },
                 checkCancelled = checkCancelled,
+                timingsFor = { surah, ayah -> quran.timingsFor(request.reciter, surah, ayah) },
             )
             if (timeline.totalMs > VideoRequest.MAX_DURATION_MS) {
                 throw IOException("That's over ${VideoRequest.MAX_DURATION_MS / 60_000} minutes of recitation. Choose fewer ayahs.")

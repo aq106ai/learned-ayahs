@@ -38,7 +38,8 @@ corrected promptly.
 
 The web app bundles Kazuhiko Arase's QR Code Generator for JavaScript in
 `web-app/static/js/lib/qrcode.js`, under the MIT license (copyright notice retained in the file).
-Android uses ZXing Core 3.5.3 under Apache License 2.0 to encode the same Play Store URL.
+Android uses ZXing Core 3.5.3 under Apache License 2.0 for the same end card. Both cards carry two
+codes: the Play Store listing and the web app.
 
 ## Software dependencies
 

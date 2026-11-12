@@ -24,6 +24,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.quran.learnedplayer.MainActivity
 import com.quran.learnedplayer.R
+import com.quran.learnedplayer.data.WordSync
 import com.quran.learnedplayer.data.AyahTrack
 import com.quran.learnedplayer.data.LearnedAyahsStore
 import com.quran.learnedplayer.data.LibraryRepository
@@ -49,6 +50,12 @@ class PlaybackService : MediaSessionService() {
     private var tracks: List<AyahTrack> = emptyList()
     private var mode: PlaybackMode = PlaybackMode.DEFAULT
     private var repeatMode: RepeatMode = RepeatMode.DEFAULT
+    // Snapshot settings only when applying a command: callbacks must describe the loaded audio.
+    private var wordPlayback = false
+    private var wordClips = false
+    private var repeatWord = false
+    private var wordUnavailable = false
+    private val unitRepeat: Boolean get() = if (wordPlayback) repeatWord else repeatMode == RepeatMode.AYAH
     private var currentSurah: Int = 1
 
     /** Word clips for the current ayah when [mode] is WORD_BY_WORD and clips are on. */
@@ -61,10 +68,10 @@ class PlaybackService : MediaSessionService() {
     private var ayahSeekWordCount: Int = 0
 
     private fun usingWordClips(): Boolean =
-        mode == PlaybackMode.WORD_BY_WORD && PlayerSettings.useWordClips
+        wordPlayback && wordClips
 
     private fun ayahSeekActive(): Boolean =
-        mode == PlaybackMode.WORD_BY_WORD && !PlayerSettings.useWordClips
+        wordPlayback && !wordClips
 
     private val quranData by lazy { QuranDataRepository(this) }
     private val wordDownloader by lazy { WordAudioDownloader(this) }
@@ -122,10 +129,10 @@ class PlaybackService : MediaSessionService() {
             .build()
 
     private fun needsSurahIntro(track: AyahTrack?): Boolean =
-        mode != PlaybackMode.WORD_BY_WORD && track?.ayah == 1
+        !wordPlayback && track?.ayah == 1
 
     private fun currentTrack(): AyahTrack? =
-        if (mode == PlaybackMode.WORD_BY_WORD) {
+        if (wordPlayback) {
             tracks.getOrNull(wordAyahIndex)
         } else {
             tracks.getOrNull(player?.currentMediaItemIndex ?: 0)
@@ -161,6 +168,7 @@ class PlaybackService : MediaSessionService() {
         override fun run() {
             val current = player ?: return
             pushProgress(current)
+            maybeCutAtAyahEnd(current)
             maybeParkBeforeRevisionRepeat(current)
             maybeParkAtWordEnd(current)
             if (current.isPlaying) {
@@ -179,9 +187,44 @@ class PlaybackService : MediaSessionService() {
      * REASON_REPEAT handling stays as a fallback for the rare case duration isn't
      * known yet (e.g. very early in playback).
      */
+    /** This ayah's own timings, looked up once per ayah for [ayahEndMs]. */
+    private var endTimings: Pair<Int, List<LongRange>?>? = null
+
+    /**
+     * Where the playing ayah ends in its file when the file runs on past it
+     * ([WordSync.ayahEndMs]), else null. Whole-ayah items only: not intros, not word clips.
+     */
+    private fun ayahEndMs(p: Player): Long? {
+        if (introStep != IntroStep.NONE || (wordPlayback && !ayahSeekActive())) return null
+        val track = currentTrack() ?: return null
+        val duration = p.duration
+        if (duration <= 0L || duration == C.TIME_UNSET) return null
+        val timings = endTimings?.takeIf { it.first == track.globalId }?.second
+            ?: quranData.timingsFor(PlayerSettings.reciter, track.surah, track.ayah)
+                .also { endTimings = track.globalId to it }
+        return WordSync.ayahEndMs(timings, duration)
+    }
+
+    /**
+     * Past the end of an ayah whose file runs on (see [ayahEndMs]): carry on exactly as if the
+     * file had ended there. A repeating ayah starts again (after its pause); otherwise the
+     * player is moved to the item's end, so its own transition to the next ayah, the queue's
+     * end or a surah change happens as usual.
+     */
+    private fun maybeCutAtAyahEnd(p: Player) {
+        if (wordPlayback || !p.isPlaying || revisionGapPending) return
+        val end = ayahEndMs(p) ?: return
+        if (p.currentPosition < end) return
+        if (unitRepeat) {
+            if (PlayerSettings.revisionDelaySeconds > 0) parkForRevisionGap() else p.seekTo(0)
+        } else {
+            p.seekTo(p.currentMediaItemIndex, p.duration)
+        }
+    }
+
     private fun maybeParkBeforeRevisionRepeat(p: Player) {
         if (ayahSeekActive()) return
-        if (repeatMode != RepeatMode.AYAH || introStep != IntroStep.NONE) return
+        if (!unitRepeat || introStep != IntroStep.NONE) return
         if (PlayerSettings.revisionDelaySeconds <= 0) return
         if (!p.isPlaying) return
         val duration = p.duration
@@ -191,7 +234,9 @@ class PlaybackService : MediaSessionService() {
         }
     }
 
-    private val playerListener = object : Player.Listener {
+    private var playerListener: Player.Listener = newPlayerListener()
+
+    private fun newPlayerListener() = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             PlayerStateHolder.updatePlaying(isPlaying)
             updateNotification()
@@ -225,12 +270,12 @@ class PlaybackService : MediaSessionService() {
                 updateNotification()
                 return
             }
-            if (mode == PlaybackMode.WORD_BY_WORD) {
+            if (wordPlayback) {
                 if (usingWordClips()) {
                     val wordIndex = player?.currentMediaItemIndex ?: 0
                     PlayerStateHolder.updateWordIndex(wordIndex, wordItems.size)
                     if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
-                        repeatMode == RepeatMode.AYAH &&
+                        unitRepeat &&
                         PlayerSettings.revisionDelaySeconds > 0
                     ) {
                         parkForRevisionGap()
@@ -276,21 +321,8 @@ class PlaybackService : MediaSessionService() {
                 finishIntroAndResume()
                 return
             }
-            // Offline, or the clip was never cached: every word fails the same way.
-            // Skipping on each error walked the queue (and, while leaving word-by-word,
-            // reloaded word clips over the learned-ayah queue). Stop on the current item.
-            if (isUnplayableSource(error)) {
-                playerErrorBurst = 0
-                pause()
-                return
-            }
-            if (mode == PlaybackMode.WORD_BY_WORD && playerErrorBurst < 1) {
-                playerErrorBurst++
-                skipWord(forward = true)
-                return
-            }
-            playerErrorBurst = 0
             pause()
+            PlayerStateHolder.setError(tx("Audio unavailable. Connect to the internet or download this audio, then press Play to retry."))
         }
 
         override fun onEvents(player: Player, events: Player.Events) {
@@ -323,7 +355,7 @@ class PlaybackService : MediaSessionService() {
                 }
                 return
             }
-            if (mode == PlaybackMode.WORD_BY_WORD) {
+            if (wordPlayback) {
                 if (usingWordClips()) onWordPlaylistEnded() else onAyahSeekWordEnded()
             }
         }
@@ -350,7 +382,7 @@ class PlaybackService : MediaSessionService() {
             val start = ayahSeekSegments.getOrNull(ayahSeekWordIndex)?.first ?: 0L
             p.seekTo(start)
             PlayerStateHolder.updateWordIndex(ayahSeekWordIndex, ayahSeekWordCount)
-        } else if (mode == PlaybackMode.WORD_BY_WORD && wordItems.isNotEmpty()) {
+        } else if (wordPlayback && wordItems.isNotEmpty()) {
             val idx = p.currentMediaItemIndex.coerceIn(0, wordItems.lastIndex)
             p.seekTo(idx, 0L)
             PlayerStateHolder.updateWordIndex(idx, wordItems.size)
@@ -378,9 +410,11 @@ class PlaybackService : MediaSessionService() {
             return
         }
         val duration = player.duration
+        // An ayah whose file runs on is as long as the ayah, not the file.
+        val shown = ayahEndMs(player) ?: duration
         PlayerStateHolder.updateProgress(
-            positionMs = player.currentPosition.coerceAtLeast(0L),
-            durationMs = if (duration > 0 && duration != C.TIME_UNSET) duration else 0L,
+            positionMs = player.currentPosition.coerceAtLeast(0L).coerceAtMost(maxOf(shown, 0L)),
+            durationMs = if (shown > 0 && shown != C.TIME_UNSET) shown else 0L,
         )
     }
 
@@ -404,7 +438,9 @@ class PlaybackService : MediaSessionService() {
      */
     private fun wordCutAt(): Long? {
         val seg = ayahSeekSegments.getOrNull(ayahSeekWordIndex) ?: return null
-        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first ?: return null
+        // The last word plays to the file's end, unless the file runs on past the ayah.
+        val nextOnset = ayahSeekSegments.getOrNull(ayahSeekWordIndex + 1)?.first
+            ?: return player?.let { p -> WordSync.ayahEndMs(ayahSeekSegments, p.duration.takeIf { it != C.TIME_UNSET } ?: 0L) }
         return maxOf(nextOnset - WORD_END_LEAD_MS, seg.first + MIN_WORD_PLAY_MS)
     }
 
@@ -585,7 +621,7 @@ class PlaybackService : MediaSessionService() {
                 val startGlobal = intent.getIntExtra(EXTRA_START_GLOBAL, currentGlobalId())
                 val autoPlay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false)
                 val persistMode = intent.getBooleanExtra(EXTRA_PERSIST_MODE, true)
-                val wasPlaying = player?.playWhenReady == true
+                val wasPlaying = playbackOngoing()
                 loadForMode(
                     requestedMode, requestedRepeat, requestedSurah, startGlobal,
                     persistMode = persistMode,
@@ -629,6 +665,27 @@ class PlaybackService : MediaSessionService() {
         startGlobal: Int,
         persistMode: Boolean = true,
     ) {
+        val oldGlobal = currentGlobalId()
+        val oldWord = if (wordPlayback) {
+            if (wordClips) player?.currentMediaItemIndex ?: 0 else ayahSeekWordIndex
+        } else currentTrack()?.let { track ->
+            quranData.timingsFor(PlayerSettings.reciter, track.surah, track.ayah)
+                ?.indexOfLast { (player?.currentPosition ?: 0L) >= it.first }?.coerceAtLeast(0)
+        } ?: 0
+        val oldTrack = currentTrack()
+        val resumeMs = if (wordPlayback && oldTrack != null) {
+            quranData.timingsFor(PlayerSettings.reciter, oldTrack.surah, oldTrack.ayah)
+                ?.getOrNull(oldWord)?.first ?: 0L
+        } else player?.currentPosition ?: 0L
+        val wasWordPlayback = wordPlayback
+        player?.removeListener(playerListener)
+        playerListener = newPlayerListener()
+        stopProgressTicker()
+        try {
+        wordPlayback = PlayerSettings.wordPlayback
+        wordClips = PlayerSettings.useWordClips
+        repeatWord = PlayerSettings.repeatWord
+        wordUnavailable = false
         hasLoadedQueue = true
         cancelRevisionGap()
         clearIntroState()
@@ -655,14 +712,21 @@ class PlaybackService : MediaSessionService() {
             queue = attachLocalPaths(queue)
         }
         tracks = queue
+        if (queue.isEmpty()) {
+            player?.stop()
+            player?.clearMediaItems()
+            PlayerStateHolder.updateMode(mode, repeatMode)
+            PlayerStateHolder.updateQueue(emptyList(), 0)
+            return
+        }
 
         val startIndex = startIndexFor(queue, startGlobal)
 
-        if (mode == PlaybackMode.WORD_BY_WORD) {
+        if (wordPlayback) {
             applyLoopConfig()
             PlayerStateHolder.updateMode(mode, repeatMode)
             PlayerStateHolder.updateQueue(queue, startIndex)
-            loadCurrentWordAyah(startIndex, startWord = 0, autoPlay = false)
+            loadCurrentWordAyah(startIndex, startWord = if (oldGlobal == startGlobal) oldWord else 0, autoPlay = false)
             return
         }
 
@@ -670,8 +734,9 @@ class PlaybackService : MediaSessionService() {
 
         // Repeat OFF <-> AYAH share the same queue: keep the playback position and
         // just flip loop config instead of reloading (which restarts the ayah).
-        if (current != null && queueMatchesPlayer(queue, current)) {
+        if (!wasWordPlayback && current != null && queueMatchesPlayer(queue, current)) {
             applyLoopConfig()
+            if (current.playbackState == Player.STATE_IDLE) current.prepare()
             val playerIndex = current.currentMediaItemIndex
             val resolvedIndex =
                 if (startGlobal > 0 && queue.getOrNull(playerIndex)?.globalId != startGlobal && startIndex != playerIndex) {
@@ -686,13 +751,21 @@ class PlaybackService : MediaSessionService() {
         }
 
         current?.apply {
-            setMediaItems(queue.map { it.toMediaItem() }, startIndex, 0L)
+            setMediaItems(queue.map { it.toMediaItem() }, startIndex, if (wasWordPlayback && oldGlobal == startGlobal) resumeMs else 0L)
             applyLoopConfig()
             prepare()
         }
 
         PlayerStateHolder.updateMode(mode, repeatMode)
         PlayerStateHolder.updateQueue(queue, startIndex)
+        } finally {
+            player?.let {
+                it.addListener(playerListener)
+                pushProgress(it)
+                PlayerStateHolder.updatePlaying(it.isPlaying)
+                if (it.isPlaying) startProgressTicker()
+            }
+        }
     }
 
     /**
@@ -723,8 +796,11 @@ class PlaybackService : MediaSessionService() {
     private fun queueMatchesPlayer(queue: List<AyahTrack>, player: ExoPlayer): Boolean {
         if (queue.isEmpty() || player.mediaItemCount != queue.size) return false
         // Queues are ordered and duplicate-free, so first + last id identify them.
-        return player.getMediaItemAt(0).mediaId == queue.first().globalId.toString() &&
-            player.getMediaItemAt(queue.size - 1).mediaId == queue.last().globalId.toString()
+        return queue.indices.all { index ->
+            val expected = queue[index].toMediaItem()
+            val actual = player.getMediaItemAt(index)
+            actual.mediaId == expected.mediaId && actual.localConfiguration?.uri == expected.localConfiguration?.uri
+        }
     }
 
     private fun clearIntroState() {
@@ -747,7 +823,7 @@ class PlaybackService : MediaSessionService() {
         }
         tracks = queue
         val startIndex = if (startAtEnd) (queue.size - 1).coerceAtLeast(0) else 0
-        if (mode == PlaybackMode.WORD_BY_WORD) {
+        if (wordPlayback) {
             PlayerStateHolder.updateQueue(queue, startIndex)
             loadCurrentWordAyah(startIndex, startWord = if (startAtEnd) Int.MAX_VALUE else 0, autoPlay = true)
             return
@@ -767,8 +843,8 @@ class PlaybackService : MediaSessionService() {
         val p = player ?: return
         // Word files are a per-ayah playlist; looping/wrapping is handled in skip / STATE_ENDED.
         p.repeatMode = when {
-            usingWordClips() && repeatMode == RepeatMode.AYAH -> Player.REPEAT_MODE_ONE
-            mode == PlaybackMode.WORD_BY_WORD -> Player.REPEAT_MODE_OFF
+            usingWordClips() && repeatWord -> Player.REPEAT_MODE_ONE
+            wordPlayback -> Player.REPEAT_MODE_OFF
             repeatMode == RepeatMode.AYAH -> Player.REPEAT_MODE_ONE
             repeatMode == RepeatMode.SURAH -> Player.REPEAT_MODE_ALL
             else -> Player.REPEAT_MODE_OFF
@@ -780,7 +856,7 @@ class PlaybackService : MediaSessionService() {
             ?: com.quran.learnedplayer.data.AyahMapping.globalToSurahAyah(globalId).first
 
     private fun currentGlobalId(): Int {
-        if (mode == PlaybackMode.WORD_BY_WORD) {
+        if (wordPlayback) {
             return tracks.getOrNull(wordAyahIndex)?.globalId ?: 0
         }
         val index = if (introStep != IntroStep.NONE) {
@@ -802,6 +878,7 @@ class PlaybackService : MediaSessionService() {
     }
 
     fun play() {
+        if (wordUnavailable) return
         // Capture before cancelRevisionGap() clears it — a manual Play tap while
         // parked in the revision gap must resume the ayah directly, not replay
         // its intro (position is 0 here because we just finished a repeat, not
@@ -823,7 +900,7 @@ class PlaybackService : MediaSessionService() {
         // Nothing to play (nothing marked, in a mode that plays the learned list): don't put a
         // playback notification up for an empty queue.
         if (p.mediaItemCount == 0) return
-        if (mode == PlaybackMode.WORD_BY_WORD && p.playbackState == Player.STATE_ENDED) {
+        if (wordPlayback && p.playbackState == Player.STATE_ENDED) {
             loadCurrentWordAyah(wordAyahIndex, startWord = 0, autoPlay = true)
             promoteToForeground()
             return
@@ -907,7 +984,7 @@ class PlaybackService : MediaSessionService() {
             player?.play()
             return
         }
-        if (mode == PlaybackMode.WORD_BY_WORD) {
+        if (wordPlayback) {
             val ayahIndex = index.coerceIn(0, (tracks.size - 1).coerceAtLeast(0))
             loadCurrentWordAyah(ayahIndex, startWord = 0, autoPlay = player?.playWhenReady == true)
             return
@@ -940,7 +1017,7 @@ class PlaybackService : MediaSessionService() {
             finishIntroAndResume()
             return
         }
-        if (mode == PlaybackMode.WORD_BY_WORD) {
+        if (wordPlayback) {
             skipWord(forward = true)
             return
         }
@@ -972,7 +1049,7 @@ class PlaybackService : MediaSessionService() {
             finishIntroAndResume()
             return
         }
-        if (mode == PlaybackMode.WORD_BY_WORD) {
+        if (wordPlayback) {
             skipWord(forward = false)
             return
         }
@@ -1017,7 +1094,7 @@ class PlaybackService : MediaSessionService() {
     }
 
     fun seekToWord(wordIndex: Int) {
-        if (mode != PlaybackMode.WORD_BY_WORD) return
+        if (!wordPlayback) return
         cancelRevisionGap()
         if (ayahSeekActive()) {
             playAyahSeekWord(wordIndex, play = true)
@@ -1033,7 +1110,7 @@ class PlaybackService : MediaSessionService() {
     }
 
     fun skipAyah(forward: Boolean) {
-        if (mode != PlaybackMode.WORD_BY_WORD) {
+        if (!wordPlayback) {
             if (forward) skipNext() else skipPrevious()
             return
         }
@@ -1125,51 +1202,24 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun onAyahSeekWordEnded() {
-        if (ayahSeekSegments.isEmpty()) {
-            // No timings: the ayah played whole, as a single unit. Repeat it, or move on —
-            // stepping "words" here would replay the whole ayah once per word.
-            when (repeatMode) {
-                RepeatMode.AYAH -> parkForRevisionGap()
-                RepeatMode.SURAH, RepeatMode.OFF ->
-                    if (!advanceWordAyah(forward = true)) scheduleForegroundCheck()
-            }
-            return
-        }
-        when (repeatMode) {
-            RepeatMode.AYAH -> parkForRevisionGap()
-            RepeatMode.SURAH, RepeatMode.OFF -> {
-                val last = (ayahSeekWordCount - 1).coerceAtLeast(0)
-                val ended = player?.playbackState == Player.STATE_ENDED
-                if (!ended && ayahSeekWordIndex < last) {
-                    // The recitation is already at the next word's onset: carry on through it
-                    // rather than pausing and seeking to where it already is. Take the word from
-                    // where the audio is, not one step on from the last: if it has passed more
-                    // than one onset, the counter (and so the highlight, and the next press of
-                    // Next) must not be left behind it.
-                    val position = player?.currentPosition ?: 0L
-                    val heard = ayahSeekSegments.indexOfLast { position >= it.first }
-                    ayahSeekWordIndex = maxOf(ayahSeekWordIndex + 1, heard).coerceAtMost(last)
-                    PlayerStateHolder.updateWordIndex(ayahSeekWordIndex, ayahSeekWordCount)
-                } else {
-                    skipAyahSeekWord(forward = true)
-                }
-            }
+        if (ayahSeekSegments.isEmpty()) return
+        if (repeatWord) {
+            if (PlayerSettings.revisionDelaySeconds > 0) parkForRevisionGap()
+            else playAyahSeekWord(ayahSeekWordIndex, play = true)
+        } else {
+            skipAyahSeekWord(forward = true)
         }
     }
 
     private fun onWordPlaylistEnded() {
-        when (repeatMode) {
-            RepeatMode.AYAH -> {
-                val idx = (player?.currentMediaItemIndex ?: wordItems.lastIndex).coerceAtLeast(0)
-                if (PlayerSettings.revisionDelaySeconds > 0) {
-                    parkForRevisionGap()
-                } else {
-                    player?.seekTo(idx, 0L)
-                    player?.play()
-                    PlayerStateHolder.updateWordIndex(idx, wordItems.size)
-                }
-            }
-            RepeatMode.SURAH, RepeatMode.OFF -> advanceWordAyah(forward = true)
+        if (repeatWord) {
+            val index = (player?.currentMediaItemIndex ?: 0).coerceAtLeast(0)
+            player?.seekTo(index, 0L)
+            player?.play()
+        } else if (repeatMode == RepeatMode.AYAH) {
+            loadCurrentWordAyah(wordAyahIndex, startWord = 0, autoPlay = true)
+        } else if (!advanceWordAyah(forward = true)) {
+            pause()
         }
     }
 
@@ -1179,6 +1229,13 @@ class PlaybackService : MediaSessionService() {
         val resolved = when {
             nextIndex in tracks.indices -> nextIndex
             repeatMode == RepeatMode.SURAH -> (nextIndex + tracks.size) % tracks.size
+            mode == PlaybackMode.FULL_SURAH -> {
+                val nextSurah = currentSurah + if (forward) 1 else -1
+                if (nextSurah !in 1..114) return false
+                currentSurah = nextSurah
+                reloadSurah(startAtEnd = !forward)
+                return true
+            }
             else -> return false
         }
         val startWord = if (forward) 0 else Int.MAX_VALUE
@@ -1188,7 +1245,7 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun loadCurrentWordAyah(ayahIndex: Int, startWord: Int, autoPlay: Boolean) {
-        if (PlayerSettings.useWordClips) {
+        if (wordClips) {
             loadWordPlaylist(ayahIndex, startWord, autoPlay)
         } else {
             loadAyahWordSeek(ayahIndex, startWord, autoPlay)
@@ -1206,6 +1263,8 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun loadAyahWordSeek(ayahIndex: Int, startWord: Int, autoPlay: Boolean) {
+        // Per ayah: one ayah without timings must not leave Play dead on the ayahs after it.
+        wordUnavailable = false
         wordItems = emptyList()
         if (tracks.isEmpty()) {
             ayahSeekSegments = emptyList()
@@ -1219,6 +1278,13 @@ class PlaybackService : MediaSessionService() {
         val track = attachLocalPaths(listOf(raw)).first()
         currentSurah = track.surah
         ayahSeekSegments = quranData.timingsFor(PlayerSettings.reciter, track.surah, track.ayah).orEmpty()
+        if (ayahSeekSegments.isEmpty()) {
+            player?.stop()
+            wordUnavailable = true
+            PlayerStateHolder.updateQueue(tracks, wordAyahIndex)
+            PlayerStateHolder.setError(tx("Word timing is unavailable for this ayah and reciter. Turn off Repeat word or choose Word clips."))
+            return
+        }
         val textCount = quranData.contentWordCount(track.surah, track.ayah)
         ayahSeekWordCount = when {
             ayahSeekSegments.isNotEmpty() -> ayahSeekSegments.size
@@ -1243,6 +1309,7 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun loadWordPlaylist(ayahIndex: Int, startWord: Int, autoPlay: Boolean) {
+        wordUnavailable = false
         if (tracks.isEmpty()) {
             wordItems = emptyList()
             PlayerStateHolder.updateWordIndex(0, 0)
@@ -1274,6 +1341,10 @@ class PlaybackService : MediaSessionService() {
         }
         PlayerStateHolder.updateQueue(tracks, wordAyahIndex)
         PlayerStateHolder.updateWordIndex(wordStart, wordItems.size)
+        if (wordItems.isEmpty()) {
+            wordUnavailable = true
+            PlayerStateHolder.setError(tx("Word clips are unavailable for this ayah."))
+        }
         updateNotification()
     }
 

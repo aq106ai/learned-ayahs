@@ -74,7 +74,7 @@ class PlayStoreScreenshots : BaseAppTest() {
     @Test
     fun shot2_word_by_word() {
         openReaderAt(ayah = 1, positionMs = 2_200)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         // Step to the fourth word, the one the paused position highlights.
         repeat(3) {
@@ -130,7 +130,8 @@ class PlayStoreScreenshots : BaseAppTest() {
 
     @Test
     fun shot7_reciters() {
-        awaitTag(TAG_OPEN_SETTINGS)
+        awaitTag("open_actions_menu")
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
         composeRule.onNodeWithTag(TAG_OPEN_SETTINGS).performClick()
         awaitTag(TAG_SETTINGS_SCREEN)
         capture("07_reciters")

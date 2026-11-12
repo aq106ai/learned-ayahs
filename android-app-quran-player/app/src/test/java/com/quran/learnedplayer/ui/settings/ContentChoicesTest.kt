@@ -89,7 +89,7 @@ class ContentChoicesTest {
         assertTrue(PlayerSettings.translationEdition.startsWith("qc-"))
         assertEquals("ur", PlayerSettings.wordMeaningLanguage)
         // A language without word meanings leaves them alone.
-        chooseTranslationLanguage(ContentCatalog.get(context), "tr")
+        chooseTranslationLanguage(ContentCatalog.get(context), "am")
         assertEquals("ur", PlayerSettings.wordMeaningLanguage)
 
         PlayerSettings.translationEdition = "qc-54"
@@ -100,18 +100,19 @@ class ContentChoicesTest {
     }
 
     @Test
-    fun the_style_chips_set_both_switches_and_hide_the_word_language_without_words() {
+    fun independent_switches_allow_both_off_and_retain_language() {
         show()
-        compose.onNodeWithTag(contentStyleTag(TranslationStyle.BOTH)).performClick()
+        val language = PlayerSettings.wordMeaningLanguage
+        compose.onNodeWithTag(TAG_SETTINGS_AYAH_TRANSLATION).performScrollTo().performClick()
         assertTrue(PlayerSettings.showWordTranslations && PlayerSettings.showAyahTranslation)
-        compose.onNodeWithTag(contentStyleTag(TranslationStyle.AYAH)).performClick()
+        compose.onNodeWithTag(TAG_WORD_TRANSLATIONS_TOGGLE).performScrollTo().performClick()
         assertFalse(PlayerSettings.showWordTranslations)
-        assertTrue(PlayerSettings.showAyahTranslation)
         compose.onNodeWithTag(TAG_CONTENT_WORD_LANGUAGE).assertDoesNotExist()
-        compose.onNodeWithTag(contentStyleTag(TranslationStyle.WORDS)).performClick()
-        assertTrue(PlayerSettings.showWordTranslations)
+        compose.onNodeWithTag(TAG_SETTINGS_AYAH_TRANSLATION).performScrollTo().performClick()
         assertFalse(PlayerSettings.showAyahTranslation)
-        compose.onNodeWithTag(TAG_CONTENT_WORD_LANGUAGE).assertIsDisplayed()
+        assertEquals(language, PlayerSettings.wordMeaningLanguage)
+        compose.onNodeWithTag(TAG_WORD_TRANSLATIONS_TOGGLE).performScrollTo().performClick()
+        compose.onNodeWithTag(TAG_CONTENT_WORD_LANGUAGE).performScrollTo().assertIsDisplayed()
     }
 
     @Test

@@ -178,6 +178,8 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
         assertEquals(AppTheme.LIGHT, PlayerSettings.appTheme)
         assertEquals(PlayerBackgrounds.MATCHED, PlayerSettings.playerBackground)
         assertTrue("a background brings the translation", PlayerSettings.showAyahTranslation)
+        // And shown at once, behind the welcome, though no player is on screen yet.
+        awaitTag(com.quran.learnedplayer.ui.TAG_PLAYER_BACKGROUND)
 
         // Read and listen: the translation language, edition, style, tafsir and reciter.
         composeRule.onNodeWithTag(TAG_INTRO_NEXT).performClick()
@@ -192,11 +194,20 @@ class IntroAndAddByDescriptionTest : BaseAppTest() {
         composeRule.onNodeWithTag(choiceTag("qc-54")).performClick()
         composeRule.waitForIdle()
         assertEquals("qc-54", PlayerSettings.translationEdition)
-        composeRule.onNodeWithTag(contentStyleTag(TranslationStyle.BOTH)).performScrollTo().performClick()
+        // Word meanings and the whole-ayah translation are two switches now.
+        if (!PlayerSettings.showWordTranslations) {
+            composeRule.onNodeWithTag(com.quran.learnedplayer.ui.settings.TAG_WORD_TRANSLATIONS_TOGGLE).performScrollTo().performClick()
+        }
+        if (!PlayerSettings.showAyahTranslation) {
+            composeRule.onNodeWithTag(com.quran.learnedplayer.ui.settings.TAG_SETTINGS_AYAH_TRANSLATION).performScrollTo().performClick()
+        }
         composeRule.onNodeWithTag(TAG_CONTENT_TAFSIR).performScrollTo().performClick()
         composeRule.onNodeWithTag(TAG_CHOICE_LIST).performScrollToNode(hasTestTag(choiceTag("qc-tafsir-160")))
         composeRule.onNodeWithTag(choiceTag("qc-tafsir-160")).performClick()
         composeRule.waitForIdle()
+        // The chips scroll sideways inside a page that scrolls down: bring the row up first, or
+        // performScrollTo only moves the row and the tap lands below the visible page.
+        composeRule.onNodeWithText("Every reciter here has checked word timings", substring = true).performScrollTo()
         composeRule.onNodeWithTag(contentReciterTag(Reciter.AS_SUDAIS)).performScrollTo().performClick()
         composeRule.waitForIdle()
         assertEquals("qc-tafsir-160", PlayerSettings.tafsirEdition)

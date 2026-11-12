@@ -119,11 +119,16 @@ class VideoExportTest {
             val frame = retriever.getFrameAtTime((durationMs - 1500) * 1000, MediaMetadataRetriever.OPTION_CLOSEST)
                 ?: error("No closing frame in ${file.name}")
             try {
-                val pixels = IntArray(frame.width * frame.height)
-                frame.getPixels(pixels, 0, frame.width, 0, 0, frame.width, frame.height)
-                val source = RGBLuminanceSource(frame.width, frame.height, pixels)
-                val result = QRCodeReader().decode(BinaryBitmap(HybridBinarizer(source)))
-                assertEquals("The encoded closing card opens the app listing", VideoRequest.PLAY_STORE_URL, result.text)
+                // Two codes side by side: the Android app on the left, the web app on the right.
+                fun decodeHalf(left: Int): String {
+                    val half = frame.width / 2
+                    val pixels = IntArray(half * frame.height)
+                    frame.getPixels(pixels, 0, half, left, 0, half, frame.height)
+                    val source = RGBLuminanceSource(half, frame.height, pixels)
+                    return QRCodeReader().decode(BinaryBitmap(HybridBinarizer(source))).text
+                }
+                assertEquals("The left code opens the app listing", VideoRequest.PLAY_STORE_URL, decodeHalf(0))
+                assertEquals("The right code opens the web app", VideoRequest.WEB_APP_URL, decodeHalf(frame.width / 2))
             } finally {
                 frame.recycle()
             }

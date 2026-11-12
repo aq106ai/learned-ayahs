@@ -1,5 +1,8 @@
 package com.quran.learnedplayer.ui
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+
 import com.quran.learnedplayer.ui.i18n.tx
 import android.os.SystemClock
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -8,6 +11,7 @@ import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -384,7 +388,7 @@ fun WordByWordView(
             }
         }
         Text(
-            text = tx("{0} / {1}   ·   swipe for the next word", pagerState.currentPage.coerceIn(firstWordPage, lastWordPage), contentWords.size),
+            text = "${pagerState.currentPage.coerceIn(firstWordPage, lastWordPage)} / ${contentWords.size}",
             color = TextMuted,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
@@ -451,32 +455,38 @@ private fun EdgePage(label: String) {
 
 @Composable
 private fun WordPage(word: AyahWord, isActive: Boolean, onSelect: (() -> Unit)? = null) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp)
-            .then(if (onSelect != null) Modifier.clickable(onClick = onSelect) else Modifier),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = word.text,
-            color = if (isActive) AccentGreen else TextPrimary,
-            textAlign = TextAlign.Center,
-            // The style already carries RTL direction, so a single word shapes correctly
-            // while the pager itself stays left-to-right and only reverses page order.
-            style = quranArabicStyle(64f),
-            modifier = Modifier.fillMaxWidth().testTag(TAG_WORD_ARABIC),
-        )
-        Text(
-            text = word.translation ?: "—",
-            color = TextMuted,
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
+    val showMeanings by PlayerSettings.showWordTranslationsFlow.collectAsState()
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val wordSize = minOf(64f, maxWidth.value / 5f, maxHeight.value / if (showMeanings) 3.5f else 2f).coerceAtLeast(24f)
+        val meaningGap = minOf(24f, maxHeight.value * 0.06f).dp
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp)
-                .testTag(TAG_WORD_TRANSLATION),
-        )
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .then(if (onSelect != null) Modifier.clickable(onClick = onSelect) else Modifier),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = word.text,
+                color = if (isActive) AccentGreen else TextPrimary,
+                textAlign = TextAlign.Center,
+                // The style already carries RTL direction, so a single word shapes correctly
+                // while the pager itself stays left-to-right and only reverses page order.
+                style = quranArabicStyle(wordSize),
+                modifier = Modifier.fillMaxWidth().testTag(TAG_WORD_ARABIC),
+            )
+            if (showMeanings) Text(
+                text = word.translation ?: "—",
+                color = TextMuted,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = meaningGap)
+                    .testTag(TAG_WORD_TRANSLATION),
+            )
+        }
     }
 }

@@ -45,20 +45,22 @@ data class CatalogReciter(val id: String, val name: String, val folder: String, 
 
 /** How translations show beside the Arabic: the two existing switches, read as one choice. */
 enum class TranslationStyle(val label: String, val description: String) {
+    NONE("None", "Arabic only"),
     WORDS("Word meanings", "Under each Arabic word"),
     AYAH("Full translation", "The whole ayah, under the Arabic"),
     BOTH("Both", "Word meanings and the whole ayah"),
     ;
 
-    val showWordTranslations: Boolean get() = this != AYAH
-    val showAyahTranslation: Boolean get() = this != WORDS
+    val showWordTranslations: Boolean get() = this == WORDS || this == BOTH
+    val showAyahTranslation: Boolean get() = this == AYAH || this == BOTH
 
     companion object {
         /** Neither switch on reads as words, the default. */
         fun of(showWordTranslations: Boolean, showAyahTranslation: Boolean): TranslationStyle = when {
             showWordTranslations && showAyahTranslation -> BOTH
             showAyahTranslation -> AYAH
-            else -> WORDS
+            showWordTranslations -> WORDS
+            else -> NONE
         }
     }
 }

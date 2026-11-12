@@ -30,7 +30,7 @@ export function reciteView({ store, engine, params, go }) {
       el: h('div', { class: 'page page-narrow' }, h('section', { class: 'card empty' },
         h('h2', {}, tx('Nothing to recite yet')),
         h('p', {}, tx('Mark the ayahs you have memorised first; Recite & review walks through them.')),
-        h('a', { class: 'btn primary', href: '#/surahs' }, icon('book'), tx('Browse surahs')))),
+        h('a', { class: 'btn primary', href: '#/surahs' }, icon('edit'), tx('Browse surahs')))),
     };
   }
 

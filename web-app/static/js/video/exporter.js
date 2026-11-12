@@ -8,6 +8,7 @@
 import { surahAyahToGlobal, surahName, verseCount } from '../core/quran.js';
 import { audioUrls } from '../core/reciters.js';
 import { loadText, loadTimings, loadTranslations, segmentsSync, wordsSync } from '../services/quranData.js';
+import { ayahEndMs } from '../core/wordSync.js';
 import { currentEdition, ensureMeanings, loadCatalog, loadEdition, mushafFamilySync } from '../services/content.js';
 import { creditOf, isRtl } from '../core/catalog.js';
 import { ArrayBufferTarget as Mp4Target, Muxer as Mp4Muxer } from '../lib/mp4-muxer.mjs';
@@ -197,7 +198,7 @@ export class VideoExporter {
     for (let i = 0; i < plan.length; i++) {
       check();
       onProgress({ stage: 'DOWNLOADING', fraction: (0.15 * i) / plan.length });
-      decoded.push(await this.decode(this.urlOf(request, plan[i])));
+      decoded.push(trimToAyah(await this.decode(this.urlOf(request, plan[i])), plan[i], request.reciter));
     }
     const endCardMs = request.endCard === false ? 0 : END_CARD_MS;
     const timeline = buildTimeline(plan.map((c, i) => ({ ...c, durationMs: Math.round((decoded[i].length / SAMPLE_RATE) * 1000) })), endCardMs);
@@ -281,6 +282,18 @@ export class VideoExporter {
 function layoutWords(surah, ayah) {
   let index = 0;
   return wordsSync(surah, ayah).map((w) => (w.isEnd ? { arabic: w.text, gloss: null, contentIndex: -1 } : { arabic: w.text, gloss: w.translation, contentIndex: index++ }));
+}
+
+/**
+ * An ayah file that runs on past its word timings (EveryAyah's Maher Al Muaiqly 2:258 holds 2:259
+ * as well) is cut where the ayah ends, so the video does not recite the next ayah under this one.
+ */
+function trimToAyah(decoded, clip, reciter) {
+  if (clip.kind === 'AUDHU' || clip.kind === 'BISMILLAH') return decoded;
+  const end = ayahEndMs(segmentsSync(reciter, clip.surah, clip.ayah), (decoded.length / SAMPLE_RATE) * 1000);
+  if (end == null) return decoded;
+  const length = Math.min(decoded.length, Math.round((end / 1000) * SAMPLE_RATE));
+  return { left: decoded.left.subarray(0, length), right: decoded.right.subarray(0, length), length };
 }
 
 function mixdown(timeline, decoded) {

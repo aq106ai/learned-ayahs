@@ -79,6 +79,9 @@ data class VideoRequest(
         /** The app's page on Google Play, drawn on the video's closing card. */
         const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.quran.learnedayahs"
 
+        /** The web app, free in any browser. The end card links it beside the Android app. */
+        const val WEB_APP_URL = "https://aq106ai.github.io/learned-ayahs/"
+
         /**
          * A separate Bismillah clip is honest here. At-Tawbah has none. Al-Fatihah's first ayah
          * is the Bismillah, so the clip immediately before it would say it twice.

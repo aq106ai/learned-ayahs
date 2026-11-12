@@ -1,15 +1,20 @@
 // The playback engine — the web counterpart of the Android app's PlaybackService.
 //
-// Two independent axes, exactly as on Android:
-//   PlaybackMode  REVISE (your learned ayahs) · FULL_SURAH (every ayah of the surah) ·
-//                 WORD_BY_WORD (your learned ayahs, one word at a time)
-//   RepeatMode    OFF · SURAH (the queue loops) · AYAH (the ayah — or, word by word, the word —
-//                 repeats, with an optional pause before each repeat)
+// Independent axes, exactly as on Android:
+//   PlaybackMode  REVISE (your learned ayahs) · FULL_SURAH (every ayah of the surah)
+//   RepeatMode    OFF · SURAH (the queue loops) · AYAH (the ayah repeats, with an optional pause
+//                 before each repeat)
+//   Word playback (settings.useWordClips or settings.repeatWord): the ayah plays one word at a
+//                 time, in either mode and with either view on screen. Word clips are
+//                 Quran.com's own recording; without them each word is cut from the ayah's
+//                 audio. repeatWord repeats the word until Next; it is the footer's fourth
+//                 Repeat choice, so choosing it turns the others off.
 //
 // Rules carried over from PlaybackService:
 //   - A'udhu billah + Bismillah play before ayah 1 of a surah (no Bismillah for 1 and 9), when
-//     the ayah starts fresh — not when resuming mid-ayah, not on a repeat, never word by word.
-//   - Next always steps one ayah (one word in WORD_BY_WORD). During an intro, Next/Previous skip
+//     the ayah starts fresh — not when resuming mid-ayah, not on a repeat, never in word
+//     playback.
+//   - Next always steps one ayah (one word in word playback). During an intro, Next/Previous skip
 //     to the ayah. In FULL_SURAH, running off either end moves into the neighbouring surah.
 //     Elsewhere the queue wraps only under repeat SURAH.
 //   - Previous goes to the previous ayah; it never "restarts the current one".
@@ -30,10 +35,11 @@ import {
   trackTitle,
 } from '../core/quran.js';
 import { REMOTE, audioUrls, reciterFromKey } from '../core/reciters.js';
-import { activeWordIndex } from '../core/wordSync.js';
+import { activeWordIndex, ayahEndMs } from '../core/wordSync.js';
 import * as quran from '../services/quranData.js';
 
 const INTRO_REPLAY_THRESHOLD_MS = 500;
+
 
 export class PlayerEngine extends EventTarget {
   /**
@@ -54,6 +60,11 @@ export class PlayerEngine extends EventTarget {
       // the engine immediately follows with play() (word boundaries, intro → ayah).
       el.addEventListener('pause', (e) => {
         const a = e.target;
+        // The engine's own pause where an overlong file's ayah ends (cutAtAyahEnd) is an end.
+        if (a.dataset.cutPause) {
+          delete a.dataset.cutPause;
+          return;
+        }
         if (a === this.audio && !this.swapping && a.paused && !a.ended) this.setPlaying(false);
       });
       el.addEventListener('loadedmetadata', (e) => e.target === this.audio && this.emit('tick'));
@@ -112,14 +123,55 @@ export class PlayerEngine extends EventTarget {
     return this.queue[this.index] ?? null;
   }
 
+  /**
+   * Still on this ayah. By id: a change to the learned list rebuilds the queue's track objects,
+   * and comparing objects dropped timings that arrived meanwhile (no highlight, no ayah end).
+   */
+  isTrack(track) {
+    return Boolean(track) && this.track?.globalId === track.globalId;
+  }
+
   get contentWords() {
     return this.words.filter((w) => !w.isEnd);
   }
 
+  /** One word at a time: Word clips is on, or Repeat is set to Word. */
+  get wordPlayback() {
+    const s = this.store.settings;
+    return Boolean(s.useWordClips || s.repeatWord);
+  }
+
+  get repeatWord() {
+    return Boolean(this.store.settings.repeatWord);
+  }
+
   get durationMs() {
-    if (this.intro || (this.mode === PlaybackMode.WORD_BY_WORD)) return 0;
+    if (this.intro || this.wordPlayback) return 0;
     const d = this.audio.duration;
-    return Number.isFinite(d) ? d * 1000 : 0;
+    if (!Number.isFinite(d)) return 0;
+    return this.ayahEndMs() ?? d * 1000;
+  }
+
+  /** Where the current ayah ends in its file, when the file runs on past it; else null. */
+  ayahEndMs() {
+    const track = this.track;
+    if (!track || this.intro || this.audio.dataset.src !== this.ayahUrl(track)) return null;
+    return ayahEndMs(this.segments, this.audio.duration * 1000);
+  }
+
+  /**
+   * At the end of an ayah whose file runs on (ayahEndMs): stop there and carry on as if the file
+   * had ended. Returns true when it did.
+   */
+  cutAtAyahEnd() {
+    // Once cut the audio is paused: a repeat's pause, or the queue's end, must not cut again.
+    if (this.wordPlayback || this.intro || !this.playing || this.gapPending || this.audio.paused) return false;
+    const end = this.ayahEndMs();
+    if (end == null || this.positionMs < end) return false;
+    this.audio.dataset.cutPause = '1';
+    this.audio.pause();
+    this.onEnded();
+    return true;
   }
 
   get introLabel() {
@@ -129,12 +181,12 @@ export class PlayerEngine extends EventTarget {
   }
 
   get modeLabel() {
-    return playbackModeLabel(this.mode, this.repeat);
+    return playbackModeLabel(this.mode, this.repeat, this.repeatWord);
   }
 
   /** The word to highlight: the playing word, by validated timings, or -1. */
   get activeWord() {
-    if (this.mode === PlaybackMode.WORD_BY_WORD) return this.wordIndex;
+    if (this.wordPlayback) return this.wordIndex;
     if (this.intro || !this.segments) return -1;
     if (!this.playing && this.positionMs <= 0) return -1;
     return activeWordIndex(this.positionMs, this.segments, this.contentWords.length);
@@ -153,8 +205,17 @@ export class PlayerEngine extends EventTarget {
   /** Restores mode, repeat and position from the store (the last ayah played). */
   restore() {
     const s = this.store.settings;
-    this.mode = PlaybackMode[s.playbackMode] ?? PlaybackMode.REVISE;
-    this.repeat = RepeatMode[s.repeatMode] ?? RepeatMode.OFF;
+    // Word by word used to be a third mode, whose "repeat ayah" repeated the word.
+    if (s.playbackMode === 'WORD_BY_WORD') {
+      const repeatedWord = s.repeatMode === RepeatMode.AYAH;
+      this.store.setSetting('playbackMode', PlaybackMode.REVISE);
+      if (repeatedWord) {
+        this.store.setSetting('repeatMode', RepeatMode.OFF);
+        this.store.setSetting('repeatWord', true);
+      }
+    }
+    this.mode = PlaybackMode[this.store.settings.playbackMode] ?? PlaybackMode.REVISE;
+    this.repeat = RepeatMode[this.store.settings.repeatMode] ?? RepeatMode.OFF;
     this.master = buildMaster(this.store.learned);
     const last = this.store.progress.lastGlobalId;
     const start = isValidGlobalId(last) ? last : this.master[0]?.globalId ?? 1;
@@ -199,15 +260,25 @@ export class PlayerEngine extends EventTarget {
     const reciterKey = this.store.settings.reciter;
     const clips = this.store.settings.useWordClips;
     const direct = this.store.settings.streamDirect;
+    const word = this.wordPlayback;
     if (this.lastReciterKey === undefined) {
-      Object.assign(this, { lastReciterKey: reciterKey, lastClips: clips, lastDirect: direct });
+      Object.assign(this, { lastReciterKey: reciterKey, lastClips: clips, lastDirect: direct, lastWord: word });
       return;
     }
-    const changed = reciterKey !== this.lastReciterKey || clips !== this.lastClips || direct !== this.lastDirect;
-    Object.assign(this, { lastReciterKey: reciterKey, lastClips: clips, lastDirect: direct });
+    const wasWord = this.lastWord;
+    const changed = reciterKey !== this.lastReciterKey || clips !== this.lastClips || direct !== this.lastDirect || word !== wasWord;
+    Object.assign(this, { lastReciterKey: reciterKey, lastClips: clips, lastDirect: direct, lastWord: word });
     if (changed && this.track) {
-      // A new reciter means new audio and new timings; keep the ayah, restart it.
-      this.loadIndex(this.index, { autoplay: this.playing, suppressIntro: true });
+      // A new reciter means new audio and new timings; keep the ayah, restart it. Going into or
+      // out of word playback keeps the word that was being recited.
+      let startWord = 0;
+      let startMs = 0;
+      if (wasWord && word) startWord = this.wordIndex;
+      else if (wasWord) startMs = this.segments?.[this.wordIndex]?.[0] ?? 0;
+      else if (word && this.segments && !this.intro && this.positionMs > 0) {
+        startWord = Math.max(activeWordIndex(this.positionMs, this.segments, this.contentWords.length), 0);
+      }
+      this.loadIndex(this.index, { autoplay: this.isActive, suppressIntro: true, startWord, startMs });
     }
   }
 
@@ -234,9 +305,9 @@ export class PlayerEngine extends EventTarget {
 
   async loadAyahData(track) {
     await quran.loadText();
-    if (this.store.settings.showWordTranslations || this.mode === PlaybackMode.WORD_BY_WORD) {
+    if (this.store.settings.showWordTranslations || this.wordPlayback) {
       quran.loadTranslations().then(() => {
-        if (this.track === track) {
+        if (this.isTrack(track)) {
           this.words = quran.wordsSync(track.surah, track.ayah);
           this.emit('track');
         }
@@ -247,7 +318,7 @@ export class PlayerEngine extends EventTarget {
     this.segments = quran.segmentsSync(reciter, track.surah, track.ayah);
     if (!this.segments) {
       quran.loadTimings(reciter).then(() => {
-        if (this.track === track && this.reciter === reciter) {
+        if (this.isTrack(track) && this.reciter.key === reciter.key) {
           this.segments = quran.segmentsSync(reciter, track.surah, track.ayah);
           this.emit('track');
         }
@@ -279,9 +350,9 @@ export class PlayerEngine extends EventTarget {
     this.positionMs = startMs;
     const ready = this.loadAyahData(track);
 
-    if (this.mode === PlaybackMode.WORD_BY_WORD) {
+    if (this.wordPlayback) {
       ready.then(() => {
-        if (this.track !== track) return;
+        if (!this.isTrack(track)) return;
         const count = this.contentWords.length;
         const word = startWord === Infinity ? Math.max(count - 1, 0) : Math.min(startWord, Math.max(count - 1, 0));
         this.loadWord(word, { autoplay });
@@ -316,7 +387,7 @@ export class PlayerEngine extends EventTarget {
   }
 
   preloadNext() {
-    if (this.mode === PlaybackMode.WORD_BY_WORD || this.repeat === RepeatMode.AYAH) return;
+    if (this.wordPlayback || this.repeat === RepeatMode.AYAH) return;
     let next = this.queue[this.index + 1];
     if (!next && this.repeat === RepeatMode.SURAH) next = this.queue[0];
     if (!next || next.ayah === 1) return; // ayah 1 starts with an intro anyway
@@ -325,7 +396,7 @@ export class PlayerEngine extends EventTarget {
   }
 
   needsIntro(track) {
-    return this.mode !== PlaybackMode.WORD_BY_WORD && track?.ayah === 1;
+    return !this.wordPlayback && track?.ayah === 1;
   }
 
   startAudio() {
@@ -388,7 +459,7 @@ export class PlayerEngine extends EventTarget {
       this.startAudio();
       return;
     }
-    if (this.mode === PlaybackMode.WORD_BY_WORD) {
+    if (this.wordPlayback) {
       if (this.audio.ended || this.wordBoundaryReached) this.loadWord(this.wordIndex, { autoplay: true });
       else this.startAudio();
       return;
@@ -430,37 +501,44 @@ export class PlayerEngine extends EventTarget {
 
   next() {
     if (this.intro) return this.finishIntro();
-    if (this.mode === PlaybackMode.WORD_BY_WORD) return this.stepWord(1);
+    if (this.wordPlayback) return this.stepWord(1);
     if (this.stepWordHook?.(1)) return undefined;
     return this.stepAyah(1);
   }
 
   prev() {
     if (this.intro) return this.finishIntro();
-    if (this.mode === PlaybackMode.WORD_BY_WORD) return this.stepWord(-1);
+    if (this.wordPlayback) return this.stepWord(-1);
     if (this.stepWordHook?.(-1)) return undefined;
     return this.stepAyah(-1);
   }
 
-  /** One ayah forward/back, whatever the mode (word mode lands on the first/last word). */
-  stepAyah(delta) {
-    if (!this.queue.length) return;
-    const resume = this.isActive;
+  /**
+   * One ayah forward/back, whatever the mode (word playback lands on the first/last word).
+   * Returns false when there is nowhere to go: the end of a queue that does not loop.
+   */
+  stepAyah(delta, { resume = this.isActive } = {}) {
+    if (!this.queue.length) return false;
     const last = this.queue.length - 1;
     const target = this.index + delta;
+    const startWord = delta > 0 ? 0 : Infinity;
     if (this.mode === PlaybackMode.FULL_SURAH && this.repeat !== RepeatMode.SURAH && (target > last || target < 0)) {
       this.surah = delta > 0 ? QueueBuilder.nextSurahAll(this.surah) : QueueBuilder.prevSurahAll(this.surah);
       this.queue = QueueBuilder.surahAllAyahs(this.surah);
-      this.loadIndex(delta > 0 ? 0 : this.queue.length - 1, { autoplay: resume });
-      return;
+      this.loadIndex(delta > 0 ? 0 : this.queue.length - 1, { autoplay: resume, startWord });
+      return true;
     }
     if (target >= 0 && target <= last) {
-      this.loadIndex(target, { autoplay: resume, startWord: delta > 0 ? 0 : Infinity });
-    } else if (this.repeat === RepeatMode.SURAH) {
-      this.loadIndex((target + this.queue.length) % this.queue.length, { autoplay: resume });
-    } else if (resume && !this.playing) {
-      this.play();
+      this.loadIndex(target, { autoplay: resume, startWord });
+      return true;
     }
+    if (this.repeat === RepeatMode.SURAH) {
+      this.loadIndex((target + this.queue.length) % this.queue.length, { autoplay: resume, startWord });
+      return true;
+    }
+    // Next during the pause before a repeat, with nowhere further to go: play on.
+    if (resume && !this.playing && !this.wordPlayback) this.play();
+    return false;
   }
 
   /** Word mode's "edge pages" and Android's skipAyah. */
@@ -469,7 +547,7 @@ export class PlayerEngine extends EventTarget {
   }
 
   seek(ms) {
-    if (this.intro || this.mode === PlaybackMode.WORD_BY_WORD) return;
+    if (this.intro || this.wordPlayback) return;
     this.cancelGap();
     try {
       this.audio.currentTime = Math.max(ms, 0) / 1000;
@@ -530,8 +608,14 @@ export class PlayerEngine extends EventTarget {
     this.loadIndex(this.index, { autoplay: wasPlaying, suppressIntro: true });
   }
 
-  setRepeat(repeat) {
-    if (repeat === this.repeat) return;
+  /** Off, Surah or Ayah. Choosing one leaves Repeat: Word, unless `keepWord`. */
+  setRepeat(repeat, { keepWord = false } = {}) {
+    if (!keepWord && this.repeatWord) this.store.setSetting('repeatWord', false);
+    if (repeat === this.repeat) {
+      this.updateMediaSession();
+      this.emit('state');
+      return;
+    }
     const current = this.track?.globalId ?? this.master[0]?.globalId ?? 1;
     this.repeat = repeat;
     this.store.setSetting('repeatMode', repeat);
@@ -539,6 +623,15 @@ export class PlayerEngine extends EventTarget {
     this.rebuildQueue(current);
     if (this.track?.globalId !== before?.globalId) this.loadIndex(this.index, { autoplay: this.isActive });
     this.preloadNext();
+    this.updateMediaSession();
+    this.emit('state');
+  }
+
+  /** Repeat: Word, the fourth repeat choice: the word being recited repeats until Next. */
+  setRepeatWord(on) {
+    if (on === this.repeatWord) return;
+    if (on) this.setRepeat(RepeatMode.OFF, { keepWord: true });
+    this.store.setSetting('repeatWord', on);
     this.updateMediaSession();
     this.emit('state');
   }
@@ -581,7 +674,7 @@ export class PlayerEngine extends EventTarget {
       this.advanceIntro();
       return;
     }
-    if (this.mode === PlaybackMode.WORD_BY_WORD) {
+    if (this.wordPlayback) {
       this.onWordEnded();
       return;
     }
@@ -631,7 +724,7 @@ export class PlayerEngine extends EventTarget {
     if (!this.track) return;
     this.error = null;
     this.triedRemote = false;
-    if (this.mode === PlaybackMode.WORD_BY_WORD) this.loadWord(this.wordIndex, { autoplay: true });
+    if (this.wordPlayback) this.loadWord(this.wordIndex, { autoplay: true });
     else this.loadIndex(this.index, { autoplay: true, suppressIntro: true });
   }
 
@@ -681,7 +774,7 @@ export class PlayerEngine extends EventTarget {
 
   /** Word ended (clip finished, or the seek boundary was reached). */
   onWordEnded() {
-    if (this.repeat === RepeatMode.AYAH) {
+    if (this.repeatWord) {
       this.parkThen(() => this.loadWord(this.wordIndex, { autoplay: true }));
       return;
     }
@@ -696,17 +789,14 @@ export class PlayerEngine extends EventTarget {
       this.loadWord(target, { autoplay: resume });
       return;
     }
-    // Running off either end of the ayah loads the neighbouring ayah's words.
-    const last = this.queue.length - 1;
-    let next = this.index + (delta > 0 ? 1 : -1);
-    if (next < 0 || next > last) {
-      if (this.repeat !== RepeatMode.SURAH) {
-        if (force) this.setPlaying(false);
-        return;
-      }
-      next = (next + this.queue.length) % this.queue.length;
+    // The last word of a repeating ayah, reached by playing: the ayah starts again.
+    if (force && this.repeat === RepeatMode.AYAH) {
+      this.parkThen(() => this.loadWord(0, { autoplay: true }));
+      return;
     }
-    this.loadIndex(next, { autoplay: resume, startWord: delta > 0 ? 0 : Infinity });
+    // Running off either end of the ayah loads the neighbouring ayah's words; in a full surah
+    // that can be the next surah's.
+    if (!this.stepAyah(delta > 0 ? 1 : -1, { resume }) && force) this.setPlaying(false);
   }
 
   /** Word overlay in whole-ayah modes: seeks the ayah to a word when the setting allows it. */
@@ -714,6 +804,16 @@ export class PlayerEngine extends EventTarget {
     if (!this.store.settings.seekInsideAyahAudio || !this.segments?.[i]) return false;
     this.seek(this.segments[i][0]);
     return true;
+  }
+
+  /**
+   * Word playback cut from the ayah's audio: the playing word has reached the next word's onset,
+   * or, for the last word of an ayah whose file runs on, the ayah's end.
+   */
+  wordBoundaryHit() {
+    if (!this.wordPlayback || this.wordFileMode || this.wordBoundaryReached) return false;
+    const boundary = this.wordBoundaryMs ?? this.ayahEndMs();
+    return boundary != null && this.positionMs >= boundary;
   }
 
   // -- ticker ------------------------------------------------------------------------------
@@ -724,15 +824,12 @@ export class PlayerEngine extends EventTarget {
       this.rafId = 0;
       if (!this.playing) return;
       this.positionMs = this.audio.currentTime * 1000;
-      if (
-        this.mode === PlaybackMode.WORD_BY_WORD &&
-        !this.wordFileMode &&
-        this.wordBoundaryMs != null &&
-        this.positionMs >= this.wordBoundaryMs
-      ) {
+      if (this.wordBoundaryHit()) {
         this.wordBoundaryReached = true;
         this.audio.pause();
         this.onWordEnded();
+      } else {
+        this.cutAtAyahEnd();
       }
       this.emit('tick');
       this.rafId = requestAnimationFrame(tick);
@@ -745,10 +842,12 @@ export class PlayerEngine extends EventTarget {
         el.addEventListener('timeupdate', () => {
           if (el !== this.audio || !this.playing || document.visibilityState === 'visible') return;
           this.positionMs = el.currentTime * 1000;
-          if (this.mode === PlaybackMode.WORD_BY_WORD && !this.wordFileMode && this.wordBoundaryMs != null && this.positionMs >= this.wordBoundaryMs) {
+          if (this.wordBoundaryHit()) {
             this.wordBoundaryReached = true;
             el.pause();
             this.onWordEnded();
+          } else {
+            this.cutAtAyahEnd();
           }
         });
       }
@@ -783,7 +882,7 @@ export class PlayerEngine extends EventTarget {
     if (!t) return;
     let title = trackTitle(t.surah, t.ayah);
     if (this.introLabel) title = `${this.introLabel} · ${title}`;
-    if (this.mode === PlaybackMode.WORD_BY_WORD) title += ` · word ${this.wordIndex + 1}`;
+    if (this.wordPlayback) title += ` · word ${this.wordIndex + 1}`;
     navigator.mediaSession.metadata = new MediaMetadata({
       title,
       artist: this.reciter.displayName,

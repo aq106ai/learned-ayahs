@@ -105,10 +105,11 @@ export function buildMaster(learnedIds) {
     .map((id, i) => makeTrack(id, i + 1));
 }
 
+// What is in the queue. How it plays (one word at a time, a word repeating) is separate: the
+// useWordClips and repeatWord settings, in either mode.
 export const PlaybackMode = Object.freeze({
   REVISE: 'REVISE',
   FULL_SURAH: 'FULL_SURAH',
-  WORD_BY_WORD: 'WORD_BY_WORD',
 });
 
 export const RepeatMode = Object.freeze({ OFF: 'OFF', SURAH: 'SURAH', AYAH: 'AYAH' });
@@ -116,27 +117,19 @@ export const RepeatMode = Object.freeze({ OFF: 'OFF', SURAH: 'SURAH', AYAH: 'AYA
 export const PLAYBACK_MODE_LABELS = {
   REVISE: tx('Learned ayahs'),
   FULL_SURAH: tx('Full surah'),
-  WORD_BY_WORD: tx('Word by word'),
 };
 
-export function repeatLabel(repeat, mode) {
-  if (mode === PlaybackMode.WORD_BY_WORD && repeat === RepeatMode.AYAH) return tx('Word');
-  return { OFF: tx('Off'), SURAH: tx('Surah'), AYAH: tx('Ayah') }[repeat];
-}
-
 /** The label shown wherever the active mode is surfaced (media session, mini bar, playlist). */
-export function playbackModeLabel(mode, repeat) {
+export function playbackModeLabel(mode, repeat, repeatWord = false) {
+  if (repeatWord) return mode === PlaybackMode.FULL_SURAH ? tx('Full surah · repeat word') : tx('Learned ayahs · repeat word');
   if (mode === PlaybackMode.FULL_SURAH) {
     return { OFF: tx('Full surah'), SURAH: tx('Full surah · repeat'), AYAH: tx('Full surah · repeat ayah') }[repeat];
   }
-  if (mode === PlaybackMode.REVISE) {
-    return {
-      OFF: tx('Learned ayahs'),
-      SURAH: tx('Learned ayahs · repeat surah'),
-      AYAH: tx('Learned ayahs · repeat ayah'),
-    }[repeat];
-  }
-  return repeat === RepeatMode.AYAH ? tx('Word by word · repeat word') : tx('Word by word');
+  return {
+    OFF: tx('Learned ayahs'),
+    SURAH: tx('Learned ayahs · repeat surah'),
+    AYAH: tx('Learned ayahs · repeat ayah'),
+  }[repeat];
 }
 
 export const QueueBuilder = {
@@ -146,8 +139,8 @@ export const QueueBuilder = {
   },
 
   /**
-   * - REVISE / WORD_BY_WORD + repeat SURAH: only the learned ayahs of `surah`.
-   * - REVISE / WORD_BY_WORD otherwise: the whole learned (master) list.
+   * - REVISE + repeat SURAH: only the learned ayahs of `surah`.
+   * - REVISE otherwise: the whole learned (master) list.
    * - FULL_SURAH: every ayah of the surah, learned or not.
    */
   buildQueue(master, mode, repeat, surah) {

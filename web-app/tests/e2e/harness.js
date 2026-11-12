@@ -39,12 +39,15 @@ const pad3 = (n) => String(n).padStart(3, '0');
 /**
  * Fills an audio cache: whole ayahs for `folder`, the two intro clips, and word clips.
  * @param {string} root cache directory
- * @param {{folder?: string, ayahs?: Array<[number, number]>, words?: Array<[number, number, number]>, seconds?: number}} spec
+ * `overlong` ayahs get a file far longer than their word timings, like EveryAyah's Maher Al
+ * Muaiqly 2:258, which holds 2:259 as well: [surah, ayah, seconds].
+ * @param {{folder?: string, ayahs?: Array<[number, number]>, words?: Array<[number, number, number]>, seconds?: number, overlong?: Array<[number, number, number]>}} spec
  */
-export function seedAudio(root, { folder = 'MaherAlMuaiqly128kbps', ayahs = [], words = [], seconds = 1.2 } = {}) {
+export function seedAudio(root, { folder = 'MaherAlMuaiqly128kbps', ayahs = [], words = [], seconds = 1.2, overlong = [] } = {}) {
   const ayahDir = join(root, 'everyayah', folder);
   mkdirSync(ayahDir, { recursive: true });
   for (const [s, a] of ayahs) writeFileSync(join(ayahDir, `${pad3(s)}${pad3(a)}.mp3`), wav(seconds));
+  for (const [s, a, long] of overlong) writeFileSync(join(ayahDir, `${pad3(s)}${pad3(a)}.mp3`), wav(long));
   writeFileSync(join(root, 'everyayah', 'audhubillah.mp3'), wav(0.6, 330));
   writeFileSync(join(root, 'everyayah', 'bismillah.mp3'), wav(0.6, 550));
   const wbw = join(root, 'wbw');
@@ -60,6 +63,7 @@ const range = (s, from, to) => Array.from({ length: to - from + 1 }, (_, i) => [
 export const DEFAULT_AUDIO = {
   ayahs: [...range(1, 1, 7), ...range(112, 1, 4), ...range(113, 1, 5), ...range(114, 1, 6), [2, 255], [111, 5]],
   words: [[112, 1, 4], [112, 2, 2], [112, 3, 4], [112, 4, 5], [1, 1, 4], [1, 2, 4]],
+  overlong: [[114, 2, 9]],
 };
 
 /** Starts server.py; resolves once it is listening. */

@@ -3,12 +3,10 @@
 
 import { dialog, formatTime, h, icon, toast } from '../lib/dom.js';
 import {
-  PLAYBACK_MODE_LABELS,
   PlaybackMode,
   RepeatMode,
   VERSE_COUNTS,
   globalToSurahAyah,
-  repeatLabel,
   surahName,
   trackTitle,
 } from '../core/quran.js';
@@ -21,15 +19,16 @@ import { download } from './video.js';
 import { showTafsir } from './tafsir.js';
 import { photoSubjects, thumbUrl, translation } from '../video/data.js';
 import { ASPECTS, VideoExporter, fileName } from '../video/exporter.js';
-import { applyPalette, paletteFor } from '../video/palette.js';
+import { currentPalette, setScene } from './sceneColours.js';
 import { PlayerBackgrounds } from '../video/plan.js';
 import { BackgroundScenes, THEMES, variant } from '../video/scenes.js';
 import { copyPlain, sharePlain, shareTextOf } from '../video/shareText.js';
-import { editionNameSync, onContentLoaded, translationLanguageSync } from '../services/content.js';
+import { onContentLoaded, translationLanguageSync } from '../services/content.js';
 
 import { tx } from '../core/i18n.js';
 export function playerView({ store, engine, server, go }) {
-  let overlay = false; // word-by-word overlay in the whole-ayah modes
+  // One word at a time on screen, or the whole ayah. What plays is separate (engine.wordPlayback).
+  const wordView = () => Boolean(store.settings.wordView);
   let reader = null;
   let expanded = false;
   let wakeLock = null;
@@ -37,25 +36,54 @@ export function playerView({ store, engine, server, go }) {
   // -- header ------------------------------------------------------------------------------
 
   const meta = h('div', { class: 'meta', 'data-testid': 'player-meta' });
-  const wordToggle = h('button', {
-    class: 'btn small',
-    type: 'button',
-    'data-testid': 'toggle-word-by-word',
-    onClick: () => {
-      overlay = !overlay;
-      renderReader();
-    },
-  });
-  const head = h(
-    'div',
-    { class: 'player-head' },
-    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Browse surahs'), 'data-testid': 'open-surah-panel', onClick: () => openSurahPanel() }, icon('list')),
+  // Everything that is not transport lives behind the header's three dots. Mode and view are one
+  // item each, named for what choosing it does, so the menu is rebuilt whenever either changes.
+  const menuItems = h('div', { class: 'player-menu-items', role: 'menu' });
+  const menuSummary = h('summary', { class: 'btn ghost icon-only', 'aria-label': tx('More options'), title: tx('More options'), 'data-testid': 'open-actions-menu' }, icon('more'));
+  const menuEl = h('details', { class: 'player-menu' }, menuSummary, menuItems);
+  const menuItem = (label, iconName, testid, action, disabled = false) => h('button', {
+    class: 'btn ghost', type: 'button', role: 'menuitem', 'data-testid': testid, disabled,
+    onClick: () => { menuEl.open = false; menuSummary.focus(); action(); },
+  }, icon(iconName), h('span', {}, label));
+  // The settings listener below redraws the reader, the menu and the footer.
+  const showWords = () => store.setSetting('wordView', true);
+  const showAyah = () => store.setSetting('wordView', false);
+  const learnedInSurah = (surah) => learnedCountsBySurah(store.learned).get(surah) ?? 0;
+  function renderMenu() {
+    const other = engine.mode === PlaybackMode.FULL_SURAH ? PlaybackMode.REVISE : PlaybackMode.FULL_SURAH;
+    const translated = store.settings.showAyahTranslation;
+    const meanings = store.settings.showWordTranslations;
+    const t = engine.track;
+    // A surah learned in full is the same list either way: no "Revise Full Surah".
+    const sameList = other === PlaybackMode.FULL_SURAH && t && learnedInSurah(t.surah) >= VERSE_COUNTS[t.surah - 1];
+    menuItems.replaceChildren(...[
+      sameList ? null : menuItem(other === PlaybackMode.REVISE ? tx('Revise Learned Ayahs') : tx('Revise Full Surah'), 'repeat', `mode-${other}`, () => engine.setMode(other)),
+      wordView()
+        ? menuItem(tx('View Full Ayah'), 'type', 'view-ayah', showAyah)
+        : menuItem(tx('Word by Word'), 'type', 'toggle-word-by-word', showWords),
+      menuItem(translated ? tx('Hide Translation') : tx('Show Translation'), 'globe', 'toggle-translation', () => store.setSetting('showAyahTranslation', !translated)),
+      menuItem(meanings ? tx('Hide Word Meanings') : tx('Show Word Meanings'), 'layers', 'toggle-word-meanings', () => store.setSetting('showWordTranslations', !meanings)),
+      h('hr'),
+      menuItem(tx('Tafsir'), 'book', 'tafsir', () => { if (engine.track) showTafsir(store, engine.track.surah, engine.track.ayah); }, !engine.track),
+      menuItem(tx('Share'), 'share', 'share', () => openShareDialog(), !engine.track),
+      menuItem(tx('Theme'), 'image', 'open-background', () => openBackgroundDialog()),
+      menuItem(tx('Settings'), 'settings', 'player-settings', () => go('settings')),
+    ].filter(Boolean));
+  }
+  const closeMenus = (event) => {
+    if (!menuEl.open) return;
+    if (event.key === 'Escape') {
+      menuEl.open = false;
+      menuSummary.focus();
+    } else if (event.type === 'click' && !menuEl.contains(event.target)) menuEl.open = false;
+  };
+  document.addEventListener('click', closeMenus);
+  document.addEventListener('keydown', closeMenus);
+  const head = h('div', { class: 'player-head' },
+    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Browse surahs'), title: tx('Browse surahs'), 'data-testid': 'open-surah-panel', onClick: () => openSurahPanel() }, icon('list')),
     meta,
-    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Playlist'), 'data-testid': 'open-playlist', onClick: () => openPlaylistPanel() }, icon('layers')),
-    wordToggle,
-    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Background'), 'data-testid': 'open-background', onClick: () => openBackgroundDialog() }, icon('image')),
-    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Tafsir on this ayah'), title: tx('Tafsir'), 'data-testid': 'tafsir', onClick: () => { if (engine.track) showTafsir(store, engine.track.surah, engine.track.ayah); } }, icon('book')),
-    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Share this ayah'), 'data-testid': 'share', onClick: () => openShareDialog() }, icon('share')),
+    h('button', { class: 'btn ghost icon-only', type: 'button', 'aria-label': tx('Playlist'), title: tx('Playlist'), 'data-testid': 'open-playlist', onClick: () => openPlaylistPanel() }, icon('queue')),
+    menuEl,
   );
   const background = playerBackground({ engine, store });
 
@@ -72,7 +100,7 @@ export function playerView({ store, engine, server, go }) {
       h('h2', {}, tx('No ayahs marked yet.')),
       h('p', {}, tx('Open a surah and tick the ayahs you have memorised to add them to your revision. You can also add several at once by description.')),
       h('div', { class: 'row', style: { justifyContent: 'center' } },
-        h('a', { class: 'btn primary', href: '#/surahs' }, icon('book'), tx('Browse surahs')),
+        h('a', { class: 'btn primary', href: '#/surahs' }, icon('edit'), tx('Browse surahs')),
         h('a', { class: 'btn', href: '#/add' }, icon('plus'), tx('Add by description')),
       ),
     );
@@ -117,25 +145,25 @@ export function playerView({ store, engine, server, go }) {
 
   const readerKind = () => {
     if (!engine.track) return 'empty';
-    return engine.mode === PlaybackMode.WORD_BY_WORD || overlay ? 'word' : 'whole';
+    return wordView() ? 'word' : 'whole';
   };
   let renderedKind = null;
   let renderedIntro = null;
 
   function renderReader() {
+    lastActive = -2;
+    readerEl.scrollTop = 0;
     reader?.destroy();
     reader = null;
     renderedKind = readerKind();
     renderedIntro = engine.introLabel;
-    const wordMode = engine.mode === PlaybackMode.WORD_BY_WORD;
-    wordToggle.hidden = wordMode || !engine.track;
-    wordToggle.textContent = overlay ? tx('Whole ayah') : tx('Word by word');
+    renderMenu();
     if (!engine.track) {
       readerEl.classList.remove('tap');
       readerHost.replaceChildren(emptyState());
       return;
     }
-    if (wordMode || overlay) {
+    if (wordView()) {
       reader = wordReader({ engine, store });
       readerEl.classList.remove('tap');
       readerHost.replaceChildren(reader.el);
@@ -153,23 +181,42 @@ export function playerView({ store, engine, server, go }) {
     if (active === lastActive) return;
     lastActive = active;
     wordEls.forEach((el, i) => el.classList.toggle('active', i === active));
-    if (active >= 0 && store.settings.ayahOverflowMode === 'AUTO_SCROLL' && readerEl.scrollHeight > readerEl.clientHeight) {
-      wordEls[active]?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (engine.playing && active >= 0 && store.settings.ayahOverflowMode === 'AUTO_SCROLL' && readerEl.scrollHeight > readerEl.clientHeight) {
+      const word = wordEls[active];
+      if (word) {
+        const viewport = readerEl.getBoundingClientRect();
+        const bounds = word.getBoundingClientRect();
+        const target = readerEl.scrollTop + bounds.top + bounds.height / 2 - viewport.top - readerEl.clientTop - readerEl.clientHeight / 2;
+        readerEl.scrollTo({ top: Math.max(0, Math.min(target, readerEl.scrollHeight - readerEl.clientHeight)), behavior: 'smooth' });
+      }
     }
   }
 
   /** FIT_TO_SCREEN: shrink the ayah's font just enough that it fits without scrolling. */
+  let fitFrame = 0;
+  let disposed = false;
   function fitAyah() {
-    readerHost.style.removeProperty('--ayah-size');
-    if (store.settings.ayahOverflowMode !== 'FIT_TO_SCREEN') return;
-    let size = 3.2;
-    requestAnimationFrame(() => {
-      while (readerEl.scrollHeight > readerEl.clientHeight + 2 && size > 1.1) {
-        size -= 0.1;
-        readerHost.style.setProperty('--ayah-size', `${size.toFixed(2)}rem`);
+    cancelAnimationFrame(fitFrame);
+    fitFrame = requestAnimationFrame(() => {
+      if (disposed || renderedKind !== 'whole' || !readerEl.isConnected) return;
+      readerHost.style.removeProperty('--ayah-size');
+      if (store.settings.ayahOverflowMode !== 'FIT_TO_SCREEN') return;
+      const first = readerHost.querySelector('.ar');
+      if (!first || readerEl.clientHeight <= 0) return;
+      const base = parseFloat(getComputedStyle(first).fontSize);
+      const minimum = Math.min(base, parseFloat(getComputedStyle(document.documentElement).fontSize) * 1.1);
+      for (let size = base; size > minimum && (readerEl.scrollHeight > readerEl.clientHeight + 1 || readerEl.scrollWidth > readerEl.clientWidth + 1);) {
+        size = Math.max(minimum, size - 1);
+        readerHost.style.setProperty('--ayah-size', `${size}px`);
       }
+      // If translations still exceed the viewport, retain a top-accessible scroll fallback.
+      readerEl.scrollTop = 0;
     });
   }
+  const readerResize = new ResizeObserver(fitAyah);
+  readerResize.observe(readerEl);
+  document.fonts?.addEventListener('loadingdone', fitAyah);
+
 
   // Whole-ayah navigation uses a short swipe, as on Android. Only the paged word reader
   // uses a halfway threshold. Scrolling vertically or returning a drag is never a tap.
@@ -189,10 +236,13 @@ export function playerView({ store, engine, server, go }) {
     if (reader || !engine.track || e.target.closest('a, button')) return;
     const dx = e.clientX - x;
     const dy = e.clientY - y;
+    // A swipe or tap is Next or Previous: an ayah, or a word while the words play one at a time
+    // (the footer's outer buttons then move by ayah).
+    const step = (delta) => (delta > 0 ? engine.next() : engine.prev());
     if (Math.abs(dx) >= 56 && Math.abs(dx) > Math.abs(dy)) {
-      if (store.settings.swipeToNavigate) (dx > 0 ? engine.next() : engine.prev());
+      if (store.settings.swipeToNavigate) step(dx > 0 ? 1 : -1);
     } else if (!moved && Math.hypot(dx, dy) <= 10 && store.settings.tapToAdvance) {
-      engine.next();
+      step(1);
     }
   });
   const cancelAyahDrag = () => { ayahDrag = null; };
@@ -204,8 +254,11 @@ export function playerView({ store, engine, server, go }) {
   const nowTitle = h('div', { class: 'title', 'data-testid': 'now-playing' });
   const nowMode = h('span', { class: 'badge', 'data-testid': 'mode-label' });
   const playBtn = h('button', { class: 'round play', type: 'button', 'data-testid': 'play', onClick: () => engine.toggle() });
-  const prevBtn = h('button', { class: 'round', type: 'button', 'aria-label': tx('Previous'), 'data-testid': 'prev', onClick: () => engine.prev() }, icon('prev'));
-  const nextBtn = h('button', { class: 'round', type: 'button', 'aria-label': tx('Next'), 'data-testid': 'next', onClick: () => engine.next() }, icon('next'));
+  const prevBtn = h('button', { class: 'round', type: 'button', 'data-testid': 'prev', onClick: () => engine.prev() });
+  const nextBtn = h('button', { class: 'round', type: 'button', 'data-testid': 'next', onClick: () => engine.next() });
+  // While the words play one at a time, Previous and Next step words and these move by ayah.
+  const prevAyahBtn = h('button', { class: 'round small', type: 'button', hidden: true, 'aria-label': tx('Previous ayah'), title: tx('Previous ayah'), 'data-testid': 'prev-ayah', onClick: () => engine.stepAyah(-1) }, icon('prev'));
+  const nextAyahBtn = h('button', { class: 'round small', type: 'button', hidden: true, 'aria-label': tx('Next ayah'), title: tx('Next ayah'), 'data-testid': 'next-ayah', onClick: () => engine.stepAyah(1) }, icon('next'));
   const moreBtn = h('button', {
     class: 'btn ghost icon-only',
     type: 'button',
@@ -242,7 +295,7 @@ export function playerView({ store, engine, server, go }) {
     reciteCta,
     errorRow,
     h('div', { class: 'now' }, nowTitle, nowMode, moreBtn),
-    h('div', { class: 'transport' }, prevBtn, playBtn, nextBtn),
+    h('div', { class: 'transport' }, prevAyahBtn, prevBtn, playBtn, nextBtn, nextAyahBtn),
     seekRow,
     more,
   );
@@ -256,39 +309,48 @@ export function playerView({ store, engine, server, go }) {
     if (!expanded) return;
     const mode = engine.mode;
     const repeat = engine.repeat;
+    const repeatWord = engine.repeatWord;
+    const clips = store.settings.useWordClips;
+    const t = engine.track;
+    // "Surah" repeats this surah's learned ayahs in the learned list; say so when there is more
+    // than one of them to repeat.
+    const surahLabel = mode === PlaybackMode.REVISE && t && learnedInSurah(t.surah) > 1 ? tx('Surah learned ayahs') : tx('Surah');
+    const pick = (r) => chip({ AYAH: tx('Ayah'), SURAH: surahLabel, OFF: tx('Off') }[r], !repeatWord && r === repeat, () => engine.setRepeat(r), `repeat-${r}`);
     const groups = [
-      h('div', {}, h('div', { class: 'label' }, tx('Play')), h('div', { class: 'chips' },
-        Object.values(PlaybackMode).map((m) => chip(PLAYBACK_MODE_LABELS[m], m === mode, () => engine.setMode(m), `mode-${m}`)),
-      )),
+      // One choice of four. Word repeats the word being recited, in either view.
       h('div', {}, h('div', { class: 'label' }, tx('Repeat')), h('div', { class: 'chips' },
-        Object.values(RepeatMode).map((r) => chip(repeatLabel(r, mode), r === repeat, () => engine.setRepeat(r), `repeat-${r}`)),
+        pick(RepeatMode.AYAH),
+        pick(RepeatMode.SURAH),
+        chip(tx('Word'), repeatWord, () => engine.setRepeatWord(!repeatWord), 'repeat-word'),
+        pick(RepeatMode.OFF),
       )),
     ];
-    if (repeat === RepeatMode.AYAH) {
+    if (repeat === RepeatMode.AYAH || repeatWord) {
       groups.push(h('div', {},
         h('div', { class: 'label' }, tx('Pause before repeat — time to revise or press Next')),
         h('div', { class: 'chips' }, REVISION_DELAY_CHOICES.map((s) =>
           chip(s === 0 ? 'Off' : `${s}s`, s === store.settings.revisionDelaySeconds, () => engine.setRevisionDelay(s), `delay-${s}`))),
       ));
     }
-    if (mode === PlaybackMode.WORD_BY_WORD) {
-      const clips = store.settings.useWordClips;
-      groups.push(h('label', { class: 'toggle-row' },
-        h('span', { class: 'text' },
-          h('strong', {}, tx('Word clips (Quran.com)')),
-          h('span', {}, clips ? tx('Isolated pronunciation clips. Recite & review always uses these.') : tx('Off: each word is played in your ayah reciter, cut from the ayah audio.')),
-        ),
-        h('input', { class: 'switch', type: 'checkbox', checked: clips, onChange: (e) => store.setSetting('useWordClips', e.target.checked) }),
+    groups.push(h('label', { class: 'toggle-row' },
+      h('span', { class: 'text' },
+        h('strong', {}, tx('Word clips (Quran.com)')),
+        h('span', {}, clips ? tx('Each word from Quran.com, one at a time, in place of your reciter.') : tx('Off: your ayah reciter. On: each word from Quran.com, one at a time.')),
+      ),
+      h('input', { class: 'switch', type: 'checkbox', 'data-testid': 'word-clips', checked: clips, onChange: (e) => store.setSetting('useWordClips', e.target.checked) }),
+    ));
+    // Word clips are Quran.com's own recording, so there is no reciter to choose.
+    if (!clips) {
+      groups.push(h('div', {}, h('div', { class: 'label' }, tx('Reciter')),
+        h('select', { class: 'select', 'aria-label': tx('Reciter'), 'data-testid': 'player-reciter', onChange: (e) => store.setSetting('reciter', e.target.value) },
+          RECITERS.map((r) => h('option', { value: r.key, selected: r.key === store.settings.reciter }, r.displayName))),
       ));
     }
-    groups.push(h('div', {}, h('div', { class: 'label' }, tx('Reciter')),
-      h('select', { class: 'select', 'aria-label': tx('Reciter'), onChange: (e) => store.setSetting('reciter', e.target.value) },
-        RECITERS.map((r) => h('option', { value: r.key, selected: r.key === store.settings.reciter }, r.displayName))),
-    ));
     more.replaceChildren(...groups);
   }
 
   function renderState() {
+    renderMenu();
     const t = engine.track;
     const active = engine.isActive;
     playBtn.replaceChildren(icon(active ? 'pause' : 'play', { filled: true }));
@@ -296,17 +358,29 @@ export function playerView({ store, engine, server, go }) {
     playBtn.disabled = !t;
     prevBtn.disabled = !t;
     nextBtn.disabled = !t;
+    const words = engine.wordPlayback && Boolean(t);
+    prevAyahBtn.hidden = !words;
+    nextAyahBtn.hidden = !words;
+    if (prevBtn.dataset.words !== String(words)) {
+      prevBtn.dataset.words = String(words);
+      prevBtn.replaceChildren(icon(words ? 'chevronLeft' : 'prev'));
+      nextBtn.replaceChildren(icon(words ? 'chevronRight' : 'next'));
+      prevBtn.setAttribute('aria-label', words ? tx('Previous word') : tx('Previous'));
+      nextBtn.setAttribute('aria-label', words ? tx('Next word') : tx('Next'));
+      prevBtn.title = prevBtn.getAttribute('aria-label');
+      nextBtn.title = nextBtn.getAttribute('aria-label');
+    }
     nowTitle.textContent = engine.introLabel ?? (t ? `${t.index}. ${trackTitle(t.surah, t.ayah)}` : 'Nothing to play yet');
     if (engine.gapPending) nowTitle.textContent += tx(' · pausing before repeat');
     nowMode.textContent = engine.modeLabel;
     errorRow.hidden = !engine.error;
     errorText.textContent = engine.error ? `${engine.error} ${tx('Check your connection, or save ayahs for offline in Settings.')}` : '';
-    seekRow.hidden = engine.mode === PlaybackMode.WORD_BY_WORD || !t;
+    seekRow.hidden = engine.wordPlayback || !t;
     if (t) {
       const pos = engine.mode === PlaybackMode.FULL_SURAH ? tx('{n} of {total}', { n: t.ayah, total: VERSE_COUNTS[t.surah - 1] }) : tx('{n} of {total}', { n: engine.index + 1, total: engine.queue.length });
       meta.textContent = `${surahName(t.surah)} · ${tx('Ayah {n}', { n: t.ayah })} · ${pos}`;
     } else {
-      meta.textContent = tx('Player');
+      meta.textContent = tx('Revise');
     }
     reciteCta.replaceChildren(
       store.settings.reciteBetaEnabled && t
@@ -365,8 +439,8 @@ export function playerView({ store, engine, server, go }) {
     }));
     const search = h('input', { class: 'input', type: 'search', placeholder: tx('Search surah'), onInput: (e) => render(e.target.value) });
     render('');
-    openPanel('start', 'Surahs', h('div', { class: 'stack' },
-      h('a', { class: 'btn', href: '#/surahs', onClick: closePanel }, icon('book'), tx('Manage learned ayahs')),
+    openPanel('start', tx('Surahs'), h('div', { class: 'stack' },
+      h('a', { class: 'btn', href: '#/surahs', onClick: closePanel }, icon('edit'), tx('Manage learned ayahs')),
       search,
       list,
     ));
@@ -409,7 +483,7 @@ export function playerView({ store, engine, server, go }) {
       if (group.open) group.dispatchEvent(new Event('toggle'));
     }
     if (!queue.length) body.append(h('p', { class: 'muted' }, tx('Nothing in the playlist yet.')));
-    openPanel('end', 'Playlist', body);
+    openPanel('end', tx('Playlist'), body);
   }
 
   // -- background and share -----------------------------------------------------------------
@@ -419,7 +493,7 @@ export function playerView({ store, engine, server, go }) {
     const current = () => store.settings.playerBackground;
     const pick = (value) => {
       // A background is the look of a shared video, translation included; turning one on brings
-      // the translation with it. It can be switched off again just below.
+      // the translation with it. It can be switched off again from the three-dot menu.
       if (current() === PlayerBackgrounds.PLAIN && value !== PlayerBackgrounds.PLAIN) store.setSetting('showAyahTranslation', true);
       store.setSetting('playerBackground', value);
       draw();
@@ -442,7 +516,11 @@ export function playerView({ store, engine, server, go }) {
         class: `theme-tile small${current() === value ? ' selected' : ''}`, type: 'button', 'aria-pressed': String(current() === value),
         'data-testid': `background-${value}`, onClick: () => pick(value),
       }, h('span', { class: 'theme-pic' }, image), h('span', { class: 'theme-name' }, title));
+      const theme = store.settings.theme;
       body.replaceChildren(
+        h('div', { class: 'chips' }, [['DARK', tx('Dark')], ['LIGHT', tx('Light')], ['SYSTEM', tx('Match system')]].map(([value, label]) =>
+          chip(label, theme === value, () => { store.setSetting('theme', value); draw(); }, `theme-${value}`))),
+        h('div', { class: 'small muted' }, tx('Background')),
         h('div', { class: 'chips' },
           chip(tx('Plain'), current() === PlayerBackgrounds.PLAIN, () => pick(PlayerBackgrounds.PLAIN), 'background-plain'),
           chip(tx('Matched scenes'), current() === PlayerBackgrounds.MATCHED, () => pick(PlayerBackgrounds.MATCHED), 'background-matched'),
@@ -450,14 +528,12 @@ export function playerView({ store, engine, server, go }) {
         h('p', { class: 'small muted' }, tx('Matched follows what each ayah is about, as in a shared video. Or choose one for every ayah:')),
         h('div', { class: 'theme-row' }, THEMES.map((t) => tile(t.title, t.key, drawnThumb(t.key)))),
         subjects.length ? h('div', { class: 'theme-row' }, subjects.map((s) => tile(s.title, s.themeKey, h('img', { src: thumbUrl(s), alt: '', loading: 'lazy' })))) : null,
-        h('label', { class: 'toggle-row' },
-          h('span', { class: 'text' }, h('strong', {}, tx('Translation')), h('span', {}, tx('{name}, under the whole ayah', { name: editionNameSync() }))),
-          h('input', { class: 'switch', type: 'checkbox', checked: store.settings.showAyahTranslation, 'data-testid': 'background-translation', onChange: (e) => store.setSetting('showAyahTranslation', e.target.checked) })),
+        h('p', { class: 'small muted' }, tx('Dark or Light also colours a scene or photo.')),
         h('p', { class: 'small muted' }, tx('Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons, never people or animals. A moving background uses a little more battery.')),
       );
     }
     draw();
-    await dialog({ title: tx('Background'), content: body, actions: [{ label: tx('Done'), value: true, primary: true }] });
+    await dialog({ title: tx('Theme'), content: body, actions: [{ label: tx('Done'), value: true, primary: true }] });
     thumbs.release();
   }
 
@@ -504,7 +580,7 @@ export function playerView({ store, engine, server, go }) {
     // clips the position is into the word's own file, not the ayah: use where the word starts.
     let atMs = null;
     if (!engine.introLabel) {
-      if (engine.mode === PlaybackMode.WORD_BY_WORD && engine.usesWordClips()) {
+      if (engine.wordPlayback && engine.wordFileMode) {
         const start = engine.segments?.[engine.wordIndex]?.[0];
         if (start != null) atMs = start + 1;
       } else if (engine.positionMs > 0) {
@@ -516,7 +592,7 @@ export function playerView({ store, engine, server, go }) {
       title: tx('Share this ayah'),
       content,
       actions: [
-        { label: tx('Video…'), value: 'video' },
+        { label: tx('Share video'), value: 'video' },
         {
           label: tx('Share image'), value: 'image', primary: true,
           onClick: async () => {
@@ -582,6 +658,7 @@ export function playerView({ store, engine, server, go }) {
     if (document.visibilityState === 'visible') keepAwake();
   };
   const onKey = (e) => {
+    if (e.target.closest('.player-menu[open]')) return;
     if (e.key === 'Escape' && panel) {
       closePanel();
       return;
@@ -606,13 +683,18 @@ export function playerView({ store, engine, server, go }) {
   // -- wiring ------------------------------------------------------------------------------
 
   const el = h('div', { class: 'player' }, background.el, head, readerEl, controls);
+  // The scene on screen colours the whole app, dark or light as the theme says (sceneColours.js).
+  // Here it only decides how see-through the bars and the card are.
+  function markLightScene() {
+    const light = Boolean(currentPalette()?.isLight);
+    el.classList.toggle('light-scene', light);
+    document.getElementById('app')?.classList.toggle('light-scene', light);
+  }
   background.hooks.onScene = (spec) => {
-    const source = spec?.kind === 'PHOTO'
-      ? { colors: [[16, 20, 24, 255], [16, 20, 24, 255], [16, 20, 24, 255], [255, 255, 255, 255]] }
-      : spec;
-    const palette = source ? paletteFor(source) : null;
-    applyPalette(el, palette);
-    for (const node of document.querySelectorAll('.sidebar, .tabbar')) applyPalette(node, palette);
+    // No scene yet is not "no background": keep the last colours until the first one is drawn.
+    if (!spec && store.settings.playerBackground !== PlayerBackgrounds.PLAIN) return;
+    setScene(spec);
+    markLightScene();
   };
   function applyBackground() {
     const on = store.settings.playerBackground !== PlayerBackgrounds.PLAIN;
@@ -633,12 +715,18 @@ export function playerView({ store, engine, server, go }) {
       renderState();
     }),
     engine.on('tick', renderTick),
-    store.on((what) => { if (what === 'settings' || what === 'all') { applyBackground(); renderReader(); renderState(); } }),
+    store.on((what) => { if (what === 'settings' || what === 'all') {
+      applyBackground();
+      markLightScene(); // main.js has already re-applied the colours for a theme change
+      renderReader();
+      renderState();
+    } }),
     // A translation or word meanings that finished downloading: show them. The word reader picks
     // new meanings up as it moves, so only the whole-ayah view is redrawn.
     onContentLoaded(() => { if (renderedKind === 'whole') renderReader(); }),
   ];
   applyBackground();
+  markLightScene();
   renderReader();
   renderState();
   renderMore();
@@ -648,13 +736,18 @@ export function playerView({ store, engine, server, go }) {
 
   return {
     el,
-    title: tx('Player'),
+    title: tx('Revise'),
     destroy() {
+      document.removeEventListener('click', closeMenus);
+      document.removeEventListener('keydown', closeMenus);
+      disposed = true;
+      cancelAnimationFrame(fitFrame);
+      readerResize.disconnect();
+      document.fonts?.removeEventListener('loadingdone', fitAyah);
       offs.forEach((off) => off());
       reader?.destroy();
       background.destroy();
-      for (const node of document.querySelectorAll('.sidebar, .tabbar')) applyPalette(node, null);
-      document.getElementById('app')?.classList.remove('scene');
+      document.getElementById('app')?.classList.remove('scene', 'light-scene');
       closePanel();
       document.removeEventListener('visibilitychange', onVisible);
       document.removeEventListener('keydown', onKey);

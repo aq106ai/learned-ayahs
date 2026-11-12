@@ -25,6 +25,8 @@ different one — needs no install at all. Use -Install only when the APKs have 
 #>
 param(
     [string]$Class = "",
+    [string]$Serial = "",
+    [string]$TestLocale = "",
     [switch]$Install,
     [switch]$Build,
     # These tests print their measurements to stdout, which `am instrument -r` does not surface
@@ -33,6 +35,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+if ($Serial) { $env:ANDROID_SERIAL = $Serial }
 $root = Split-Path -Parent $PSScriptRoot
 # Globbed, not hardcoded: the APK carries the versionName, so pinning it here means every release
 # bump silently breaks this script with a "missing APK" that looks like a build failure.
@@ -101,6 +104,7 @@ if ($restoreTimeout) {
 try {
     $args = @("shell", "am", "instrument", "-w")
     if ($Class -ne "") { $args += @("-e", "class", $Class) }
+    if ($TestLocale) { $args += @("-e", "readerLocale", $TestLocale) }
     $args += $runner
 
     Write-Host "==> am instrument $Class" -ForegroundColor Cyan

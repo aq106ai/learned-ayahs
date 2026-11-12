@@ -194,6 +194,7 @@ test('Tafsir on the current ayah: the chosen edition, its source, the ayahs it c
   const first = await openApp(browser, server, { path: 'player', query: '?test', settings: { tafsirEdition: 'qc-tafsir-169' }, setup: stub.setup });
   const { page } = first;
   await learn(page, [[112, 2]]);
+  await page.click('[data-testid=open-actions-menu]');
   await page.click('[data-testid=tafsir]');
   await page.waitForSelector('[data-testid=tafsir-text]');
   assert.match(await page.textContent('[data-testid=tafsir-source]'), /Ibn Kathir \(Abridged\) by Hafiz Ibn Kathir, from Quran\.com/);
@@ -214,6 +215,7 @@ test('Tafsir on the current ayah: the chosen edition, its source, the ayahs it c
   // Read once, kept: it opens again with the provider gone.
   await first.context.unroute('https://api.quran.com/**');
   const offline = await openApp(browser, server, { path: 'player', query: '?test', context: first.context, setup: (c) => c.route('https://api.quran.com/**', (r) => r.abort()) });
+  await offline.page.click('[data-testid=open-actions-menu]');
   await offline.page.click('[data-testid=tafsir]');
   await offline.page.waitForSelector('[data-testid=tafsir-text]');
   assert.equal(await offline.page.textContent('[data-testid=tafsir-text] h3'), 'Tafsir 169 on 112:2');
@@ -225,6 +227,7 @@ test('Tafsir with none chosen offers the list; a failed download can be retried'
   const stub = quranComStub({ failTafsir: true });
   const { page, context, errors } = await openApp(browser, server, { path: 'player', query: '?test', settings: { translationEdition: 'qc-54' }, setup: stub.setup });
   await learn(page, [[1, 2]]);
+  await page.click('[data-testid=open-actions-menu]');
   await page.click('[data-testid=tafsir]');
   await page.waitForSelector('[data-testid=tafsir-none]');
   // Urdu reader: Urdu tafsirs first.

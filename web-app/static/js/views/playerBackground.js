@@ -54,9 +54,11 @@ export function playerBackground({ engine, store }) {
 
   /** What the current ayah asks for; a photo is only asked for once it has loaded. */
   async function refreshWanted() {
-    const t = engine.track;
+    // Nothing to revise yet (a new user, still in the welcome dialog): the opening ayah's scene,
+    // so a background shows the moment it is picked.
+    const t = engine.track ?? { surah: 1, ayah: 1 };
     const c = choice();
-    if (!t || c === PlayerBackgrounds.PLAIN) return;
+    if (c === PlayerBackgrounds.PLAIN) return;
     const mine = ++token;
     const seed = surahAyahToGlobal(t.surah, t.ayah);
     const drawnKey = await themeKey(t.surah, t.ayah);

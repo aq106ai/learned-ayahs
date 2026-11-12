@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
 
 /**
@@ -58,9 +59,9 @@ fun Modifier.appSafePadding(): Modifier {
         0.dp
     }
     return padding(
-        start = bars.getLeft(density, direction).capped(),
+        start = (if (direction == LayoutDirection.Ltr) bars.getLeft(density, direction) else bars.getRight(density, direction)).capped(),
         top = bars.getTop(density).capped(),
-        end = bars.getRight(density, direction).capped(),
+        end = (if (direction == LayoutDirection.Ltr) bars.getRight(density, direction) else bars.getLeft(density, direction)).capped(),
         bottom = maxOf(bars.getBottom(density).capped(), imeBottom),
     )
 }
@@ -74,6 +75,8 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
             secondary = palette.accentGreen,
             background = palette.bg,
             surface = palette.panel,
+            // Menus are drawn on this role; without it they fall back to Material's grey.
+            surfaceContainer = palette.panel,
             onBackground = palette.textPrimary,
             onSurface = palette.textPrimary,
             onSurfaceVariant = palette.textMuted,
@@ -85,6 +88,8 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
             secondary = palette.accentGreen,
             background = palette.bg,
             surface = palette.panel,
+            // Menus are drawn on this role; without it they fall back to Material's grey.
+            surfaceContainer = palette.panel,
             onBackground = palette.textPrimary,
             onSurface = palette.textPrimary,
             onPrimary = onAccentFor(palette.accent, palette.panel),
@@ -123,7 +128,7 @@ fun LearnedAyahsTheme(content: @Composable () -> Unit) {
             // a cancelled keyboard inset was applied as a top pad of roughly a keyboard's height,
             // which pushed the player header down and left the ayah slot empty.
             Box(modifier = Modifier.fillMaxSize().appSafePadding()) {
-                content()
+                com.quran.learnedplayer.ui.common.AdaptiveAppFrame { content() }
             }
         }
     }

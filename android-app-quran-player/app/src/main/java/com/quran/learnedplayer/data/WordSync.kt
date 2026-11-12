@@ -23,4 +23,20 @@ object WordSync {
         return activeIdx
     }
 
+    /**
+     * Where the ayah really ends in a recitation file that runs on well past its word timings, or
+     * null to play the file to its end. EveryAyah's Maher Al Muaiqly 2:258 holds 2:258 and all of
+     * 2:259; validated timings end within 50 ms of the file's end everywhere else, so an overrun
+     * this large is never silence. The web engine has the same rule (player/engine.js ayahEndMs).
+     */
+    fun ayahEndMs(segments: List<LongRange>?, fileMs: Long): Long? {
+        val last = segments?.lastOrNull()?.last ?: return null
+        if (last <= 0L || fileMs <= 0L) return null
+        val overrun = fileMs - last
+        return if (overrun > OVERRUN_MIN_MS && overrun > last * OVERRUN_SHARE) last + OVERRUN_TAIL_MS else null
+    }
+
+    private const val OVERRUN_MIN_MS = 5_000L
+    private const val OVERRUN_SHARE = 0.25
+    private const val OVERRUN_TAIL_MS = 400L
 }

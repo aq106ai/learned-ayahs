@@ -79,6 +79,9 @@ private val shownPalette = mutableStateOf(DarkGreenPalette)
 private val themeMotionMs = mutableIntStateOf(USER_THEME_MOTION_MS)
 
 private var plainPalette: Palette = DarkGreenPalette
+
+/** Dark or Light, which a scene's colours follow too. */
+private var lightChrome = false
 private var backgroundChoice: String = PlayerBackgrounds.PLAIN
 private var liveScene: SceneSpec? = null
 
@@ -88,12 +91,13 @@ private const val TEXT_CONTRAST = 4.5f
 val currentPalette: Palette get() = shownPalette.value
 
 /**
- * The user's Dark or Light palette. While a background is selected the scene look replaces it
- * on every screen; this is what returns when the background goes back to plain.
+ * The user's Dark or Light choice. On the plain background it is the green palette itself; with
+ * a scene or photo it picks the dark or the light version of that scene's colours.
  */
 fun applyAppTheme(theme: AppTheme) {
-    plainPalette = if (theme == AppTheme.LIGHT) LightGreenPalette else DarkGreenPalette
-    if (backgroundChoice == PlayerBackgrounds.PLAIN) retarget(plainPalette, USER_THEME_MOTION_MS)
+    lightChrome = theme == AppTheme.LIGHT
+    plainPalette = if (lightChrome) LightGreenPalette else DarkGreenPalette
+    retarget(resolvePalette(), USER_THEME_MOTION_MS)
 }
 
 /**
@@ -113,12 +117,13 @@ fun applyShownScene(spec: SceneSpec, crossfade: Boolean) {
     if (backgroundChoice == PlayerBackgrounds.PLAIN) return
     if (spec === liveScene) return
     liveScene = spec
-    retarget(paletteFor(spec), if (crossfade) SCENE_THEME_MOTION_MS else USER_THEME_MOTION_MS)
+    retarget(paletteFor(spec, lightChrome), if (crossfade) SCENE_THEME_MOTION_MS else USER_THEME_MOTION_MS)
 }
 
 /** Puts the saved theme and background on screen with no fade from the default dark green. */
 fun snapAppearance(theme: AppTheme, choice: String) {
-    plainPalette = if (theme == AppTheme.LIGHT) LightGreenPalette else DarkGreenPalette
+    lightChrome = theme == AppTheme.LIGHT
+    plainPalette = if (lightChrome) LightGreenPalette else DarkGreenPalette
     backgroundChoice = choice
     liveScene = null
     val next = resolvePalette()
@@ -137,8 +142,8 @@ private val photoChrome = SceneSpec(
 private fun resolvePalette(): Palette = when (backgroundChoice) {
     PlayerBackgrounds.PLAIN -> plainPalette
     PlayerBackgrounds.MATCHED, PlayerBackgrounds.PHOTOS ->
-        paletteFor(liveScene ?: VideoThemes.variant(VideoThemes.FALLBACK, 0))
-    else -> paletteFor(if (NaturePhotos.isPhoto(backgroundChoice)) photoChrome else VideoThemes.variant(backgroundChoice, 0))
+        paletteFor(liveScene ?: VideoThemes.variant(VideoThemes.FALLBACK, 0), lightChrome)
+    else -> paletteFor(if (NaturePhotos.isPhoto(backgroundChoice)) photoChrome else VideoThemes.variant(backgroundChoice, 0), lightChrome)
 }
 
 private fun retarget(next: Palette, motionMs: Int) {
@@ -192,10 +197,11 @@ private fun animateRole(target: Color, motionMs: Int): Color {
 
 /**
  * Chrome taken from a scene: the sky, darkened, for the page and panels, and the scene's light
- * colour for text. Panels stay dark so light text still reads on the picture. Photos share one
- * neutral dark spec, so they land here too.
+ * colour for text. Photos share one neutral dark spec, so they land here too. [light] gives the
+ * Light theme's version instead: the sky paled for the page and panels, darkened for text.
  */
-fun paletteFor(scene: SceneSpec): Palette {
+fun paletteFor(scene: SceneSpec, light: Boolean = false): Palette {
+    if (light) return lightPaletteFor(scene)
     val sky = Color(scene.colors[0]).copy(alpha = 1f)
     val mid = Color(scene.colors[1]).copy(alpha = 1f)
     val rawLight = Color(scene.colors.getOrElse(3) { -1 }).copy(alpha = 1f)
@@ -214,6 +220,40 @@ fun paletteFor(scene: SceneSpec): Palette {
         border = mix(panel, text, 0.18f),
         isLight = false,
     )
+}
+
+/** Web: palette.js `lightPaletteFor`. Keep the two in step. */
+private fun lightPaletteFor(scene: SceneSpec): Palette {
+    val sky = Color(scene.colors[0]).copy(alpha = 1f)
+    val mid = Color(scene.colors[1]).copy(alpha = 1f)
+    val text = mix(sky, Color.Black, 0.85f)
+    val bg = lightenUntil(mix(sky, Color.White, 0.88f), text, 9f)
+    val panel = mix(bg, Color.White, 0.6f)
+    val border = mix(panel, text, 0.14f)
+    // The accent is also text on border-coloured chips, the darkest surface it sits on.
+    val accent = darkenUntil(mid, border, TEXT_CONTRAST)
+    return Palette(
+        bg = bg,
+        panel = panel,
+        textPrimary = text,
+        // Darker than a plain theme's muted text: it also sits on the see-through reader card.
+        textMuted = darkenUntil(mix(text, panel, 0.22f), bg, TEXT_CONTRAST),
+        accent = accent,
+        accentGreen = accent,
+        border = border,
+        isLight = true,
+    )
+}
+
+private fun lightenUntil(color: Color, against: Color, minContrast: Float): Color {
+    if (contrastRatio(against, color) >= minContrast) return color
+    var t = 0f
+    var current = color
+    while (contrastRatio(against, current) < minContrast && t < 1f) {
+        t = (t + 0.04f).coerceAtMost(1f)
+        current = mix(color, Color.White, t)
+    }
+    return current
 }
 
 /** WCAG contrast of [foreground] against [background]. 4.5 is the body-text minimum. */

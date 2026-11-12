@@ -92,7 +92,7 @@ fun IntroDialog(onDismiss: () -> Unit, onReciter: (Reciter) -> Unit = { PlayerSe
             )
         },
         text = {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 when (page) {
                     0 -> HadithPage()
                     1 -> LookPage()
@@ -182,7 +182,7 @@ private fun LookPage() {
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            tx("You can change these any time in Settings, or from the background button in the player."),
+            tx("You can change these any time: the language in Settings, the theme and background from the three dots in the player."),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
         )
@@ -243,7 +243,7 @@ private fun LookPage() {
 @Composable
 private fun ContentPage(onReciter: (Reciter) -> Unit) {
     Column(
-        modifier = Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()).testTag(TAG_INTRO_CONTENT),
+        modifier = Modifier.testTag(TAG_INTRO_CONTENT),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(

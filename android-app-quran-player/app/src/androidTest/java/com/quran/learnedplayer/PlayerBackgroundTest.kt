@@ -44,6 +44,7 @@ class PlayerBackgroundTest : BaseAppTest() {
         assertTrue(composeRule.onAllNodesWithTag(TAG_PLAYER_BACKGROUND).fetchSemanticsNodes().isEmpty())
         assertTrue(composeRule.onAllNodesWithTag(TAG_AYAH_TRANSLATION).fetchSemanticsNodes().isEmpty())
 
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
         composeRule.onNodeWithTag(TAG_OPEN_BACKGROUND).performClick()
         awaitTag(TAG_BACKGROUND_SHEET)
         composeRule.onNodeWithTag(backgroundChoiceTag(PlayerBackgrounds.MATCHED)).performClick()
@@ -64,7 +65,8 @@ class PlayerBackgroundTest : BaseAppTest() {
         val images = File(InstrumentationRegistry.getInstrumentation().targetContext.cacheDir, "images")
         images.deleteRecursively()
         awaitTag(TAG_FULLSCREEN_WHOLE_AYAH)
-        awaitTag(TAG_SHARE)
+        awaitTag("open_actions_menu")
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
         composeRule.onNodeWithTag(TAG_SHARE).performClick()
         awaitTag(TAG_SHARE_DIALOG)
         composeRule.onNodeWithTag(TAG_SHARE_IMAGE).performClick()
@@ -92,7 +94,8 @@ class PlayerBackgroundTest : BaseAppTest() {
     @Test
     fun share_video_opens_the_video_maker() {
         awaitTag(TAG_FULLSCREEN_WHOLE_AYAH)
-        awaitTag(TAG_SHARE)
+        awaitTag("open_actions_menu")
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
         composeRule.onNodeWithTag(TAG_SHARE).performClick()
         awaitTag(TAG_SHARE_DIALOG)
         composeRule.onNodeWithTag(TAG_SHARE_VIDEO).performClick()

@@ -180,7 +180,7 @@ export function videoView({ store, engine, server, go, params }) {
           class: 'switch', type: 'checkbox', checked: options.bismillah && allowed, disabled: working || !allowed,
           'data-testid': 'video-bismillah', onChange: (e) => update({ bismillah: e.target.checked }),
         })),
-      toggle('endCard', tx('End card'), tx('A closing page with the Play Store link')),
+      toggle('endCard', tx('End card'), tx('A closing page with the Android and web app links')),
       toggle('credits', tx('Credits on video'), tx('Sources in small print under the text')));
 
     const tiles = h('div', { class: 'theme-row' },

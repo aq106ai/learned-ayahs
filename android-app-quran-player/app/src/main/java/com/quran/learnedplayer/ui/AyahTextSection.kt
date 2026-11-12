@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -115,7 +116,7 @@ fun AyahReaderContent(
                 onAdvance = onNext,
                 onGoBack = onPrevious,
             )
-            .advanceOnTap(enabled = tapAdvances, label = tx("Next ayah"), onTap = onNext),
+            .advanceOnTap(enabled = tapAdvances, label = if (state.wordPlayback) tx("Next word") else tx("Next ayah"), onTap = onNext),
     ) {
         if (wordByWord) {
             WordByWordView(
@@ -126,7 +127,7 @@ fun AyahReaderContent(
                 wordFileMode = wordFileMode,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
             )
         } else {
             WholeAyahReader(
@@ -168,21 +169,20 @@ private fun WholeAyahReader(
         when (overflowMode) {
             AyahOverflowMode.FIT_TO_SCREEN -> {
                 val maxHeightPx = (viewportPx - with(density) { 48.dp.roundToPx() }).coerceAtLeast(0)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 24.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    ShrinkToFit(maxHeightPx = maxHeightPx, modifier = Modifier.fillMaxWidth()) { fontScale ->
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            AyahWordsContent(
-                                state = state,
-                                large = true,
-                                fontScale = fontScale,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            translation?.let { AyahTranslation(it, fontScale) }
+                val fitScroll = rememberScrollState()
+                LaunchedEffect(state.currentTrack?.globalId) { fitScroll.scrollTo(0) }
+                Box(Modifier.fillMaxSize().verticalScroll(fitScroll).testTag("ayah_reader_scroll")) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .heightIn(min = with(density) { viewportPx.toDp() })
+                            .padding(horizontal = 16.dp, vertical = 24.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        ShrinkToFit(maxHeightPx = maxHeightPx, modifier = Modifier.fillMaxWidth()) { fontScale ->
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                AyahWordsContent(state = state, large = true, fontScale = fontScale, modifier = Modifier.fillMaxWidth())
+                                translation?.let { AyahTranslation(it, fontScale) }
+                            }
                         }
                     }
                 }
@@ -192,7 +192,7 @@ private fun WholeAyahReader(
                 val ayahId = state.currentTrack?.globalId
                 LaunchedEffect(ayahId) { scrollState.scrollTo(0) }
                 val viewport = with(density) { viewportPx.toDp() }
-                Box(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                Box(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).testTag("ayah_reader_scroll")) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -270,13 +270,16 @@ private fun ShrinkToFit(
     SubcomposeLayout(modifier) { constraints ->
         val loose = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
         var scale = 1f
-        var placeables = subcompose(scale) { content(scale) }.map { it.measure(loose) }
+        var placeables = subcompose(scale) { Box(Modifier.clearAndSetSemantics {}) { content(scale) } }.map { it.measure(loose) }
         var height = placeables.maxOfOrNull { it.height } ?: 0
         while (height > maxHeightPx && scale > MIN_FIT_SCALE) {
             scale = (scale - FIT_SCALE_STEP).coerceAtLeast(MIN_FIT_SCALE)
-            placeables = subcompose(scale) { content(scale) }.map { it.measure(loose) }
+            placeables = subcompose(scale) { Box(Modifier.clearAndSetSemantics {}) { content(scale) } }.map { it.measure(loose) }
             height = placeables.maxOfOrNull { it.height } ?: 0
         }
+        // Measurement candidates must not leak duplicate text into accessibility.
+        placeables = subcompose("visible") { content(scale) }.map { it.measure(loose) }
+        height = placeables.maxOfOrNull { it.height } ?: 0
         val width = (placeables.maxOfOrNull { it.width } ?: 0).coerceAtMost(constraints.maxWidth)
         layout(width, height) {
             placeables.forEach { it.place(0, 0) }
@@ -385,7 +388,11 @@ private fun AyahWordsContent(
             // highlight, rather than being lit up from a guess.
             val segments = state.wordSegments
             val contentWordCount = remember(words) { words.count { !it.isEnd } }
-            val activeIndex = if (highlightEnabled) {
+            val activeIndex = if (state.wordPlayback) {
+                // One word at a time (Word clips, or Repeat: Word): the position is into that
+                // word, so the service's own word index is the one to light.
+                state.currentWordIndex.coerceIn(-1, contentWordCount - 1)
+            } else if (highlightEnabled) {
                 WordSync.activeWordIndex(smoothPosition, segments, contentWordCount)
             } else {
                 -1

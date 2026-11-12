@@ -33,7 +33,8 @@ import org.junit.runner.RunWith
 class SettingsAndModesTest : BaseAppTest() {
 
     private fun openSettings() {
-        awaitTag(TAG_OPEN_SETTINGS)
+        awaitTag("open_actions_menu")
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
         composeRule.onNodeWithTag(TAG_OPEN_SETTINGS).performClick()
         awaitTag(TAG_SETTINGS_SCREEN)
     }
@@ -53,11 +54,14 @@ class SettingsAndModesTest : BaseAppTest() {
 
     @Test
     fun default_reciter_is_maher_and_switching_persists() {
-        openSettings()
+        // The reciter is picked in the player's own controls, not in Settings.
         assertEquals(Reciter.MAHER_AL_MUAIQLY, PlayerSettings.reciter)
-
-        composeRule.onNodeWithTag(reciterTag(Reciter.AL_HUSARY))
-            .performScrollTo().performClick()
+        awaitTag(com.quran.learnedplayer.ui.TAG_EXPAND_PANEL)
+        composeRule.onNodeWithTag(com.quran.learnedplayer.ui.TAG_EXPAND_PANEL).performClick()
+        awaitTag(com.quran.learnedplayer.ui.TAG_PLAYER_RECITER)
+        composeRule.onNodeWithTag(com.quran.learnedplayer.ui.TAG_PLAYER_RECITER).performScrollTo().performClick()
+        awaitTag(reciterTag(Reciter.AL_HUSARY))
+        composeRule.onNodeWithTag(reciterTag(Reciter.AL_HUSARY)).performScrollTo().performClick()
         composeRule.waitForIdle()
 
         assertEquals(Reciter.AL_HUSARY, PlayerSettings.reciter)
@@ -67,11 +71,13 @@ class SettingsAndModesTest : BaseAppTest() {
 
     @Test
     fun theme_defaults_to_dark_and_switching_to_light_applies_and_persists() {
-        openSettings()
+        // The theme is chosen with the background, from the three dots in the player.
         assertEquals(AppTheme.DARK, PlayerSettings.appTheme)
         assertEquals(DarkGreenPalette, currentPalette)
 
-        composeRule.onNodeWithTag(appThemeTag(AppTheme.LIGHT)).performScrollTo().performClick()
+        tapMenuItem(com.quran.learnedplayer.ui.TAG_OPEN_BACKGROUND)
+        awaitTag(com.quran.learnedplayer.ui.player.TAG_BACKGROUND_SHEET)
+        composeRule.onNodeWithTag(appThemeTag(AppTheme.LIGHT)).performClick()
         composeRule.waitForIdle()
 
         assertEquals(AppTheme.LIGHT, PlayerSettings.appTheme)

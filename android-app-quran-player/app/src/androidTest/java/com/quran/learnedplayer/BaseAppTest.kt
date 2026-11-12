@@ -79,6 +79,15 @@ abstract class BaseAppTest {
     /** Last-minute setup after the reset and before the activity launches, e.g. a saved position. */
     protected open fun beforeLaunch() {}
 
+    /** Opens the three-dot menu in the player header and taps the item tagged [tag]. */
+    protected fun tapMenuItem(tag: String) {
+        awaitTag("open_actions_menu")
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
+        awaitTag(tag)
+        composeRule.onNodeWithTag(tag).performClick()
+        composeRule.waitForIdle()
+    }
+
     /**
      * Waits for a node with [tag] to exist, tolerating async library/asset loading. On a timeout
      * the failure carries what *is* on screen, so a CI log says why rather than just "timed out".

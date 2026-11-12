@@ -1,6 +1,15 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.quran.learnedplayer.ui
 
 import com.quran.learnedplayer.ui.i18n.tx
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +27,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import com.quran.learnedplayer.ui.player.TafsirSheet
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
@@ -25,6 +36,20 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.foundation.shape.CircleShape
+import com.quran.learnedplayer.data.Reciter
+import com.quran.learnedplayer.ui.settings.reciterTag
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Subtitles
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Search
@@ -45,6 +70,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -80,6 +106,7 @@ import com.quran.learnedplayer.ui.common.SidePanel
 import com.quran.learnedplayer.ui.common.SidePanelEdge
 import com.quran.learnedplayer.ui.player.BackgroundSheet
 import com.quran.learnedplayer.ui.player.ShareDialog
+import com.quran.learnedplayer.ui.player.TAG_AYAH_TRANSLATION_TOGGLE
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.video.PlayerBackgrounds
 import com.quran.learnedplayer.ui.theme.Bg
@@ -88,11 +115,19 @@ import com.quran.learnedplayer.ui.theme.OnAccentGreen
 import com.quran.learnedplayer.ui.theme.Panel
 import com.quran.learnedplayer.ui.theme.TextMuted
 import com.quran.learnedplayer.ui.theme.TextPrimary
+import com.quran.learnedplayer.ui.theme.currentPalette
 
 const val TAG_EMPTY_BROWSE = "empty_browse_surahs"
 const val TAG_TOGGLE_WORD_BY_WORD = "toggle_word_by_word"
+const val TAG_VIEW_FULL_AYAH = "view_ayah"
+const val TAG_OPEN_ACTIONS_MENU = "open_actions_menu"
+const val TAG_PLAYBACK_ERROR = "playback_error"
+const val TAG_PLAY_PAUSE = "play_pause"
+const val TAG_PLAYER_RECITER = "player_reciter"
 const val TAG_FULLSCREEN_NEXT = "fullscreen_next"
 const val TAG_FULLSCREEN_PREVIOUS = "fullscreen_previous"
+const val TAG_PREVIOUS_AYAH = "previous_ayah"
+const val TAG_NEXT_AYAH = "next_ayah"
 const val TAG_OPEN_SURAH_PANEL = "open_surah_panel"
 const val TAG_OPEN_PLAYLIST_PANEL = "open_playlist_panel"
 const val TAG_SURAH_PANEL_SEARCH = "surah_panel_search"
@@ -102,6 +137,8 @@ const val TAG_OPEN_SETTINGS = "open_settings_from_player"
 const val TAG_SHARE = "share_from_player"
 const val TAG_OPEN_TAFSIR = "open_tafsir"
 const val TAG_OPEN_BACKGROUND = "open_background_sheet"
+const val TAG_WORD_MEANINGS_MENU = "menu_word_meanings"
+const val TAG_REPEAT_WORD = "repeat_word_toggle"
 const val TAG_READER_CARD = "reader_card"
 const val TAG_EXPAND_PANEL = "expand_playback_panel"
 const val TAG_OPEN_RECITATION = "open_recitation"
@@ -127,8 +164,8 @@ fun PlayerScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val reciteBetaEnabled by PlayerSettings.reciteBetaEnabledFlow.collectAsState()
-    val wordFileMode = state.mode == PlaybackMode.WORD_BY_WORD
-    var wordByWord by rememberSaveable { mutableStateOf(false) }
+    val wordFileMode = state.wordPlayback
+    val wordByWord by PlayerSettings.wordViewFlow.collectAsState()
     var panelExpanded by rememberSaveable { mutableStateOf(false) }
     var showSurahPanel by remember { mutableStateOf(false) }
     var showPlaylistPanel by remember { mutableStateOf(false) }
@@ -137,9 +174,21 @@ fun PlayerScreen(
     var showTafsir by remember { mutableStateOf(false) }
     val background by PlayerSettings.playerBackgroundFlow.collectAsState()
     val withBackground = background != PlayerBackgrounds.PLAIN
+    val showTranslation by PlayerSettings.showAyahTranslationFlow.collectAsState()
+    val showWordMeanings by PlayerSettings.showWordTranslationsFlow.collectAsState()
+    // How much of the surah on screen is learned: all of it makes "Revise Full Surah" the same
+    // list as the learned one, so the menu leaves it out.
+    val learnedIds by viewModel.learnedIds.collectAsState()
+    val shownSurah = state.currentTrack?.surah
+    val learnedInSurah = remember(learnedIds, shownSurah) {
+        if (shownSurah == null) 0 else learnedIds.count { AyahMapping.globalToSurahAyah(it).first == shownSurah }
+    }
+    val surahAllLearned = shownSurah != null && learnedInSurah >= QuranConstants.VERSE_COUNTS[shownSurah - 1]
 
-    // The scene palette is already the app's colours. The bars let the picture show through them.
-    val chrome = if (withBackground) Panel.copy(alpha = 0.75f) else Border
+    // The scene palette is already the app's colours. The bars let the picture show through them;
+    // a light palette lets less through, so dark text never lands on a dark part of the picture.
+    val lightScene = withBackground && currentPalette.isLight
+    val chrome = if (withBackground) Panel.copy(alpha = if (lightScene) 0.82f else 0.75f) else Border
 
     ImmersiveSystemBars()
     // Keep the screen on for as long as there's something to read, not only while playing —
@@ -156,20 +205,30 @@ fun PlayerScreen(
                 modifier = Modifier.fillMaxSize(),
             )
         }
-        Box(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val controlsMaxHeight = maxHeight * 0.5f
+            val headerMaxHeight = maxHeight * 0.4f
             Column(modifier = Modifier.fillMaxSize()) {
-                ReaderHeader(
-                    state = state,
-                    wordByWord = wordByWord || wordFileMode,
-                    showWordToggle = !wordFileMode,
-                    onToggleWordByWord = { wordByWord = !wordByWord },
-                    onOpenSurahPanel = { showSurahPanel = true },
-                    onOpenPlaylistPanel = { showPlaylistPanel = true },
-                    onOpenSettings = onOpenSettings,
-                    onShare = if (state.currentTrack != null) ({ showShare = true }) else null,
-                    onTafsir = if (state.currentTrack != null) ({ showTafsir = true }) else null,
-                    chrome = chrome,
-                )
+                Column(Modifier.heightIn(max = headerMaxHeight).verticalScroll(rememberScrollState())) {
+                    ReaderHeader(
+                        state = state,
+                        wordView = wordByWord,
+                        showTranslation = showTranslation,
+                        showWordMeanings = showWordMeanings,
+                        surahAllLearned = surahAllLearned,
+                        onToggleWordMeanings = { viewModel.setShowWordTranslations(!showWordMeanings) },
+                        onModeChange = { viewModel.setMode(it) },
+                        onWordViewChange = { viewModel.setWordView(it) },
+                        onToggleTranslation = { PlayerSettings.showAyahTranslation = !showTranslation },
+                        onOpenSurahPanel = { showSurahPanel = true },
+                        onOpenPlaylistPanel = { showPlaylistPanel = true },
+                        onOpenSettings = onOpenSettings,
+                        onOpenBackground = { showBackgroundSheet = true },
+                        onShare = if (state.currentTrack != null) ({ showShare = true }) else null,
+                        onTafsir = if (state.currentTrack != null) ({ showTafsir = true }) else null,
+                        chrome = chrome,
+                    )
+                }
 
                 Box(
                     modifier = Modifier
@@ -181,7 +240,7 @@ fun PlayerScreen(
                             if (withBackground) {
                                 Modifier
                                     .padding(12.dp)
-                                    .background(Panel.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
+                                    .background(Panel.copy(alpha = if (lightScene) 0.5f else 0.45f), RoundedCornerShape(24.dp))
                                     .testTag(TAG_READER_CARD)
                             } else {
                                 Modifier
@@ -190,16 +249,20 @@ fun PlayerScreen(
                 ) {
                     when {
                         state.isLoading -> CenteredMessage { LoadingContent(state) }
-                        state.error != null -> CenteredMessage { ErrorContent(state, onBrowseSurahs) }
+                        // Only when there is nothing to read. An audio error keeps the ayah on
+                        // screen and shows above the controls instead.
+                        state.error != null && state.tracks.isEmpty() -> CenteredMessage { ErrorContent(state, onBrowseSurahs) }
                         state.tracks.isEmpty() -> CenteredMessage { EmptyContent(onBrowseSurahs) }
                         else -> AyahReaderContent(
                             state = state,
-                            wordByWord = wordByWord || wordFileMode,
+                            wordByWord = wordByWord,
+                            // A swipe or tap on the whole ayah is Next/Previous: a word while the
+                            // words play one at a time. The word pager's edge pages move by ayah.
                             onPrevious = {
-                                if (wordFileMode) viewModel.skipAyah(false) else viewModel.previous()
+                                if (wordFileMode && wordByWord) viewModel.skipAyah(false) else viewModel.previous()
                             },
                             onNext = {
-                                if (wordFileMode) viewModel.skipAyah(true) else viewModel.next()
+                                if (wordFileMode && wordByWord) viewModel.skipAyah(true) else viewModel.next()
                             },
                             onPlayWord = { viewModel.playWord(it) },
                             wordFileMode = wordFileMode,
@@ -208,56 +271,72 @@ fun PlayerScreen(
                     }
                 }
 
-                // Recite & review bar placed right above the bottom play panel. Hidden entirely until
-                // the user opts in to the beta from Settings — an unfinished coach should not be the
-                // most prominent button on the player for someone who never asked for it.
-                if (reciteBetaEnabled) Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Surface(
-                        onClick = {
-                            viewModel.pause()
-                            onOpenRecitation(state.currentTrack?.globalId ?: 1)
-                        },
-                        modifier = Modifier.testTag(TAG_OPEN_RECITATION),
-                        shape = RoundedCornerShape(24.dp),
-                        color = AccentGreen,
-                        shadowElevation = 4.dp,
+                Column(Modifier.heightIn(max = controlsMaxHeight).verticalScroll(rememberScrollState())) {
+                    // Recite & review bar placed right above the bottom play panel. Hidden entirely until
+                    // the user opts in to the beta from Settings — an unfinished coach should not be the
+                    // most prominent button on the player for someone who never asked for it.
+                    if (reciteBetaEnabled) Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
+                        Surface(
+                            onClick = {
+                                viewModel.pause()
+                                onOpenRecitation(state.currentTrack?.globalId ?: 1)
+                            },
+                            modifier = Modifier.testTag(TAG_OPEN_RECITATION),
+                            shape = RoundedCornerShape(24.dp),
+                            color = AccentGreen,
+                            shadowElevation = 4.dp,
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Mic,
-                                contentDescription = null,
-                                tint = OnAccentGreen,
-                                modifier = Modifier.size(20.dp),
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = tx("Recite & review"),
-                                color = OnAccentGreen,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold,
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Mic,
+                                    contentDescription = null,
+                                    tint = OnAccentGreen,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = tx("Recite & review"),
+                                    color = OnAccentGreen,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
                         }
                     }
-                }
 
-                BottomPlaybackPanel(
-                    state = state,
-                    viewModel = viewModel,
-                    onPlayRequested = onPlayRequested,
-                    expanded = panelExpanded,
-                    onToggleExpanded = { panelExpanded = !panelExpanded },
-                    onOpenBackground = { showBackgroundSheet = true },
-                    chrome = chrome,
-                )
+                    val playbackError = state.error?.takeIf { state.tracks.isNotEmpty() }
+                    if (playbackError != null) {
+                        Text(
+                            text = playbackError,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(chrome)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .testTag(TAG_PLAYBACK_ERROR),
+                        )
+                    }
+
+                    BottomPlaybackPanel(
+                        state = state,
+                        viewModel = viewModel,
+                        onPlayRequested = onPlayRequested,
+                        expanded = panelExpanded,
+                        onToggleExpanded = { panelExpanded = !panelExpanded },
+                        chrome = chrome,
+                    )
+                }
             }
 
             SidePanel(
@@ -302,7 +381,7 @@ fun PlayerScreen(
             // that word, not the ayah: use where the word starts in the ayah instead.
             atMs = when {
                 state.introLabel != null -> null
-                state.mode == PlaybackMode.WORD_BY_WORD && PlayerSettings.useWordClips ->
+                state.wordPlayback && PlayerSettings.useWordClips ->
                     state.wordSegments.getOrNull(state.currentWordIndex)?.let { it.first + 1 }
                 else -> state.positionMs.takeIf { it > 0L }
             },
@@ -315,71 +394,112 @@ fun PlayerScreen(
     }
 }
 
+/**
+ * One row: the surah list, where you are, the playlist, and three dots holding everything that is
+ * not transport. Mode and view are one menu item each, named for what choosing it does.
+ */
 @Composable
 private fun ReaderHeader(
     state: PlayerUiState,
-    wordByWord: Boolean,
-    showWordToggle: Boolean,
-    onToggleWordByWord: () -> Unit,
+    wordView: Boolean,
+    showTranslation: Boolean,
+    showWordMeanings: Boolean,
+    surahAllLearned: Boolean,
+    onToggleWordMeanings: () -> Unit,
+    onModeChange: (PlaybackMode) -> Unit,
+    onWordViewChange: (Boolean) -> Unit,
+    onToggleTranslation: () -> Unit,
     onOpenSurahPanel: () -> Unit,
     onOpenPlaylistPanel: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenBackground: () -> Unit,
     onShare: (() -> Unit)?,
     onTafsir: (() -> Unit)? = null,
     chrome: Color,
 ) {
+    // The row keeps its order in every language; the menu reads in the app's own direction.
+    val direction = LocalLayoutDirection.current
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Column(modifier = Modifier.fillMaxWidth().background(chrome)) {
-            if (state.fullscreenMeta.isNotEmpty()) {
-                Text(
-                    text = state.fullscreenMeta,
-                    color = TextMuted,
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 8.dp),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth().background(chrome).padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(onClick = onOpenSurahPanel, modifier = Modifier.testTag(TAG_OPEN_SURAH_PANEL)) {
+                Icon(Icons.AutoMirrored.Filled.List, contentDescription = tx("Browse surahs"), tint = TextMuted)
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 4.dp, end = 8.dp, top = 4.dp, bottom = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                IconButton(onClick = onOpenSurahPanel, modifier = Modifier.testTag(TAG_OPEN_SURAH_PANEL)) {
-                    Icon(Icons.AutoMirrored.Filled.List, contentDescription = tx("Browse surahs"), tint = TextMuted)
+            Text(
+                text = state.fullscreenMeta,
+                color = TextMuted,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            IconButton(onClick = onOpenPlaylistPanel, modifier = Modifier.testTag(TAG_OPEN_PLAYLIST_PANEL)) {
+                Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = tx("Playlist"), tint = TextMuted)
+            }
+            var menuOpen by remember { mutableStateOf(false) }
+            Box {
+                IconButton(onClick = { menuOpen = true }, modifier = Modifier.testTag(TAG_OPEN_ACTIONS_MENU)) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = tx("More options"), tint = TextMuted)
                 }
-                IconButton(onClick = onOpenPlaylistPanel, modifier = Modifier.testTag(TAG_OPEN_PLAYLIST_PANEL)) {
-                    Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = tx("Playlist"), tint = TextMuted)
-                }
-                if (showWordToggle) {
-                    OutlinedButton(
-                        onClick = onToggleWordByWord,
-                        modifier = Modifier.testTag(TAG_TOGGLE_WORD_BY_WORD),
+                CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                    DropdownMenu(
+                        expanded = menuOpen,
+                        onDismissRequest = { menuOpen = false },
                     ) {
-                        Text(if (wordByWord) tx("Whole ayah") else tx("Word by word"))
+                        val other = if (state.mode == PlaybackMode.FULL_SURAH) PlaybackMode.REVISE else PlaybackMode.FULL_SURAH
+                        // A surah learned in full is the same list either way: no "Full Surah".
+                        if (other == PlaybackMode.REVISE || !surahAllLearned) MenuAction(
+                            label = if (other == PlaybackMode.REVISE) tx("Revise Learned Ayahs") else tx("Revise Full Surah"),
+                            icon = Icons.Filled.Repeat,
+                            tag = playbackModeTag(other),
+                        ) { menuOpen = false; onModeChange(other) }
+                        MenuAction(
+                            label = if (wordView) tx("View Full Ayah") else tx("Word by Word"),
+                            icon = Icons.Filled.TextFields,
+                            tag = if (wordView) TAG_VIEW_FULL_AYAH else TAG_TOGGLE_WORD_BY_WORD,
+                        ) { menuOpen = false; onWordViewChange(!wordView) }
+                        MenuAction(
+                            label = if (showTranslation) tx("Hide Translation") else tx("Show Translation"),
+                            icon = Icons.Filled.Translate,
+                            tag = TAG_AYAH_TRANSLATION_TOGGLE,
+                        ) { menuOpen = false; onToggleTranslation() }
+                        MenuAction(
+                            label = if (showWordMeanings) tx("Hide Word Meanings") else tx("Show Word Meanings"),
+                            icon = Icons.Filled.Subtitles,
+                            tag = TAG_WORD_MEANINGS_MENU,
+                        ) { menuOpen = false; onToggleWordMeanings() }
+                        androidx.compose.material3.HorizontalDivider(color = Border)
+                        MenuAction(tx("Tafsir"), Icons.AutoMirrored.Filled.MenuBook, TAG_OPEN_TAFSIR, enabled = onTafsir != null) {
+                            menuOpen = false; onTafsir?.invoke()
+                        }
+                        MenuAction(tx("Share"), Icons.Filled.Share, TAG_SHARE, enabled = onShare != null) {
+                            menuOpen = false; onShare?.invoke()
+                        }
+                        MenuAction(tx("Theme"), Icons.Filled.Wallpaper, TAG_OPEN_BACKGROUND) {
+                            menuOpen = false; onOpenBackground()
+                        }
+                        MenuAction(tx("Settings"), Icons.Filled.Settings, TAG_OPEN_SETTINGS) {
+                            menuOpen = false; onOpenSettings()
+                        }
                     }
-                }
-                if (onTafsir != null) {
-                    IconButton(onClick = onTafsir, modifier = Modifier.testTag(TAG_OPEN_TAFSIR)) {
-                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = tx("Tafsir on this ayah"), tint = TextMuted)
-                    }
-                }
-                if (onShare != null) {
-                    IconButton(onClick = onShare, modifier = Modifier.testTag(TAG_SHARE)) {
-                        Icon(Icons.Filled.Share, contentDescription = tx("Share this ayah"), tint = TextMuted)
-                    }
-                }
-                IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(TAG_OPEN_SETTINGS)) {
-                    Icon(Icons.Filled.Settings, contentDescription = tx("Settings"), tint = TextMuted)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun MenuAction(label: String, icon: ImageVector, tag: String, enabled: Boolean = true, onClick: () -> Unit) {
+    DropdownMenuItem(
+        text = { Text(label, color = if (enabled) TextPrimary else TextMuted.copy(alpha = 0.5f)) },
+        leadingIcon = { Icon(icon, contentDescription = null, tint = TextMuted.copy(alpha = if (enabled) 1f else 0.5f)) },
+        enabled = enabled,
+        onClick = onClick,
+        modifier = Modifier.testTag(tag),
+    )
 }
 
 @Composable
@@ -453,7 +573,6 @@ private fun BottomPlaybackPanel(
     onPlayRequested: (() -> Unit) -> Unit,
     expanded: Boolean,
     onToggleExpanded: () -> Unit,
-    onOpenBackground: () -> Unit,
     chrome: Color,
 ) {
     Column(modifier = Modifier.fillMaxWidth().background(chrome)) {
@@ -486,9 +605,6 @@ private fun BottomPlaybackPanel(
                     maxLines = 1,
                 )
             }
-            IconButton(onClick = onOpenBackground, modifier = Modifier.testTag(TAG_OPEN_BACKGROUND)) {
-                Icon(Icons.Filled.Wallpaper, contentDescription = tx("Background"), tint = TextMuted)
-            }
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,
                 contentDescription = if (expanded) tx("Collapse controls") else tx("Expand controls"),
@@ -497,31 +613,44 @@ private fun BottomPlaybackPanel(
         }
 
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            // While the words play one at a time, Previous and Next step words and the outer pair
+            // move by ayah.
+            val words = state.wordPlayback && state.currentTrack != null
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (words) 12.dp else 20.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlinedButton(
-                    onClick = { viewModel.previous() },
-                    modifier = Modifier.weight(1f).testTag(TAG_FULLSCREEN_PREVIOUS),
-                ) {
-                    Text(tx("Prev"))
+                if (words) {
+                    TransportButton(Icons.Filled.SkipPrevious, tx("Previous ayah"), TAG_PREVIOUS_AYAH, size = 42) { viewModel.skipAyah(false) }
                 }
-                Button(
+                if (words) {
+                    TransportButton(Icons.AutoMirrored.Filled.KeyboardArrowLeft, tx("Previous word"), TAG_FULLSCREEN_PREVIOUS) { viewModel.previous() }
+                } else {
+                    TransportButton(Icons.Filled.SkipPrevious, tx("Previous"), TAG_FULLSCREEN_PREVIOUS) { viewModel.previous() }
+                }
+                Surface(
                     onClick = {
                         if (state.isPlaying) viewModel.pause() else viewModel.playOrResume(onPlayRequested)
                     },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Panel),
+                    shape = CircleShape,
+                    color = AccentGreen,
+                    modifier = Modifier.size(60.dp).testTag(TAG_PLAY_PAUSE),
                 ) {
-                    Text(if (state.isPlaying) tx("Pause") else tx("Play"))
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            contentDescription = if (state.isPlaying) tx("Pause") else tx("Play"),
+                            tint = OnAccentGreen,
+                            modifier = Modifier.size(32.dp),
+                        )
+                    }
                 }
-                OutlinedButton(
-                    onClick = { viewModel.next() },
-                    modifier = Modifier.weight(1f).testTag(TAG_FULLSCREEN_NEXT),
-                ) {
-                    Text(tx("Next"))
+                if (words) {
+                    TransportButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, tx("Next word"), TAG_FULLSCREEN_NEXT) { viewModel.next() }
+                    TransportButton(Icons.Filled.SkipNext, tx("Next ayah"), TAG_NEXT_AYAH, size = 42) { viewModel.skipAyah(true) }
+                } else {
+                    TransportButton(Icons.Filled.SkipNext, tx("Next"), TAG_FULLSCREEN_NEXT) { viewModel.next() }
                 }
             }
         }
@@ -534,15 +663,88 @@ private fun BottomPlaybackPanel(
                 if (state.durationMs > 0) {
                     SeekSlider(state, viewModel)
                 }
-                ModeSelector(state.mode) { viewModel.setMode(it) }
-                RepeatSelector(state.mode, state.repeatMode) { viewModel.setRepeatMode(it) }
-                if (state.repeatMode == RepeatMode.AYAH) {
+                val repeatWord by PlayerSettings.repeatWordFlow.collectAsState()
+                val useWordClips by viewModel.useWordClips.collectAsState()
+                val learnedIds by viewModel.learnedIds.collectAsState()
+                val surah = state.currentTrack?.surah
+                // "Surah" repeats this surah's learned ayahs in the learned list; say so when
+                // there is more than one of them to repeat.
+                val severalLearnedHere = state.mode == PlaybackMode.REVISE && surah != null &&
+                    remember(learnedIds, surah) { learnedIds.count { AyahMapping.globalToSurahAyah(it).first == surah } } > 1
+                RepeatSelector(
+                    active = state.repeatMode,
+                    repeatWord = repeatWord,
+                    surahLearnedAyahs = severalLearnedHere,
+                    onSelect = { viewModel.setRepeatMode(it) },
+                    onWord = { viewModel.setRepeatWord(!repeatWord) },
+                )
+                // Word clips repeat without a pause: each is a file of its own, looped by the player.
+                if (state.repeatMode == RepeatMode.AYAH || (repeatWord && !useWordClips)) {
                     val revisionDelay by PlayerSettings.revisionDelay.collectAsState()
                     RevisionDelaySelector(revisionDelay) { viewModel.setRevisionDelay(it) }
                 }
-                if (state.mode == PlaybackMode.WORD_BY_WORD) {
-                    val useWordClips by viewModel.useWordClips.collectAsState()
-                    WordClipsToggle(useWordClips) { viewModel.setUseWordClips(it) }
+                WordClipsToggle(useWordClips) { viewModel.setUseWordClips(it) }
+                // Word clips are Quran.com's own recording, so there is no reciter to choose.
+                if (!useWordClips) {
+                    val reciter by PlayerSettings.reciterFlow.collectAsState()
+                    ReciterSelector(reciter) { viewModel.setReciter(it) }
+                }
+            }
+        }
+    }
+}
+
+/** Previous / Next: a quiet round button either side of Play, as on the web. */
+@Composable
+private fun TransportButton(icon: ImageVector, label: String, tag: String, size: Int = 48, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = Panel,
+        border = androidx.compose.foundation.BorderStroke(1.dp, Border),
+        modifier = Modifier.size(size.dp).testTag(tag),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = label, tint = TextPrimary, modifier = Modifier.size((size * 0.54f).dp))
+        }
+    }
+}
+
+/** The ayah reciter, picked where it is heard. Changing it rebuilds the queue (setReciter). */
+@Composable
+private fun ReciterSelector(active: Reciter, onSelect: (Reciter) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(tx("Reciter"), color = TextMuted, style = MaterialTheme.typography.bodySmall)
+        Box {
+            Surface(
+                onClick = { open = true },
+                shape = RoundedCornerShape(12.dp),
+                color = Panel,
+                border = androidx.compose.foundation.BorderStroke(1.dp, Border),
+                modifier = Modifier.fillMaxWidth().testTag(TAG_PLAYER_RECITER),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(active.displayName, color = TextPrimary, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = TextMuted)
+                }
+            }
+            DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                Reciter.entries.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                option.displayName,
+                                color = if (option == active) AccentGreen else TextPrimary,
+                                fontWeight = if (option == active) FontWeight.SemiBold else FontWeight.Normal,
+                            )
+                        },
+                        onClick = { open = false; onSelect(option) },
+                        modifier = Modifier.testTag(reciterTag(option)),
+                    )
                 }
             }
         }
@@ -552,7 +754,7 @@ private fun BottomPlaybackPanel(
 @Composable
 private fun SeekSlider(state: PlayerUiState, viewModel: PlayerViewModel) {
     // Seek once on release — seeking on every drag pixel makes playback stutter.
-    var dragPositionMs by remember { mutableStateOf<Float?>(null) }
+    var dragPositionMs by remember(state.currentTrack?.globalId, state.durationMs) { mutableStateOf<Float?>(null) }
     val shownPositionMs = dragPositionMs?.toLong() ?: state.positionMs.coerceIn(0L, state.durationMs)
     Column {
         Slider(
@@ -589,7 +791,7 @@ private fun RevisionDelaySelector(activeSeconds: Int, onSelect: (Int) -> Unit) {
             color = TextMuted,
             style = MaterialTheme.typography.bodySmall,
         )
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -597,7 +799,7 @@ private fun RevisionDelaySelector(activeSeconds: Int, onSelect: (Int) -> Unit) {
                 ModeChip(
                     label = if (seconds == 0) tx("Off") else "${seconds}s",
                     selected = seconds == activeSeconds,
-                    modifier = Modifier.weight(1f).testTag(revisionDelayTag(seconds)),
+                    modifier = Modifier.testTag(revisionDelayTag(seconds)),
                     onClick = { onSelect(seconds) },
                 )
             }
@@ -606,58 +808,48 @@ private fun RevisionDelaySelector(activeSeconds: Int, onSelect: (Int) -> Unit) {
 }
 
 @Composable
-private fun ModeSelector(active: PlaybackMode, onSelect: (PlaybackMode) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = tx("Play"),
-            color = TextMuted,
-            style = MaterialTheme.typography.bodySmall,
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            PlaybackMode.entries.forEach { mode ->
-                ModeChip(
-                    label = tx(mode.label),
-                    selected = mode == active,
-                    modifier = Modifier.weight(1f).testTag(playbackModeTag(mode)),
-                    onClick = { onSelect(mode) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun RepeatSelector(
-    playbackMode: PlaybackMode,
     active: RepeatMode,
+    repeatWord: Boolean,
+    surahLearnedAyahs: Boolean,
     onSelect: (RepeatMode) -> Unit,
+    onWord: () -> Unit,
 ) {
-    val options = if (playbackMode == PlaybackMode.WORD_BY_WORD) {
-        listOf(RepeatMode.OFF, RepeatMode.AYAH)
-    } else {
-        RepeatMode.entries.toList()
-    }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = tx("Repeat"),
             color = TextMuted,
             style = MaterialTheme.typography.bodySmall,
         )
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            options.forEach { repeat ->
-                ModeChip(
-                    label = repeat.labelFor(playbackMode),
-                    selected = repeat == active,
-                    modifier = Modifier.weight(1f).testTag(repeatModeTag(repeat)),
-                    onClick = { onSelect(repeat) },
-                )
-            }
+            // One choice of four. Word repeats the word being recited, in either view.
+            ModeChip(
+                label = tx("Ayah"),
+                selected = !repeatWord && active == RepeatMode.AYAH,
+                modifier = Modifier.testTag(repeatModeTag(RepeatMode.AYAH)),
+                onClick = { onSelect(RepeatMode.AYAH) },
+            )
+            ModeChip(
+                label = if (surahLearnedAyahs) tx("Surah learned ayahs") else tx("Surah"),
+                selected = !repeatWord && active == RepeatMode.SURAH,
+                modifier = Modifier.testTag(repeatModeTag(RepeatMode.SURAH)),
+                onClick = { onSelect(RepeatMode.SURAH) },
+            )
+            ModeChip(
+                label = tx("Word"),
+                selected = repeatWord,
+                modifier = Modifier.testTag(TAG_REPEAT_WORD),
+                onClick = onWord,
+            )
+            ModeChip(
+                label = tx("Off"),
+                selected = !repeatWord && active == RepeatMode.OFF,
+                modifier = Modifier.testTag(repeatModeTag(RepeatMode.OFF)),
+                onClick = { onSelect(RepeatMode.OFF) },
+            )
         }
     }
 }
@@ -676,9 +868,9 @@ private fun WordClipsToggle(enabled: Boolean, onChange: (Boolean) -> Unit) {
             Text(tx("Word clips (Quran.com)"), color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
             Text(
                 text = if (enabled) {
-                    tx("Isolated pronunciation clips. Recite & review always uses these.")
+                    tx("Each word from Quran.com, one at a time, in place of your reciter.")
                 } else {
-                    tx("Off: play each word in your ayah reciter by seeking the ayah audio.")
+                    tx("Off: your ayah reciter. On: each word from Quran.com, one at a time.")
                 },
                 color = TextMuted,
                 style = MaterialTheme.typography.bodySmall,
@@ -777,6 +969,7 @@ private fun SurahNavPanel(
             onClick = onBrowseSurahs,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp).testTag(TAG_MANAGE_AYAHS),
         ) {
+            Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.padding(end = 8.dp).size(18.dp))
             Text(tx("Manage learned ayahs"))
         }
         OutlinedTextField(

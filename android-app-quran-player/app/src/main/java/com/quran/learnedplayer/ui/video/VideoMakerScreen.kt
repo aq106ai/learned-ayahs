@@ -136,7 +136,7 @@ fun VideoMakerScreen(
                         AyahShareText.of(context, snapshot.surah, snapshot.fromAyah, snapshot.toAyah, arabic, english)
                     }
                     AyahShareText.copy(context, text)
-                    Toast.makeText(context, tx("Text copied"), Toast.LENGTH_SHORT).show()
+                    withContext(Dispatchers.Main) { Toast.makeText(context, tx("Text copied"), Toast.LENGTH_SHORT).show() }
                 } else {
                     val send = withContext(Dispatchers.IO) {
                         AyahShareText.intent(context, snapshot.surah, snapshot.fromAyah, snapshot.toAyah, arabic, english)

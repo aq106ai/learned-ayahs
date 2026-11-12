@@ -5,8 +5,9 @@
 
 import { h } from '../lib/dom.js';
 import { PlayerBackgrounds } from '../video/plan.js';
-import { photoSubjects, thumbUrl } from '../video/data.js';
-import { BackgroundScenes, variant } from '../video/scenes.js';
+import { isPhoto, loadPhoto, photoFor, photoSubjects, subjectFor, themeKey, thumbUrl } from '../video/data.js';
+import { BackgroundScenes, photoSpec, variant } from '../video/scenes.js';
+import { setScene } from './sceneColours.js';
 import { showSources } from './terms.js';
 import { contentChoices } from './contentChoices.js';
 import { uiLanguagePicker } from './uiLanguage.js';
@@ -19,8 +20,47 @@ const BACKGROUNDS = [
   [PlayerBackgrounds.PHOTOS, tx('Nature photos'), tx('Matched to each ayah')],
 ];
 
+/**
+ * The chosen background, painted behind the welcome dialog the moment it is picked (the opening
+ * ayah's scene or photo, as the player would show it), and the app recoloured to match. The
+ * welcome opens over the surah list, where no player is on screen to show it.
+ */
+let backdropToken = 0;
+async function paintBackdrop(canvas, value) {
+  const token = ++backdropToken;
+  if (value === PlayerBackgrounds.PLAIN) {
+    canvas.hidden = true;
+    setScene(null);
+    return;
+  }
+  const drawnKey = await themeKey(1, 1).catch(() => null);
+  let spec = variant(drawnKey, 1);
+  try {
+    const subjects = await photoSubjects();
+    const key = PlayerBackgrounds.themeFor(value, drawnKey, (k) => subjectFor(subjects, k)?.themeKey ?? null);
+    if (isPhoto(key)) {
+      const photo = photoFor(subjects, key, 1);
+      if (photo) spec = photoSpec(photo.id, await loadPhoto(photo));
+    } else if (key) {
+      spec = variant(key, 1);
+    }
+  } catch {
+    // The photo could not be loaded: the drawn scene stands in, as it does in the player.
+  }
+  if (token !== backdropToken || !canvas.isConnected) return;
+  const width = Math.max(2, Math.round(window.innerWidth / 2));
+  const height = Math.max(2, Math.round(window.innerHeight / 2));
+  const scenes = new BackgroundScenes(width, height);
+  canvas.width = width;
+  canvas.height = height;
+  scenes.draw(canvas.getContext('2d'), spec, 2000);
+  scenes.release();
+  canvas.hidden = false;
+  setScene(spec);
+}
+
 /** Theme and player background, applied as they are picked: the app changes behind the dialog. */
-function lookPage(store) {
+function lookPage(store, onBackground) {
   const body = h('div', { class: 'stack', 'data-testid': 'intro-look' });
   const thumbs = new BackgroundScenes(72, 96);
   const sceneThumb = h('canvas', { width: 72, height: 96 });
@@ -37,12 +77,13 @@ function lookPage(store) {
     // As in the player's background button: a background brings the ayah's translation with it.
     if (store.settings.playerBackground === PlayerBackgrounds.PLAIN && value !== PlayerBackgrounds.PLAIN) store.setSetting('showAyahTranslation', true);
     store.setSetting('playerBackground', value);
+    onBackground(value);
     draw();
   };
   function draw() {
     const s = store.settings;
     body.replaceChildren(
-      h('p', { style: { margin: 0 } }, tx('Make it yours. You can change these any time in Settings, or from the background button in the player.')),
+      h('p', { style: { margin: 0 } }, tx('Make it yours. You can change these any time: the language in Settings, the theme and background from the three dots in the player.')),
       h('div', { class: 'small muted' }, tx('App language')),
       uiLanguagePicker(),
       h('div', { class: 'small muted' }, tx('Theme')),
@@ -68,7 +109,7 @@ const PAGES = [
     h('p', { style: { margin: 0 } }, tx('"Keep refreshing your knowledge of the Qur\'an, for by Him in Whose Hand my soul is, it is more liable to escape than camels which are tied."')),
     h('p', { class: 'small muted', style: { margin: 0 } }, tx('Sahih al-Bukhari 5033 · Sahih Muslim 791')),
     h('p', { class: 'small muted' }, tx('Mark the ayahs you have memorised, and this app will help you revise them.'))),
-  (store) => lookPage(store),
+  (store, onBackground) => lookPage(store, onBackground),
   (store) => h('div', { class: 'stack', 'data-testid': 'intro-content' },
     h('p', { style: { margin: 0 } }, tx('What to read beside the Arabic, and who recites. All of it can be changed later in Settings.')),
     contentChoices(store, { reciter: true })),
@@ -99,17 +140,21 @@ export function showIntro(store, onDone) {
   const counter = h('span', { class: 'small muted' });
   const next = h('button', { class: 'btn primary', type: 'button', 'data-testid': 'intro-next' });
   const skip = h('button', { class: 'btn ghost', type: 'button', 'data-testid': 'intro-skip' }, tx('Skip'));
+  const backdrop = h('canvas', { class: 'intro-backdrop', hidden: true, 'aria-hidden': 'true', 'data-testid': 'intro-backdrop' });
+  const onBackground = (value) => paintBackdrop(backdrop, value);
   const wrap = h('div', { class: 'dialog-wrap' },
+    backdrop,
     h('div', { class: 'dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': tx('Welcome'), 'data-testid': 'intro' },
       h('h2', {}, tx('Welcome to Learned Ayahs')),
       body,
       h('div', { class: 'actions', style: { alignItems: 'center' } }, counter, h('span', { class: 'spacer' }), skip, next)));
   const finish = () => {
+    backdropToken++;
     wrap.remove();
     onDone();
   };
   const draw = () => {
-    body.replaceChildren(PAGES[page](store));
+    body.replaceChildren(PAGES[page](store, onBackground));
     counter.textContent = `${page + 1} / ${PAGES.length}`;
     next.textContent = page === PAGES.length - 1 ? tx('Begin') : tx('Next');
     skip.hidden = page === PAGES.length - 1;
@@ -124,5 +169,6 @@ export function showIntro(store, onDone) {
   skip.addEventListener('click', finish);
   draw();
   document.body.append(wrap);
+  if (store.settings.playerBackground !== PlayerBackgrounds.PLAIN) onBackground(store.settings.playerBackground);
   next.focus();
 }

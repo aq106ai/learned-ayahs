@@ -108,7 +108,7 @@ class ContentCatalogTest {
         TranslationStyle.entries.forEach {
             assertEquals(it, TranslationStyle.of(it.showWordTranslations, it.showAyahTranslation))
         }
-        assertEquals(TranslationStyle.WORDS, TranslationStyle.of(showWordTranslations = false, showAyahTranslation = false))
+        assertEquals(TranslationStyle.NONE, TranslationStyle.of(showWordTranslations = false, showAyahTranslation = false))
     }
 
     @Test

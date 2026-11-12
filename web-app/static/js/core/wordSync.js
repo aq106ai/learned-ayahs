@@ -23,3 +23,22 @@ export function activeWordIndex(positionMs, segments, wordCount) {
   }
   return active;
 }
+
+// A recitation file that runs on well past its ayah's word timings holds more than that ayah:
+// EveryAyah's Maher Al Muaiqly 2:258 is 2:258 and all of 2:259 in one file. Validated timings end
+// within 50 ms of the file's end everywhere else, so an overrun this large is never silence.
+const OVERRUN_MIN_MS = 5000;
+const OVERRUN_SHARE = 0.25;
+// Where such an ayah is cut: a breath after its last word.
+const OVERRUN_TAIL_MS = 400;
+
+/**
+ * Where the ayah in this file really ends, when the file runs on past it (see OVERRUN_MIN_MS), or
+ * null to play the file to its end. Same rule as Android's WordSync.ayahEndMs.
+ */
+export function ayahEndMs(segments, fileMs) {
+  const last = segments?.at(-1)?.[1];
+  if (!last || !Number.isFinite(fileMs) || fileMs <= 0) return null;
+  const overrun = fileMs - last;
+  return overrun > OVERRUN_MIN_MS && overrun > last * OVERRUN_SHARE ? last + OVERRUN_TAIL_MS : null;
+}

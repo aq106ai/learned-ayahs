@@ -19,6 +19,7 @@ import { accountView } from './views/account.js';
 import { adminView } from './views/admin.js';
 import { videoView } from './views/video.js';
 import { showIntro } from './views/intro.js';
+import { applySceneColours } from './views/sceneColours.js';
 
 import { applyDocumentLanguage, tx } from './core/i18n.js';
 const ROUTES = {
@@ -53,8 +54,8 @@ let current = null; // { name, params, view }
 
 function navItems() {
   const items = [
-    { route: 'player', label: tx('Player'), icon: 'headphones' },
-    { route: 'surahs', label: tx('Surahs'), icon: 'book' },
+    { route: 'player', label: tx('Revise'), icon: 'book' },
+    { route: 'surahs', label: tx('Manage'), icon: 'edit' },
   ];
   if (store.settings.reciteBetaEnabled) items.push({ route: 'recite', label: tx('Recite'), icon: 'mic' });
   items.push({ route: 'settings', label: tx('Settings'), icon: 'settings' });
@@ -190,6 +191,8 @@ function applyTheme() {
   const pref = store.settings.theme;
   const theme = pref === 'LIGHT' ? 'light' : pref === 'SYSTEM' ? (systemDark.matches ? 'dark' : 'light') : 'dark';
   document.documentElement.dataset.theme = theme;
+  // A player background colours every page, dark or light with the theme.
+  applySceneColours({ plain: store.settings.playerBackground === 'plain' });
   // The mushaf style's face for every Arabic line (.arabic uses var(--quran-font)).
   document.documentElement.style.setProperty('--quran-font', content.mushafFamilySync());
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme]);

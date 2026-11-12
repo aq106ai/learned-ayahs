@@ -70,6 +70,7 @@ test('a background turns the player into the video look, with the translation', 
   assert.equal(await page.isHidden('[data-testid=player-background]'), true, 'plain by default');
   assert.equal(await page.$('[data-testid=ayah-translation]'), null);
 
+  await page.click('[data-testid=open-actions-menu]');
   await page.click('[data-testid=open-background]');
   await page.click('[data-testid=background-matched]');
   await page.click('.dialog .btn.primary');
@@ -78,7 +79,7 @@ test('a background turns the player into the video look, with the translation', 
   await page.waitForSelector('.player.with-bg');
   await page.waitForFunction(() => /He is Allah/.test(document.querySelector('[data-testid=ayah-translation]')?.textContent ?? ''));
   // The scene has actually been painted.
-  await page.waitForFunction(() => document.querySelector('.player')?.style.getPropertyValue('--bg'), null, { timeout: 15000 });
+  await page.waitForFunction(() => document.documentElement.style.getPropertyValue('--bg'), null, { timeout: 15000 });
   await page.waitForFunction(() => {
     const c = document.querySelector('[data-testid=player-background]');
     if (!c || c.hidden || !c.width) return false;
@@ -95,6 +96,7 @@ test('Share → Image saves a picture of the ayah; Share → Video opens the mak
   await page.evaluate(() => window.__app.engine.restore());
   await page.waitForSelector('[data-testid=ayah-text]');
 
+  await page.click('[data-testid=open-actions-menu]');
   await page.click('[data-testid=share]');
   await page.click('[data-testid=share-aspect-TALL]');
   // Exercise the download fallback explicitly; desktop Chrome can expose native file sharing.
@@ -105,6 +107,7 @@ test('Share → Image saves a picture of the ayah; Share → Video opens the mak
   assert.deepEqual([...jpg.subarray(0, 2)], [0xff, 0xd8], 'a JPEG');
   assert.ok(jpg.length > 20_000);
 
+  await page.click('[data-testid=open-actions-menu]');
   await page.click('[data-testid=share]');
   await page.click('.dialog .actions .btn:not(.primary)');
   await page.waitForSelector('[data-testid=video-screen]');
@@ -139,6 +142,26 @@ test('a range can be copied as Arabic or English without creating a video', asyn
   assert.match(text, /Say/);
   assert.doesNotMatch(text, /[\u0600-\u06ff]/);
   assert.equal(await page.locator('[data-testid=video-download]').count(), 0);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+// The test server's 114:2 is a 9 s file whose timings end near 2.3 s, like EveryAyah's Maher Al
+// Muaiqly 2:258, which holds 2:259 too. The video ends the ayah where its words do.
+test('a video of an ayah whose file runs on carries only that ayah', async () => {
+  const { page, context, errors } = await openApp(browser, server, { path: 'video/114/2' });
+  const made = await page.evaluate(async () => {
+    const { VideoExporter } = await import('./js/video/exporter.js');
+    const { reciterFromKey } = await import('./js/core/reciters.js');
+    const request = {
+      surah: 114, fromAyah: 2, toAyah: 2, reciter: reciterFromKey('MAHER_AL_MUAIQLY'), aspect: 'SQUARE',
+      wordByWord: false, fullTranslation: false, opening: false, endCard: false, themeKey: null, photos: false, credits: false,
+    };
+    const { durationMs } = await new VideoExporter({ proxy: true }).export(request, { scale: 0.2, fps: 5 });
+    return durationMs;
+  });
+  // Lead-in, the ayah to its last word and a breath (2270 + 400 ms), and the tail; not 9 s.
+  assert.equal(made, 500 + 2270 + 400 + 1800);
   assert.deepEqual(errors, []);
   await context.close();
 });

@@ -103,6 +103,25 @@ const ICONS = {
     ['polyline', { points: '2 17 12 22 22 17' }],
     ['polyline', { points: '2 12 12 17 22 12' }],
   ],
+  // The playlist, as Android's QueueMusic: three lines and a note.
+  queue: [
+    ['line', { x1: 3, y1: 6, x2: 14, y2: 6 }],
+    ['line', { x1: 3, y1: 12, x2: 14, y2: 12 }],
+    ['line', { x1: 3, y1: 18, x2: 9, y2: 18 }],
+    ['circle', { cx: 16.5, cy: 17.5, r: 2.5 }],
+    ['path', { d: 'M19 17.5V5l3 1.5' }],
+  ],
+  more: [['circle', { cx: 12, cy: 5, r: 1 }], ['circle', { cx: 12, cy: 12, r: 1 }], ['circle', { cx: 12, cy: 19, r: 1 }]],
+  type: [
+    ['polyline', { points: '4 7 4 4 20 4 20 7' }],
+    ['line', { x1: 9, y1: 20, x2: 15, y2: 20 }],
+    ['line', { x1: 12, y1: 4, x2: 12, y2: 20 }],
+  ],
+  globe: [
+    ['circle', { cx: 12, cy: 12, r: 10 }],
+    ['line', { x1: 2, y1: 12, x2: 22, y2: 12 }],
+    ['path', { d: 'M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' }],
+  ],
   repeat: [
     ['polyline', { points: '17 1 21 5 17 9' }],
     ['path', { d: 'M3 11V9a4 4 0 0 1 4-4h14' }],
@@ -112,6 +131,7 @@ const ICONS = {
   chevronUp: [['polyline', { points: '18 15 12 9 6 15' }]],
   chevronDown: [['polyline', { points: '6 9 12 15 18 9' }]],
   chevronLeft: [['polyline', { points: '15 18 9 12 15 6' }]],
+  chevronRight: [['polyline', { points: '9 18 15 12 9 6' }]],
   volume: [
     ['polygon', { points: '11 5 6 9 2 9 2 15 6 15 11 19 11 5' }],
     ['path', { d: 'M15.54 8.46a5 5 0 0 1 0 7.07' }],

@@ -103,6 +103,7 @@ test('Next and Previous step ayahs; the queue wraps only under Repeat: Surah', a
 test('Full surah plays every ayah and Next/Previous cross into the neighbouring surah', async () => {
   const { page, context, errors } = await playerWith([[113, 2]]);
   await page.click('[data-testid=expand-controls]');
+  await page.click('[data-testid=open-actions-menu]');
   await page.click('[data-testid=mode-FULL_SURAH]');
   let s = await state(page);
   assert.equal(s.mode, 'FULL_SURAH');
@@ -138,7 +139,8 @@ test('Repeat: Ayah replays the ayah after the chosen pause, without the intro', 
 test('word by word steps one word at a time, rolls into the next ayah, and never plays an intro', async () => {
   const { page, context, errors } = await playerWith([[112, 1], [112, 2]], { useWordClips: true });
   await page.click('[data-testid=expand-controls]');
-  await page.click('[data-testid=mode-WORD_BY_WORD]');
+  await page.click('[data-testid=open-actions-menu]');
+  await page.click('[data-testid=toggle-word-by-word]');
   await page.waitForSelector('[data-testid=word-reader]');
   assert.match(await page.textContent('[data-testid=word-counter]'), /^1 \/ 4/);
   assert.equal(await page.textContent('[data-testid=word-meaning]'), 'Say');
@@ -269,14 +271,103 @@ test('word drags hold playback focus and cancel cleanly without turning into tap
   await context.close();
 });
 
-test('leaving the player clears its scene colors from navigation', async () => {
+test("a player background's colours stay on every page, and Plain clears them", async () => {
   const { page, context, errors } = await playerWith([[112, 1]], { playerBackground: 'matched' });
-  await page.waitForFunction(() => document.querySelector('.sidebar').style.getPropertyValue('--panel'));
+  const panel = () => page.evaluate(() => document.documentElement.style.getPropertyValue('--panel'));
+  await page.waitForFunction(() => document.documentElement.style.getPropertyValue('--panel'));
+  const inPlayer = await panel();
   await page.click('[data-testid=nav-surahs]');
-  // A hash link only queues `hashchange`; reading the sidebar straight after the click raced the
-  // router on slow CI runners. Wait until the Surahs view has replaced the player.
-  await page.waitForFunction(() => document.title.startsWith('Surahs'));
-  assert.equal(await page.locator('.sidebar').evaluate((el) => el.style.getPropertyValue('--panel')), '');
+  // A hash link only queues `hashchange`; reading straight after the click raced the router on
+  // slow CI runners. Wait until the Manage view has replaced the player.
+  await page.waitForFunction(() => document.title.startsWith('Manage'));
+  assert.equal(await panel(), inPlayer, 'Manage keeps the scene colours');
+  assert.equal(await page.locator('#app').evaluate((el) => el.classList.contains('scene')), false, 'the picture itself is only in the player');
+  await page.evaluate(() => window.__app.store.setSetting('theme', 'LIGHT'));
+  assert.notEqual(await panel(), inPlayer, 'Light recolours the scene palette on other pages too');
+  await page.evaluate(() => window.__app.store.setSetting('playerBackground', 'plain'));
+  assert.equal(await panel(), '', 'Plain goes back to the plain theme');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('Repeat: Word repeats the word being recited with the whole ayah on screen, in either mode', async () => {
+  const { page, context, errors } = await playerWith([[112, 1], [112, 2]]);
+  await page.click('[data-testid=expand-controls]');
+  await page.click('[data-testid=repeat-word]');
+  assert.equal(await page.getAttribute('[data-testid=repeat-word]', 'aria-pressed'), 'true');
+  assert.equal(await page.getAttribute('[data-testid=repeat-OFF]', 'aria-pressed'), 'false', 'one repeat choice at a time');
+  assert.equal(await page.evaluate(() => window.__app.engine.wordPlayback), true);
+  assert.equal(await page.locator('[data-testid=ayah-text]').count(), 1, 'the whole ayah stays on screen');
+  await page.click('[data-testid=play]');
+  await page.waitForFunction(() => window.__app.engine.playing);
+  // Left alone, it stays on the first word of the first ayah.
+  await page.waitForTimeout(2500);
+  let s = await state(page);
+  assert.deepEqual([s.ref, s.word], ['112:1', 0]);
+  assert.equal(await page.isVisible('[data-testid=next-ayah]'), true);
+  assert.equal(await page.locator('.word.active').count(), 1, 'the repeating word is lit');
+  await page.click('[data-testid=next]');
+  assert.equal((await state(page)).word, 1, 'Next steps to the next word');
+  // A tap on the whole ayah steps a word too; the outer buttons move by ayah.
+  const reader = await page.locator('[data-testid=reader]').boundingBox();
+  await page.mouse.click(reader.x + reader.width / 2, reader.y + 20);
+  assert.equal((await state(page)).word, 2, 'a tap steps a word');
+  assert.equal(await page.getAttribute('[data-testid=next]', 'aria-label'), 'Next word');
+  await page.click('[data-testid=next-ayah]');
+  s = await state(page);
+  assert.deepEqual([s.ref, s.word], ['112:2', 0], 'the outer button moves by ayah');
+  await page.click('[data-testid=prev-ayah]');
+  assert.equal((await state(page)).ref, '112:1');
+  // Full surah repeats words too.
+  await page.click('[data-testid=open-actions-menu]');
+  await page.click('[data-testid=mode-FULL_SURAH]');
+  s = await state(page);
+  assert.equal(s.mode, 'FULL_SURAH');
+  assert.equal(await page.evaluate(() => window.__app.engine.wordPlayback), true);
+  // Choosing another repeat leaves Repeat: Word.
+  await page.click('[data-testid=repeat-AYAH]');
+  assert.equal(await page.isVisible('[data-testid=next-ayah]'), false);
+  assert.equal(await page.evaluate(() => window.__app.store.settings.repeatWord), false);
+  assert.equal(await page.evaluate(() => window.__app.engine.wordPlayback), false);
+  assert.equal(await page.getAttribute('[data-testid=repeat-AYAH]', 'aria-pressed'), 'true');
+  await page.evaluate(() => window.__app.engine.pause());
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('Word clips replace the reciter choice; the repeat chips name what Surah repeats', async () => {
+  const { page, context, errors } = await playerWith([[112, 1], [112, 2], [113, 1]]);
+  await page.click('[data-testid=expand-controls]');
+  assert.deepEqual(await page.locator('[data-testid=more-controls] .chips').first().locator('.chip').allTextContents(),
+    ['Ayah', 'Surah learned ayahs', 'Word', 'Off']);
+  assert.equal(await page.locator('[data-testid=player-reciter]').count(), 1);
+  await page.check('[data-testid=word-clips]');
+  assert.equal(await page.locator('[data-testid=player-reciter]').count(), 0, 'word clips have their own recording');
+  assert.equal(await page.evaluate(() => window.__app.engine.wordPlayback), true);
+  await page.uncheck('[data-testid=word-clips]');
+  assert.equal(await page.locator('[data-testid=player-reciter]').count(), 1);
+  // One learned ayah in the surah, or the full surah: plain "Surah".
+  await page.evaluate(() => window.__app.engine.playGlobal(window.__app.engine.queue[2].globalId, { autoplay: false }));
+  assert.equal(await page.textContent('[data-testid=repeat-SURAH]'), 'Surah');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('the menu hides and shows word meanings, and leaves out Full Surah for a surah learned in full', async () => {
+  const { page, context, errors } = await playerWith([[112, 1], [112, 2], [112, 3], [112, 4], [113, 1]]);
+  await page.waitForSelector('.word .tr');
+  await page.click('[data-testid=open-actions-menu]');
+  assert.equal(await page.locator('[data-testid=mode-FULL_SURAH]').count(), 0, 'all of Al-Ikhlas is learned');
+  await page.click('[data-testid=toggle-word-meanings]');
+  assert.equal(await page.locator('.word .tr').count(), 0);
+  assert.equal(await page.evaluate(() => window.__app.store.settings.showWordTranslations), false);
+  await page.click('[data-testid=open-actions-menu]');
+  await page.click('[data-testid=toggle-word-meanings]');
+  await page.waitForSelector('.word .tr');
+  // Al-Falaq is only partly learned: the full surah is a different list, so it is offered.
+  await page.evaluate(() => window.__app.engine.playGlobal(window.__app.engine.queue[4].globalId, { autoplay: false }));
+  await page.click('[data-testid=open-actions-menu]');
+  assert.equal(await page.locator('[data-testid=mode-FULL_SURAH]').count(), 1);
   assert.deepEqual(errors, []);
   await context.close();
 });
@@ -301,6 +392,51 @@ test('whole-ayah swipes keep the short threshold and vertical or cancelled drags
   await page.mouse.move(box.x + 100, box.y + 50, { steps: 8 });
   await page.mouse.up();
   await page.waitForFunction(() => window.__app.engine.track.ayah === 2);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+// EveryAyah's Maher Al Muaiqly 2:258 file holds 2:259 too: the words ran out at 36% of the slider
+// and the app stayed on 2:258 while 2:259 played. The test server's 114:2 is such a file (9 s,
+// with timings that end near 2 s).
+test('an ayah whose file runs on past its timings ends with the ayah and moves on', async () => {
+  const { page, context, errors } = await playerWith([[114, 2], [114, 3]]);
+  await page.waitForFunction(() => window.__app.engine.audio.duration > 8 && window.__app.engine.segments);
+  const shown = await page.evaluate(() => window.__app.engine.durationMs);
+  assert.ok(shown > 1500 && shown < 4000, `the slider spans the ayah, not the file (${shown} ms)`);
+  await record(page);
+  await page.click('[data-testid=play]');
+  await page.waitForFunction(() => window.__app.engine.track?.ayah === 3, null, { timeout: 6000 });
+  assert.deepEqual(await heard(page), ['114:2', '114:3']);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('Repeat: Ayah and Repeat: Word stop where an overlong file\'s ayah ends', async () => {
+  const { page, context, errors } = await playerWith([[114, 2], [114, 3]], { repeatMode: 'AYAH', revisionDelaySeconds: 3 });
+  await page.waitForFunction(() => window.__app.engine.audio.duration > 8 && window.__app.engine.segments);
+  await page.click('[data-testid=play]');
+  await page.waitForFunction(() => window.__app.engine.gapPending, null, { timeout: 6000 });
+  assert.equal((await state(page)).ref, '114:2', 'the ayah repeats');
+  await page.evaluate(() => window.__app.engine.pause());
+  // The ayah's last word, repeating: it must not run on into the rest of the file.
+  await page.evaluate(() => {
+    const { engine, store } = window.__app;
+    store.setSetting('revisionDelaySeconds', 0);
+    engine.setRepeatWord(true);
+  });
+  await page.waitForFunction(() => window.__app.engine.contentWords.length > 0 && window.__app.engine.wordPlayback);
+  await page.evaluate(() => {
+    const e = window.__app.engine;
+    e.loadWord(e.contentWords.length - 1, { autoplay: false });
+    window.__words = 0;
+    e.on('word', () => window.__words++);
+  });
+  await page.click('[data-testid=play]');
+  await page.waitForFunction(() => window.__words >= 2, null, { timeout: 6000 });
+  const s = await state(page);
+  assert.equal(s.ref, '114:2');
+  await page.evaluate(() => window.__app.engine.pause());
   assert.deepEqual(errors, []);
   await context.close();
 });

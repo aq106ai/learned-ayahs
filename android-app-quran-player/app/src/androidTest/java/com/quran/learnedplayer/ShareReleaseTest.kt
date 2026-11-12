@@ -52,6 +52,7 @@ class ShareReleaseTest : BaseAppTest() {
         awaitTag(TAG_FULLSCREEN_WHOLE_AYAH)
         for (omit in listOf(null, TAG_SHARE_TEXT_ENGLISH, TAG_SHARE_TEXT_ARABIC)) {
             composeRule.runOnIdle { context.getSystemService(ClipboardManager::class.java).setPrimaryClip(android.content.ClipData.newPlainText("", "")) }
+            composeRule.onNodeWithTag("open_actions_menu").performClick()
             composeRule.onNodeWithTag(TAG_SHARE).performClick()
             if (omit != null) composeRule.onNodeWithTag(omit).performScrollTo().performClick()
             composeRule.onNodeWithTag("copy_text").performScrollTo().performClick()
@@ -59,12 +60,18 @@ class ShareReleaseTest : BaseAppTest() {
             assertTrue(text.contains("112:1"))
             assertTrue("Arabic selection: $text", text.any { it in '\u0600'..'\u06ff' } == (omit != TAG_SHARE_TEXT_ARABIC))
             assertTrue("English selection: $text", text.contains("Say") == (omit != TAG_SHARE_TEXT_ENGLISH))
+            // Copying closes the dialog a moment after the clipboard is set. Reopening before it
+            // has gone reuses the old dialog, with the last round's language still switched off.
+            composeRule.waitUntil(5_000) {
+                composeRule.onAllNodes(androidx.compose.ui.test.hasTestTag(com.quran.learnedplayer.ui.player.TAG_SHARE_DIALOG)).fetchSemanticsNodes().isEmpty()
+            }
         }
     }
 
     @Test
     fun video_range_can_be_copied_before_exporting() {
         awaitTag(TAG_FULLSCREEN_WHOLE_AYAH)
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
         composeRule.onNodeWithTag(TAG_SHARE).performClick()
         composeRule.onNodeWithTag(TAG_SHARE_VIDEO).performClick()
         composeRule.onNodeWithText("Whole surah").performScrollTo().performClick()

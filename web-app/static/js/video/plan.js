@@ -8,6 +8,8 @@ export const TAIL_MS = 1800;
 export const END_CARD_MS = 4000;
 /** The app's page on Google Play, drawn on a video's closing card. */
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.quran.learnedayahs';
+/** The web app, free in any browser (GitHub Pages). The end card links it beside the Android app. */
+export const WEB_APP_URL = 'https://aq106ai.github.io/learned-ayahs/';
 export const MIN_HOLD_MS = 12_000;
 export const CROSSFADE_MS = 900;
 

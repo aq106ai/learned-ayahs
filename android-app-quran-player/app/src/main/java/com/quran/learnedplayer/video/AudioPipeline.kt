@@ -33,6 +33,7 @@ object AudioPipeline {
         endCardMs: Long = 0,
         onClipDone: (Int) -> Unit = {},
         checkCancelled: () -> Unit = {},
+        timingsFor: (surah: Int, ayah: Int) -> List<LongRange>? = { _, _ -> null },
     ): Pair<VideoTimeline, EncodedAudio> {
         val encoder = MediaCodec.createEncoderByType(MIME)
         val format = MediaFormat.createAudioFormat(MIME, PcmResampler.RATE, PcmResampler.CHANNELS).apply {
@@ -49,7 +50,7 @@ object AudioPipeline {
         try {
             clips.forEachIndexed { index, clip ->
                 checkCancelled()
-                val pcm = decode(clip.file)
+                val pcm = trimToAyah(decode(clip.file), clip, timingsFor)
                 // Silence up to where this clip starts.
                 writer.silenceUntil(timeline.nextStartMs())
                 timeline.add(clip.kind, clip.surah, clip.ayah, PcmResampler.durationMs(pcm.size))
@@ -65,6 +66,20 @@ object AudioPipeline {
             runCatching { encoder.stop() }
             encoder.release()
         }
+    }
+
+    /**
+     * An ayah file that runs on past its word timings (EveryAyah's Maher Al Muaiqly 2:258 holds
+     * 2:259 as well) is cut where the ayah ends ([com.quran.learnedplayer.data.WordSync.ayahEndMs]),
+     * so the video does not recite the next ayah under this one.
+     */
+    private fun trimToAyah(pcm: ShortArray, clip: ClipSource, timingsFor: (Int, Int) -> List<LongRange>?): ShortArray {
+        if (clip.kind != ClipKind.AYAH) return pcm
+        val end = com.quran.learnedplayer.data.WordSync.ayahEndMs(timingsFor(clip.surah, clip.ayah), PcmResampler.durationMs(pcm.size))
+            ?: return pcm
+        val frames = end * PcmResampler.RATE / 1000L
+        val samples = (frames * PcmResampler.CHANNELS).toInt().coerceAtMost(pcm.size)
+        return pcm.copyOf(samples)
     }
 
     /** Feeds PCM to the AAC encoder and stores what comes out. */

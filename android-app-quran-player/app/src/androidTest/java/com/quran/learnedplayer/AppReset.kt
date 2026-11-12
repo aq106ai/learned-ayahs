@@ -42,6 +42,8 @@ internal object AppReset {
         PlayerSettings.reciteBetaEnabled = false
         PlayerSettings.seekInsideAyahAudio = false
         PlayerSettings.useWordClips = false
+        PlayerSettings.wordView = false
+        PlayerSettings.repeatWord = false
         PlayerSettings.playerBackground = com.quran.learnedplayer.video.PlayerBackgrounds.PLAIN
         PlayerSettings.showAyahTranslation = false
         PlayerSettings.translationEdition = PlayerSettings.DEFAULT_TRANSLATION_EDITION

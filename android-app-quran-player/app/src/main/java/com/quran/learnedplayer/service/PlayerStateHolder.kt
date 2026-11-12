@@ -130,7 +130,7 @@ object PlayerStateHolder {
         mode: com.quran.learnedplayer.player.PlaybackMode,
         repeatMode: com.quran.learnedplayer.player.RepeatMode,
     ) {
-        _uiState.update { it.copy(mode = mode, repeatMode = repeatMode) }
+        _uiState.update { it.copy(mode = mode, repeatMode = repeatMode, wordPlayback = PlayerSettings.wordPlayback) }
     }
 
     /** Replaces the active queue (e.g. when switching to/within a surah mode) keeping the source. */

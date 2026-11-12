@@ -92,7 +92,8 @@ class RecitationScreenTest : BaseAppTest() {
     }
 
     private fun openSettings() {
-        awaitTag(TAG_OPEN_SETTINGS)
+        awaitTag("open_actions_menu")
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
         composeRule.onNodeWithTag(TAG_OPEN_SETTINGS).performClick()
         awaitTag(TAG_SETTINGS_SCREEN)
     }

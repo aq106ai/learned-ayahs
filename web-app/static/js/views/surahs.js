@@ -11,7 +11,7 @@ export function surahsView({ store, go }) {
   const count = h('span', { class: 'count', 'data-testid': 'learned-count' });
   const countLabel = h('div', { class: 'muted small' });
   const list = h('div', { class: 'surah-list', 'data-testid': 'surah-list' });
-  const proceed = h('a', { class: 'btn primary', href: '#/player' }, icon('headphones'), tx('Go to player'));
+  const proceed = h('a', { class: 'btn primary', href: '#/player' }, icon('book'), tx('Revise'));
 
   const banner = h(
     'section',
@@ -96,7 +96,7 @@ export function surahsView({ store, go }) {
     h(
       'header',
       { class: 'page-head' },
-      h('div', {}, h('h1', {}, tx('Surahs')), h('p', { class: 'muted' }, tx('Mark the ayahs you have memorised. Your revision plays exactly these.'))),
+      h('div', {}, h('h1', {}, tx('Manage learned ayahs')), h('p', { class: 'muted' }, tx('Mark the ayahs you have memorised. Your revision plays exactly these.'))),
       proceed,
     ),
     banner,
@@ -113,5 +113,5 @@ export function surahsView({ store, go }) {
     }
   });
   void go;
-  return { el, destroy: off, title: tx('Surahs') };
+  return { el, destroy: off, title: tx('Manage') };
 }

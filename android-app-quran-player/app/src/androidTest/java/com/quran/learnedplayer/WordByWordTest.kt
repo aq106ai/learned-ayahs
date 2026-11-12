@@ -53,20 +53,22 @@ class WordByWordTest : BaseAppTest() {
     private fun openFullscreenReader() {
         // The player is the default screen now, and IS the immersive reader — nothing to
         // navigate to, just wait for it to finish loading the seeded queue.
-        awaitTag(TAG_TOGGLE_WORD_BY_WORD)
+        awaitTag("open_actions_menu")
     }
 
     @Test
     fun fullscreen_reader_opens_and_can_toggle_to_word_by_word() {
         openFullscreenReader()
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).assertIsDisplayed()
+        composeRule.onNodeWithTag("open_actions_menu").assertIsDisplayed()
 
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(TAG_WORD_PAGER).assertIsDisplayed()
-        // The label flips so the user can get back to the whole-ayah view.
-        composeRule.onNodeWithText("Whole ayah").assertIsDisplayed()
+        // The same menu item now leads back to the whole ayah.
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
+        composeRule.onNodeWithTag("view_ayah").assertIsDisplayed()
+        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).assertDoesNotExist()
     }
 
     /**
@@ -97,7 +99,7 @@ class WordByWordTest : BaseAppTest() {
     @Test
     fun word_view_shows_an_english_translation_under_the_arabic() {
         openFullscreenReader()
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         // 36:1 is the single word "يسٓ" — "Ya Seen".
         assertMeaningShown("Ya Seen")
@@ -200,7 +202,7 @@ class WordByWordTest : BaseAppTest() {
         openFullscreenReader()
         advanceToAyah(3) // 36:3 — "إِنَّكَ لَمِنَ ٱلْمُرْسَلِينَ", three words.
 
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -218,7 +220,7 @@ class WordByWordTest : BaseAppTest() {
     fun a_slow_short_swipe_rests_back_on_the_same_word() {
         openFullscreenReader()
         advanceToAyah(3) // 36:3 — three words.
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -232,7 +234,7 @@ class WordByWordTest : BaseAppTest() {
     fun a_slow_long_swipe_rests_fully_on_the_next_word() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -244,7 +246,7 @@ class WordByWordTest : BaseAppTest() {
     fun a_slow_swipe_back_from_the_first_word_does_not_stick_on_the_edge() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -262,7 +264,7 @@ class WordByWordTest : BaseAppTest() {
         openFullscreenReader()
         advanceToAyah(3) // 36:3 — three words.
 
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -277,7 +279,7 @@ class WordByWordTest : BaseAppTest() {
         openFullscreenReader()
         advanceToAyah(3) // 36:3 — three words.
 
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -290,7 +292,7 @@ class WordByWordTest : BaseAppTest() {
     fun each_word_shows_its_own_meaning_as_you_swipe() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         // Wait for 36:3's words to replace 36:1's — they load off the compose-idle clock.
         assertWord("1 / 3")
@@ -312,7 +314,7 @@ class WordByWordTest : BaseAppTest() {
     fun media_controls_step_words_while_the_word_reader_is_open() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -335,7 +337,7 @@ class WordByWordTest : BaseAppTest() {
     fun media_controls_still_step_words_while_the_next_ayah_is_loading() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -357,7 +359,7 @@ class WordByWordTest : BaseAppTest() {
     fun media_controls_fall_through_to_an_ayah_skip_when_text_is_unavailable() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         // Let the real load settle first, or its completion would overwrite the forced
         // empty state below and re-arm the pager's step handler mid-assertion.
@@ -382,7 +384,7 @@ class WordByWordTest : BaseAppTest() {
     fun transport_buttons_step_words_while_the_word_reader_is_open() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -399,7 +401,7 @@ class WordByWordTest : BaseAppTest() {
     fun swiping_past_the_last_word_moves_to_the_next_ayah() {
         openFullscreenReader()
         advanceToAyah(2) // 36:2 — two words.
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         // Wait for 36:2's words: right after an ayah change the pager can briefly still show
         // the previous ayah's, and a swipe then would cross the wrong boundary.
@@ -423,7 +425,7 @@ class WordByWordTest : BaseAppTest() {
     fun swiping_back_past_the_first_word_moves_to_the_previous_ayah() {
         openFullscreenReader()
         advanceToAyah(3)
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         assertWord("1 / 3")
 
@@ -476,23 +478,26 @@ class WordByWordTest : BaseAppTest() {
     @Test
     fun toggling_back_restores_the_whole_ayah_view() {
         openFullscreenReader()
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).performClick()
+        tapMenuItem("view_ayah")
         composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(TAG_WORD_PAGER).assertDoesNotExist()
-        composeRule.onNodeWithText("Word by word").assertIsDisplayed()
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
+        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).assertIsDisplayed()
     }
 
     @Test
-    fun word_by_word_playback_mode_opens_the_word_reader_without_the_overlay_toggle() {
+    fun word_view_replaces_the_legacy_playback_choice() {
         openFullscreenReader()
         awaitTag(TAG_EXPAND_PANEL)
         composeRule.onNodeWithTag(TAG_EXPAND_PANEL).performClick()
-        composeRule.onNodeWithTag(playbackModeTag(PlaybackMode.WORD_BY_WORD)).performClick()
+        composeRule.onNodeWithTag(playbackModeTag(PlaybackMode.WORD_BY_WORD)).assertDoesNotExist()
+        tapMenuItem(TAG_TOGGLE_WORD_BY_WORD)
         awaitTag(TAG_WORD_PAGER)
         composeRule.onNodeWithTag(TAG_WORD_PAGER).assertIsDisplayed()
-        composeRule.onNodeWithTag(TAG_TOGGLE_WORD_BY_WORD).assertDoesNotExist()
+        composeRule.onNodeWithTag("open_actions_menu").performClick()
+        composeRule.onNodeWithTag("view_ayah").assertIsDisplayed()
     }
 }

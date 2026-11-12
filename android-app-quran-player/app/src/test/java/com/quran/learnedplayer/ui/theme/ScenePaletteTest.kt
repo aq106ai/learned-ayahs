@@ -21,6 +21,14 @@ class ScenePaletteTest {
             val onAccent = onAccentFor(palette.accent, palette.panel)
             assertTrue(scene.kind.name, contrastRatio(onAccent, palette.accent) >= 4.5f)
             assertTrue(scene.kind.name, !palette.isLight)
+            // The Light theme's version of the same scene: dark text on pale surfaces.
+            val light = paletteFor(scene, light = true)
+            assertTrue(scene.kind.name, contrastRatio(light.textPrimary, light.panel) >= 4.5f)
+            assertTrue(scene.kind.name, contrastRatio(light.textPrimary, light.bg) >= 4.5f)
+            assertTrue(scene.kind.name, contrastRatio(light.textMuted, light.bg) >= 4.5f)
+            assertTrue(scene.kind.name, contrastRatio(light.accentGreen, light.border) >= 4.5f)
+            assertTrue(scene.kind.name, contrastRatio(onAccentFor(light.accent, light.panel), light.accent) >= 4.5f)
+            assertTrue(scene.kind.name, light.isLight)
         }
     }
 

@@ -96,7 +96,11 @@ class FrameRenderer(
 
     private val pagesCache = HashMap<TimelineClip, Pair<ClipText, AyahPages>>()
     private val translationCache = HashMap<Triple<TimelineClip, Int, Int>, StaticLayout>()
-    private val qr: Bitmap? = if (timeline.endCardMs > 0) qrBitmap((min(width, height) * 0.34f).toInt().coerceAtLeast(64)) else null
+    // One code for each way to get the app: the Play Store listing and the web app.
+    private val qrSize = (min(width, height) * 0.24f).toInt().coerceAtLeast(64)
+    private val qr: Pair<Bitmap, Bitmap>? = if (timeline.endCardMs > 0) {
+        qrBitmap(VideoRequest.PLAY_STORE_URL, qrSize) to qrBitmap(VideoRequest.WEB_APP_URL, qrSize)
+    } else null
 
     fun draw(canvas: Canvas, ms: Long) {
         val (slot, previous, fade) = BackgroundPlan.at(slots, ms)
@@ -131,52 +135,83 @@ class FrameRenderer(
 
     fun release() {
         scenes.release()
-        qr?.recycle()
+        qr?.first?.recycle()
+        qr?.second?.recycle()
     }
 
-    /** The closing page: who made the video, and where to get the app. */
+    /**
+     * The closing page, the same as the web app's (video/renderer.js drawEndCard): what made the
+     * video, what the app is for, a code for each way to get it (Android on the left, the web app
+     * on the right), and where the words and recitations come from.
+     */
     private fun drawEndCard(canvas: Canvas) {
         drawCard(canvas)
         labelPaint.textAlign = Paint.Align.CENTER
         labelPaint.color = Color.WHITE
         labelPaint.setShadowLayer(8f * u, 0f, 2f * u, Color.argb(170, 0, 0, 0))
-        labelPaint.textSize = 48f * u
-        var y = card.top + 72f * u
-        canvas.drawText("This video was made with", w / 2, y, labelPaint)
-        y += 64f * u
-        labelPaint.textSize = 56f * u
-        canvas.drawText("Learned Ayahs", w / 2, y, labelPaint)
-        y += 52f * u
-        labelPaint.textSize = 34f * u
+        labelPaint.textSize = 54f * u
+        // Centred in the card: the lines above the codes, the codes and their captions, the two below.
+        val block = if (qr != null) qrSize + 32f * u + 44f * u + 46f * u else 0f
+        val height = (54f + 52f + 40f) * u + block + (46f + 40f) * u
+        var y = card.top + maxOf(76f * u, (card.height() - height) / 2 + 54f * u)
+        canvas.drawText("Made with Learned Ayahs", w / 2, y, labelPaint)
         labelPaint.color = Color.argb(230, 255, 255, 255)
-        canvas.drawText("Download on Google Play", w / 2, y, labelPaint)
+        labelPaint.textSize = 30f * u
+        y += 52f * u
+        canvas.drawText("A free, open-source tool to revise", w / 2, y, labelPaint)
+        y += 40f * u
+        canvas.drawText("the ayahs you have memorised", w / 2, y, labelPaint)
 
-        val code = qr
-        if (code != null) {
-            val top = y + 28f * u
-            val left = w / 2 - code.width / 2f
-            // A white mat so the code stays scannable on a dark scene.
-            cardPaint.style = Paint.Style.FILL
-            cardPaint.color = Color.WHITE
-            canvas.drawRoundRect(
-                RectF(left - 16f * u, top - 16f * u, left + code.width + 16f * u, top + code.height + 16f * u),
-                12f * u, 12f * u, cardPaint,
-            )
-            canvas.drawBitmap(code, left, top, null)
-            y = top + code.height + 48f * u
+        val codes = qr
+        if (codes != null) {
+            val gap = qrSize * 0.45f
+            val top = y + 44f * u
+            val androidX = w / 2 - gap / 2 - qrSize / 2f
+            val webX = w / 2 + gap / 2 + qrSize / 2f
+            val bottom = drawQr(canvas, codes.first, androidX, top)
+            drawQr(canvas, codes.second, webX, top)
+            y = bottom + 46f * u
+            labelPaint.color = Color.WHITE
+            labelPaint.textSize = 28f * u
+            canvas.drawText("Android app", androidX, y, labelPaint)
+            canvas.drawText("Web app", webX, y, labelPaint)
         }
-        labelPaint.color = Color.argb(200, 255, 255, 255)
-        var urlSize = 22f * u
-        labelPaint.textSize = urlSize
-        while (labelPaint.measureText(VideoRequest.PLAY_STORE_URL) > w * 0.9f && urlSize > 12f * u) {
-            urlSize *= 0.9f
-            labelPaint.textSize = urlSize
-        }
-        canvas.drawText(VideoRequest.PLAY_STORE_URL, w / 2, y, labelPaint)
+        labelPaint.color = Color.argb(205, 255, 255, 255)
+        y += 46f * u
+        fitText(canvas, VideoRequest.WEB_APP_URL.removePrefix("https://").removeSuffix("/"), y, 24f * u)
+        labelPaint.color = Color.argb(170, 255, 255, 255)
+        y += 40f * u
+        fitText(canvas, "The Qur'an text, meanings and recitations come from public sources.", y, 20f * u)
     }
 
-    private fun qrBitmap(size: Int): Bitmap {
-        val matrix = QRCodeWriter().encode(VideoRequest.PLAY_STORE_URL, BarcodeFormat.QR_CODE, size, size)
+    /** One code on its white mat, centred on [cx]. Returns the mat's bottom edge. */
+    private fun drawQr(canvas: Canvas, code: Bitmap, cx: Float, top: Float): Float {
+        val mat = 16f * u
+        val left = cx - code.width / 2f
+        val codeTop = top + mat
+        cardPaint.style = Paint.Style.FILL
+        cardPaint.color = Color.WHITE
+        canvas.drawRoundRect(
+            RectF(left - mat, codeTop - mat, left + code.width + mat, codeTop + code.height + mat),
+            12f * u, 12f * u, cardPaint,
+        )
+        canvas.drawBitmap(code, left, codeTop, null)
+        return codeTop + code.height + mat
+    }
+
+    /** Centred text, shrunk until it fits most of the width. */
+    private fun fitText(canvas: Canvas, text: String, y: Float, px: Float) {
+        var size = px
+        labelPaint.textSize = size
+        while (labelPaint.measureText(text) > w * 0.86f && size > 12f * u) {
+            size *= 0.92f
+            labelPaint.textSize = size
+        }
+        canvas.drawText(text, w / 2, y, labelPaint)
+    }
+
+    private fun qrBitmap(url: String, size: Int): Bitmap {
+        val matrix = QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, size, size)
         return Bitmap.createBitmap(matrix.width, matrix.height, Bitmap.Config.ARGB_8888).also { bitmap ->
             for (x in 0 until matrix.width) {
                 for (y in 0 until matrix.height) {

@@ -119,7 +119,7 @@ export function surahView({ store, engine, go, params }) {
             engine.playSurahFrom(surah, 1);
             go('/player');
           },
-        }, icon('headphones'), tx('Listen')),
+        }, icon('book'), tx('Revise')),
       ),
     ),
     list,

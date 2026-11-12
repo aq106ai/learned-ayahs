@@ -339,6 +339,11 @@
    "name": "Chinese",
    "nativeName": "中文",
    "rtl": false
+  },
+  "inh": {
+   "name": "Ingush",
+   "nativeName": "ГӀалгӀай",
+   "rtl": false
   }
  },
  "translations": [
@@ -1862,6 +1867,34 @@
   {
    "id": "fa",
    "language": "fa",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  },
+  {
+   "id": "hi",
+   "language": "hi",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  },
+  {
+   "id": "ta",
+   "language": "ta",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  },
+  {
+   "id": "tr",
+   "language": "tr",
+   "source": "Quran.com",
+   "sourceUrl": "https://quran.com",
+   "bundled": false
+  },
+  {
+   "id": "inh",
+   "language": "inh",
    "source": "Quran.com",
    "sourceUrl": "https://quran.com",
    "bundled": false

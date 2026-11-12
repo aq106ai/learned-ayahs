@@ -104,7 +104,9 @@ fun ShareDialog(
                         AyahShareText.of(context, surah, ayah, ayah, includeArabic, includeEnglish)
                     }
                     AyahShareText.copy(context, text)
-                    Toast.makeText(context, tx("Text copied"), Toast.LENGTH_SHORT).show()
+                    // On the main thread whatever resumed us: a toast anywhere else throws, and
+                    // the dialog then stayed open showing "Can't toast on a thread…".
+                    withContext(Dispatchers.Main) { Toast.makeText(context, tx("Text copied"), Toast.LENGTH_SHORT).show() }
                 } else {
                     val send = withContext(Dispatchers.IO) {
                         AyahShareText.intent(context, surah, ayah, ayah, includeArabic, includeEnglish)
@@ -138,7 +140,7 @@ fun ShareDialog(
                     onClick = onShareVideo,
                     enabled = !working,
                     modifier = Modifier.fillMaxWidth().testTag(TAG_SHARE_VIDEO),
-                ) { Text(tx("Video…")) }
+                ) { Text(tx("Share video")) }
                 Text(tx("Image shape"), color = TextMuted, style = MaterialTheme.typography.bodySmall)
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     VideoAspect.entries.forEach { shape ->

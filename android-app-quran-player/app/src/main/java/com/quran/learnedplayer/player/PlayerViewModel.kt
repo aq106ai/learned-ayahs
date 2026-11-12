@@ -105,20 +105,29 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setWordReciter(reciter: com.quran.learnedplayer.data.WordReciter) {
         if (PlayerSettings.wordReciter == reciter) return
-        if (uiState.value.isPlaying && uiState.value.mode == PlaybackMode.WORD_BY_WORD) pause()
+        if (uiState.value.isPlaying && uiState.value.wordPlayback) pause()
         PlayerSettings.wordReciter = reciter
-        if (PlayerSettings.playbackMode == PlaybackMode.WORD_BY_WORD && PlayerSettings.useWordClips) {
-            applyModeChange(PlaybackMode.WORD_BY_WORD, PlayerSettings.repeatMode)
+        if (PlayerSettings.wordPlayback && PlayerSettings.useWordClips) {
+            applyModeChange(uiState.value.mode, PlayerSettings.repeatMode)
         }
     }
 
     fun setUseWordClips(enabled: Boolean) {
-        if (PlayerSettings.useWordClips == enabled) return
-        if (uiState.value.isPlaying && uiState.value.mode == PlaybackMode.WORD_BY_WORD) pause()
         PlayerSettings.useWordClips = enabled
-        if (PlayerSettings.playbackMode == PlaybackMode.WORD_BY_WORD) {
-            applyModeChange(PlaybackMode.WORD_BY_WORD, PlayerSettings.repeatMode)
-        }
+        applyModeChange(uiState.value.mode, PlayerSettings.repeatMode)
+    }
+
+    /** Repeat: Word. One choice among the repeat chips, so it clears the others. */
+    fun setRepeatWord(enabled: Boolean) {
+        PlayerSettings.repeatWord = enabled
+        if (enabled) PlayerSettings.repeatMode = RepeatMode.OFF
+        applyModeChange(uiState.value.mode, PlayerSettings.repeatMode)
+    }
+
+    fun setWordView(enabled: Boolean) {
+        // Only what is on screen changes: what plays (Word clips, Repeat: Word) is the same in
+        // both views.
+        PlayerSettings.wordView = enabled
     }
 
     /**
@@ -161,7 +170,8 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             combine(
                 uiState.map { it.currentTrack?.surah }.distinctUntilChanged(),
                 PlayerSettings.wordMeaningLanguageFlow,
-            ) { surah, lang -> surah to lang }
+                PlayerSettings.showWordTranslationsFlow,
+            ) { surah, lang, show -> (if (show) surah else null) to lang }
                 .collectLatest { (surah, lang) ->
                     if (surah == null || lang == "en") return@collectLatest
                     withContext(Dispatchers.IO) {
@@ -275,24 +285,15 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun setMode(mode: PlaybackMode) {
-        val repeat = if (mode == PlaybackMode.WORD_BY_WORD && PlayerSettings.repeatMode == RepeatMode.SURAH) {
-            RepeatMode.OFF
-        } else {
-            PlayerSettings.repeatMode
-        }
         PlayerSettings.playbackMode = mode
-        PlayerSettings.repeatMode = repeat
-        applyModeChange(mode, repeat)
+        applyModeChange(mode, PlayerSettings.repeatMode)
     }
 
+    /** Off, Surah or Ayah. Choosing one leaves Repeat: Word, which is the fourth choice. */
     fun setRepeatMode(repeat: RepeatMode) {
-        val resolved = if (PlayerSettings.playbackMode == PlaybackMode.WORD_BY_WORD && repeat == RepeatMode.SURAH) {
-            RepeatMode.OFF
-        } else {
-            repeat
-        }
-        PlayerSettings.repeatMode = resolved
-        applyModeChange(PlayerSettings.playbackMode, resolved)
+        PlayerSettings.repeatWord = false
+        PlayerSettings.repeatMode = repeat
+        applyModeChange(uiState.value.mode, repeat)
     }
 
     private fun applyModeChange(mode: PlaybackMode, repeat: RepeatMode) {
@@ -341,7 +342,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         val snapshot = PlaylistStore.latest ?: return
         if (downloadJob?.isActive == true) return
         downloadJob = viewModelScope.launch {
-            if (PlayerSettings.playbackMode == PlaybackMode.WORD_BY_WORD) {
+            if (PlayerSettings.wordPlayback && PlayerSettings.useWordClips) {
                 downloadLearnedWordAudio()
                 return@launch
             }
@@ -446,7 +447,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             }
             textGlobalId = track.globalId
             PlayerStateHolder.updateAyahText(words = words, loading = false)
-            if (PlayerSettings.playbackMode == PlaybackMode.WORD_BY_WORD) {
+            if (PlayerSettings.wordPlayback) {
                 val count = words.count { !it.isEnd }
                 val idx = PlayerStateHolder.uiState.value.currentWordIndex
                 PlayerStateHolder.updateWordIndex(if (count == 0) 0 else idx.coerceIn(0, count - 1), count)

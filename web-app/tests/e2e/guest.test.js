@@ -31,7 +31,15 @@ test('first run: the welcome sets the theme and background, with the sources a t
   // Picked here, applied at once, behind the dialog.
   await page.click('[data-testid=intro-theme-LIGHT]');
   assert.equal(await page.getAttribute('html', 'data-theme'), 'light');
+  assert.equal(await page.locator('[data-testid=intro-backdrop]').isVisible(), false);
   await page.click('[data-testid=intro-background-matched]');
+  // The scene shows behind the welcome at once, and the app takes its colours.
+  await page.waitForFunction(() => {
+    const c = document.querySelector('[data-testid=intro-backdrop]');
+    if (!c || c.hidden || !c.width) return false;
+    return c.getContext('2d').getImageData(Math.floor(c.width / 2), Math.floor(c.height / 2), 1, 1).data[3] > 0;
+  });
+  await page.waitForFunction(() => document.documentElement.style.getPropertyValue('--panel'));
   await page.click('[data-testid=intro-next]');
   await page.waitForSelector('[data-testid=intro-content] [data-testid=content-translation]');
   await page.click('[data-testid=intro-next]');
@@ -155,15 +163,24 @@ test('imports a file exported by the Android app, and exports one the Android ap
   await context.close();
 });
 
-test('settings: theme and reciter apply immediately and persist', async () => {
-  const { page, context, errors } = await openApp(browser, server, { path: 'settings', query: '?test' });
+test('theme and reciter are chosen in the player, apply immediately and persist', async () => {
+  // The theme is chosen with the background, from the three-dot menu; the reciter in the controls.
+  const { page, context, errors } = await openApp(browser, server, { path: 'player', query: '?test' });
+  await page.click('[data-testid=open-actions-menu]');
+  await page.click('[data-testid=open-background]');
   await page.click('[data-testid=theme-LIGHT]');
   assert.equal(await page.getAttribute('html', 'data-theme'), 'light');
-  await page.click('[data-testid=reciter-AL_HUSARY]');
+  await page.click('.dialog .btn.primary');
+  await page.click('[data-testid=expand-controls]');
+  await page.selectOption('[data-testid=player-reciter]', 'AL_HUSARY');
+  assert.equal(await page.evaluate(() => window.__app.store.settings.reciter), 'AL_HUSARY');
+  await page.click('[data-testid=nav-settings]');
+  await page.waitForFunction(() => document.title.startsWith('Settings'));
+  assert.equal(await page.locator('[data-testid=theme-LIGHT]').count(), 0);
+  assert.equal(await page.locator('[data-testid=reciter-AL_HUSARY]').count(), 0);
   await page.reload();
-  await page.waitForSelector('[data-testid=theme-LIGHT]');
+  await page.waitForFunction(() => window.__app?.store);
   assert.equal(await page.getAttribute('html', 'data-theme'), 'light');
-  assert.equal(await page.getAttribute('[data-testid=reciter-AL_HUSARY]', 'aria-checked'), 'true');
   assert.equal(await page.evaluate(() => window.__app.store.settings.reciter), 'AL_HUSARY');
   assert.deepEqual(errors, []);
   await context.close();

@@ -40,14 +40,15 @@ class VideoPlanTest {
     }
 
     @Test
-    fun clips_are_laid_end_to_end_with_gaps_and_the_screen_holds_the_last_one() {
+    fun clips_are_laid_end_to_end_gaplessly_and_the_screen_holds_the_last_one() {
         val timeline = VideoTimeline.Builder().apply {
             add(ClipKind.AYAH, 1, 1, 3000)
             add(ClipKind.AYAH, 1, 2, 2000)
         }.build()
         val (a, b) = timeline.clips
         assertEquals(VideoTimeline.LEAD_IN_MS, a.startMs)
-        assertEquals(a.endMs + VideoTimeline.GAP_MS, b.startMs)
+        assertEquals("gapless, as in the player", a.endMs, b.startMs)
+        assertEquals(0L, VideoTimeline.GAP_MS)
         assertEquals(b.endMs + VideoTimeline.TAIL_MS, timeline.totalMs)
         val withCard = VideoTimeline.Builder().apply {
             add(ClipKind.AYAH, 1, 1, 3000)
@@ -57,7 +58,8 @@ class VideoPlanTest {
         assertTrue(withCard.showsEndCard(withCard.totalMs - 1))
         assertTrue(!withCard.showsEndCard(withCard.totalMs - VideoTimeline.END_CARD_MS - 1))
         assertEquals(a, timeline.clipAt(0))
-        assertEquals(a, timeline.clipAt(a.endMs + 10)) // in the gap
+        assertEquals(a, timeline.clipAt(a.endMs - 1))
+        assertEquals(b, timeline.clipAt(a.endMs))
         assertEquals(b, timeline.clipAt(timeline.totalMs))
     }
 

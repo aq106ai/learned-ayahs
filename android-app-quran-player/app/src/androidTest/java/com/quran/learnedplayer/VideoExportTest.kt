@@ -88,7 +88,8 @@ class VideoExportTest {
         // The opening, Bismillah and four ayahs, at a known length: the picture lasts as long as the sound.
         val clips = request.clips().map { (kind, s, a) -> PcmResampler.durationMs(AudioPipeline.decode(source(kind, s, a)).size) }
         val endCard = if (request.endCard) VideoTimeline.END_CARD_MS else 0L
-        val expectedMs = 500 + clips.sum() + 400L * (clips.size - 1) + 1800 + endCard
+        // Back to back, as in the player: no silence is added between clips.
+        val expectedMs = 500 + clips.sum() + VideoTimeline.GAP_MS * (clips.size - 1) + 1800 + endCard
         val videoMs = video.getLong(MediaFormat.KEY_DURATION) / 1000
         val audioMs = audio!!.getLong(MediaFormat.KEY_DURATION) / 1000
         assertTrue("video ${videoMs}ms, expected about ${expectedMs}ms", kotlin.math.abs(videoMs - expectedMs) < 300)

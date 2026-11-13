@@ -14,7 +14,8 @@ data class TimelineClip(
 }
 
 /**
- * When each clip plays. Clips are laid end to end with [GAP_MS] of silence between them, after a
+ * When each clip plays. Clips are laid end to end, gapless as in the player ([GAP_MS] is 0: each
+ * recitation file already carries the reciter's own pause), after a
  * short [LEAD_IN_MS] so the first word isn't lost to a player that starts muted, and the last
  * clip is followed by [TAIL_MS] so it doesn't end on the final syllable.
  *
@@ -60,7 +61,7 @@ class VideoTimeline private constructor(
 
     companion object {
         const val LEAD_IN_MS = 500L
-        const val GAP_MS = 400L
+        const val GAP_MS = 0L
         const val TAIL_MS = 1800L
 
         /** How long the closing card stays up after the tail. */

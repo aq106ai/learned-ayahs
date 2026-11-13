@@ -39,8 +39,9 @@ test('the video maker previews the ayah and makes a video with sound and picture
     const head = new Uint8Array(await blob.slice(0, 64).arrayBuffer());
     return { size: blob.size, container: format.container, durationMs, stages: [...stages], head: Array.from(head) };
   });
-  // A'udhu (0.6 s) + Bismillah (0.6 s) + four 1.2 s ayahs, with the lead-in, gaps, tail and end card.
-  assert.equal(made.durationMs, 500 + 600 + 400 + 600 + 4 * (400 + 1200) + 1800 + 4000);
+  // A'udhu (0.6 s) + Bismillah (0.6 s) + four 1.2 s ayahs, back to back as in the player, with the
+  // lead-in, tail and end card.
+  assert.equal(made.durationMs, 500 + 600 + 600 + 4 * 1200 + 1800 + 4000);
   assert.deepEqual(made.stages, ['DOWNLOADING', 'AUDIO', 'VIDEO']);
   assert.ok(made.size > 20_000, `video is ${made.size} bytes`);
   if (made.container === 'webm') assert.deepEqual(made.head.slice(0, 4), [0x1a, 0x45, 0xdf, 0xa3], 'a WebM (EBML) file');

@@ -4,6 +4,11 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the Android app uses
 `versionName` from `android-app-quran-player/app/build.gradle.kts`.
 
+## [1.14.1] - 2026-11-13
+
+### Fixed
+- Shared videos recite ayahs back to back, gapless as in the player. They used to add 0.4 s of silence between ayahs (both apps), and on Android also kept each MP3's encoder padding.
+
 ## [1.14.0] - 2026-11-13
 
 ### Changed (both apps)

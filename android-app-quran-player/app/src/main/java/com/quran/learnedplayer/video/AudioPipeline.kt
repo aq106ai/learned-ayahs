@@ -167,6 +167,10 @@ object AudioPipeline {
         }
         extractor.selectTrack(track)
         val inputFormat = extractor.getTrackFormat(track)
+        // The encoder's own silence at each end of an MP3 (its LAME header says how much). The
+        // player drops it to join ayahs gaplessly; so does the video, where the file says.
+        val delayFrames = inputFormat.intOrZero(MediaFormat.KEY_ENCODER_DELAY)
+        val paddingFrames = inputFormat.intOrZero(MediaFormat.KEY_ENCODER_PADDING)
         val decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME)!!)
         decoder.configure(inputFormat, null, null, 0)
         decoder.start()
@@ -217,6 +221,11 @@ object AudioPipeline {
             decoder.release()
             extractor.release()
         }
-        return PcmResampler.toStereo(pcm.copyOf(size), rate, channels)
+        val from = (delayFrames * channels).coerceIn(0, size)
+        val to = (size - paddingFrames * channels).coerceIn(from, size)
+        return PcmResampler.toStereo(pcm.copyOfRange(from, to), rate, channels)
     }
+
+    private fun MediaFormat.intOrZero(key: String): Int =
+        if (containsKey(key)) runCatching { getInteger(key) }.getOrDefault(0).coerceAtLeast(0) else 0
 }

@@ -2,7 +2,9 @@
 // video/VideoTimeline.kt, BackgroundPlan.kt and LiveBackground.kt; pure, unit-tested.
 
 export const LEAD_IN_MS = 500;
-export const GAP_MS = 400;
+// Ayahs follow each other with no added silence, as in the player: each recitation file already
+// carries the reciter's own pause.
+export const GAP_MS = 0;
 export const TAIL_MS = 1800;
 /** How long the closing card stays up after the tail. */
 export const END_CARD_MS = 4000;
@@ -14,7 +16,7 @@ export const MIN_HOLD_MS = 12_000;
 export const CROSSFADE_MS = 900;
 
 /**
- * Clips laid end to end with [GAP_MS] of silence between them, after a short [LEAD_IN_MS] so the
+ * Clips laid end to end, gapless as in the player ([GAP_MS] is 0), after a short [LEAD_IN_MS] so the
  * first word isn't lost, and [TAIL_MS] after the last so it doesn't end on the final syllable.
  * Clips: {kind: 'AUDHU'|'BISMILLAH'|'AYAH', surah, ayah, startMs, durationMs}.
  */

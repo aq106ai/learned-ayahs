@@ -14,10 +14,10 @@ import { formatShareText } from '../../static/js/video/shareText.js';
 
 const ASSETS = new URL('../../../android-app-quran-player/app/src/main/assets/', import.meta.url);
 
-test('the timeline lays clips end to end with a lead-in, gaps and a tail', () => {
+test('the timeline lays clips end to end, gapless as in the player, after a lead-in and before a tail', () => {
   const t = buildTimeline([{ kind: 'AUDHU', durationMs: 600 }, { kind: 'AYAH', surah: 112, ayah: 1, durationMs: 1200 }]);
-  assert.deepEqual(t.clips.map((c) => [c.startMs, c.endMs]), [[500, 1100], [1500, 2700]]);
-  assert.equal(t.totalMs, 2700 + 1800);
+  assert.deepEqual(t.clips.map((c) => [c.startMs, c.endMs]), [[500, 1100], [1100, 2300]]);
+  assert.equal(t.totalMs, 2300 + 1800);
   assert.equal(t.endCardMs, 0);
   assert.equal(showsEndCard(t, t.totalMs - 1), false);
   const withCard = buildTimeline([{ kind: 'AYAH', surah: 112, ayah: 1, durationMs: 1200 }], END_CARD_MS);
@@ -25,8 +25,8 @@ test('the timeline lays clips end to end with a lead-in, gaps and a tail', () =>
   assert.equal(showsEndCard(withCard, withCard.totalMs - END_CARD_MS), true);
   assert.equal(showsEndCard(withCard, withCard.totalMs - END_CARD_MS - 1), false);
   assert.equal(clipAt(t, 0).kind, 'AUDHU');
-  assert.equal(clipAt(t, 1300).kind, 'AUDHU', 'between clips the last one stays on screen');
-  assert.equal(clipAt(t, 1500).kind, 'AYAH');
+  assert.equal(clipAt(t, 1099).kind, 'AUDHU');
+  assert.equal(clipAt(t, 1100).kind, 'AYAH', 'the next ayah starts the moment the last one ends');
 });
 
 test('matched backgrounds hold for 12 s before changing, then crossfade', () => {

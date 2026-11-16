@@ -54,10 +54,10 @@ export function playerView({ store, engine, server, go }) {
     const translated = store.settings.showAyahTranslation;
     const meanings = store.settings.showWordTranslations;
     const t = engine.track;
-    // A surah learned in full is the same list either way: no "Revise Full Surah".
+    // A surah learned in full is the same list either way: no "Full Surah Mode".
     const sameList = other === PlaybackMode.FULL_SURAH && t && learnedInSurah(t.surah) >= VERSE_COUNTS[t.surah - 1];
     menuItems.replaceChildren(...[
-      sameList ? null : menuItem(other === PlaybackMode.REVISE ? tx('Revise Learned Ayahs') : tx('Revise Full Surah'), 'repeat', `mode-${other}`, () => engine.setMode(other)),
+      sameList ? null : menuItem(other === PlaybackMode.REVISE ? tx('Revise Learned Ayahs') : tx('Full Surah Mode'), 'repeat', `mode-${other}`, () => engine.setMode(other)),
       wordView()
         ? menuItem(tx('View Full Ayah'), 'type', 'view-ayah', showAyah)
         : menuItem(tx('Word by Word'), 'type', 'toggle-word-by-word', showWords),
@@ -620,7 +620,7 @@ export function playerView({ store, engine, server, go }) {
     const bg = s.playerBackground;
     const request = {
       surah: t.surah, fromAyah: t.ayah, toAyah: t.ayah, reciter: reciterFromKey(s.reciter), aspect,
-      wordByWord: s.showWordTranslations, fullTranslation: s.showAyahTranslation, opening: false, credits: false,
+      wordByWord: s.showWordTranslations, wordFocus: Boolean(s.wordView), fullTranslation: s.showAyahTranslation, opening: false, credits: false,
       themeKey: bg === PlayerBackgrounds.PLAIN || bg === PlayerBackgrounds.MATCHED || bg === PlayerBackgrounds.PHOTOS ? null : bg,
       photos: bg === PlayerBackgrounds.PHOTOS || bg.startsWith('photo:'),
     };

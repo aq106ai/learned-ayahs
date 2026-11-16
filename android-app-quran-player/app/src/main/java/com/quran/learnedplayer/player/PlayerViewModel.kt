@@ -417,6 +417,12 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun onPlaylistLoaded(snapshot: PlaylistSnapshot, autoPlay: Boolean) {
         PlaylistStore.latest = snapshot
+        // Nothing marked yet: the learned list is empty, so start in Full Surah Mode, which plays
+        // every ayah of a surah without needing any marks. Saved, so the menu offers the way back.
+        if (snapshot.tracks.isEmpty() && PlayerSettings.playbackMode == PlaybackMode.REVISE) {
+            PlayerSettings.playbackMode = PlaybackMode.FULL_SURAH
+            PlayerStateHolder.updateMode(PlaybackMode.FULL_SURAH, PlayerSettings.repeatMode)
+        }
         textReload.value++
         // Best-effort cosmetic restore for the brief window before the service responds with the
         // authoritative queue (see preparePlaybackService): only exact when the last ayah is in

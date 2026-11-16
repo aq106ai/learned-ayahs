@@ -176,7 +176,7 @@ fun PlayerScreen(
     val withBackground = background != PlayerBackgrounds.PLAIN
     val showTranslation by PlayerSettings.showAyahTranslationFlow.collectAsState()
     val showWordMeanings by PlayerSettings.showWordTranslationsFlow.collectAsState()
-    // How much of the surah on screen is learned: all of it makes "Revise Full Surah" the same
+    // How much of the surah on screen is learned: all of it makes "Full Surah Mode" the same
     // list as the learned one, so the menu leaves it out.
     val learnedIds by viewModel.learnedIds.collectAsState()
     val shownSurah = state.currentTrack?.surah
@@ -452,7 +452,7 @@ private fun ReaderHeader(
                         val other = if (state.mode == PlaybackMode.FULL_SURAH) PlaybackMode.REVISE else PlaybackMode.FULL_SURAH
                         // A surah learned in full is the same list either way: no "Full Surah".
                         if (other == PlaybackMode.REVISE || !surahAllLearned) MenuAction(
-                            label = if (other == PlaybackMode.REVISE) tx("Revise Learned Ayahs") else tx("Revise Full Surah"),
+                            label = if (other == PlaybackMode.REVISE) tx("Revise Learned Ayahs") else tx("Full Surah Mode"),
                             icon = Icons.Filled.Repeat,
                             tag = playbackModeTag(other),
                         ) { menuOpen = false; onModeChange(other) }

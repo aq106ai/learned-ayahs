@@ -16,7 +16,7 @@ const END_GLYPH = 'rgba(255,236,190,0.784)';
 const TRANSLATION = 'rgba(240,244,240,0.94)';
 
 /**
- * [request]: {aspect: {width, height}, wordByWord, fullTranslation, credits, reciter,
+ * [request]: {aspect: {width, height}, wordByWord, wordFocus, fullTranslation, credits, reciter,
  *   translationCredit, translationRtl} (the last two are filled in by VideoExporter.prepareText).
  * [textFor(clip)] → {words, segments, translation, reference}. [sceneFor(key, variant)] → a scene
  * spec. [creditFor(key, variant)] → "Photo: …" or null.
@@ -86,6 +86,13 @@ export class FrameRenderer {
     }
     const { text, pages } = entry;
     const position = Math.min(Math.max(ms - clip.startMs, 0), clip.durationMs);
+    // One word at a time, only where the timings say which word it is (never guessed).
+    if (this.request.wordFocus && text.segments) {
+      this.drawCard(ctx);
+      this.drawFocusWord(ctx, clip, text, position);
+      this.drawLabels(ctx, text, this.creditFor(current.themeKey, current.variant));
+      return;
+    }
     const pageIndex = pageAt(pages, position, text.segments, clip.durationMs);
     const page = pages.pages[pageIndex];
     const recited = text.words.filter((w) => w.contentIndex >= 0).length;
@@ -142,6 +149,62 @@ export class FrameRenderer {
       }
     }
     ctx.restore();
+  }
+
+  /**
+   * One word filling the card, as the player's word reader shows it: the word being recited
+   * (before the first, the first; in a pause, the one just said), its meaning, where it falls in
+   * the ayah, and the translation beneath when that is on. Android: FrameRenderer.drawFocusWord.
+   */
+  drawFocusWord(ctx, clip, text, position) {
+    const words = text.words.filter((w) => w.contentIndex >= 0);
+    if (!words.length) return;
+    const index = Math.min(Math.max(activeWordIndex(position, text.segments, words.length), 0), words.length - 1);
+    const word = words[index];
+    const box = this.arabicBox;
+    const u = this.u;
+    const maxWidth = box.width * 0.9;
+    const cx = box.left + box.width / 2;
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.shadowColor = 'rgba(0,0,0,0.67)';
+    ctx.shadowBlur = 12 * u;
+    ctx.shadowOffsetY = 3 * u;
+    ctx.direction = 'rtl';
+    let arabicPx = this.arabicSize * 2.6;
+    ctx.font = `${arabicPx}px ${this.arabicFont}`;
+    while (ctx.measureText(word.arabic).width > maxWidth && arabicPx > this.arabicSize) {
+      arabicPx *= 0.92;
+      ctx.font = `${arabicPx}px ${this.arabicFont}`;
+    }
+    const gloss = this.request.wordByWord ? word.gloss : null;
+    let glossPx = this.arabicSize * 0.75;
+    if (gloss) {
+      ctx.font = `${glossPx}px ${LATIN_FONT}`;
+      while (ctx.measureText(gloss).width > maxWidth && glossPx > 22 * u) {
+        glossPx *= 0.92;
+        ctx.font = `${glossPx}px ${LATIN_FONT}`;
+      }
+    }
+    const blockHeight = arabicPx * 1.25 + (gloss ? glossPx * 1.6 : 0);
+    const baseline = box.top + (box.height - blockHeight) / 2 + arabicPx;
+    ctx.font = `${arabicPx}px ${this.arabicFont}`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText(word.arabic, cx, baseline);
+    ctx.direction = 'ltr';
+    if (gloss) {
+      ctx.shadowBlur = 8 * u;
+      ctx.shadowOffsetY = 2 * u;
+      ctx.font = `${glossPx}px ${LATIN_FONT}`;
+      ctx.fillStyle = HIGHLIGHT;
+      ctx.fillText(gloss, cx, baseline + arabicPx * 0.25 + glossPx * 1.3);
+    }
+    ctx.font = `${28 * u}px ${LATIN_FONT}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillText(`${index + 1} / ${words.length}`, cx, box.bottom - 6 * u);
+    ctx.restore();
+    if (this.request.fullTranslation && text.translation) this.drawTranslation(ctx, clip, text.translation, 0, 1);
   }
 
   drawTranslation(ctx, clip, translation, pageIndex, pageCount) {

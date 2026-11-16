@@ -52,6 +52,12 @@ data class VideoRequest(
     val bismillah: Boolean = opening && fromAyah == 1 && bismillahAllowed(surah, fromAyah),
     /** A closing page, after the recitation, pointing to the app on Google Play. */
     val endCard: Boolean = true,
+    /**
+     * One word at a time, full screen, as it is recited — the player's word-by-word reader. Only
+     * ayahs with validated timings for this reciter can follow the recitation; the others (and
+     * A'udhu and Bismillah, which have none) keep the whole-ayah layout rather than guess.
+     */
+    val wordFocus: Boolean = false,
 ) {
     init {
         require(surah in 1..114) { "No surah $surah" }

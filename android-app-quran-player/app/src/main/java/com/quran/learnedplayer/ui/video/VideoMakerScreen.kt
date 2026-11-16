@@ -251,6 +251,9 @@ fun VideoMakerScreen(
                 Toggle(tx("Word-by-word meanings"), tx("Under each Arabic word"), options.wordByWord, !working) { on ->
                     viewModel.update { it.copy(wordByWord = on) }
                 }
+                Toggle(tx("One word at a time"), tx("Each word full screen as it is recited"), options.wordFocus, !working) { on ->
+                    viewModel.update { it.copy(wordFocus = on) }
+                }
                 Toggle(tx("Translation"), rememberEditionName(), options.fullTranslation, !working) { on ->
                     viewModel.update { it.copy(fullTranslation = on) }
                 }

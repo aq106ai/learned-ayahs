@@ -217,8 +217,17 @@ export class PlayerEngine extends EventTarget {
     this.mode = PlaybackMode[this.store.settings.playbackMode] ?? PlaybackMode.REVISE;
     this.repeat = RepeatMode[this.store.settings.repeatMode] ?? RepeatMode.OFF;
     this.master = buildMaster(this.store.learned);
+    // Nothing marked yet: play in Full Surah Mode, which needs no marks. For this session only,
+    // so once ayahs are marked the saved mode (Revise by default) applies again.
+    if (!this.master.length && this.mode === PlaybackMode.REVISE) this.mode = PlaybackMode.FULL_SURAH;
     const last = this.store.progress.lastGlobalId;
-    const start = isValidGlobalId(last) ? last : this.master[0]?.globalId ?? 1;
+    let start = isValidGlobalId(last) ? last : this.master[0]?.globalId ?? 1;
+    // The last ayah may be from Full Surah Mode, in a surah with nothing learned: revising starts
+    // at the first learned ayah instead (else Repeat: Surah would leave an empty queue).
+    if (this.mode !== PlaybackMode.FULL_SURAH && this.master.length) {
+      const startSurah = globalToSurahAyah(start)[0];
+      if (!this.master.some((t) => t.surah === startSurah)) start = this.master[0].globalId;
+    }
     this.surah = globalToSurahAyah(start)[0];
     this.rebuildQueue(start);
     this.loadIndex(this.index, { autoplay: false });

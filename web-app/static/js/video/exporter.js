@@ -50,7 +50,7 @@ export function bismillahAllowed(surah, fromAyah) {
 
 /**
  * Everything the user chose for one video: {surah, fromAyah, toAyah, reciter, aspect (key),
- * wordByWord, fullTranslation, opening, bismillah, endCard, themeKey (null: matched), photos, credits}.
+ * wordByWord, wordFocus, fullTranslation, opening, bismillah, endCard, themeKey (null: matched), photos, credits}.
  * [bismillah] defaults to on only where the old opening included it.
  */
 export function clipsOf(request) {

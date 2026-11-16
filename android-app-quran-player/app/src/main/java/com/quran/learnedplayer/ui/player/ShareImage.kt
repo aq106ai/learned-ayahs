@@ -31,6 +31,7 @@ object ShareImage {
             PlayerSettings.playerBackground,
             PlayerSettings.showAyahTranslation,
             PlayerSettings.showWordTranslations,
+            PlayerSettings.wordView,
         )
 
     /**

@@ -9,7 +9,9 @@ A standalone Android app for revising the ayahs **you** have memorised: browse a
 and plays them back with lock-screen / Bluetooth / Android Auto controls.
 
 **The learned list is per-user and is the only source.** Nothing is marked on a user's behalf —
-a fresh install starts with an empty playlist, and browsing plus Surah-loop playback still work
+a fresh install starts with an empty playlist (and in Full Surah Mode: `onPlaylistLoaded` switches
+an empty list's REVISE to FULL_SURAH and saves it; the web engine does it for the session only),
+and browsing plus Surah-loop playback still work
 with nothing marked (`QueueBuilder.surahAllAyahs` doesn't read the master — and
 `PlaybackService.handleCommand` must accept a full-surah load with an empty master; until 1.9.2 it
 didn't, and tapping an ayah with nothing marked played nothing; `finishIntroAndResume` had the
@@ -294,6 +296,12 @@ the player's Share button → Video, and the film icon on a surah's page) → `V
   video" toggle (`VideoRequest.credits`) prints them under the card, with "Made with Learned
   Ayahs" at the foot. The words themselves are a separate share (`ui/AyahShareText.kt`: Arabic,
   English or both, then the reference).
+- **One word at a time** (`VideoRequest.wordFocus`; web `request.wordFocus`) draws only the word
+  being recited, large, with its meaning, "n / count" and the whole translation
+  (`FrameRenderer.drawFocusWord`, web `renderer.js drawFocusWord`). It follows `WordSync` timings
+  only: a clip with no segments (A'udhu, Bismillah, an ayah the reciter has no validated timings
+  for) falls back to the whole-ayah layout rather than guessing. `likeThePlayer` turns it on when
+  the player is in the word reader (`PlayerSettings.wordView`).
 - **Bismillah and the end card** are their own options (`VideoRequest.bismillah`, `endCard`).
   `VideoRequest.bismillahAllowed` refuses At-Tawbah and Al-Fatihah 1 (that ayah *is* the
   Bismillah). The end card adds `VideoTimeline.END_CARD_MS` of silence: what the app is (a free,

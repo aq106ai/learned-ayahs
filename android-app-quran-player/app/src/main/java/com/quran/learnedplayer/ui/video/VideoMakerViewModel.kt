@@ -65,24 +65,31 @@ data class VideoOptions(
     val bismillah: Boolean = fromAyah == 1 && VideoRequest.bismillahAllowed(surah, fromAyah),
     /** A closing page with the Play Store link. */
     val endCard: Boolean = true,
+    /** One word at a time, full screen, as it is recited. */
+    val wordFocus: Boolean = false,
 ) {
     val ayahCount: Int get() = toAyah - fromAyah + 1
 
     fun toRequest() = VideoRequest(
         surah, fromAyah, toAyah, reciter, aspect, wordByWord, fullTranslation, opening, themeKey,
-        photos, credits, bismillah, endCard,
+        photos, credits, bismillah, endCard, wordFocus,
     )
 
     /**
      * These options made to look like the player: its [background] (a plain player gets
      * matched scenes, since a video always has one), the translation if it shows it, and the
-     * word meanings if it shows them.
+     * word meanings if it shows them, and one word at a time if it is the word reader.
      */
-    fun likeThePlayer(background: String, translation: Boolean, wordMeanings: Boolean): VideoOptions = when (background) {
+    fun likeThePlayer(
+        background: String,
+        translation: Boolean,
+        wordMeanings: Boolean,
+        wordView: Boolean = false,
+    ): VideoOptions = when (background) {
         PlayerBackgrounds.PLAIN, PlayerBackgrounds.MATCHED -> copy(themeKey = null, photos = false)
         PlayerBackgrounds.PHOTOS -> copy(themeKey = null, photos = true)
         else -> copy(themeKey = background, photos = NaturePhotos.isPhoto(background))
-    }.copy(fullTranslation = translation, wordByWord = wordMeanings)
+    }.copy(fullTranslation = translation, wordByWord = wordMeanings, wordFocus = wordView)
 }
 
 /**
@@ -140,6 +147,7 @@ class VideoMakerViewModel(application: Application) : AndroidViewModel(applicati
             PlayerSettings.playerBackground,
             PlayerSettings.showAyahTranslation,
             PlayerSettings.showWordTranslations,
+            PlayerSettings.wordView,
         )
         if (_options.value.photos) ThemeThumbnails.loadPhotos(context)
         refreshPreview()

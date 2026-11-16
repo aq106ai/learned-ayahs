@@ -61,6 +61,33 @@ class VideoExportTest {
         assertTrue("112:1 is a few seconds long, was ${ms}ms", ms in 1_000..10_000)
     }
 
+    /**
+     * "One word at a time": each frame shows the word being recited, full screen, so two moments
+     * in different words look different and a whole video still encodes.
+     */
+    @Test
+    fun one_word_at_a_time_follows_the_recitation() = runBlocking<Unit> {
+        val request = VideoRequest(
+            surah = 112, fromAyah = 1, toAyah = 2, reciter = Reciter.DEFAULT, aspect = VideoAspect.PORTRAIT,
+            wordByWord = true, fullTranslation = true, opening = false, themeKey = null, wordFocus = true,
+        )
+        val exporter = VideoExporter(context, font)
+        val timings = com.quran.learnedplayer.data.QuranDataRepository(context).timingsFor(Reciter.DEFAULT, 112, 1)
+        assertNotNull("112:1 has timings for the default reciter", timings)
+        val stills = timings!!.take(3).mapIndexed { i, word ->
+            exporter.still(request, 540, atMs = (word.first + word.last) / 2).also { bitmap ->
+                File(context.cacheDir, "word-focus-$i.png").outputStream().use {
+                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+                }
+            }
+        }
+        assertTrue("a different word is on screen for each word", !stills[0].sameAs(stills[1]) && !stills[1].sameAs(stills[2]))
+
+        val output = File(context.cacheDir, "videos/test-word-focus.mp4").apply { parentFile?.mkdirs(); delete() }
+        exporter.export(request, output, scale = 0.25f, fps = 10, sources = ::source)
+        assertTrue("the video was written", output.length() > 0)
+    }
+
     @Test
     fun a_video_of_al_ikhlas_has_picture_and_sound_for_its_whole_length() = runBlocking<Unit> {
         val request = VideoRequest(

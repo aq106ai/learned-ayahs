@@ -119,6 +119,12 @@ class FrameRenderer(
             t to AyahLayout.layout(t.words, measurer, arabicBox.width(), arabicBox.height(), arabicSize, request.wordByWord)
         }
         val position = (ms - clip.startMs).coerceIn(0, clip.durationMs)
+        if (request.wordFocus && text.segments != null) {
+            drawCard(canvas)
+            drawFocusWord(canvas, clip, text, position)
+            drawLabels(canvas, text, creditFor(slot.themeKey, slot.variant))
+            return
+        }
         val pageIndex = AyahLayout.pageAt(pages, position, text.segments, clip.durationMs)
         val page = pages.pages[pageIndex]
         val active = if (ms in clip.startMs until clip.endMs && text.segments != null) {
@@ -253,6 +259,57 @@ class FrameRenderer(
                 glossPaint.color = if (isActive) HIGHLIGHT else GLOSS
                 canvas.drawText(placed.word.gloss, centre, baseline + pages.arabicSize * 0.48f + pages.glossSize, glossPaint)
             }
+        }
+    }
+
+    /**
+     * One word filling the card, as the player's word-by-word reader shows it: the word being
+     * recited (before the first, the first; in a pause, the one just said), its meaning under it,
+     * where it falls in the ayah, and the translation beneath when that is on.
+     */
+    private fun drawFocusWord(canvas: Canvas, clip: TimelineClip, text: ClipText, position: Long) {
+        val words = text.words.filter { it.contentIndex >= 0 }
+        if (words.isEmpty()) return
+        val segments = text.segments ?: return
+        val index = WordSync.activeWordIndex(position, segments, words.size).coerceIn(0, words.size - 1)
+        val word = words[index]
+
+        val box = arabicBox
+        val maxWidth = box.width() * 0.9f
+        arabicPaint.color = Color.WHITE
+        arabicPaint.setShadowLayer(12f * u, 0f, 3f * u, Color.argb(170, 0, 0, 0))
+        var arabicPx = arabicSize * 2.6f
+        arabicPaint.textSize = arabicPx
+        while (arabicPaint.measureText(word.arabic) > maxWidth && arabicPx > arabicSize) {
+            arabicPx *= 0.92f
+            arabicPaint.textSize = arabicPx
+        }
+        val gloss = word.gloss?.takeIf { request.wordByWord }
+        var glossPx = arabicSize * 0.75f
+        glossPaint.textSize = glossPx
+        if (gloss != null) {
+            while (glossPaint.measureText(gloss) > maxWidth && glossPx > 22f * u) {
+                glossPx *= 0.92f
+                glossPaint.textSize = glossPx
+            }
+        }
+        // The word and its meaning, centred together in the space above the translation.
+        val blockHeight = arabicPx * 1.25f + (if (gloss != null) glossPx * 1.6f else 0f)
+        val top = box.top + (box.height() - blockHeight) / 2f
+        val baseline = top + arabicPx
+        canvas.drawText(word.arabic, box.centerX(), baseline, arabicPaint)
+        if (gloss != null) {
+            glossPaint.color = HIGHLIGHT
+            glossPaint.setShadowLayer(8f * u, 0f, 2f * u, Color.argb(160, 0, 0, 0))
+            canvas.drawText(gloss, box.centerX(), baseline + arabicPx * 0.25f + glossPx * 1.3f, glossPaint)
+        }
+        labelPaint.textAlign = Paint.Align.CENTER
+        labelPaint.color = Color.argb(180, 255, 255, 255)
+        labelPaint.textSize = 28f * u
+        canvas.drawText("${index + 1} / ${words.size}", box.centerX(), box.bottom - 6f * u, labelPaint)
+
+        if (request.fullTranslation && text.translation != null) {
+            drawTranslation(canvas, clip, text.translation, 0, 1)
         }
     }
 

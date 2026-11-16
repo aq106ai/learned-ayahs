@@ -4,6 +4,18 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the Android app uses
 `versionName` from `android-app-quran-player/app/build.gradle.kts`.
 
+## [1.15.0] - 2026-11-16
+
+### Added (both apps)
+- **One word at a time** in the video maker: each word fills the card as it is recited, with its meaning, its place in the ayah ("2 / 4") and the translation beneath. Ayahs without word timings for the chosen reciter, A'udhu and Bismillah keep the whole-ayah layout. It is on already when a video or image is shared from the word-by-word reader.
+
+### Changed (both apps)
+- The menu's "Revise Full Surah" is now **Full Surah Mode**.
+- With no ayahs marked, the player starts in Full Surah Mode instead of an empty learned list. On Android the choice is saved, as playing any ayah already did; on the web it lasts the session, so marking ayahs brings Revise back on the next visit.
+
+### Fixed
+- Web: revising no longer opens with nothing to play when the last ayah heard is in a surah with no learned ayahs under Repeat: Surah; it starts at the first learned ayah.
+
 ## [1.14.1] - 2026-11-13
 
 ### Fixed

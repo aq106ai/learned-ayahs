@@ -20,10 +20,10 @@ const DEFAULT_SURAH_AYAHS = 10;
 const PREVIEW_W = 540;
 const STAGES = { DOWNLOADING: 'Downloading the recitation…', AUDIO: 'Preparing the audio…', VIDEO: 'Drawing the video…' };
 
-/** Options like the player's: its background, translation and word meanings. */
+/** Options like the player's: its background, translation, word meanings and word reader. */
 export function likeThePlayer(options, settings) {
   const bg = settings.playerBackground;
-  const out = { ...options, fullTranslation: settings.showAyahTranslation, wordByWord: settings.showWordTranslations };
+  const out = { ...options, fullTranslation: settings.showAyahTranslation, wordByWord: settings.showWordTranslations, wordFocus: Boolean(settings.wordView) };
   if (bg === PlayerBackgrounds.PLAIN || bg === PlayerBackgrounds.MATCHED) return { ...out, themeKey: null, photos: false };
   if (bg === PlayerBackgrounds.PHOTOS) return { ...out, themeKey: null, photos: true };
   return { ...out, themeKey: bg, photos: isPhoto(bg) };
@@ -41,6 +41,7 @@ export function videoView({ store, engine, server, go, params }) {
     reciter: store.settings.reciter,
     aspect: 'PORTRAIT',
     wordByWord: true,
+    wordFocus: false,
     fullTranslation: true,
     opening: !(ayah > 1),
     bismillah: fromAyah === 1 && bismillahAllowed(surah, fromAyah),
@@ -172,6 +173,7 @@ export function videoView({ store, engine, server, go, params }) {
         : 'Recited before the ayahs';
     const text = section(tx('Text'),
       toggle('wordByWord', tx('Word-by-word meanings'), tx('Under each Arabic word')),
+      toggle('wordFocus', tx('One word at a time'), tx('Each word full screen as it is recited')),
       toggle('fullTranslation', tx('Translation'), editionNameSync()),
       toggle('opening', tx("Begin with A'udhu"), tx('Recited before the ayahs')),
       h('label', { class: 'toggle-row' },

@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 
 /**
  * The three-dot menu's own choices and the footer's repeat row: word meanings on and off, no
- * "Revise Full Surah" for a surah learned in full, Repeat as one choice of four (Word among them,
+ * "Full Surah Mode" for a surah learned in full, Repeat as one choice of four (Word among them,
  * with the whole ayah still on screen), Word clips in place of the reciter, and the surah
  * screen's play button.
  */

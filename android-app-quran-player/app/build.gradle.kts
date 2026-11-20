@@ -34,6 +34,15 @@ android {
     }
 
     signingConfigs {
+        // Test builds only, for the `preview` build type below. Committed on purpose, password
+        // and all: it signs an app with its own package name, so it can never update or stand in
+        // for the Play Store app, and a fixed key lets one preview install update the next.
+        create("preview") {
+            storeFile = file("preview.keystore")
+            storePassword = "learned-ayahs-preview"
+            keyAlias = "preview"
+            keyPassword = "learned-ayahs-preview"
+        }
         create("release") {
             if (keystorePropertiesFile.exists()) {
                 storeFile = file(keystoreProperties.getProperty("storeFile"))
@@ -57,6 +66,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+        }
+        // A release build to try on a phone next to the Play Store install: its own package name
+        // (com.quran.learnedayahs.preview), its own data, the label "Learned Ayahs (test)"
+        // (src/preview/res) and the preview key. `./gradlew assemblePreview`; CI uploads it.
+        create("preview") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".preview"
+            signingConfig = signingConfigs.getByName("preview")
+            matchingFallbacks += listOf("release")
         }
     }
 

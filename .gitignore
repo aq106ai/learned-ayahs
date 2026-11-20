@@ -5,6 +5,8 @@ local.properties
 *.apk
 *.aab
 *.keystore
+# Test builds only (buildTypes.preview): a separate package name, so it cannot sign for Play.
+!android-app-quran-player/app/preview.keystore
 keystore.properties
 captures/
 

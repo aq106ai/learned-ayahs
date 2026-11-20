@@ -82,6 +82,14 @@ echo "sdk.dir=C\:\\Users\\YOUR_USER\\AppData\\Local\\Android\\Sdk" > local.prope
   old checkout's Gradle wrapper to 8.11.1, and builds the debug APK. There is no native build —
   see **Recite & review** for why whisper.cpp and the NDK dependency were removed in 1.8.0.
 - APKs are renamed to `LearnedAyahsPlayer-v<versionName>-<buildType>.apk` (see `app/build.gradle.kts`).
+- **`preview` build type: a test APK that installs next to the Play Store app.** A release build
+  (R8 and all) with `applicationIdSuffix = ".preview"` (`com.quran.learnedayahs.preview`), the
+  label "Learned Ayahs (test)" (`src/preview/res`) and its own key, `app/preview.keystore`.
+  **That key is committed on purpose, password included**: it can only sign the `.preview`
+  package, so it can never update the Play app, and a fixed key lets each preview update the last
+  (a CI debug key changes per runner, which would force an uninstall each time). It has its own
+  data, so learned ayahs move across by export/import. CI builds it on every push and uploads the
+  `preview-apk` artifact. Debug is untouched, so `tools/device-test.ps1`'s package names still hold.
 - Bump `versionCode` **and** `versionName` in `app/build.gradle.kts` for each release; the
   README tells users to confirm the version in Settings → About after installing.
 - Tests:

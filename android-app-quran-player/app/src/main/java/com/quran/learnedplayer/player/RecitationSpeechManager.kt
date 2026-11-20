@@ -188,10 +188,20 @@ class RecitationSpeechManager(private val context: Context) {
     }
 
     /**
-     * The reference text is not used. The platform service takes no vocabulary or prompt hint, so
-     * biasing happens in the evaluator instead, where a wrong guess costs nothing.
+     * Words the recogniser should expect, handed to it as `EXTRA_BIASING_STRINGS` (API 33, which
+     * Recite already requires) from the next session on. Sessions restart at every pause, so a
+     * new ayah's words reach the recogniser within one phrase.
+     *
+     * This is a hint, not a constraint: a service that ignores it behaves exactly as before, and
+     * scoring still happens in the evaluator against what was actually transcribed. The current
+     * ayah comes first in [tokens] and the list is capped, so a long learned list (whose openings
+     * the caller appends) cannot crowd it out.
      */
-    fun setExpectedText(uthmani: String, tokens: List<String>) = Unit
+    fun setExpectedText(uthmani: String, tokens: List<String>) {
+        biasingStrings = ArrayList(tokens.filter { it.isNotBlank() }.distinct().take(MAX_BIASING_STRINGS))
+    }
+
+    @Volatile private var biasingStrings: ArrayList<String> = ArrayList()
 
     /**
      * Stop feeding the recogniser while a correction clip plays, without closing the microphone.
@@ -330,6 +340,10 @@ class RecitationSpeechManager(private val context: Context) {
                 putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING, AudioFormat.ENCODING_PCM_16BIT)
                 putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, SAMPLE_RATE)
                 putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 4_000L)
+                val bias = biasingStrings
+                if (bias.isNotEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    putStringArrayListExtra(RecognizerIntent.EXTRA_BIASING_STRINGS, bias)
+                }
                 putExtra(
                     RecognizerIntent.EXTRA_SEGMENTED_SESSION,
                     RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
@@ -547,6 +561,9 @@ class RecitationSpeechManager(private val context: Context) {
         const val RESTART_DELAY_MS = 250L
 
         const val MAX_DEAD_STARTS = 4
+
+        /** Enough for the longest ayah's words plus the next ayah's opening. */
+        const val MAX_BIASING_STRINGS = 160
 
         // SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED / ERROR_LANGUAGE_UNAVAILABLE are API 31+;
         // spelled out because the constants postdate this file's minSdk history.

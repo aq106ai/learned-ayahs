@@ -34,6 +34,36 @@ class ArabicTextNormalizerTest {
     }
 
     /**
+     * Word-by-word Recite judges each word as it sounds *inside the ayah*, not as Quran.com's
+     * isolated clip says it. Connected recitation drops the hamzat al-wasl, assimilates a sun
+     * letter, stops on ة as ه (or keeps it as ت in wasl) and drops the alif of tanween in wasl.
+     * Recognisers write some of that down. Each of these must still count as the written word,
+     * and each is already covered by an existing rule (one edit, or added/dropped long vowels),
+     * which this test exists to keep true.
+     */
+    @Test
+    fun isWordMatch_acceptsConnectedRecitationForms() {
+        val connected = listOf(
+            "ٱلرَّحْمَـٰنِ" to "لرحمن", // wasl alif dropped: bismi-llāhi-r-raḥmān
+            "ٱلرَّحِيمِ" to "لرحيم",
+            "ٱلَّذِينَ" to "لذين",
+            "ٱلْأَرْضِ" to "لأرض",
+            "ٱلشَّمْسِ" to "اشمس", // sun letter assimilated: ash-shams
+            "غِشَـٰوَةٌ" to "غشاوه", // stopped on ة
+            "غِشَـٰوَةٌ" to "غشاوت", // ة kept as t in wasl
+            "رَحْمَةً" to "رحمت",
+            "عَلِيمًا" to "عليم", // tanween's alif not voiced in wasl
+            "حَكِيمًا" to "حكيم",
+        )
+        for ((written, heard) in connected) {
+            assertTrue("$heard should count as $written", ArabicTextNormalizer.isWordMatch(written, heard))
+        }
+        // في الأرض run together by the recogniser as one token: the aligner joins the two written
+        // words, and the join must match too.
+        assertTrue(ArabicTextNormalizer.isWordMatch("فِى" + "ٱلْأَرْضِ", "فلأرض"))
+    }
+
+    /**
      * Presentation-form lam-alef is a single code point outside the Arabic letter block, so the
      * catch-all filter used to delete it — silently shortening the word into a mismatch.
      */

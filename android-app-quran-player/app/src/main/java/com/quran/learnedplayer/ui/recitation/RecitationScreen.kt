@@ -73,6 +73,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.data.WordEvaluationStatus
+import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerViewModel
 import com.quran.learnedplayer.player.RecitationViewModel
 import com.quran.learnedplayer.ui.theme.Accent
@@ -89,6 +90,7 @@ const val TAG_PREV_AYAH = "recitation_prev_ayah"
 const val TAG_NEXT_AYAH = "recitation_next_ayah"
 const val TAG_RECITATION_RETRY = "recitation_retry"
 const val TAG_RECITATION_REPORT = "recitation_report"
+const val TAG_RECITATION_VIEW_TOGGLE = "recitation_view_toggle"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -117,6 +119,8 @@ fun RecitationScreen(
     val detectedWrongAyahId by recitationViewModel.detectedWrongAyahId.collectAsState()
     val packProgress by recitationViewModel.packProgress.collectAsState()
     val sessionReport by recitationViewModel.sessionReport.collectAsState()
+    val frontier by recitationViewModel.frontierIndex.collectAsState()
+    val wordByWord by PlayerSettings.reciteWordByWordFlow.collectAsState()
 
     var hasMicPermission by remember {
         mutableStateOf(
@@ -212,7 +216,25 @@ fun RecitationScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            // One word at a time is the default; the whole ayah is a tap away. Only the display
+            // changes — the coach listens and scores the same way in both.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                TextButton(
+                    onClick = { PlayerSettings.reciteWordByWord = !wordByWord },
+                    modifier = Modifier.testTag(TAG_RECITATION_VIEW_TOGGLE),
+                ) {
+                    Text(
+                        text = if (wordByWord) tx("Word by word · show full ayah") else tx("Full ayah · show word by word"),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = AccentGreen,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             if (packProgress != null) {
                 Card(
@@ -444,7 +466,18 @@ fun RecitationScreen(
                 colors = CardDefaults.cardColors(containerColor = Panel),
                 shape = RoundedCornerShape(16.dp),
             ) {
-                Column(
+                if (wordByWord) {
+                    RecitationWordCard(
+                        words = words,
+                        frontier = frontier,
+                        believedMistakes = believedMistakes,
+                        confirmedMistakeIndex = confirmedMistake?.wordIndex,
+                        surah = surah,
+                        ayah = ayah,
+                        onPlayWord = { recitationViewModel.playWord(it) },
+                        modifier = Modifier.padding(16.dp),
+                    )
+                } else Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)

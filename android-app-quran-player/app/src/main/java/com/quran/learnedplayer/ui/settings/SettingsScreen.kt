@@ -112,6 +112,7 @@ fun SettingsScreen(
     var arabicPackLanguage by remember { mutableStateOf<String?>(null) }
     var arabicPackOffered by remember { mutableStateOf(false) }
     val autoAdvanceSuccess by PlayerSettings.autoAdvanceSuccessFlow.collectAsState()
+    val reciteWordByWord by PlayerSettings.reciteWordByWordFlow.collectAsState()
     val context = LocalContext.current
     val mainExecutor = remember(context) { ContextCompat.getMainExecutor(context) }
 
@@ -283,6 +284,30 @@ fun SettingsScreen(
         }
 
         Section(tx("Recitation & AI Review")) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { PlayerSettings.reciteWordByWord = !reciteWordByWord }
+                    .padding(top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(tx("Recite word by word"), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = tx("Show one word at a time and move on only when it is recited correctly. Off shows the whole ayah."),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted,
+                    )
+                }
+                Switch(
+                    checked = reciteWordByWord,
+                    onCheckedChange = { PlayerSettings.reciteWordByWord = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Panel,
+                        checkedTrackColor = AccentGreen,
+                    ),
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

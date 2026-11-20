@@ -628,6 +628,26 @@ names word 2" survives a bad day for the microphone. Regenerate the audio with
 `python .setup/make_recitation_corpus.py` (needs `soundfile`; existing clips are left alone unless
 `--force`).
 
+**Word by word is the default display** (`PlayerSettings.reciteWordByWord`, on; the screen's
+toggle and a Settings switch turn it off). `ui/recitation/RecitationWordCard.kt` shows one word,
+large, with the words already said above it and the upcoming ones hidden. **Only the display is
+per word; listening and scoring are not.** The student recites continuously, and the whole-ayah
+transcript is still aligned against the whole ayah by `evaluateContinuing`. That is what judges a
+word as it sounds *inside the ayah*: connected forms (wasl alif dropped, a sun letter assimilated,
+ة stopped on as ه or kept as ت, tanween's alif not voiced) are already one edit or long-vowel
+variants (`ArabicTextNormalizerTest.isWordMatch_acceptsConnectedRecitationForms`), and nothing is
+compared with the isolated word clip. Don't split recognition into a session per word: a lone
+word has no language context for the recogniser, and every pause ends a session anyway.
+The word shown is `RecitationViewModel.frontierIndex` = the first word not in `wordsEverCorrect`,
+so "move on only when it is right" needs no rule of its own: a wrong or skipped word holds it, a
+burst of words jumps it. It is recomputed on every evaluation, **partials included**, because the
+evaluator scores a matching last token CORRECT before any stability check. That is what makes it
+feel instant, and it is safe: a false "correct" costs nothing, and mistakes still go through every
+gate above. Between ayahs it waits only `WORD_MODE_END_OF_AYAH_PAUSE_MS`, and the card shows a
+spinner only after 250 ms, so the brief blank while the next ayah's text loads isn't seen as lag.
+The ayah's words also go to the recogniser as `EXTRA_BIASING_STRINGS` (`setExpectedText`), current
+ayah first, capped.
+
 **Do not strip intros in more than one place.** `RecitationIntroFilter` removes a'udhu/basmala
 from the transcript, but Al-Fatihah 1:1 *is* the basmala — stripping it blindly erased the ayah
 so it could never be scored. `stripLeadingIntros` now takes the ayah's own opening and refuses to

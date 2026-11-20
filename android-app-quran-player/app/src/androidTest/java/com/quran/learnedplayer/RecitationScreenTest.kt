@@ -17,9 +17,12 @@ import com.quran.learnedplayer.ui.TAG_OPEN_SETTINGS
 import com.quran.learnedplayer.ui.recitation.TAG_NEXT_AYAH
 import com.quran.learnedplayer.ui.recitation.TAG_PREV_AYAH
 import com.quran.learnedplayer.ui.recitation.TAG_RECITATION_SCREEN
+import com.quran.learnedplayer.ui.recitation.TAG_RECITATION_VIEW_TOGGLE
+import com.quran.learnedplayer.ui.recitation.TAG_RECITATION_WORD_CURRENT
 import com.quran.learnedplayer.ui.settings.TAG_RECITE_BETA_TOGGLE
 import com.quran.learnedplayer.ui.settings.TAG_SETTINGS_SCREEN
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,6 +58,27 @@ class RecitationScreenTest : BaseAppTest() {
 
         // Verify Surah title is displayed
         composeRule.onNodeWithText("Al-Fatihah", substring = true).assertIsDisplayed()
+    }
+
+    /**
+     * Word by word is the default: one word on screen, the first of the ayah. The toggle switches
+     * to the whole ayah and back.
+     */
+    @Test
+    fun recite_showsOneWordAtATimeByDefault() {
+        PlayerSettings.reciteBetaEnabled = true
+        assertTrue(PlayerSettings.reciteWordByWord)
+        awaitTag(TAG_OPEN_RECITATION)
+        composeRule.onNodeWithTag(TAG_OPEN_RECITATION).performClick()
+
+        awaitTag(TAG_RECITATION_WORD_CURRENT)
+        composeRule.onNodeWithTag(TAG_RECITATION_WORD_CURRENT).assertIsDisplayed()
+        composeRule.onAllNodes(hasTestTag(TAG_RECITATION_WORD_CURRENT)).assertCountEquals(1)
+
+        composeRule.onNodeWithTag(TAG_RECITATION_VIEW_TOGGLE).performClick()
+        composeRule.waitForIdle()
+        assertFalse(PlayerSettings.reciteWordByWord)
+        composeRule.onAllNodes(hasTestTag(TAG_RECITATION_WORD_CURRENT)).assertCountEquals(0)
     }
 
     /**

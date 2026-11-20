@@ -51,6 +51,7 @@ internal object AppReset {
         PlayerSettings.tafsirEdition = ""
         PlayerSettings.autoPlayMistakeAudio = true
         PlayerSettings.autoAdvanceSuccess = true
+        PlayerSettings.reciteWordByWord = true
         // The first-run hadith would sit over every screen these tests drive;
         // IntroDialogTest covers it explicitly instead.
         PlayerSettings.seenIntro = true

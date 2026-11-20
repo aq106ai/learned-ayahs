@@ -4,6 +4,12 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the Android app uses
 `versionName` from `android-app-quran-player/app/build.gradle.kts`.
 
+## [Unreleased]
+
+### Added (Android)
+- **Recite & review word by word**, now the default: one word on screen at a time, and the next appears only once that word has been recited correctly. The words already said stay above it in green. Each word is judged as it sounds inside the ayah (dropped wasl alif, ة stopped on as ه, and so on), not against the isolated word clip, because the coach still listens to the whole ayah. A correct word moves on as soon as the recogniser hears it. A tap above the word, or the new switch in Settings, shows the whole ayah instead.
+- Recite passes the ayah's words to the phone's recogniser as hints (Android 13 biasing strings), so they are easier for it to hear.
+
 ## [1.15.0] - 2026-11-16
 
 ### Added (both apps)

@@ -128,6 +128,21 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
     private val _believedMistakeIndices = MutableStateFlow<Set<Int>>(emptySet())
     val believedMistakeIndices: StateFlow<Set<Int>> = _believedMistakeIndices.asStateFlow()
 
+    /**
+     * The word word-by-word Recite shows: the first word of this ayah not yet recited correctly.
+     *
+     * Read straight off [wordsEverCorrect], which only ever moves forward once a word has been
+     * heard correctly, so "move on only when the word is right" needs no rule of its own. A wrong
+     * or skipped word holds it in place; several words said in one breath move it on by all of
+     * them at once. It is recomputed on every evaluation, partials included: a correct word is
+     * credited on the first partial that contains it, so the next word appears as soon as the
+     * recogniser has heard it. Mistakes still go through every gate in [applyEvaluation].
+     *
+     * Equal to the content-word count once the ayah is finished.
+     */
+    private val _frontierIndex = MutableStateFlow(0)
+    val frontierIndex: StateFlow<Int> = _frontierIndex.asStateFlow()
+
     private val _packReady = MutableStateFlow(true)
     val packReady: StateFlow<Boolean> = _packReady.asStateFlow()
 
@@ -406,6 +421,7 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
         sessionSpokenTokens.clear()
         _confirmedMistake.value = null
         _believedMistakeIndices.value = emptySet()
+        _frontierIndex.value = 0
     }
 
     fun startRecording() {
@@ -619,6 +635,7 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
                 wordsEverCorrect[evaluation.wordIndex] = true
             }
         }
+        updateFrontier()
 
         // Said correctly since: stop calling it a mistake on screen. The recap keeps it — the
         // student did get it wrong once — but the live card has served its purpose.
@@ -636,7 +653,12 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
             if (PlayerSettings.autoAdvanceSuccess && !isAdvancingAyah) {
                 isAdvancingAyah = true
                 viewModelScope.launch {
-                    kotlinx.coroutines.delay(END_OF_AYAH_PAUSE_MS)
+                    // Word by word, the student is already looking for the next word; the green
+                    // flash of the last one is all the pause it needs.
+                    kotlinx.coroutines.delay(
+                        if (PlayerSettings.reciteWordByWord) WORD_MODE_END_OF_AYAH_PAUSE_MS
+                        else END_OF_AYAH_PAUSE_MS,
+                    )
                     if (isAtEndOfSurahRun()) {
                         // Stop the sources directly: stopRecording() would republish the recap
                         // as an interrupted run and lose the "surah complete" framing.
@@ -714,6 +736,11 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
             speech.resumeAfterCorrectionClip()
             _isAutoPlayingMistake.value = false
         }
+    }
+
+    private fun updateFrontier() {
+        val firstMissing = wordsEverCorrect.indexOfFirst { !it }
+        _frontierIndex.value = if (firstMissing < 0) wordsEverCorrect.size else firstMissing
     }
 
     /**
@@ -1016,6 +1043,9 @@ class RecitationViewModel(application: Application) : AndroidViewModel(applicati
          * Breath between ayahs. Short and smooth so continuous recitation feels responsive.
          */
         const val END_OF_AYAH_PAUSE_MS = 300L
+
+        /** The same breath in word-by-word mode, kept just long enough to see the last word land. */
+        const val WORD_MODE_END_OF_AYAH_PAUSE_MS = 120L
 
         /** Corrections for the same word in one ayah before the coach lets it go. */
         const val MAX_CORRECTIONS_PER_WORD = 2

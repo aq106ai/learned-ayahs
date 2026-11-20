@@ -66,6 +66,7 @@ class ReciteReviewEndToEndTest {
         LearnedAyahsStore.init(app)
         PlayerSettings.reciteBetaEnabled = true
         PlayerSettings.autoAdvanceSuccess = true
+        PlayerSettings.reciteWordByWord = true
         // The coach still records the mistake; it just does not reach for ExoPlayer to play a
         // correction clip, which has no business running in a JVM test.
         PlayerSettings.autoPlayMistakeAudio = false
@@ -331,6 +332,105 @@ class ReciteReviewEndToEndTest {
             val result = viewModel.evaluationResult.value
             assertNotNull(result)
             assertEquals("the misheard word cannot be settled on its own", 0, result!!.correctCount)
+        } finally {
+            release()
+        }
+    }
+
+    // --- word by word ---------------------------------------------------------------------
+
+    /**
+     * The word on screen moves as soon as a partial result contains it, with no wait for the
+     * recogniser to settle, and a burst of words moves it by all of them at once.
+     */
+    @Test
+    fun wordByWord_theFrontierFollowsPartialsWordByWord() {
+        PlayerSettings.reciter = Reciter.DEFAULT
+        val ids = listOf(AyahMapping.surahAyahToGlobal(112, 1), AyahMapping.surahAyahToGlobal(112, 2))
+        val viewModel = start(ids.toSet())
+        try {
+            awaitWords(viewModel)
+            assertEquals(0, viewModel.frontierIndex.value)
+
+            viewModel.acceptTranscript("قل", committed = false)
+            assertEquals("قُلْ said: show هُوَ", 1, viewModel.frontierIndex.value)
+
+            viewModel.acceptTranscript("قل هو الله", committed = false)
+            assertEquals("two words in one breath: show أَحَدٌ", 3, viewModel.frontierIndex.value)
+
+            viewModel.acceptTranscript("قل هو الله أحد", committed = false)
+            assertEquals("every word said", 4, viewModel.frontierIndex.value)
+
+            await("the run never moved on to 112:2") {
+                viewModel.currentGlobalId.value.takeIf { it == ids[1] }
+            }
+            assertEquals("a new ayah starts at its first word", 0, viewModel.frontierIndex.value)
+        } finally {
+            release()
+        }
+    }
+
+    /** A wrong word holds the screen on that word until it is said correctly. */
+    @Test
+    fun wordByWord_aWrongWordHoldsTheFrontierUntilItIsSaidCorrectly() {
+        PlayerSettings.reciter = Reciter.DEFAULT
+        val viewModel = start(setOf(AyahMapping.surahAyahToGlobal(1, 2)))
+        try {
+            awaitWords(viewModel)
+            repeat(2) { viewModel.acceptTranscript("الحمد لله مالك العالمين") }
+            assertEquals("stuck on رَبِّ, not past it", 2, viewModel.frontierIndex.value)
+            assertEquals(2, viewModel.confirmedMistake.value?.wordIndex)
+
+            // The locked prefix plus the corrected word, as the transcript reads after a correction.
+            viewModel.acceptTranscript("الحمد لله رب العالمين")
+            assertEquals(4, viewModel.frontierIndex.value)
+        } finally {
+            release()
+        }
+    }
+
+    /** A skipped word holds the frontier at the word that was missed. */
+    @Test
+    fun wordByWord_aSkippedWordHoldsTheFrontier() {
+        PlayerSettings.reciter = Reciter.DEFAULT
+        val viewModel = start(setOf(AyahMapping.surahAyahToGlobal(112, 4)))
+        try {
+            awaitWords(viewModel)
+            repeat(2) { viewModel.acceptTranscript("ولم يكن كفوا أحد") }
+            assertEquals("لَّهُۥ was left out", 2, viewModel.frontierIndex.value)
+        } finally {
+            release()
+        }
+    }
+
+    /** يَـٰٓأَيُّهَا is one word on screen, however many tokens the recogniser makes of it. */
+    @Test
+    fun wordByWord_theAttachedVocativeMovesTheFrontierByOneWord() {
+        PlayerSettings.reciter = Reciter.DEFAULT
+        val viewModel = start(setOf(AyahMapping.surahAyahToGlobal(2, 21)))
+        try {
+            awaitWords(viewModel)
+            viewModel.acceptTranscript("يا أيها", committed = false)
+            assertEquals(1, viewModel.frontierIndex.value)
+            viewModel.acceptTranscript("يا أيها الناس", committed = false)
+            assertEquals(2, viewModel.frontierIndex.value)
+        } finally {
+            release()
+        }
+    }
+
+    /**
+     * Words judged as they sound in the ayah: the bismillah recited in one breath, every wasl
+     * alif dropped the way it is pronounced, still walks the frontier to the end.
+     */
+    @Test
+    fun wordByWord_connectedPronunciationIsAccepted() {
+        PlayerSettings.reciter = Reciter.DEFAULT
+        val viewModel = start(setOf(AyahMapping.surahAyahToGlobal(1, 3)))
+        try {
+            awaitWords(viewModel)
+            viewModel.acceptTranscript("لرحمن لرحيم", committed = false)
+            assertEquals(2, viewModel.frontierIndex.value)
         } finally {
             release()
         }

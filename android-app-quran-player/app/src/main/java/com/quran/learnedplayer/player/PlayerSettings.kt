@@ -147,6 +147,7 @@ object PlayerSettings {
     private const val KEY_PREFER_OFFLINE_DEVICE_SPEECH = "recitation_prefer_offline_device_speech"
     private const val KEY_WORD_RECITER = "word_reciter"
     private const val KEY_RECITE_BETA_ENABLED = "recite_beta_enabled"
+    private const val KEY_RECITE_WORD_BY_WORD = "recite_word_by_word"
     private const val KEY_SEEK_INSIDE_AYAH_AUDIO = "seek_inside_ayah_audio"
     private const val KEY_USE_WORD_CLIPS = "use_word_clips"
     private const val KEY_PLAYER_BACKGROUND = "player_background"
@@ -188,6 +189,7 @@ object PlayerSettings {
             prefs?.getBoolean(KEY_PREFER_OFFLINE_DEVICE_SPEECH, false) ?: false
         _wordReciter.value = WordReciter.fromKey(prefs?.getString(KEY_WORD_RECITER, null))
         _reciteBetaEnabled.value = prefs?.getBoolean(KEY_RECITE_BETA_ENABLED, false) ?: false
+        _reciteWordByWord.value = prefs?.getBoolean(KEY_RECITE_WORD_BY_WORD, true) ?: true
         _seekInsideAyahAudio.value = prefs?.getBoolean(KEY_SEEK_INSIDE_AYAH_AUDIO, false) ?: false
         _useWordClips.value = prefs?.getBoolean(KEY_USE_WORD_CLIPS, false) ?: false
         _playerBackground.value = prefs?.getString(KEY_PLAYER_BACKGROUND, null) ?: PlayerBackgrounds.PLAIN
@@ -418,6 +420,22 @@ object PlayerSettings {
         set(value) {
             _reciteBetaEnabled.value = value
             prefs?.edit()?.putBoolean(KEY_RECITE_BETA_ENABLED, value)?.apply()
+        }
+
+    private val _reciteWordByWord = MutableStateFlow(true)
+    val reciteWordByWordFlow: StateFlow<Boolean> = _reciteWordByWord.asStateFlow()
+
+    /**
+     * Recite & review shows one word at a time and moves on only once that word has been recited
+     * correctly (on by default). Off shows the whole ayah. Only the display changes: listening and
+     * scoring are the same either way, against the whole ayah, so each word is still judged as it
+     * sounds in context.
+     */
+    var reciteWordByWord: Boolean
+        get() = _reciteWordByWord.value
+        set(value) {
+            _reciteWordByWord.value = value
+            prefs?.edit()?.putBoolean(KEY_RECITE_WORD_BY_WORD, value)?.apply()
         }
 
     private val _useWordClips = MutableStateFlow(false)

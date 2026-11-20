@@ -298,10 +298,19 @@ the player's Share button → Video, and the film icon on a surah's page) → `V
   English or both, then the reference).
 - **One word at a time** (`VideoRequest.wordFocus`; web `request.wordFocus`) draws only the word
   being recited, large, with its meaning, "n / count" and the whole translation
-  (`FrameRenderer.drawFocusWord`, web `renderer.js drawFocusWord`). It follows `WordSync` timings
-  only: a clip with no segments (A'udhu, Bismillah, an ayah the reciter has no validated timings
-  for) falls back to the whole-ayah layout rather than guessing. `likeThePlayer` turns it on when
+  (`FrameRenderer.drawFocusWord`, web `renderer.js drawFocusWord`). Ayahs follow `WordSync`
+  timings only, and one the reciter has no validated timings for falls back to the whole-ayah
+  layout rather than guessing. **The intros are the exception, and only in this layout.** The
+  Bismillah clip becomes the reciter's own Al-Fatihah 1:1 (`bismillahFromReciter`), whose
+  validated timings say which word is being said and whose voice matches the ayahs. A'udhu has no
+  timings anywhere, so `IntroWordTimings` (web `video/introTimings.js`; change both) estimates
+  them from the clip's sound: where the voice starts and ends, then a pause between every pair of
+  words if there is one, else the voiced span split by letters with each joint moved to the
+  quietest frame within 100 ms. The same estimate covers a Bismillah when the reciter lacks 1:1
+  timings. Every other layout leaves the intros unhighlighted, as before. `likeThePlayer` turns it on when
   the player is in the word reader (`PlayerSettings.wordView`).
+- **A'udhu and Bismillah carry no label** (`FrameRenderer.reference` is empty for them, and an
+  empty reference isn't drawn): the words say what they are. Ayahs keep "Surah · s:a".
 - **Bismillah and the end card** are their own options (`VideoRequest.bismillah`, `endCard`).
   `VideoRequest.bismillahAllowed` refuses At-Tawbah and Al-Fatihah 1 (that ayah *is* the
   Bismillah). The end card adds `VideoTimeline.END_CARD_MS` of silence: what the app is (a free,

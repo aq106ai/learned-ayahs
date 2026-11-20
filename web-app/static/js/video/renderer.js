@@ -86,7 +86,8 @@ export class FrameRenderer {
     }
     const { text, pages } = entry;
     const position = Math.min(Math.max(ms - clip.startMs, 0), clip.durationMs);
-    // One word at a time, only where the timings say which word it is (never guessed).
+    // One word at a time, where there are timings: the reciter's, or for A'udhu (and a Bismillah
+    // the reciter has no timings for) ones measured from the clip's sound (introTimings.js).
     if (this.request.wordFocus && text.segments) {
       this.drawCard(ctx);
       this.drawFocusWord(ctx, clip, text, position);
@@ -254,7 +255,7 @@ export class FrameRenderer {
     ctx.shadowOffsetY = 2 * u;
     ctx.fillStyle = '#fff';
     ctx.font = `${40 * u}px ${LATIN_FONT}`;
-    ctx.fillText(text.reference, w / 2, this.card.top - 42 * u);
+    if (text.reference) ctx.fillText(text.reference, w / 2, this.card.top - 42 * u);
     // Off by default: the picture stays clean, and the sources stay in the app.
     if (!this.request.credits) {
       ctx.restore();
@@ -413,7 +414,7 @@ function wrap(ctx, text, width) {
 }
 
 export function referenceOf(clip, surahName) {
-  if (clip.kind === 'AUDHU') return "Isti'adhah";
-  if (clip.kind === 'BISMILLAH') return 'Basmalah';
+  // The words say what they are; a name above them adds nothing.
+  if (clip.kind === 'AUDHU' || clip.kind === 'BISMILLAH') return '';
   return `${surahName(clip.surah)} · ${clip.surah}:${clip.ayah}`;
 }

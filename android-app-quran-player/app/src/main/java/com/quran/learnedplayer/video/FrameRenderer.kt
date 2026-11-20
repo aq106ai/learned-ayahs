@@ -19,10 +19,14 @@ import kotlin.math.min
 /** What one clip shows: its words, their timings for this reciter, and its translation. */
 class ClipText(
     val words: List<LayoutWord>,
-    /** Per-word timings for the chosen reciter; null means don't highlight (never guessed). */
+    /**
+     * Per-word timings for the chosen reciter; null means don't highlight. Never guessed for an
+     * ayah; A'udhu and an untimed Bismillah carry [IntroWordTimings]' estimate in one-word-at-a-time
+     * videos only.
+     */
     val segments: List<LongRange>?,
     val translation: String?,
-    /** "Al-Mulk · 67:3", or the intro's name. */
+    /** "Al-Mulk · 67:3"; empty for A'udhu and Bismillah, which show no label. */
     val reference: String,
 )
 
@@ -344,7 +348,7 @@ class FrameRenderer(
         labelPaint.color = Color.WHITE
         labelPaint.textSize = 40f * u
         labelPaint.setShadowLayer(8f * u, 0f, 2f * u, Color.argb(170, 0, 0, 0))
-        canvas.drawText(text.reference, w / 2, card.top - 42f * u, labelPaint)
+        if (text.reference.isNotEmpty()) canvas.drawText(text.reference, w / 2, card.top - 42f * u, labelPaint)
         // Off by default: the picture stays clean, and the sources stay in the app.
         if (!request.credits) return
 
@@ -388,8 +392,8 @@ class FrameRenderer(
         val TRANSLATION = Color.argb(240, 240, 244, 240)
 
         fun reference(clip: TimelineClip): String = when (clip.kind) {
-            ClipKind.AUDHU -> "Isti'adhah"
-            ClipKind.BISMILLAH -> "Basmalah"
+            // The words say what they are; a name above them adds nothing.
+            ClipKind.AUDHU, ClipKind.BISMILLAH -> ""
             ClipKind.AYAH -> "${SurahNames.name(clip.surah)} · ${clip.surah}:${clip.ayah}"
         }
     }

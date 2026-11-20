@@ -11,6 +11,8 @@ import { variant } from '../../static/js/video/scenes.js';
 import { contrastRatio, paletteFor } from '../../static/js/video/palette.js';
 import { bismillahAllowed, clipsOf } from '../../static/js/video/exporter.js';
 import { formatShareText } from '../../static/js/video/shareText.js';
+import { FRAME_MS, estimateWordTimings, letterWeight } from '../../static/js/video/introTimings.js';
+import { referenceOf } from '../../static/js/video/renderer.js';
 
 const ASSETS = new URL('../../../android-app-quran-player/app/src/main/assets/', import.meta.url);
 
@@ -146,4 +148,50 @@ test("the web app's themes match the ayah map the Android app ships", () => {
 test('text sharing rejects an empty range or no selected language', () => {
   assert.throws(() => formatShareText('Al-Ikhlas', 112, [], true, true), /at least one ayah/);
   assert.throws(() => formatShareText('Al-Ikhlas', 112, [{ number: 1, arabic: 'text' }], false, false), /at least the Arabic/);
+});
+
+// --- word timings estimated for A'udhu / an untimed Bismillah (introTimings.js; Android's
+// IntroWordTimingsTest has the same cases) ---------------------------------------------------
+
+const runs = (...rs) => rs.flatMap(([count, level]) => Array(count).fill(level));
+
+test('intro timings: a pause between every word puts each word after its pause', () => {
+  const levels = runs([25, 0], [20, 1000], [10, 0], [20, 1000], [10, 0], [20, 1000], [25, 0]);
+  const segments = estimateWordTimings(levels, [5, 5, 5]);
+  assert.deepEqual(segments.map((s) => s[0]), [25 * FRAME_MS, 55 * FRAME_MS, 85 * FRAME_MS]);
+  assert.equal(segments[2][1], 105 * FRAME_MS, 'the last word ends with the voice');
+});
+
+test('intro timings: connected recitation is shared by letters and snaps to the quietest joint', () => {
+  const voice = Array(100).fill(1000);
+  voice[22] = 300;
+  const levels = [...Array(10).fill(0), ...voice, ...Array(10).fill(0)];
+  const segments = estimateWordTimings(levels, [2, 8]);
+  assert.equal(segments[0][0], 10 * FRAME_MS);
+  assert.equal(segments[1][0], 32 * FRAME_MS);
+  assert.equal(segments[0][1], 32 * FRAME_MS - 1);
+});
+
+test('intro timings: every word gets time, in order', () => {
+  const levels = [...Array(5).fill(0), ...Array.from({ length: 60 }, (_, i) => 800 + (i % 7) * 50), ...Array(5).fill(0)];
+  const segments = estimateWordTimings(levels, [5, 6, 2, 8, 7]);
+  assert.equal(segments.length, 5);
+  for (let i = 1; i < segments.length; i++) {
+    assert.ok(segments[i][0] > segments[i - 1][0]);
+    assert.equal(segments[i - 1][1], segments[i][0] - 1);
+  }
+});
+
+test('intro timings: silence has nothing to measure; letters are counted without marks', () => {
+  assert.equal(estimateWordTimings(Array(100).fill(0), [3, 3]), null);
+  assert.equal(estimateWordTimings([], [3]), null);
+  assert.equal(letterWeight('أَعُوذُ'), 4);
+  assert.equal(letterWeight('ٱلرَّجِيمِ'), 6);
+  assert.equal(letterWeight('ۛ'), 1);
+});
+
+test('intro clips carry no label; ayahs keep their reference', () => {
+  assert.equal(referenceOf({ kind: 'AUDHU' }, () => ''), '');
+  assert.equal(referenceOf({ kind: 'BISMILLAH' }, () => ''), '');
+  assert.equal(referenceOf({ kind: 'AYAH', surah: 112, ayah: 1 }, () => 'Al-Ikhlas'), 'Al-Ikhlas · 112:1');
 });

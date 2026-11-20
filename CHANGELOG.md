@@ -6,6 +6,10 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 
 ## [Unreleased]
 
+### Changed (both apps)
+- Videos made **one word at a time** now show A'udhu and Bismillah word by word too. The Bismillah is recited by the chosen reciter (their Al-Fatihah 1:1, with its word timings). A'udhu's words are timed from the recording itself, so they can be a little early or late.
+- A'udhu and Bismillah in videos no longer carry the "Isti'adhah" / "Basmalah" label above the card.
+
 ### Added (Android)
 - **Recite & review word by word**, now the default: one word on screen at a time, and the next appears only once that word has been recited correctly. The words already said stay above it in green. Each word is judged as it sounds inside the ayah (dropped wasl alif, ة stopped on as ه, and so on), not against the isolated word clip, because the coach still listens to the whole ayah. A correct word moves on as soon as the recogniser hears it. A tap above the word, or the new switch in Settings, shows the whole ayah instead.
 - Recite passes the ayah's words to the phone's recogniser as hints (Android 13 biasing strings), so they are easier for it to hear.

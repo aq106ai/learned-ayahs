@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.quran.learnedplayer.BuildConfig
 import com.quran.learnedplayer.data.AppTheme
-import com.quran.learnedplayer.data.DeviceRecognition
 import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.data.WordAudioDownloader
 import com.quran.learnedplayer.data.WordReciter
@@ -79,8 +78,6 @@ const val TAG_SWIPE_TO_NAVIGATE_TOGGLE = "swipe_to_navigate_toggle"
 const val TAG_TAP_TO_ADVANCE_TOGGLE = "tap_to_advance_toggle"
 const val TAG_DOWNLOAD_OFFLINE = "download_offline"
 const val TAG_DOWNLOAD_WORD_CLIPS = "download_word_clips"
-const val TAG_RECITE_BETA_TOGGLE = "recite_beta_toggle"
-const val TAG_DOWNLOAD_ARABIC_PACK = "download_arabic_pack"
 fun reciterTag(reciter: Reciter) = "reciter_${reciter.name}"
 fun wordReciterTag(reciter: WordReciter) = "word_reciter_${reciter.name}"
 const val TAG_SEEK_INSIDE_AYAH = "seek_inside_ayah_audio"
@@ -102,46 +99,9 @@ fun SettingsScreen(
     val swipeToNavigate by viewModel.swipeToNavigate.collectAsState()
     val tapToAdvance by viewModel.tapToAdvance.collectAsState()
     val ayahOverflowMode by PlayerSettings.ayahOverflowModeFlow.collectAsState()
-    val autoPlayMistakeAudio by PlayerSettings.autoPlayMistakeAudioFlow.collectAsState()
-    val reciteBetaEnabled by PlayerSettings.reciteBetaEnabledFlow.collectAsState()
-    val reciteSupported = remember { DeviceRecognition.isSupported }
-    var showBetaConfirm by remember { mutableStateOf(false) }
-    var arabicPackInstalled by remember { mutableStateOf(false) }
-    var arabicPackStatus by remember { mutableStateOf(tx("Checking Arabic speech support…")) }
-    /** The Arabic tag this phone answered for, so the download asks for one it recognises. */
-    var arabicPackLanguage by remember { mutableStateOf<String?>(null) }
-    var arabicPackOffered by remember { mutableStateOf(false) }
-    val autoAdvanceSuccess by PlayerSettings.autoAdvanceSuccessFlow.collectAsState()
-    val reciteWordByWord by PlayerSettings.reciteWordByWordFlow.collectAsState()
     val context = LocalContext.current
     val mainExecutor = remember(context) { ContextCompat.getMainExecutor(context) }
 
-    // Asked once per visit to Settings, and only when it can be answered. The result decides
-    // whether Recite can work without a connection, which is worth stating rather than leaving
-    // the user to discover on a train.
-    LaunchedEffect(reciteBetaEnabled, reciteSupported) {
-        if (!reciteSupported) {
-            arabicPackStatus = tx("Offline Arabic needs Android 13 or newer.")
-            return@LaunchedEffect
-        }
-        DeviceRecognition.queryArabicSupport(context, mainExecutor) { support ->
-            arabicPackInstalled = support?.hasOfflineArabic == true
-            // Remembered so the download asks for the variant this phone said it has, rather than
-            // whichever tag happens to be first in the list.
-            arabicPackLanguage = support?.downloadable?.firstOrNull() ?: support?.answeredFor
-            arabicPackOffered = support?.canDownloadArabic == true
-            arabicPackStatus = when {
-                support == null ->
-                    tx("Could not check offline Arabic on this phone — Recite will use online recognition.")
-                support.hasOfflineArabic ->
-                    tx("Arabic is available offline ({0}).", support.installedOnDevice.joinToString())
-                support.canDownloadArabic ->
-                    tx("Arabic is not downloaded yet, so Recite needs a connection.")
-                else ->
-                    tx("Your phone's speech service does not offer Arabic offline, so Recite needs a connection. That is a limit of the speech service, not of Recite.")
-            }
-        }
-    }
     // Counting the cache lists the directory and stats every clip, so it runs off the main thread,
     // and only once the download progress has settled for a moment (it ticks once per file).
     var wordClipsCached by remember { mutableStateOf(0) }
@@ -283,186 +243,9 @@ fun SettingsScreen(
             }
         }
 
-        Section(tx("Recitation & AI Review")) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { PlayerSettings.reciteWordByWord = !reciteWordByWord }
-                    .padding(top = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(tx("Recite word by word"), style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = tx("Show one word at a time and move on only when it is recited correctly. Off shows the whole ayah."),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted,
-                    )
-                }
-                Switch(
-                    checked = reciteWordByWord,
-                    onCheckedChange = { PlayerSettings.reciteWordByWord = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Panel,
-                        checkedTrackColor = AccentGreen,
-                    ),
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { PlayerSettings.autoPlayMistakeAudio = !autoPlayMistakeAudio }
-                    .padding(top = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(tx("Auto-play audio on mistake"), style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = tx("Play reciter audio when a mistake is detected and pause for user to re-recite."),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted,
-                    )
-                }
-                Switch(
-                    checked = autoPlayMistakeAudio,
-                    onCheckedChange = { PlayerSettings.autoPlayMistakeAudio = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Panel,
-                        checkedTrackColor = AccentGreen,
-                    ),
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { PlayerSettings.autoAdvanceSuccess = !autoAdvanceSuccess }
-                    .padding(top = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(tx("Auto-advance on success"), style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = tx("Automatically move to next ayah when recitation is 100% correct."),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted,
-                    )
-                }
-                Switch(
-                    checked = autoAdvanceSuccess,
-                    onCheckedChange = { PlayerSettings.autoAdvanceSuccess = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Panel,
-                        checkedTrackColor = AccentGreen,
-                    ),
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .background(Panel, shape = RoundedCornerShape(12.dp))
-                    .padding(16.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(tx("Recite & review"), style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        tx("Beta"),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = AccentGreen,
-                        modifier = Modifier
-                            .background(AccentGreen.copy(alpha = 0.15f), shape = RoundedCornerShape(6.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                    )
-                }
-                Text(
-                    text = if (!reciteSupported) {
-                        tx("Needs Android 13 or newer. Recite listens through your phone's speech recognition, and the way it keeps the microphone open without switching it on and off is only available on newer Android versions.")
-                    } else {
-                        tx("Listens while you recite a learned ayah and plays the correct word back when you slip. Uses your phone's Arabic speech recognition — offline when a voice pack is installed, otherwise online.")
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted,
-                    modifier = Modifier.padding(top = 6.dp),
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .testTag(TAG_RECITE_BETA_TOGGLE),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = tx("Enable Recite & review"),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (reciteSupported) TextPrimary else TextMuted,
-                    )
-                    Switch(
-                        checked = reciteBetaEnabled,
-                        enabled = reciteSupported,
-                        // Turning it on asks first; turning it off is immediate — nobody needs a
-                        // dialog to stop using something.
-                        onCheckedChange = { on ->
-                            if (on) showBetaConfirm = true else PlayerSettings.reciteBetaEnabled = false
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Panel,
-                            checkedTrackColor = AccentGreen,
-                        ),
-                    )
-                }
-
-                // Offline Arabic. Only shown once Recite is on, and only when the phone can
-                // actually answer the question — there is no point offering a download on a
-                // version of Android with no API to request one.
-                if (reciteBetaEnabled && reciteSupported) {
-                    Text(
-                        text = arabicPackStatus,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted,
-                        modifier = Modifier.padding(top = 12.dp),
-                    )
-                    // Offered only when the service said it has an Arabic model to fetch. A
-                    // button that can only fail is worse than no button.
-                    if (!arabicPackInstalled && arabicPackOffered) {
-                        TextButton(
-                            onClick = {
-                                arabicPackStatus = tx("Asking your phone to download Arabic…")
-                                DeviceRecognition.downloadArabicModel(
-                                    context = context,
-                                    executor = mainExecutor,
-                                    preferredLanguage = arabicPackLanguage,
-                                    onProgress = { percent ->
-                                        arabicPackStatus = tx("Downloading Arabic… {0}%", percent)
-                                    },
-                                    onDone = { ok ->
-                                        arabicPackStatus = if (ok) {
-                                            PlayerSettings.preferOfflineDeviceSpeech = true
-                                            tx("Arabic is available offline — Recite will use it.")
-                                        } else {
-                                            tx(
-                                                "Your phone's speech service would not download Arabic{0}. Recite will use " +
-                                                    "online recognition, which needs a connection but is often the more " +
-                                                    "accurate of the two anyway.",
-                                                arabicPackLanguage?.let { " ($it)" }.orEmpty(),
-                                            )
-                                        }
-                                    },
-                                )
-                            },
-                            modifier = Modifier.testTag(TAG_DOWNLOAD_ARABIC_PACK),
-                        ) {
-                            Text(tx("Download Arabic for offline use"), color = AccentGreen)
-                        }
-                    }
-                }
-            }
+        Section(tx("Word audio")) {
             Text(
-                text = tx("Word clips are played back when a wrong word is detected — they are a separate download from the speech engine."),
+                text = tx("Word-by-word playback uses one clip per word. Saving them lets it run without a connection."),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
                 modifier = Modifier.padding(top = 16.dp),
@@ -479,13 +262,13 @@ fun SettingsScreen(
                     .padding(top = 12.dp)
                     .testTag(TAG_DOWNLOAD_WORD_CLIPS),
             ) {
-                Text(tx("Save word clips for Recite & review"))
+                Text(tx("Save word clips for offline playback"))
             }
             Text(
                 text = if (wordClipsCached > 0) {
                     tx("{0} word clips saved for learned ayahs", wordClipsCached)
                 } else {
-                    tx("Not downloaded — mistake playback will stream")
+                    tx("Not downloaded — word-by-word playback will stream")
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
@@ -556,34 +339,6 @@ fun SettingsScreen(
         Section(tx("Sources and disclaimer")) {
             SourcesAndDisclaimerText()
         }
-    }
-
-    if (showBetaConfirm) {
-        AlertDialog(
-            onDismissRequest = { showBetaConfirm = false },
-            containerColor = Panel,
-            title = { Text(tx("Turn on Recite & review?")) },
-            text = {
-                Text(
-                    text = tx("This is a beta feature.\n\nIt listens through your phone's Arabic speech recognition, which is built for everyday speech rather than Qur'anic recitation. It will sometimes miss a real mistake, and it can occasionally flag a word you recited correctly.\n\nTreat it as practice help, never as a check on whether your recitation is correct. Your microphone is only used while you are on the Recite screen and have started listening."),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted,
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    PlayerSettings.reciteBetaEnabled = true
-                    showBetaConfirm = false
-                }) {
-                    Text(tx("I understand, turn it on"), color = AccentGreen)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showBetaConfirm = false }) {
-                    Text(tx("Cancel"), color = TextMuted)
-                }
-            },
-        )
     }
 }
 

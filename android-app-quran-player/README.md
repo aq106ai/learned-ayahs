@@ -1,11 +1,11 @@
 # Learned Ayahs: Android app
 
 A standalone Android app for revising the ayahs **you** have memorised. Browse the 114 surahs,
-mark the ayahs you know, and the app plays them back so you can listen, repeat, follow word by
-word, and recite from memory.
+mark the ayahs you know, and the app plays them back so you can listen, repeat and follow word
+by word.
 
 - **Package:** `com.quran.learnedplayer` · **Current version:** 1.9.2
-- **Requires:** Android 8.0 (API 26) or newer. Recite & review needs Android 13 (API 33).
+- **Requires:** Android 8.0 (API 26) or newer.
 - **Built with:** Kotlin, Jetpack Compose (Material 3), Media3 ExoPlayer + MediaSession
 
 ## Features
@@ -45,21 +45,15 @@ Each queue choice combines with a **repeat** setting: **Off**, **Surah** (loop t
   Abdurrahman As-Sudais, Saud Ash-Shuraym.
 - The app remembers where you left off, even across restarts.
 
-### Recite & review (beta, opt-in)
+### Recite & review has been removed
 
-Turn it on in **Settings → Recitation & AI Review**. Then recite a learned ayah from memory, and
-the app listens through your phone's own Arabic speech recognition:
+The practice coach that listened while you recited is no longer in this app, and the app no
+longer asks for the microphone at all. It depended on the phone's general-purpose Arabic speech
+recognition, which does not reliably return short isolated words of Qur'anic Arabic, so it could
+report a mistake on a word you had recited correctly — and keep reporting it.
 
-- correctly recited words light up as you go;
-- if you really say a wrong word or skip one, the app plays the correct word from the reciter
-  and lets you continue;
-- at the end of the surah you get a recap of the words to work on, and can tap them to hear them
-  again.
-
-Speech recognition is built for everyday Arabic, not tajwid-precise recitation. Treat this as
-practice help, not as an authority on whether your recitation is correct. The microphone is used
-only while the Recite screen is open. On supported phones you can download the offline Arabic
-speech pack from Settings.
+The code is kept on the `archive/recite-review-word-by-word` branch. A fresh version is being
+built in the web app first, where recognition can actually be observed and measured.
 
 ### Controls and offline use
 
@@ -149,11 +143,9 @@ screenshots** workflow.
 
 - **Unit tests** (`app/src/test`) use Robolectric. They cover the reference parser, queue
   building, the learned-list store, asset integrity (every timing file is re-validated), the
-  Arabic matching rules, and a full Recite & review run driven by transcripts for every
-  reciter.
-- **Instrumented tests** (`app/src/androidTest`) cover browsing, marking, settings, the
-  word-by-word reader and the recitation screen. `FullSurahRecitationTest` plays the recordings
-  in `androidTest/assets/recitation/` aloud into the microphone, so run it in a quiet room.
+  Arabic matching rules.
+- **Instrumented tests** (`app/src/androidTest`) cover browsing, marking, settings and the
+  word-by-word reader.
 - `tools/device-test.ps1` installs once and re-runs instrumented tests via `am instrument`. It is
   much faster when iterating on a phone, and it keeps the screen awake during the run.
 
@@ -163,18 +155,18 @@ screenshots** workflow.
 app/src/main/java/com/quran/learnedplayer/
 ├── MainActivity.kt, LearnedAyahsApp.kt
 ├── service/     PlaybackService (Media3 session + ExoPlayer), PlayerStateHolder (shared state)
-├── player/      PlayerViewModel, PlayerSettings, RecitationViewModel, speech + word audio players
+├── player/      PlayerViewModel, PlayerSettings
 ├── data/        Learned list & bookmarks, reference parser, export format, Qur'an data,
-│                reciters, downloads, recitation evaluation (normaliser, aligner, tuning)
+│                reciters, downloads
 └── ui/          Compose screens: home (surah list), surah detail, player, playlist,
-                 word-by-word, recitation, settings, theme
+                 word-by-word, settings, theme
 app/src/main/assets/   quran_text.json, word_translations.json, word_timings_<reciter>.json
 .setup/                Generators for the bundled assets (see .setup/README.md)
 tools/                 device-test.ps1
 CLAUDE.md              Detailed architecture and design decisions
 ```
 
-Read [CLAUDE.md](CLAUDE.md) before working on playback, word timings or Recite & review. It
+Read [CLAUDE.md](CLAUDE.md) before working on playback or word timings. It
 explains the non-obvious decisions and the bugs they prevent.
 
 ## Troubleshooting
@@ -185,8 +177,6 @@ explains the non-obvious decisions and the bugs they prevent.
   your learned ayahs for offline use in Settings.
 - **Playback stops in the background.** Disable battery optimisation for the app. Some vendors,
   such as Xiaomi/MIUI and Samsung, kill background audio aggressively.
-- **Recite & review is missing.** Turn it on in Settings. It requires Android 13+ and a speech
-  service that supports Arabic. Settings explains what your phone supports.
 - **A word isn't highlighted.** A few ayahs have no validated timings for some reciters. These
   are left unhighlighted rather than guessed.
 

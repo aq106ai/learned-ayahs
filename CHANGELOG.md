@@ -10,9 +10,8 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 - Videos made **one word at a time** now show A'udhu and Bismillah word by word too. The Bismillah is recited by the chosen reciter (their Al-Fatihah 1:1, with its word timings). A'udhu's words are timed from the recording itself, so they can be a little early or late.
 - A'udhu and Bismillah in videos no longer carry the "Isti'adhah" / "Basmalah" label above the card.
 
-### Added (Android)
-- **Recite & review word by word**, now the default: one word on screen at a time, and the next appears only once that word has been recited correctly. The words already said stay above it in green. Each word is judged as it sounds inside the ayah (dropped wasl alif, ة stopped on as ه, and so on), not against the isolated word clip, because the coach still listens to the whole ayah. A correct word moves on as soon as the recogniser hears it. A tap above the word, or the new switch in Settings, shows the whole ayah instead.
-- Recite passes the ayah's words to the phone's recogniser as hints (Android 13 biasing strings), so they are easier for it to hear.
+### Removed (Android)
+- **Recite & review has been withdrawn from the Android app**, and with it the microphone permission — the app no longer asks for the microphone at all. The coach listened through the phone's general-purpose Arabic speech recognition, which does not reliably return short isolated words of Qur'anic recitation: reciting Al-Ikhlas 112:1 one word at a time, Google's Arabic model answers `والله` for قُل支 هُوَ ٱللَّهُ and never returns قُل支 at all, so a word recited correctly could be marked wrong indefinitely. The settings that belonged to it are gone too (Recite word by word, Auto-play audio on mistake, Auto-advance on success, offline Arabic). The code is kept on the `archive/recite-review-word-by-word` branch, and the feature is being rebuilt in the web app first, where recognition can be observed and measured. Word clips and word-by-word *playback* are unaffected; the Settings download for them moved to a "Word audio" section.
 
 ## [1.15.0] - 2026-11-16
 

@@ -9,7 +9,7 @@
 
 Most Qur'an apps are built for reading. Learned Ayahs is built for **revision**: you mark the
 ayahs you have memorised, and the app turns them into a playlist you can listen to, repeat,
-follow word by word, and recite back, so what you have learned stays with you.
+follow word by word, so what you have learned stays with you.
 
 [![CI](https://github.com/aq106ai/learned-ayahs/actions/workflows/ci.yml/badge.svg)](https://github.com/aq106ai/learned-ayahs/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -42,12 +42,10 @@ follow word by word, and recite back, so what you have learned stays with you.
 - **Word-by-word mode.** One word at a time with its English meaning, in your reciter's voice
   or as isolated word-pronunciation clips. Next/Previous, including on headsets, step word by
   word.
-- **Recite & review (opt-in beta, Android 13+).** Recite from memory while the app listens
-  through your phone's speech service. It plays the correct word only when you really say a
-  wrong one, then gives a recap at the end of the surah.
 - **Works away from the screen.** Lock screen, notification, Bluetooth headset and car
   controls all go through the same logic as the on-screen buttons.
-- **Offline.** Save your learned ayahs, and the word clips for Recite & review, to the device.
+- **Offline.** Save your learned ayahs, and the word clips for word-by-word playback, to the
+  device.
   The full Uthmani text, word-by-word translation and word timings ship inside the app.
 - **Back up and sync** your learned list as a small, human-readable JSON file through the system
   file picker. The app needs **no storage permissions**.
@@ -60,8 +58,12 @@ Android app listed above:
 
 - marking, add by description, and the three playback modes with every repeat option;
 - the reciters and validated word highlighting;
-- the word-by-word reader, offline audio, and Recite & review;
+- the word-by-word reader, offline audio;
 - lock-screen and headset controls.
+
+It also has **Recite & review**: recite a learned ayah from memory and the browser's speech
+recognition follows along, playing the correct word back when you slip. It is being rebuilt, and
+is not in the Android app — see `archive/recite-review-word-by-word` for the version that was.
 
 It adds:
 
@@ -151,9 +153,10 @@ HTTPS, static hosting and the API, see the [web app README](web-app/README.md).
   shared `StateFlow`, so external controllers and on-screen buttons share one code path.
 - Word highlighting uses per-reciter timing files. `.setup/make_timings.py` generates them from
   [QUL](https://qul.tarteel.ai/), cleans them and validates them, and a unit test re-checks them.
-- Recite & review compares what the speech recogniser heard against the Uthmani text. Spelling
-  and word-boundary differences are handled in `ArabicTextNormalizer` and `ArabicWordAligner`.
-  Several gates make sure the coach interrupts only for a mistake that is really yours.
+- Recite & review (web only) compares what the speech recogniser heard against the Uthmani
+  text. Spelling and word-boundary differences are handled in the normaliser and aligner under
+  `web-app/static/js/core/recite/`, and several gates make sure the coach interrupts only for a
+  mistake that is really yours.
 
 The full design notes are in
 [`android-app-quran-player/CLAUDE.md`](android-app-quran-player/CLAUDE.md). They record what was

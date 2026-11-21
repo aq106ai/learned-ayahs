@@ -142,12 +142,7 @@ object PlayerSettings {
     private const val KEY_REPEAT_MODE = "repeat_mode"
     private const val KEY_LAST_GLOBAL_ID = "last_global_id"
     private const val KEY_AYAH_OVERFLOW_MODE = "ayah_overflow_mode"
-    private const val KEY_AUTO_PLAY_MISTAKE_AUDIO = "recitation_auto_play_mistake"
-    private const val KEY_AUTO_ADVANCE_SUCCESS = "recitation_auto_advance_success"
-    private const val KEY_PREFER_OFFLINE_DEVICE_SPEECH = "recitation_prefer_offline_device_speech"
     private const val KEY_WORD_RECITER = "word_reciter"
-    private const val KEY_RECITE_BETA_ENABLED = "recite_beta_enabled"
-    private const val KEY_RECITE_WORD_BY_WORD = "recite_word_by_word"
     private const val KEY_SEEK_INSIDE_AYAH_AUDIO = "seek_inside_ayah_audio"
     private const val KEY_USE_WORD_CLIPS = "use_word_clips"
     private const val KEY_PLAYER_BACKGROUND = "player_background"
@@ -183,13 +178,7 @@ object PlayerSettings {
         _repeatMode.value = RepeatMode.fromKey(prefs?.getString(KEY_REPEAT_MODE, null))
         _lastGlobalId.value = prefs?.getInt(KEY_LAST_GLOBAL_ID, 0)?.takeIf { it in 1..LearnedAyahsStore.TOTAL_AYAHS } ?: 0
         _ayahOverflowMode.value = AyahOverflowMode.fromKey(prefs?.getString(KEY_AYAH_OVERFLOW_MODE, null))
-        _autoPlayMistakeAudio.value = prefs?.getBoolean(KEY_AUTO_PLAY_MISTAKE_AUDIO, true) ?: true
-        _autoAdvanceSuccess.value = prefs?.getBoolean(KEY_AUTO_ADVANCE_SUCCESS, true) ?: true
-        _preferOfflineDeviceSpeech.value =
-            prefs?.getBoolean(KEY_PREFER_OFFLINE_DEVICE_SPEECH, false) ?: false
         _wordReciter.value = WordReciter.fromKey(prefs?.getString(KEY_WORD_RECITER, null))
-        _reciteBetaEnabled.value = prefs?.getBoolean(KEY_RECITE_BETA_ENABLED, false) ?: false
-        _reciteWordByWord.value = prefs?.getBoolean(KEY_RECITE_WORD_BY_WORD, true) ?: true
         _seekInsideAyahAudio.value = prefs?.getBoolean(KEY_SEEK_INSIDE_AYAH_AUDIO, false) ?: false
         _useWordClips.value = prefs?.getBoolean(KEY_USE_WORD_CLIPS, false) ?: false
         _playerBackground.value = prefs?.getString(KEY_PLAYER_BACKGROUND, null) ?: PlayerBackgrounds.PLAIN
@@ -353,49 +342,10 @@ object PlayerSettings {
             prefs?.edit()?.putString(KEY_AYAH_OVERFLOW_MODE, value.name)?.apply()
         }
 
-    private val _autoPlayMistakeAudio = MutableStateFlow(true)
-    val autoPlayMistakeAudioFlow: StateFlow<Boolean> = _autoPlayMistakeAudio.asStateFlow()
-
-    var autoPlayMistakeAudio: Boolean
-        get() = _autoPlayMistakeAudio.value
-        set(value) {
-            _autoPlayMistakeAudio.value = value
-            prefs?.edit()?.putBoolean(KEY_AUTO_PLAY_MISTAKE_AUDIO, value)?.apply()
-        }
-
-    private val _preferOfflineDeviceSpeech = MutableStateFlow(false)
-    val preferOfflineDeviceSpeechFlow: StateFlow<Boolean> = _preferOfflineDeviceSpeech.asStateFlow()
-
-    /**
-     * Ask the phone speech service for its **on-device** Arabic model rather than the network one.
-     *
-     * Only meaningful once the user has installed an Arabic offline voice pack. Until Android 13
-     * there is no API to fetch one, so Settings links out to the system screen instead. Previously
-     * this was set only as a fallback after a network error; as a preference it also answers a
-     * question worth knowing the answer to — whether Google's offline Arabic is as accurate as its
-     * online Arabic, which decides how much of Recite can work with no connection.
-     */
-    var preferOfflineDeviceSpeech: Boolean
-        get() = _preferOfflineDeviceSpeech.value
-        set(value) {
-            _preferOfflineDeviceSpeech.value = value
-            prefs?.edit()?.putBoolean(KEY_PREFER_OFFLINE_DEVICE_SPEECH, value)?.apply()
-        }
-
-    private val _autoAdvanceSuccess = MutableStateFlow(true)
-    val autoAdvanceSuccessFlow: StateFlow<Boolean> = _autoAdvanceSuccess.asStateFlow()
-
-    var autoAdvanceSuccess: Boolean
-        get() = _autoAdvanceSuccess.value
-        set(value) {
-            _autoAdvanceSuccess.value = value
-            prefs?.edit()?.putBoolean(KEY_AUTO_ADVANCE_SUCCESS, value)?.apply()
-        }
-
     private val _wordReciter = MutableStateFlow(WordReciter.DEFAULT)
     val wordReciterFlow: StateFlow<WordReciter> = _wordReciter.asStateFlow()
 
-    /** Whose per-word MP3s to stream/cache in word-by-word mode and recite/review. */
+    /** Whose per-word MP3s to stream/cache in word-by-word playback. */
     var wordReciter: WordReciter
         get() = _wordReciter.value
         set(value) {
@@ -403,47 +353,13 @@ object PlayerSettings {
             prefs?.edit()?.putString(KEY_WORD_RECITER, value.name)?.apply()
         }
 
-    private val _reciteBetaEnabled = MutableStateFlow(false)
-    val reciteBetaEnabledFlow: StateFlow<Boolean> = _reciteBetaEnabled.asStateFlow()
-
-    /**
-     * Whether the user has opted in to Recite & review.
-     *
-     * Off until deliberately switched on, behind a dialog saying plainly that it is a beta. The
-     * feature depends on the phone's speech service and on recognising classical Quranic Arabic,
-     * and neither is reliable enough to put in front of someone who has not chosen it — a coach
-     * that corrects a correct recitation is worse than no coach, and worse still if it arrives
-     * uninvited.
-     */
-    var reciteBetaEnabled: Boolean
-        get() = _reciteBetaEnabled.value
-        set(value) {
-            _reciteBetaEnabled.value = value
-            prefs?.edit()?.putBoolean(KEY_RECITE_BETA_ENABLED, value)?.apply()
-        }
-
-    private val _reciteWordByWord = MutableStateFlow(true)
-    val reciteWordByWordFlow: StateFlow<Boolean> = _reciteWordByWord.asStateFlow()
-
-    /**
-     * Recite & review shows one word at a time and moves on only once that word has been recited
-     * correctly (on by default). Off shows the whole ayah. Only the display changes: listening and
-     * scoring are the same either way, against the whole ayah, so each word is still judged as it
-     * sounds in context.
-     */
-    var reciteWordByWord: Boolean
-        get() = _reciteWordByWord.value
-        set(value) {
-            _reciteWordByWord.value = value
-            prefs?.edit()?.putBoolean(KEY_RECITE_WORD_BY_WORD, value)?.apply()
-        }
 
     private val _useWordClips = MutableStateFlow(false)
     val useWordClipsFlow: StateFlow<Boolean> = _useWordClips.asStateFlow()
 
     /**
      * Play → Word by word: Quran.com isolated clips when true; the ayah reciter (seek
-     * to each word) when false. Recite & review always uses clips regardless of this.
+     * to each word) when false.
      */
     var useWordClips: Boolean
         get() = _useWordClips.value

@@ -6,10 +6,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-// There is no native build any more. Recite used to bundle a Quran-tuned Whisper model and run it
-// through whisper.cpp; it was dropped in 1.8.0 because it could not keep up with a live reciter
-// even on current hardware, and it carried ~58MB of model plus an NDK dependency for the privilege.
-// Recognition now goes through the platform speech service — see RecitationSpeechManager.
+// There is no native build. Recite & review once bundled a Quran-tuned Whisper model and ran it
+// through whisper.cpp — ~58MB of model plus an NDK dependency — then moved to the platform speech
+// service. Both are gone: see CHANGELOG for why the feature was withdrawn.
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()

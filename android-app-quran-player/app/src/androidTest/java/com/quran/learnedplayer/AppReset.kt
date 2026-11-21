@@ -37,9 +37,6 @@ internal object AppReset {
         PlayerSettings.appTheme = com.quran.learnedplayer.data.AppTheme.DEFAULT
         PlayerSettings.ayahOverflowMode = com.quran.learnedplayer.player.AyahOverflowMode.DEFAULT
         PlayerSettings.wordReciter = com.quran.learnedplayer.data.WordReciter.DEFAULT
-        // Recite is opt-in beta and hidden by default; the tests that exercise it turn
-        // it on explicitly, and every other test should see the app as a new user does.
-        PlayerSettings.reciteBetaEnabled = false
         PlayerSettings.seekInsideAyahAudio = false
         PlayerSettings.useWordClips = false
         PlayerSettings.wordView = false
@@ -49,9 +46,6 @@ internal object AppReset {
         PlayerSettings.translationEdition = PlayerSettings.DEFAULT_TRANSLATION_EDITION
         PlayerSettings.wordMeaningLanguage = PlayerSettings.DEFAULT_WORD_MEANING_LANGUAGE
         PlayerSettings.tafsirEdition = ""
-        PlayerSettings.autoPlayMistakeAudio = true
-        PlayerSettings.autoAdvanceSuccess = true
-        PlayerSettings.reciteWordByWord = true
         // The first-run hadith would sit over every screen these tests drive;
         // IntroDialogTest covers it explicitly instead.
         PlayerSettings.seenIntro = true

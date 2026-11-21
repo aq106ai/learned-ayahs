@@ -141,7 +141,6 @@ const val TAG_WORD_MEANINGS_MENU = "menu_word_meanings"
 const val TAG_REPEAT_WORD = "repeat_word_toggle"
 const val TAG_READER_CARD = "reader_card"
 const val TAG_EXPAND_PANEL = "expand_playback_panel"
-const val TAG_OPEN_RECITATION = "open_recitation"
 fun surahPanelRowTag(surah: Int) = "surah_panel_row_$surah"
 fun revisionDelayTag(seconds: Int) = "revision_delay_$seconds"
 fun playbackModeTag(mode: PlaybackMode) = "playback_mode_${mode.name}"
@@ -159,11 +158,9 @@ fun PlayerScreen(
     onPlayRequested: (() -> Unit) -> Unit,
     onBrowseSurahs: () -> Unit,
     onOpenSettings: () -> Unit = {},
-    onOpenRecitation: (Int) -> Unit = {},
     onMakeVideo: (surah: Int, ayah: Int) -> Unit = { _, _ -> },
 ) {
     val state by viewModel.uiState.collectAsState()
-    val reciteBetaEnabled by PlayerSettings.reciteBetaEnabledFlow.collectAsState()
     val wordFileMode = state.wordPlayback
     val wordByWord by PlayerSettings.wordViewFlow.collectAsState()
     var panelExpanded by rememberSaveable { mutableStateOf(false) }
@@ -272,47 +269,6 @@ fun PlayerScreen(
                 }
 
                 Column(Modifier.heightIn(max = controlsMaxHeight).verticalScroll(rememberScrollState())) {
-                    // Recite & review bar placed right above the bottom play panel. Hidden entirely until
-                    // the user opts in to the beta from Settings — an unfinished coach should not be the
-                    // most prominent button on the player for someone who never asked for it.
-                    if (reciteBetaEnabled) Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 6.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Surface(
-                            onClick = {
-                                viewModel.pause()
-                                onOpenRecitation(state.currentTrack?.globalId ?: 1)
-                            },
-                            modifier = Modifier.testTag(TAG_OPEN_RECITATION),
-                            shape = RoundedCornerShape(24.dp),
-                            color = AccentGreen,
-                            shadowElevation = 4.dp,
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Mic,
-                                    contentDescription = null,
-                                    tint = OnAccentGreen,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = tx("Recite & review"),
-                                    color = OnAccentGreen,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            }
-                        }
-                    }
-
                     val playbackError = state.error?.takeIf { state.tracks.isNotEmpty() }
                     if (playbackError != null) {
                         Text(

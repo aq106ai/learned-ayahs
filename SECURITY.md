@@ -22,9 +22,9 @@ in the release notes unless you prefer otherwise.
 
 ## Scope notes
 
-- The Android app requests `INTERNET`, `RECORD_AUDIO` (used only on the Recite & review screen,
-  which is opt-in) and notification/foreground-service permissions. It requests **no storage
-  permissions**. Anything that reads or writes user files outside the Storage Access Framework
+- The Android app requests `INTERNET` and notification/foreground-service permissions. It
+  requests **no storage permissions** and, since Recite & review was removed, **no microphone
+  permission**. Anything that reads or writes user files outside the Storage Access Framework
   is a bug.
 - The web player's server binds to `127.0.0.1` only. Exposing it on a network is outside its
   intended use.

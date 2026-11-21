@@ -1656,3 +1656,54 @@ button.link {
   .reader { padding-block: 12px; }
 }
 
+
+/* Recite lab (views/reciteLab.js) — a developer page, so it borrows the app's tokens and adds
+   only what the word card needs. */
+.lab-card {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 28px 16px;
+  background: var(--panel-2);
+  border-radius: 14px;
+}
+
+.lab-word {
+  font-family: var(--quran-font), serif;
+  font-size: clamp(2.5rem, 12vw, 4.5rem);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.lab-word.done {
+  font-family: inherit;
+  font-size: 1.25rem;
+  color: var(--muted);
+}
+
+.lab-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.lab-chip {
+  font-family: var(--quran-font), serif;
+  font-size: 1.25rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line, var(--panel-3));
+  color: var(--muted);
+}
+
+.lab-chip.correct {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.lab-chip.skipped {
+  color: var(--warn);
+  border-color: var(--warn);
+}

@@ -15,6 +15,7 @@ import { surahView } from './views/surah.js';
 import { addByDescriptionView } from './views/addByDescription.js';
 import { settingsView } from './views/settings.js';
 import { reciteView } from './views/recite.js';
+import { reciteLabView } from './views/reciteLab.js';
 import { accountView } from './views/account.js';
 import { adminView } from './views/admin.js';
 import { videoView } from './views/video.js';
@@ -28,6 +29,7 @@ const ROUTES = {
   surah: surahView,
   add: addByDescriptionView,
   recite: reciteView,
+  lab: reciteLabView,
   settings: settingsView,
   account: accountView,
   admin: adminView,
@@ -35,7 +37,8 @@ const ROUTES = {
 };
 
 // Views that live under a navigation item without having one of their own.
-const NAV_PARENT = { surah: 'surahs', add: 'surahs', video: 'player' };
+// `lab` is a developer page with no nav entry of its own (see views/reciteLab.js).
+const NAV_PARENT = { surah: 'surahs', add: 'surahs', video: 'player', lab: 'settings' };
 
 const THEME_COLORS = { dark: '#0a1710', light: '#f1f8f3' };
 

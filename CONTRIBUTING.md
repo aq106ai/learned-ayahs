@@ -30,9 +30,10 @@ These rules come from real bugs in this project's history. The reasoning behind 
    not add `READ_EXTERNAL_STORAGE`, `MANAGE_EXTERNAL_STORAGE` or similar.
 5. **Respect the comments in `PlaybackService`.** They document ExoPlayer timing races that were
    fixed on purpose. Don't "simplify" them away.
-6. **Recite & review (web app only) must only interrupt for a mistake that is certainly the
-   reciter's.** Don't loosen the matching to make tests pass. It was removed from the Android app
-   for exactly this reason — see the `archive/recite-review-word-by-word` branch.
+6. **Don't bring back Recite & review.** It was withdrawn from both apps: platform speech
+   recognition does not reliably return short isolated words of Qur'anic recitation, so a word
+   recited correctly could be marked wrong indefinitely. Read the design notes on the
+   `archive/recite-review-word-by-word` branch before attempting it again.
 7. **Never commit personal data**: your library exports, generated playlists, logs, API keys or
    signing keys. `.gitignore` covers the usual ones, but please check your diff.
 
@@ -81,9 +82,9 @@ and pull request, along with a debug build.
 
 | Command (from `web-app/`) | What it covers | Needs |
 |---|---|---|
-| `npm test` | The ported logic: queues and modes, references, export format, word sync, recitation coach | Node.js 18+ |
+| `npm test` | The ported logic: queues and modes, references and sections, export format, word sync | Node.js 18+ |
 | `npm run test:server` | `server.py`: accounts, sessions, admin, data sync, audio cache, static export | Python 3.9+ |
-| `npm install && npx playwright install chromium && npm run test:e2e` | The app in Chromium: guest use, player rules, accounts and admin, Recite & review, static build | Node.js, Python; no network |
+| `npm install && npx playwright install chromium && npm run test:e2e` | The app in Chromium: guest use, player rules, sections, accounts and admin, static build | Node.js, Python; no network |
 
 CI runs all three on every push and pull request.
 

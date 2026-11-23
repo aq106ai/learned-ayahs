@@ -33,8 +33,7 @@ const ROUTES = {
 };
 
 // Views that live under a navigation item without having one of their own.
-// `lab` is a developer page with no nav entry of its own (see views/reciteLab.js).
-const NAV_PARENT = { surah: 'surahs', add: 'surahs', video: 'player', lab: 'settings' };
+const NAV_PARENT = { surah: 'surahs', add: 'surahs', video: 'player' };
 
 const THEME_COLORS = { dark: '#0a1710', light: '#f1f8f3' };
 

@@ -42,12 +42,13 @@ it under its own privacy policy. The app sends no identifiers, account details o
 
 ## Microphone
 
-The app does not use the microphone and does not ask for permission to.
+Neither app uses the microphone, and the Android app does not ask for permission to.
 
 Earlier versions included Recite & review, an opt-in beta that listened while you recited and
-passed the audio to your phone's own speech recognition service. That feature has been removed,
-and with it the `RECORD_AUDIO` permission. If you are upgrading, Android may still list a
-microphone permission you granted to an older version; you can revoke it in Android settings.
+passed the audio to your device's own speech recognition service — your phone's on Android, your
+browser's on the web. It has been removed from both, and with it the Android `RECORD_AUDIO`
+permission. If you are upgrading, Android may still list a microphone permission you granted to
+an older version; you can revoke it in Android settings.
 
 ## Videos you make
 

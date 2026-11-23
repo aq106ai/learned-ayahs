@@ -61,10 +61,6 @@ Android app listed above:
 - the word-by-word reader, offline audio;
 - lock-screen and headset controls.
 
-It also has **Recite & review**: recite a learned ayah from memory and the browser's speech
-recognition follows along, playing the correct word back when you slip. It is being rebuilt, and
-is not in the Android app — see `archive/recite-review-word-by-word` for the version that was.
-
 It adds:
 
 - **Accounts and user management.** Run `server.py` and the first account becomes the
@@ -153,10 +149,10 @@ HTTPS, static hosting and the API, see the [web app README](web-app/README.md).
   shared `StateFlow`, so external controllers and on-screen buttons share one code path.
 - Word highlighting uses per-reciter timing files. `.setup/make_timings.py` generates them from
   [QUL](https://qul.tarteel.ai/), cleans them and validates them, and a unit test re-checks them.
-- Recite & review (web only) compares what the speech recogniser heard against the Uthmani
-  text. Spelling and word-boundary differences are handled in the normaliser and aligner under
-  `web-app/static/js/core/recite/`, and several gates make sure the coach interrupts only for a
-  mistake that is really yours.
+- Learned ayahs are grouped into **sections** — each unbroken run of ayahs you have marked
+  inside a surah. One walk over the marked ids decides where a run breaks
+  (`core/ayahSections.js`, `data/AyahSections.kt`), and the compact references used by the
+  export file and the quick-add box are built on it, so the two can never disagree.
 
 The full design notes are in
 [`android-app-quran-player/CLAUDE.md`](android-app-quran-player/CLAUDE.md). They record what was

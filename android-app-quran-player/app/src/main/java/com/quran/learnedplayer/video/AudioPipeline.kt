@@ -17,6 +17,16 @@ class EncodedAudio(val format: MediaFormat, val file: File, val samples: List<Au
 class ClipSource(val kind: ClipKind, val surah: Int, val ayah: Int, val file: File)
 
 /**
+ * The soundtrack and its timeline, plus word timings measured from the audio for clips that have
+ * none of their own ([IntroWordTimings]). Keyed by the clip on the timeline.
+ */
+data class BuiltAudio(
+    val timeline: VideoTimeline,
+    val audio: EncodedAudio,
+    val estimatedSegments: Map<TimelineClip, List<LongRange>> = emptyMap(),
+)
+
+/**
  * Builds the soundtrack: each clip decoded (MP3 from everyayah, or anything MediaExtractor reads),
  * converted to 44.1 kHz stereo, laid on the [VideoTimeline] with silence between clips, and
  * encoded once, start to finish, as AAC. The timeline it returns is measured from the decoded
@@ -34,7 +44,11 @@ object AudioPipeline {
         onClipDone: (Int) -> Unit = {},
         checkCancelled: () -> Unit = {},
         timingsFor: (surah: Int, ayah: Int) -> List<LongRange>? = { _, _ -> null },
-    ): Pair<VideoTimeline, EncodedAudio> {
+        /** Timings of the Bismillah clip when it is the reciter's own 1:1 (cut where they end). */
+        bismillahTimings: List<LongRange>? = null,
+        /** Letter weights of a clip's words, for clips whose word timings should be estimated. */
+        estimateWords: (ClipKind) -> List<Int>? = { null },
+    ): BuiltAudio {
         val encoder = MediaCodec.createEncoderByType(MIME)
         val format = MediaFormat.createAudioFormat(MIME, PcmResampler.RATE, PcmResampler.CHANNELS).apply {
             setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC)
@@ -47,20 +61,27 @@ object AudioPipeline {
         val out = RandomAccessFile(scratch, "rw").apply { setLength(0) }
         val writer = AacWriter(encoder, out)
         val timeline = VideoTimeline.Builder()
+        val estimated = mutableMapOf<TimelineClip, List<LongRange>>()
         try {
             clips.forEachIndexed { index, clip ->
                 checkCancelled()
-                val pcm = trimToAyah(decode(clip.file), clip, timingsFor)
+                val pcm = trimToAyah(decode(clip.file), clip, timingsFor, bismillahTimings)
                 // Silence up to where this clip starts.
                 writer.silenceUntil(timeline.nextStartMs())
-                timeline.add(clip.kind, clip.surah, clip.ayah, PcmResampler.durationMs(pcm.size))
+                val placed = timeline.add(clip.kind, clip.surah, clip.ayah, PcmResampler.durationMs(pcm.size))
+                estimateWords(clip.kind)?.let { weights ->
+                    val levels = IntroWordTimings.frameLevels(pcm, PcmResampler.RATE, PcmResampler.CHANNELS)
+                    IntroWordTimings.estimate(levels, weights)?.let { estimated[placed] = it }
+                }
                 writer.write(pcm)
                 onClipDone(index)
             }
             val built = timeline.build(endCardMs)
             writer.silenceUntil(built.totalMs)
             writer.finish()
-            return built to EncodedAudio(writer.outputFormat ?: error("The audio encoder gave no format"), scratch, writer.samples)
+            val audio = EncodedAudio(writer.outputFormat ?: error("The audio encoder gave no format"), scratch, writer.samples)
+            // The timeline's clips are the ones placed above (build copies the same instances).
+            return BuiltAudio(built, audio, estimated)
         } finally {
             out.close()
             runCatching { encoder.stop() }
@@ -73,9 +94,18 @@ object AudioPipeline {
      * 2:259 as well) is cut where the ayah ends ([com.quran.learnedplayer.data.WordSync.ayahEndMs]),
      * so the video does not recite the next ayah under this one.
      */
-    private fun trimToAyah(pcm: ShortArray, clip: ClipSource, timingsFor: (Int, Int) -> List<LongRange>?): ShortArray {
-        if (clip.kind != ClipKind.AYAH) return pcm
-        val end = com.quran.learnedplayer.data.WordSync.ayahEndMs(timingsFor(clip.surah, clip.ayah), PcmResampler.durationMs(pcm.size))
+    private fun trimToAyah(
+        pcm: ShortArray,
+        clip: ClipSource,
+        timingsFor: (Int, Int) -> List<LongRange>?,
+        bismillahTimings: List<LongRange>?,
+    ): ShortArray {
+        val timings = when (clip.kind) {
+            ClipKind.AYAH -> timingsFor(clip.surah, clip.ayah)
+            ClipKind.BISMILLAH -> bismillahTimings ?: return pcm
+            ClipKind.AUDHU -> return pcm
+        }
+        val end = com.quran.learnedplayer.data.WordSync.ayahEndMs(timings, PcmResampler.durationMs(pcm.size))
             ?: return pcm
         val frames = end * PcmResampler.RATE / 1000L
         val samples = (frames * PcmResampler.CHANNELS).toInt().coerceAtMost(pcm.size)

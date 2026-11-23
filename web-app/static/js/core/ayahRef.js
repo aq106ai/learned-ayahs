@@ -12,12 +12,11 @@
 // because the input may be typed by hand or written by an LLM.
 
 import {
-  TOTAL_AYAHS,
   VERSE_COUNTS,
-  globalToSurahAyah,
   surahAyahToGlobal,
   surahNameLatin,
 } from './quran.js';
+import { sectionsBySurah } from './ayahSections.js';
 
 const NUMERIC_AYAH = /^(\d{1,3})\s*:\s*(\d{1,3})(?:\s*-\s*(\d{1,3}))?$/;
 const SURAH_RANGE = /^(\d{1,3})\s*-\s*(\d{1,3})$/;
@@ -125,34 +124,22 @@ export function parseRefs(input) {
 
 const range = (surah, from, to) => (from === to ? `${surah}:${from}` : `${surah}:${from}-${to}`);
 
-/** Global ids as compact references: a whole surah collapses to `112`, runs to `36:1-83`. */
+/**
+ * Global ids as compact references: a whole surah collapses to `112`, runs to `36:1-83`.
+ *
+ * Where a run breaks is `core/ayahSections.js`'s decision, so a reference and a section heading
+ * for the same stretch always agree. The one thing refs do and sections don't is collapse a surah
+ * learned in full to its bare number — a section there keeps its ayah numbers.
+ */
 export function formatRefs(ids) {
-  const bySurah = new Map();
-  for (const id of ids) {
-    if (!(Number.isInteger(id) && id >= 1 && id <= TOTAL_AYAHS)) continue;
-    const [surah, ayah] = globalToSurahAyah(id);
-    if (!bySurah.has(surah)) bySurah.set(surah, []);
-    bySurah.get(surah).push(ayah);
-  }
   const refs = [];
-  for (const surah of [...bySurah.keys()].sort((a, b) => a - b)) {
-    const ayahs = [...new Set(bySurah.get(surah))].sort((a, b) => a - b);
-    if (ayahs.length === VERSE_COUNTS[surah - 1]) {
+  for (const [surah, sections] of sectionsBySurah(ids)) {
+    const whole = sections.length === 1 && sections[0].from === 1 && sections[0].to === VERSE_COUNTS[surah - 1];
+    if (whole) {
       refs.push(String(surah));
       continue;
     }
-    let start = ayahs[0];
-    let prev = start;
-    for (const ayah of ayahs.slice(1)) {
-      if (ayah === prev + 1) {
-        prev = ayah;
-        continue;
-      }
-      refs.push(range(surah, start, prev));
-      start = ayah;
-      prev = ayah;
-    }
-    refs.push(range(surah, start, prev));
+    for (const section of sections) refs.push(range(surah, section.from, section.to));
   }
   return refs;
 }

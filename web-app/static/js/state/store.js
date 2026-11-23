@@ -39,10 +39,6 @@ export const DEFAULT_SETTINGS = Object.freeze({
   // Gestures
   swipeToNavigate: true,
   tapToAdvance: true,
-  // Recite & review (opt-in beta)
-  reciteBetaEnabled: false,
-  autoPlayMistakeAudio: true,
-  autoAdvanceSuccess: true,
   // Onboarding
   seenIntro: false,
   // Web only: stream from everyayah.com directly instead of the server's audio cache.

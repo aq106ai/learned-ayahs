@@ -6,10 +6,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-// There is no native build any more. Recite used to bundle a Quran-tuned Whisper model and run it
-// through whisper.cpp; it was dropped in 1.8.0 because it could not keep up with a live reciter
-// even on current hardware, and it carried ~58MB of model plus an NDK dependency for the privilege.
-// Recognition now goes through the platform speech service — see RecitationSpeechManager.
+// There is no native build. Recite & review once bundled a Quran-tuned Whisper model and ran it
+// through whisper.cpp — ~58MB of model plus an NDK dependency — then moved to the platform speech
+// service. Both are gone: see CHANGELOG for why the feature was withdrawn.
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
@@ -28,12 +27,21 @@ android {
         // Android 16. From Android 15 on, apps targeting 35+ draw edge to edge; MainActivity keeps
         // every screen inside the safe area.
         targetSdk = 36
-        versionCode = 51
-        versionName = "1.15.0"
+        versionCode = 52
+        versionName = "1.5.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
+        // Test builds only, for the `preview` build type below. Committed on purpose, password
+        // and all: it signs an app with its own package name, so it can never update or stand in
+        // for the Play Store app, and a fixed key lets one preview install update the next.
+        create("preview") {
+            storeFile = file("preview.keystore")
+            storePassword = "learned-ayahs-preview"
+            keyAlias = "preview"
+            keyPassword = "learned-ayahs-preview"
+        }
         create("release") {
             if (keystorePropertiesFile.exists()) {
                 storeFile = file(keystoreProperties.getProperty("storeFile"))
@@ -57,6 +65,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+        }
+        // A release build to try on a phone next to the Play Store install: its own package name
+        // (com.quran.learnedayahs.preview), its own data, the label "Learned Ayahs (test)"
+        // (src/preview/res) and the preview key. `./gradlew assemblePreview`; CI uploads it.
+        create("preview") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".preview"
+            signingConfig = signingConfigs.getByName("preview")
+            matchingFallbacks += listOf("release")
         }
     }
 

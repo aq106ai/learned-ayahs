@@ -56,10 +56,9 @@ class WordAudioDownloader(context: Context) {
     /**
      * Fetches the word clips for a single ayah, nearest-first.
      *
-     * The bulk fill in `RecitationViewModel.ensureRecitePack` walks the whole learned list in
-     * global-id order, so the ayah actually being recited is routinely still missing when the coach
-     * needs to play a correction — and a missing clip is not a quiet failure, it stalls the mic
-     * (see `WordAudioPlayer.playAndAwait`). This exists so the current ayah can jump that queue.
+     * The bulk fill in `PlayerViewModel.downloadRecitationWordClips` walks the whole learned
+     * list in global-id order, so the ayah actually being played is routinely still missing when
+     * word-by-word playback reaches it. This exists so the current ayah can jump that queue.
      */
     suspend fun downloadForAyah(
         surah: Int,

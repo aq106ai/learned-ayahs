@@ -26,14 +26,12 @@ import com.quran.learnedplayer.ui.settings.SettingsScreen
 import com.quran.learnedplayer.ui.surah.SurahDetailScreen
 import com.quran.learnedplayer.ui.video.VideoMakerScreen
 
-import com.quran.learnedplayer.ui.recitation.RecitationScreen
 
 object Routes {
     const val HOME = "home"
     const val PLAYER = "player"
     const val SETTINGS = "settings"
     const val ADD_BY_DESCRIPTION = "add_by_description"
-    const val RECITATION = "recitation?globalId={globalId}"
     const val SURAH = "surah/{surah}"
     const val VIDEO = "video?surah={surah}&ayah={ayah}&fromPlayer={fromPlayer}"
 
@@ -41,7 +39,6 @@ object Routes {
 
     /** "Make a video", starting on [ayah] of [surah], or on the surah's opening ayahs when 0. */
     fun video(surah: Int, ayah: Int = 0, fromPlayer: Boolean = false) = "video?surah=$surah&ayah=$ayah&fromPlayer=$fromPlayer"
-    fun recitation(globalId: Int = 1) = "recitation?globalId=$globalId"
 }
 
 /**
@@ -129,7 +126,6 @@ fun AppNav(
                     onPlayRequested = onPlayRequested,
                     onBrowseSurahs = { navController.navigate(Routes.HOME) { launchSingleTop = true } },
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-                    onOpenRecitation = { globalId -> navController.navigate(Routes.recitation(globalId)) },
                     onMakeVideo = { surah, ayah -> navController.navigate(Routes.video(surah, ayah, fromPlayer = true)) },
                 )
             }
@@ -146,18 +142,6 @@ fun AppNav(
                     surah = entry.arguments?.getInt("surah") ?: 1,
                     ayah = entry.arguments?.getInt("ayah") ?: 0,
                     fromPlayer = entry.arguments?.getBoolean("fromPlayer") ?: false,
-                    onBack = { navController.popBackStack() },
-                )
-            }
-
-            composable(
-                route = Routes.RECITATION,
-                arguments = listOf(navArgument("globalId") { type = NavType.IntType; defaultValue = 1 }),
-            ) { entry ->
-                val globalId = entry.arguments?.getInt("globalId") ?: 1
-                RecitationScreen(
-                    initialGlobalId = globalId,
-                    playerViewModel = viewModel,
                     onBack = { navController.popBackStack() },
                 )
             }

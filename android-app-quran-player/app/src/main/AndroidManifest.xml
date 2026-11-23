@@ -10,20 +10,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Keeps the CPU and Wi-Fi awake while a recitation streams with the screen off. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!--
-      Recite & review resolves the platform speech service. Android 11+ package visibility
-      filters queryIntentServices, so without this SpeechRecognizer.isRecognitionAvailable()
-      returns false on every device and the mic never starts.
-    -->
-    <queries>
-        <intent>
-            <action android:name="android.speech.RecognitionService" />
-        </intent>
-    </queries>
 
     <application
         android:name=".LearnedAyahsApp"

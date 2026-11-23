@@ -1,15 +1,19 @@
 // The player: an immersive ayah reader with playback controls, the surah navigator and the
 // playlist as side panels. Port of ui/PlayerScreen.kt, ui/PlaylistScreen.kt and ui/AyahTextSection.kt.
 
-import { dialog, formatTime, h, icon, toast } from '../lib/dom.js';
+import { append, dialog, formatTime, h, icon, toast } from '../lib/dom.js';
 import {
   PlaybackMode,
+  QueueBuilder,
   RepeatMode,
   VERSE_COUNTS,
   globalToSurahAyah,
+  surahLabel,
   surahName,
   trackTitle,
 } from '../core/quran.js';
+import { sectionKey, sectionsBySurah } from '../core/ayahSections.js';
+import { contentWords, words as ayahWords, wordsSync } from '../services/quranData.js';
 import { RECITERS, reciterFromKey } from '../core/reciters.js';
 import { REVISION_DELAY_CHOICES } from '../state/store.js';
 import { learnedCountsBySurah, matchSurahs } from './common.js';
@@ -61,6 +65,13 @@ export function playerView({ store, engine, server, go }) {
       wordView()
         ? menuItem(tx('View Full Ayah'), 'type', 'view-ayah', showAyah)
         : menuItem(tx('Word by Word'), 'type', 'toggle-word-by-word', showWords),
+      // Long ayahs is about what is on screen now, so it sits with the other view switches
+      // rather than in Settings. The word reader pages a word at a time and never overflows.
+      wordView() ? null : menuItem(
+        store.settings.ayahOverflowMode === 'AUTO_SCROLL' ? tx('Fit to screen') : tx('Auto scroll'),
+        'layers', 'toggle-overflow',
+        () => store.setSetting('ayahOverflowMode', store.settings.ayahOverflowMode === 'AUTO_SCROLL' ? 'FIT_TO_SCREEN' : 'AUTO_SCROLL'),
+      ),
       menuItem(translated ? tx('Hide Translation') : tx('Show Translation'), 'globe', 'toggle-translation', () => store.setSetting('showAyahTranslation', !translated)),
       menuItem(meanings ? tx('Hide Word Meanings') : tx('Show Word Meanings'), 'layers', 'toggle-word-meanings', () => store.setSetting('showWordTranslations', !meanings)),
       h('hr'),
@@ -314,8 +325,8 @@ export function playerView({ store, engine, server, go }) {
     const t = engine.track;
     // "Surah" repeats this surah's learned ayahs in the learned list; say so when there is more
     // than one of them to repeat.
-    const surahLabel = mode === PlaybackMode.REVISE && t && learnedInSurah(t.surah) > 1 ? tx('Surah learned ayahs') : tx('Surah');
-    const pick = (r) => chip({ AYAH: tx('Ayah'), SURAH: surahLabel, OFF: tx('Off') }[r], !repeatWord && r === repeat, () => engine.setRepeat(r), `repeat-${r}`);
+    const surahChip = mode === PlaybackMode.REVISE && t && learnedInSurah(t.surah) > 1 ? tx('Surah learned ayahs') : tx('Surah');
+    const pick = (r) => chip({ AYAH: tx('Ayah'), SURAH: surahChip, OFF: tx('Off') }[r], !repeatWord && r === repeat, () => engine.setRepeat(r), `repeat-${r}`);
     const groups = [
       // One choice of four. Word repeats the word being recited, in either view.
       h('div', {}, h('div', { class: 'label' }, tx('Repeat')), h('div', { class: 'chips' },
@@ -382,11 +393,6 @@ export function playerView({ store, engine, server, go }) {
     } else {
       meta.textContent = tx('Revise');
     }
-    reciteCta.replaceChildren(
-      store.settings.reciteBetaEnabled && t
-        ? h('a', { class: 'btn small primary', href: `#/recite/${t.globalId}`, 'data-testid': 'open-recite', onClick: () => engine.pause() }, icon('mic'), tx('Recite & review'))
-        : '',
-    );
     if (expanded) renderMore();
   }
 
@@ -404,7 +410,11 @@ export function playerView({ store, engine, server, go }) {
   // -- side panels -------------------------------------------------------------------------
 
   let panel = null;
+  // The playlist keeps itself in step with the engine while it is open; dropped with the panel.
+  let panelOff = null;
   function closePanel() {
+    panelOff?.();
+    panelOff = null;
     panel?.remove();
     panel = null;
   }
@@ -422,8 +432,99 @@ export function playerView({ store, engine, server, go }) {
     panel.querySelector('input, button')?.focus();
   }
 
+  /** The ayahs a section covers: "Ayahs 255–257", or just the ayah when it is one on its own. */
+  const sectionRange = (section) => (section.from === section.to
+    ? tx('Ayah {n}', { n: section.from })
+    : tx('Ayahs {from}–{to}', { from: section.from, to: section.to }));
+  const sectionsLabel = (n) => (n === 1 ? tx('1 section') : tx('{n} sections', { n }));
+
+  /**
+   * Revise by section: a full screen of every unbroken run of ayahs you have marked, surah by
+   * surah and numbered 1, 2, 3… within each, named by its ayah numbers alone so it can be
+   * recited from memory. A row peeks at its first word when the numbers are not prompt enough,
+   * and Go to sends the player to the section's first ayah.
+   *
+   * It is a screen, not a reading mode: the reader behind it is untouched, and the menu only
+   * offers it while revising learned ayahs, which is the queue these sections describe.
+   */
+  function openSectionsScreen() {
+    const bySurah = sectionsBySurah(store.learned);
+    const total = [...bySurah.values()].reduce((n, sections) => n + sections.length, 0);
+    const body = h('div', { class: 'stack', 'data-testid': 'sections-screen' });
+    if (!total) {
+      body.append(h('p', { class: 'muted' }, tx('No ayahs marked yet.')));
+      openPanel('full', tx('Sections'), body);
+      return;
+    }
+    body.append(h('div', { class: 'muted small' }, tx('{surahs} surahs · {n} sections', { surahs: bySurah.size, n: total })));
+
+    // The word is read when first asked for: the text is already loaded in the player, and the
+    // async path is only the cold case (a screen opened before quran_text.json has landed).
+    const setFirstWord = (section, el) => {
+      const pick = (words) => { el.textContent = contentWords(words ?? [])[0]?.text ?? ''; };
+      const loaded = wordsSync(section.surah, section.from);
+      if (loaded?.length) pick(loaded);
+      else ayahWords(section.surah, section.from).then(pick).catch(() => {});
+    };
+
+    const sectionRow = (section) => {
+      const key = sectionKey(section);
+      const word = h('span', { class: 'section-word', lang: 'ar', 'data-testid': `word-${key}`, hidden: true });
+      const peek = h('button', {
+        class: 'btn ghost icon-only', type: 'button', 'aria-pressed': 'false',
+        'aria-label': tx('Show the first word'), title: tx('Show the first word'),
+        'data-testid': `peek-${key}`,
+        onClick: () => {
+          const show = word.hidden;
+          if (show && !word.textContent) setFirstWord(section, word);
+          word.hidden = !show;
+          peek.setAttribute('aria-pressed', String(show));
+          const label = show ? tx('Hide the first word') : tx('Show the first word');
+          peek.setAttribute('aria-label', label);
+          peek.title = label;
+        },
+      }, icon('type'));
+      const playing = engine.track
+        && engine.track.globalId >= section.firstGlobalId
+        && engine.track.globalId <= section.lastGlobalId;
+      return h('div', { class: `section-row${playing ? ' current' : ''}`, 'data-section': key },
+        // Its number within the surah, which is how a section is referred to out loud.
+        h('span', { class: 'section-num' }, String(section.index)),
+        h('div', { class: 'section-row-main' },
+          h('span', { class: 'section-range' }, sectionRange(section)),
+          section.count > 1 ? h('span', { class: 'sub muted small' }, tx('{n} ayahs', { n: section.count })) : null,
+          word,
+        ),
+        peek,
+        h('button', {
+          class: 'btn small', type: 'button', 'data-testid': `goto-${key}`,
+          onClick: () => { closePanel(); engine.playGlobal(section.firstGlobalId); },
+        }, tx('Go to')),
+      );
+    };
+
+    const list = h('div', { 'data-testid': 'sections-surahs' });
+    for (const [surah, sections] of bySurah) {
+      const block = h('details', { class: 'group', 'data-surah': String(surah) },
+        h('summary', {},
+          h('span', {}, surahLabel(surah)),
+          h('span', { class: 'sub muted small', style: { marginInlineStart: 'auto' } }, sectionsLabel(sections.length))),
+        ...sections.map(sectionRow));
+      // Open on the surah being revised, so the screen lands where the user is.
+      block.open = surah === engine.track?.surah;
+      list.append(block);
+    }
+    body.append(list);
+    openPanel('full', tx('Sections'), body);
+    body.querySelector('details[open]')?.scrollIntoView({ block: 'start' });
+  }
+
   function openSurahPanel() {
     const counts = learnedCountsBySurah(store.learned);
+    // One section is the whole learned list in one stretch — nothing to pick between. And only
+    // while revising learned ayahs: Full surah streams every ayah, marked or not.
+    const sections = [...sectionsBySurah(store.learned).values()].reduce((n, g) => n + g.length, 0);
+    const offerSections = engine.mode === PlaybackMode.REVISE && sections > 1;
     const list = h('div', {});
     const render = (q) => list.replaceChildren(...matchSurahs(q).map((s) => {
       const learned = counts.get(s) ?? 0;
@@ -435,55 +536,144 @@ export function playerView({ store, engine, server, go }) {
           if (engine.mode !== PlaybackMode.FULL_SURAH && !learned) engine.playSurahFrom(s, 1);
           else engine.jumpToSurah(s);
         },
-      }, h('span', {}, `${s} · ${surahName(s)}`), h('span', { class: 'sub' }, learned ? tx('{n} learned', { n: learned }) : tx('{n} ayahs', { n: VERSE_COUNTS[s - 1] })));
+        // How much of the surah is marked, not a bare count: "5 of 286 learned".
+      }, h('span', {}, `${s} · ${surahName(s)}`), h('span', { class: 'sub' }, learned
+        ? tx('{n} of {total} learned', { n: learned, total: VERSE_COUNTS[s - 1] })
+        : tx('{n} ayahs', { n: VERSE_COUNTS[s - 1] })));
     }));
     const search = h('input', { class: 'input', type: 'search', placeholder: tx('Search surah'), onInput: (e) => render(e.target.value) });
     render('');
     openPanel('start', tx('Surahs'), h('div', { class: 'stack' },
+      offerSections
+        ? h('button', {
+          class: 'btn', type: 'button', 'data-testid': 'open-sections',
+          onClick: () => { closePanel(); openSectionsScreen(); },
+        }, icon('layers'), tx('Revise by Section'))
+        : null,
       h('a', { class: 'btn', href: '#/surahs', onClick: closePanel }, icon('edit'), tx('Manage learned ayahs')),
       search,
       list,
     ));
   }
 
+  /**
+   * The playlist. In Full surah mode the queue is one surah, but the panel lists all 114 so the
+   * surah being recited can be changed from here; a surah's ayahs are built the first time its
+   * group is opened. Other modes list the surahs the queue covers, as before.
+   *
+   * The ayah playing carries `.current` (its surah's group too) and an engine listener moves it,
+   * so the panel can be left open while the queue runs on. It follows the playing ayah down the
+   * list only while that ayah is on screen: someone who has scrolled off to another surah is
+   * reading, not watching, and must not be yanked back.
+   */
   function openPlaylistPanel() {
-    const body = h('div', { class: 'stack' });
+    const fullSurah = engine.mode === PlaybackMode.FULL_SURAH;
+    const queue = engine.queue;
+    const queueSurahs = [...new Set(queue.map((t) => t.surah))];
+    const groups = new Map();
+    const body = h('div', { class: 'stack', 'data-testid': 'playlist' });
+
+    const starBtn = (globalId) => h('button', {
+      class: 'star-btn', type: 'button', 'aria-pressed': String(store.bookmarks.has(globalId)),
+      'aria-label': store.bookmarks.has(globalId) ? tx('Remove bookmark') : tx('Bookmark this ayah'),
+      onClick: (e) => { store.toggleBookmark(globalId); e.currentTarget.setAttribute('aria-pressed', String(store.bookmarks.has(globalId))); },
+    }, icon('star'));
+
+    // -- bookmarks
     const bookmarks = [...store.bookmarks].sort((a, b) => a - b);
     if (bookmarks.length) {
       body.append(h('div', { class: 'section-title', style: { margin: '4px 0 0' } }, tx('Bookmarks')));
       body.append(...bookmarks.map((id) => {
         const [s, a] = globalToSurahAyah(id);
         return h('div', { class: 'row' },
-          h('button', { class: 'list-row', type: 'button', onClick: () => { closePanel(); engine.playGlobal(id); } }, trackTitle(s, a)),
+          h('button', { class: 'list-row', type: 'button', 'data-ayah': String(id), onClick: () => { closePanel(); engine.playGlobal(id); } }, trackTitle(s, a)),
           h('button', { class: 'star-btn', type: 'button', 'aria-pressed': 'true', 'aria-label': tx('Remove bookmark'), onClick: () => { store.toggleBookmark(id); openPlaylistPanel(); } }, icon('star')),
         );
       }));
     }
-    const queue = engine.queue;
-    const surahs = [...new Set(queue.map((t) => t.surah))];
-    body.append(h('div', { class: 'muted small' }, tx('{surahs} surahs · {n} ayahs · {mode}', { surahs: surahs.length, n: queue.length, mode: engine.modeLabel })));
-    for (const s of surahs) {
-      const tracks = queue.filter((t) => t.surah === s);
-      const group = h('details', { class: 'group', open: engine.track?.surah === s },
-        h('summary', {}, `${surahName(s)}`, h('span', { class: 'sub muted small', style: { marginInlineStart: 'auto' } }, tx('{n} ayahs', { n: tracks.length }))),
-      );
-      group.addEventListener('toggle', () => {
-        if (!group.open || group.dataset.filled) return;
-        group.dataset.filled = '1';
-        group.append(...tracks.map((t) => h('div', { class: 'row' },
-          h('button', { class: `list-row${t === engine.track ? ' current' : ''}`, type: 'button', onClick: () => { closePanel(); engine.playGlobal(t.globalId); } }, `Ayah ${t.ayah}`),
-          h('button', {
-            class: 'star-btn', type: 'button', 'aria-pressed': String(store.bookmarks.has(t.globalId)),
-            'aria-label': store.bookmarks.has(t.globalId) ? tx('Remove bookmark') : tx('Bookmark this ayah'),
-            onClick: (e) => { store.toggleBookmark(t.globalId); e.currentTarget.setAttribute('aria-pressed', String(store.bookmarks.has(t.globalId))); },
-          }, icon('star')),
-        )));
-      });
-      body.append(group);
-      if (group.open) group.dispatchEvent(new Event('toggle'));
+
+    // -- what is playing
+    body.append(h('div', { class: 'muted small' }, fullSurah
+      ? [tx('{n} ayahs', { n: queue.length }), engine.modeLabel].join(' · ')
+      : tx('{surahs} surahs · {n} ayahs · {mode}', { surahs: queueSurahs.length, n: queue.length, mode: engine.modeLabel })));
+
+    // -- the surahs
+    const ayahCount = (s) => (queueSurahs.includes(s) ? queue.filter((t) => t.surah === s).length : VERSE_COUNTS[s - 1]);
+    // A surah the queue does not cover (Full surah lists all 114) is its own full list of ayahs.
+    const tracksFor = (s) => (queueSurahs.includes(s) ? queue.filter((t) => t.surah === s) : QueueBuilder.surahAllAyahs(s));
+    const groupList = h('div', { 'data-testid': 'playlist-surahs' });
+
+    function fillGroup(group) {
+      if (group.dataset.filled) return;
+      group.dataset.filled = '1';
+      group.append(...tracksFor(Number(group.dataset.surah)).map((t) => h('div', { class: 'row' },
+        h('button', {
+          class: 'list-row', type: 'button', 'data-ayah': String(t.globalId),
+          onClick: () => { closePanel(); engine.playGlobal(t.globalId); },
+        }, tx('Ayah {n}', { n: t.ayah })),
+        starBtn(t.globalId),
+      )));
     }
+
+    function renderGroups(query = '') {
+      groups.clear();
+      groupList.replaceChildren(...(fullSurah ? matchSurahs(query) : queueSurahs).map((s) => {
+        const group = h('details', { class: 'group', 'data-surah': String(s) },
+          h('summary', {}, h('span', {}, surahLabel(s)),
+            h('span', { class: 'sub muted small', style: { marginInlineStart: 'auto' } }, tx('{n} ayahs', { n: ayahCount(s) }))),
+        );
+        group.addEventListener('toggle', () => { if (group.open) fillGroup(group); });
+        groups.set(s, group);
+        return group;
+      }));
+    }
+
+    if (fullSurah) {
+      body.append(h('input', {
+        class: 'input', type: 'search', placeholder: tx('Search surah'), 'data-testid': 'playlist-search',
+        onInput: (e) => { renderGroups(e.target.value); markCurrent(); },
+      }));
+    }
+    renderGroups();
+    body.append(groupList);
     if (!queue.length) body.append(h('p', { class: 'muted' }, tx('Nothing in the playlist yet.')));
+
+    // -- where we are
+    const onScreen = (el) => {
+      const view = body.closest('.panel-body');
+      if (!el || !view) return false;
+      const box = el.getBoundingClientRect();
+      const viewBox = view.getBoundingClientRect();
+      return box.bottom > viewBox.top && box.top < viewBox.bottom;
+    };
+    function markCurrent({ scroll = false } = {}) {
+      for (const el of body.querySelectorAll('.list-row.current')) {
+        el.classList.remove('current');
+        el.removeAttribute('aria-current');
+      }
+      for (const group of groups.values()) group.classList.remove('current');
+      const t = engine.track;
+      if (!t) return;
+      const group = groups.get(t.surah);
+      if (group) {
+        group.classList.add('current');
+        group.open = true;
+        fillGroup(group);
+      }
+      for (const el of body.querySelectorAll(`.list-row[data-ayah="${t.globalId}"]`)) {
+        el.classList.add('current');
+        el.setAttribute('aria-current', 'true');
+      }
+      if (scroll) (group ?? body).querySelector('.list-row.current')?.scrollIntoView({ block: 'center' });
+    }
+
     openPanel('end', tx('Playlist'), body);
+    markCurrent({ scroll: true });
+    panelOff = engine.on('track', () => {
+      // A mode change swaps the whole list (Full surah lists every surah): draw it again.
+      if ((engine.mode === PlaybackMode.FULL_SURAH) !== fullSurah) openPlaylistPanel();
+      else markCurrent({ scroll: onScreen(body.querySelector('.list-row.current')) });
+    });
   }
 
   // -- background and share -----------------------------------------------------------------
@@ -517,7 +707,9 @@ export function playerView({ store, engine, server, go }) {
         'data-testid': `background-${value}`, onClick: () => pick(value),
       }, h('span', { class: 'theme-pic' }, image), h('span', { class: 'theme-name' }, title));
       const theme = store.settings.theme;
-      body.replaceChildren(
+      // append() skips a null child; the native replaceChildren would print it as "null".
+      body.replaceChildren();
+      append(body, [
         h('div', { class: 'chips' }, [['DARK', tx('Dark')], ['LIGHT', tx('Light')], ['SYSTEM', tx('Match system')]].map(([value, label]) =>
           chip(label, theme === value, () => { store.setSetting('theme', value); draw(); }, `theme-${value}`))),
         h('div', { class: 'small muted' }, tx('Background')),
@@ -530,7 +722,7 @@ export function playerView({ store, engine, server, go }) {
         subjects.length ? h('div', { class: 'theme-row' }, subjects.map((s) => tile(s.title, s.themeKey, h('img', { src: thumbUrl(s), alt: '', loading: 'lazy' })))) : null,
         h('p', { class: 'small muted' }, tx('Dark or Light also colours a scene or photo.')),
         h('p', { class: 'small muted' }, tx('Scenes of sky, land, water, light and pattern, and CC0 nature photos from Wikimedia Commons, never people or animals. A moving background uses a little more battery.')),
-      );
+      ]);
     }
     draw();
     await dialog({ title: tx('Theme'), content: body, actions: [{ label: tx('Done'), value: true, primary: true }] });

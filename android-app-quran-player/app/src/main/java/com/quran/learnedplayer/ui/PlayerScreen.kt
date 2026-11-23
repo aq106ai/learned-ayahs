@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -95,8 +97,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quran.learnedplayer.data.AyahMapping
+import com.quran.learnedplayer.data.AyahSections
 import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.SurahNames
+import com.quran.learnedplayer.player.AyahOverflowMode
 import com.quran.learnedplayer.player.PlaybackMode
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerUiState
@@ -120,6 +124,10 @@ import com.quran.learnedplayer.ui.theme.currentPalette
 const val TAG_EMPTY_BROWSE = "empty_browse_surahs"
 const val TAG_TOGGLE_WORD_BY_WORD = "toggle_word_by_word"
 const val TAG_VIEW_FULL_AYAH = "view_ayah"
+const val TAG_OPEN_SECTIONS = "open_sections"
+const val TAG_AYAH_OVERFLOW_MENU = "menu_ayah_overflow"
+
+fun ayahOverflowModeTag(mode: AyahOverflowMode) = "ayah_overflow_mode_${mode.name}"
 const val TAG_OPEN_ACTIONS_MENU = "open_actions_menu"
 const val TAG_PLAYBACK_ERROR = "playback_error"
 const val TAG_PLAY_PAUSE = "play_pause"
@@ -141,7 +149,6 @@ const val TAG_WORD_MEANINGS_MENU = "menu_word_meanings"
 const val TAG_REPEAT_WORD = "repeat_word_toggle"
 const val TAG_READER_CARD = "reader_card"
 const val TAG_EXPAND_PANEL = "expand_playback_panel"
-const val TAG_OPEN_RECITATION = "open_recitation"
 fun surahPanelRowTag(surah: Int) = "surah_panel_row_$surah"
 fun revisionDelayTag(seconds: Int) = "revision_delay_$seconds"
 fun playbackModeTag(mode: PlaybackMode) = "playback_mode_${mode.name}"
@@ -159,11 +166,9 @@ fun PlayerScreen(
     onPlayRequested: (() -> Unit) -> Unit,
     onBrowseSurahs: () -> Unit,
     onOpenSettings: () -> Unit = {},
-    onOpenRecitation: (Int) -> Unit = {},
     onMakeVideo: (surah: Int, ayah: Int) -> Unit = { _, _ -> },
 ) {
     val state by viewModel.uiState.collectAsState()
-    val reciteBetaEnabled by PlayerSettings.reciteBetaEnabledFlow.collectAsState()
     val wordFileMode = state.wordPlayback
     val wordByWord by PlayerSettings.wordViewFlow.collectAsState()
     var panelExpanded by rememberSaveable { mutableStateOf(false) }
@@ -176,6 +181,7 @@ fun PlayerScreen(
     val withBackground = background != PlayerBackgrounds.PLAIN
     val showTranslation by PlayerSettings.showAyahTranslationFlow.collectAsState()
     val showWordMeanings by PlayerSettings.showWordTranslationsFlow.collectAsState()
+    val overflowMode by PlayerSettings.ayahOverflowModeFlow.collectAsState()
     // How much of the surah on screen is learned: all of it makes "Full Surah Mode" the same
     // list as the learned one, so the menu leaves it out.
     val learnedIds by viewModel.learnedIds.collectAsState()
@@ -184,6 +190,11 @@ fun PlayerScreen(
         if (shownSurah == null) 0 else learnedIds.count { AyahMapping.globalToSurahAyah(it).first == shownSurah }
     }
     val surahAllLearned = shownSurah != null && learnedInSurah >= QuranConstants.VERSE_COUNTS[shownSurah - 1]
+
+    // Revise by section: a full screen of every run of consecutive learned ayahs. Only offered
+    // while revising those ayahs — Full surah streams every ayah, marked or not, so there is
+    // nothing to divide into sections.
+    var showSections by remember { mutableStateOf(false) }
 
     // The scene palette is already the app's colours. The bars let the picture show through them;
     // a light palette lets less through, so dark text never lands on a dark part of the picture.
@@ -213,12 +224,15 @@ fun PlayerScreen(
                     ReaderHeader(
                         state = state,
                         wordView = wordByWord,
+                        overflowMode = overflowMode,
+                        onOverflowModeChange = { PlayerSettings.ayahOverflowMode = it },
                         showTranslation = showTranslation,
                         showWordMeanings = showWordMeanings,
                         surahAllLearned = surahAllLearned,
                         onToggleWordMeanings = { viewModel.setShowWordTranslations(!showWordMeanings) },
                         onModeChange = { viewModel.setMode(it) },
                         onWordViewChange = { viewModel.setWordView(it) },
+
                         onToggleTranslation = { PlayerSettings.showAyahTranslation = !showTranslation },
                         onOpenSurahPanel = { showSurahPanel = true },
                         onOpenPlaylistPanel = { showPlaylistPanel = true },
@@ -271,48 +285,7 @@ fun PlayerScreen(
                     }
                 }
 
-                Column(Modifier.heightIn(max = controlsMaxHeight).verticalScroll(rememberScrollState())) {
-                    // Recite & review bar placed right above the bottom play panel. Hidden entirely until
-                    // the user opts in to the beta from Settings — an unfinished coach should not be the
-                    // most prominent button on the player for someone who never asked for it.
-                    if (reciteBetaEnabled) Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 6.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Surface(
-                            onClick = {
-                                viewModel.pause()
-                                onOpenRecitation(state.currentTrack?.globalId ?: 1)
-                            },
-                            modifier = Modifier.testTag(TAG_OPEN_RECITATION),
-                            shape = RoundedCornerShape(24.dp),
-                            color = AccentGreen,
-                            shadowElevation = 4.dp,
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Mic,
-                                    contentDescription = null,
-                                    tint = OnAccentGreen,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = tx("Recite & review"),
-                                    color = OnAccentGreen,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            }
-                        }
-                    }
-
+                Column(Modifier.heightIn(max = controlsMaxHeight)) {
                     val playbackError = state.error?.takeIf { state.tracks.isNotEmpty() }
                     if (playbackError != null) {
                         Text(
@@ -347,6 +320,13 @@ fun PlayerScreen(
                 SurahNavPanel(
                     viewModel = viewModel,
                     currentSurah = state.currentTrack?.surah,
+                    // Only while revising learned ayahs: Full surah streams every ayah of the
+                    // surah, marked or not, so there is nothing to divide into sections.
+                    onOpenSections = if (state.mode == PlaybackMode.REVISE) {
+                        { showSurahPanel = false; showSections = true }
+                    } else {
+                        null
+                    },
                     onDismiss = { showSurahPanel = false },
                     onBrowseSurahs = onBrowseSurahs,
                 )
@@ -370,6 +350,18 @@ fun PlayerScreen(
     }
 
     if (showBackgroundSheet) BackgroundSheet(onDismiss = { showBackgroundSheet = false })
+    SectionsScreen(
+        visible = showSections,
+        learnedIds = learnedIds,
+        currentGlobalId = state.currentTrack?.globalId,
+        firstWordOf = { surah, ayah -> viewModel.firstWordOf(surah, ayah) },
+        onGoTo = { globalId ->
+            showSections = false
+            // The section's first ayah is marked, so it is already in the learned queue.
+            state.tracks.firstOrNull { it.globalId == globalId }?.let { viewModel.selectTrack(it) }
+        },
+        onDismiss = { showSections = false },
+    )
     val track = state.currentTrack
     if (showTafsir && track != null) TafsirSheet(track.surah, track.ayah, onDismiss = { showTafsir = false })
     if (showShare && track != null) {
@@ -402,6 +394,8 @@ fun PlayerScreen(
 private fun ReaderHeader(
     state: PlayerUiState,
     wordView: Boolean,
+    overflowMode: AyahOverflowMode,
+    onOverflowModeChange: (AyahOverflowMode) -> Unit,
     showTranslation: Boolean,
     showWordMeanings: Boolean,
     surahAllLearned: Boolean,
@@ -461,6 +455,20 @@ private fun ReaderHeader(
                             icon = Icons.Filled.TextFields,
                             tag = if (wordView) TAG_VIEW_FULL_AYAH else TAG_TOGGLE_WORD_BY_WORD,
                         ) { menuOpen = false; onWordViewChange(!wordView) }
+                        // Long ayahs is about what is on screen now, so it sits with the
+                        // other view switches rather than in Settings. The word reader pages a
+                        // word at a time and never overflows, so it is only offered here.
+                        if (!wordView) MenuAction(
+                            label = if (overflowMode == AyahOverflowMode.AUTO_SCROLL) tx("Fit to screen") else tx("Auto scroll"),
+                            icon = Icons.Filled.Height,
+                            tag = TAG_AYAH_OVERFLOW_MENU,
+                        ) {
+                            menuOpen = false
+                            onOverflowModeChange(
+                                if (overflowMode == AyahOverflowMode.AUTO_SCROLL) AyahOverflowMode.FIT_TO_SCREEN
+                                else AyahOverflowMode.AUTO_SCROLL,
+                            )
+                        }
                         MenuAction(
                             label = if (showTranslation) tx("Hide Translation") else tx("Show Translation"),
                             icon = Icons.Filled.Translate,
@@ -625,7 +633,7 @@ private fun BottomPlaybackPanel(
                     TransportButton(Icons.Filled.SkipPrevious, tx("Previous ayah"), TAG_PREVIOUS_AYAH, size = 42) { viewModel.skipAyah(false) }
                 }
                 if (words) {
-                    TransportButton(Icons.AutoMirrored.Filled.KeyboardArrowLeft, tx("Previous word"), TAG_FULLSCREEN_PREVIOUS) { viewModel.previous() }
+                    TransportButton(Icons.AutoMirrored.Filled.KeyboardArrowLeft, tx("Previous word"), TAG_FULLSCREEN_PREVIOUS) { viewModel.stepWordOrAyah(false) }
                 } else {
                     TransportButton(Icons.Filled.SkipPrevious, tx("Previous"), TAG_FULLSCREEN_PREVIOUS) { viewModel.previous() }
                 }
@@ -647,7 +655,7 @@ private fun BottomPlaybackPanel(
                     }
                 }
                 if (words) {
-                    TransportButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, tx("Next word"), TAG_FULLSCREEN_NEXT) { viewModel.next() }
+                    TransportButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, tx("Next word"), TAG_FULLSCREEN_NEXT) { viewModel.stepWordOrAyah(true) }
                     TransportButton(Icons.Filled.SkipNext, tx("Next ayah"), TAG_NEXT_AYAH, size = 42) { viewModel.skipAyah(true) }
                 } else {
                     TransportButton(Icons.Filled.SkipNext, tx("Next"), TAG_FULLSCREEN_NEXT) { viewModel.next() }
@@ -655,9 +663,16 @@ private fun BottomPlaybackPanel(
             }
         }
 
-        AnimatedVisibility(visible = expanded) {
+        // Scrolls on its own rather than with the whole panel: with the repeat row, the delay
+        // chips and the reciter open, scrolling the panel carried the collapse arrow off screen
+        // and there was no way back.
+        AnimatedVisibility(visible = expanded, modifier = Modifier.weight(1f, fill = false)) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (state.durationMs > 0) {
@@ -935,6 +950,7 @@ private fun ModeChip(
 private fun SurahNavPanel(
     viewModel: PlayerViewModel,
     currentSurah: Int?,
+    onOpenSections: (() -> Unit)?,
     onDismiss: () -> Unit,
     onBrowseSurahs: () -> Unit,
 ) {
@@ -944,6 +960,8 @@ private fun SurahNavPanel(
         learnedIds.groupingBy { AyahMapping.globalToSurahAyah(it).first }.eachCount()
     }
     val surahs = remember(query) { (1..114).filter { matchesSurahQuery(it, query) } }
+    // One section is the whole learned list in one stretch — there is nothing to pick between.
+    val sectionCount = remember(learnedIds) { AyahSections.of(learnedIds).size }
 
     fun selectSurah(surah: Int) {
         if (!viewModel.jumpToSurah(surah)) {
@@ -963,6 +981,19 @@ private fun SurahNavPanel(
             )
             IconButton(onClick = onDismiss) {
                 Icon(Icons.Filled.Close, contentDescription = tx("Close"), tint = TextMuted)
+            }
+        }
+        if (onOpenSections != null && sectionCount > 1) {
+            OutlinedButton(
+                onClick = onOpenSections,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp).testTag(TAG_OPEN_SECTIONS),
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.FormatListBulleted,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp).size(18.dp),
+                )
+                Text(tx("Revise by Section"))
             }
         }
         OutlinedButton(
@@ -1007,7 +1038,12 @@ private fun SurahNavPanel(
                         fontWeight = if (active) FontWeight.SemiBold else FontWeight.Normal,
                     )
                     Text(
-                        text = if (learned > 0) tx("{0} learned", learned) else tx("{0} ayahs", QuranConstants.VERSE_COUNTS[surah - 1]),
+                        // How much of the surah is marked, not a bare count: "5 of 286 learned".
+                        text = if (learned > 0) {
+                            tx("{0} of {1} learned", learned, QuranConstants.VERSE_COUNTS[surah - 1])
+                        } else {
+                            tx("{0} ayahs", QuranConstants.VERSE_COUNTS[surah - 1])
+                        },
                         color = if (learned > 0) AccentGreen else TextMuted,
                         style = MaterialTheme.typography.bodySmall,
                     )

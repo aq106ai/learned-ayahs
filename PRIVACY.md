@@ -40,18 +40,15 @@ These requests contain only what is needed to download the file (which ayah or w
 internet request, they reveal your IP address and the app's name to that service, which handles
 it under its own privacy policy. The app sends no identifiers, account details or usage data.
 
-## Microphone (Recite & review)
+## Microphone
 
-Recite & review is an optional beta feature, off until you turn it on in Settings, and it needs
-Android 13 or later. While you use it, the app listens through the microphone and passes the
-audio to your phone's speech recognition service so it can follow your recitation:
+Neither app uses the microphone, and the Android app does not ask for permission to.
 
-- If an offline Arabic speech pack is installed, recognition happens on your phone.
-- Otherwise your phone's speech service (usually Google's) may process the audio online, under
-  that provider's privacy policy.
-
-The app does not save, upload or share your recordings itself. The microphone is used only while
-Recite & review is listening, and you can revoke the permission at any time in Android settings.
+Earlier versions included Recite & review, an opt-in beta that listened while you recited and
+passed the audio to your device's own speech recognition service — your phone's on Android, your
+browser's on the web. It has been removed from both, and with it the Android `RECORD_AUDIO`
+permission. If you are upgrading, Android may still list a microphone permission you granted to
+an older version; you can revoke it in Android settings.
 
 ## Videos you make
 

@@ -93,7 +93,9 @@ object QueueBuilder {
         com.quran.learnedplayer.player.PlaybackMode.FULL_SURAH -> surahAllAyahs(surah)
     }
 
-    private fun surahAllAyahs(surah: Int): List<AyahTrack> {
+    /** Every ayah of [surah], learned or not: the FULL_SURAH queue, and the playlist's rows
+     *  for a surah it lists but does not hold (ui/PlaylistUi.kt). */
+    fun surahAllAyahs(surah: Int): List<AyahTrack> {
         if (surah < 1 || surah > QuranConstants.VERSE_COUNTS.size) return emptyList()
         val count = QuranConstants.VERSE_COUNTS[surah - 1]
         return (1..count).map { ayah ->

@@ -36,34 +36,22 @@ object AyahRef {
     /**
      * Global ids as compact references: a fully-learned surah collapses to `112`, runs collapse
      * to `36:1-83`. Inverse of [parse].
+     *
+     * Where a run breaks is [AyahSections]' decision, so a reference and a section heading for the
+     * same stretch always agree. Collapsing a whole surah to its bare number is this formatter's
+     * own rule and belongs nowhere else.
      */
     fun format(ids: Set<Int>): List<String> {
-        val bySurah = sortedMapOf<Int, MutableList<Int>>()
-        ids.filter { it in 1..TOTAL_AYAHS }
-            .forEach { id ->
-                val (surah, ayah) = AyahMapping.globalToSurahAyah(id)
-                bySurah.getOrPut(surah) { mutableListOf() } += ayah
-            }
-
         val refs = mutableListOf<String>()
-        for ((surah, ayahs) in bySurah) {
-            ayahs.sort()
-            if (ayahs.size == QuranConstants.VERSE_COUNTS[surah - 1]) {
+        for ((surah, sections) in AyahSections.bySurah(ids).toSortedMap()) {
+            val whole = sections.size == 1 &&
+                sections[0].from == 1 &&
+                sections[0].to == QuranConstants.VERSE_COUNTS[surah - 1]
+            if (whole) {
                 refs += surah.toString()
                 continue
             }
-            var start = ayahs.first()
-            var prev = start
-            for (ayah in ayahs.drop(1)) {
-                if (ayah == prev + 1) {
-                    prev = ayah
-                    continue
-                }
-                refs += range(surah, start, prev)
-                start = ayah
-                prev = ayah
-            }
-            refs += range(surah, start, prev)
+            sections.forEach { refs += range(surah, it.from, it.to) }
         }
         return refs
     }
@@ -146,7 +134,6 @@ object AyahRef {
             .removePrefix("at")
             .removePrefix("az")
 
-    private const val TOTAL_AYAHS = 6236
     private val NUMERIC_AYAH = Regex("""(\d{1,3})\s*:\s*(\d{1,3})(?:\s*-\s*(\d{1,3}))?""")
     private val SURAH_RANGE = Regex("""(\d{1,3})\s*-\s*(\d{1,3})""")
     private val WHOLE_SURAH = Regex("""(\d{1,3})""")

@@ -4,7 +4,7 @@ Jazakum Allahu khayran for wanting to help! This project exists to help people k
 they have memorised, and every contribution counts:
 
 - reporting bugs, especially with the phone model and Android version;
-- testing on your device, particularly **Recite & review** with real recitation;
+- testing on your device, particularly playback and word timings;
 - fixing bugs and building features;
 - improving the docs, the UI wording or accessibility;
 - adding translations.
@@ -30,8 +30,10 @@ These rules come from real bugs in this project's history. The reasoning behind 
    not add `READ_EXTERNAL_STORAGE`, `MANAGE_EXTERNAL_STORAGE` or similar.
 5. **Respect the comments in `PlaybackService`.** They document ExoPlayer timing races that were
    fixed on purpose. Don't "simplify" them away.
-6. **Recite & review stays opt-in** and must only interrupt for a mistake that is certainly the
-   reciter's. Don't loosen the matching to make tests pass (CLAUDE.md explains why).
+6. **Don't bring back Recite & review.** It was withdrawn from both apps: platform speech
+   recognition does not reliably return short isolated words of Qur'anic recitation, so a word
+   recited correctly could be marked wrong indefinitely. Read the design notes on the
+   `archive/recite-review-word-by-word` branch before attempting it again.
 7. **Never commit personal data**: your library exports, generated playlists, logs, API keys or
    signing keys. `.gitignore` covers the usual ones, but please check your diff.
 
@@ -71,8 +73,8 @@ you change behaviour that both apps share, change it in both, and keep their tes
 
 | Command (from `android-app-quran-player/`) | What it covers | Needs |
 |---|---|---|
-| `./gradlew testDebugUnitTest` | Domain logic, stores, asset integrity, the whole Recite & review flow driven by transcripts | Nothing (JVM + Robolectric) |
-| `./gradlew connectedDebugAndroidTest` | Compose UI end-to-end: browsing, marking, settings, word-by-word reader, recitation | A device or emulator |
+| `./gradlew testDebugUnitTest` | Domain logic, stores, asset integrity | Nothing (JVM + Robolectric) |
+| `./gradlew connectedDebugAndroidTest` | Compose UI end-to-end: browsing, marking, settings, word-by-word reader | A device or emulator |
 | `./tools/device-test.ps1 -Install -Class <test class>` | Same instrumented tests, but installs once and re-runs cheaply | A device, PowerShell |
 
 Please run `./gradlew testDebugUnitTest` before opening a pull request. CI runs it on every push
@@ -80,15 +82,13 @@ and pull request, along with a debug build.
 
 | Command (from `web-app/`) | What it covers | Needs |
 |---|---|---|
-| `npm test` | The ported logic: queues and modes, references, export format, word sync, recitation coach | Node.js 18+ |
+| `npm test` | The ported logic: queues and modes, references and sections, export format, word sync | Node.js 18+ |
 | `npm run test:server` | `server.py`: accounts, sessions, admin, data sync, audio cache, static export | Python 3.9+ |
-| `npm install && npx playwright install chromium && npm run test:e2e` | The app in Chromium: guest use, player rules, accounts and admin, Recite & review, static build | Node.js, Python; no network |
+| `npm install && npx playwright install chromium && npm run test:e2e` | The app in Chromium: guest use, player rules, sections, accounts and admin, static build | Node.js, Python; no network |
 
 CI runs all three on every push and pull request.
 
-If you change UI flows, also run the instrumented tests on a real device if you can. Some of
-them (`FullSurahRecitationTest`) play recitation audio aloud into the microphone, so run those
-in a quiet room.
+If you change UI flows, also run the instrumented tests on a real device if you can.
 
 ## Regenerating assets
 
@@ -98,7 +98,6 @@ the Gradle build. See [`.setup/README.md`](android-app-quran-player/.setup/READM
 ```bash
 pip install uharfbuzz fonttools matplotlib soundfile numpy scipy
 python .setup/make_timings.py                 # word_timings_<reciter>.json from QUL
-python .setup/make_recitation_corpus.py       # androidTest recitation audio
 python .setup/make_icon.py                    # launcher icon vector drawables
 python .setup/make_content_catalog.py         # content_catalog.json from Quran.com's resource lists
 python .setup/make_content_catalog.py --verify-words ur   # check one word-meaning language

@@ -53,15 +53,18 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
             onProgress(Progress(Stage.DOWNLOADING, 0.1f * index / plan.size))
             ClipSource(kind, surah, ayah, sources?.invoke(kind, surah, ayah) ?: download(request, kind, surah, ayah))
         }
+        val bismillahTimings = if (bismillahFromReciter(request)) quran.timingsFor(request.reciter, 1, 1) else null
 
         val scratch = File(output.parentFile, "${output.nameWithoutExtension}.aac.tmp")
         try {
-            val (timeline, audio) = AudioPipeline.build(
+            val (timeline, audio, estimated) = AudioPipeline.build(
                 clips, scratch,
                 endCardMs = if (request.endCard) VideoTimeline.END_CARD_MS else 0L,
                 onClipDone = { onProgress(Progress(Stage.AUDIO, 0.1f + 0.15f * (it + 1) / clips.size)) },
                 checkCancelled = checkCancelled,
                 timingsFor = { surah, ayah -> quran.timingsFor(request.reciter, surah, ayah) },
+                bismillahTimings = bismillahTimings,
+                estimateWords = { kind -> estimateWeights(request, kind) },
             )
             if (timeline.totalMs > VideoRequest.MAX_DURATION_MS) {
                 throw IOException("That's over ${VideoRequest.MAX_DURATION_MS / 60_000} minutes of recitation. Choose fewer ayahs.")
@@ -69,7 +72,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
             val slots = slotsFor(request, timeline)
             downloadPhotos(slots)
             val (width, height) = VideoEncoder.supportedSize(request.aspect, scale)
-            render(request, timeline, slots, audio, output, width, height, fps, checkCancelled) { fraction ->
+            render(request, timeline, slots, audio, estimated, output, width, height, fps, checkCancelled) { fraction ->
                 onProgress(Progress(Stage.VIDEO, 0.25f + 0.75f * fraction))
             }
             output
@@ -90,6 +93,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         timeline: VideoTimeline,
         slots: List<BackgroundSlot>,
         audio: EncodedAudio,
+        estimated: Map<TimelineClip, List<LongRange>>,
         output: File,
         width: Int,
         height: Int,
@@ -97,7 +101,7 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         checkCancelled: () -> Unit,
         onFraction: (Float) -> Unit,
     ) {
-        val renderer = rendererFor(request, timeline, slots, width, height)
+        val renderer = rendererFor(request, timeline, slots, width, height, estimated)
         val frame = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(frame)
         val encoder = VideoEncoder(width, height, fps, output, audio)
@@ -168,8 +172,9 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         slots: List<BackgroundSlot>,
         width: Int,
         height: Int,
+        estimated: Map<TimelineClip, List<LongRange>> = emptyMap(),
     ): FrameRenderer = FrameRenderer(
-        width, height, request, timeline, slots, { textFor(request, it) }, arabicTypeface,
+        width, height, request, timeline, slots, { textFor(request, it, estimated) }, arabicTypeface,
         sceneFor = { key, variant ->
             if (NaturePhotos.isPhoto(key)) {
                 photos.photo(key, variant)?.let(photos::scene) ?: VideoThemes.variant(null, variant)
@@ -184,17 +189,22 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         },
     )
 
-    private fun textFor(request: VideoRequest, clip: TimelineClip): ClipText = when (clip.kind) {
+    private fun textFor(
+        request: VideoRequest,
+        clip: TimelineClip,
+        estimated: Map<TimelineClip, List<LongRange>> = emptyMap(),
+    ): ClipText = when (clip.kind) {
         ClipKind.AUDHU -> ClipText(
             AUDHU_WORDS.mapIndexed { i, (arabic, gloss) -> LayoutWord(arabic, gloss, i) },
-            segments = null,
+            segments = estimated[clip],
             translation = AUDHU_TRANSLATION,
             reference = FrameRenderer.reference(clip),
         )
         ClipKind.BISMILLAH -> {
             // The same words as Al-Fatihah 1:1, without its ayah number.
             val words = layoutWords(1, 1).filter { it.contentIndex >= 0 }
-            ClipText(words, segments = null, translation = texts.translation(1, 1), reference = FrameRenderer.reference(clip))
+            val segments = if (bismillahFromReciter(request)) quran.timingsFor(request.reciter, 1, 1) else estimated[clip]
+            ClipText(words, segments = segments, translation = texts.translation(1, 1), reference = FrameRenderer.reference(clip))
         }
         ClipKind.AYAH -> ClipText(
             layoutWords(clip.surah, clip.ayah),
@@ -202,6 +212,31 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
             translation = texts.translation(clip.surah, clip.ayah),
             reference = FrameRenderer.reference(clip),
         )
+    }
+
+    /**
+     * One word at a time needs to know which word of the Bismillah is being said. The generic
+     * Bismillah clip has no timings, but the chosen reciter's own Al-Fatihah 1:1 is the Bismillah
+     * with validated ones, in the same voice as the ayahs, so that recording is used instead.
+     * Only in that layout: every other video keeps the clip it always had.
+     */
+    private fun bismillahFromReciter(request: VideoRequest): Boolean =
+        request.wordFocus && quran.timingsFor(request.reciter, 1, 1) != null
+
+    /**
+     * Which clips get word timings estimated from their sound, and their words' letter weights:
+     * A'udhu always (nothing times it), Bismillah when the reciter has no 1:1 timings. Only for
+     * one word at a time; elsewhere an untimed clip stays unhighlighted, as it always has.
+     */
+    private fun estimateWeights(request: VideoRequest, kind: ClipKind): List<Int>? {
+        if (!request.wordFocus) return null
+        return when (kind) {
+            ClipKind.AUDHU -> AUDHU_WORDS.map { IntroWordTimings.letterWeight(it.first) }
+            ClipKind.BISMILLAH -> if (bismillahFromReciter(request)) null else {
+                layoutWords(1, 1).filter { it.contentIndex >= 0 }.map { IntroWordTimings.letterWeight(it.arabic) }
+            }
+            ClipKind.AYAH -> null
+        }
     }
 
     private fun layoutWords(surah: Int, ayah: Int): List<LayoutWord> {
@@ -215,7 +250,11 @@ class VideoExporter(context: Context, private val arabicTypeface: Typeface) {
         val folder = request.reciter.folder
         val (name, url) = when (kind) {
             ClipKind.AUDHU -> QuranConstants.AUDHU_FILENAME to QuranConstants.AUDHU_URL
-            ClipKind.BISMILLAH -> QuranConstants.BISMILLAH_FILENAME to QuranConstants.BISMILLAH_URL
+            ClipKind.BISMILLAH -> if (bismillahFromReciter(request)) {
+                AyahMapping.ayahFilename(1, 1).let { it to "${QuranConstants.AUDIO_HOST}/$folder/$it" }
+            } else {
+                QuranConstants.BISMILLAH_FILENAME to QuranConstants.BISMILLAH_URL
+            }
             ClipKind.AYAH -> AyahMapping.ayahFilename(surah, ayah).let { it to "${QuranConstants.AUDIO_HOST}/$folder/$it" }
         }
         // The same cache the player uses, so clips already played or saved offline are reused.

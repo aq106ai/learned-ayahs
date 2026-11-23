@@ -53,9 +53,11 @@ data class VideoRequest(
     /** A closing page, after the recitation, pointing to the app on Google Play. */
     val endCard: Boolean = true,
     /**
-     * One word at a time, full screen, as it is recited — the player's word-by-word reader. Only
-     * ayahs with validated timings for this reciter can follow the recitation; the others (and
-     * A'udhu and Bismillah, which have none) keep the whole-ayah layout rather than guess.
+     * One word at a time, full screen, as it is recited — the player's word-by-word reader. Ayahs
+     * follow the reciter's validated timings; one without keeps the whole-ayah layout. Bismillah
+     * is then the reciter's own 1:1 recording, with its timings, and A'udhu (which nothing times)
+     * is timed from its own sound by [IntroWordTimings], as is a Bismillah the reciter has no 1:1
+     * timings for.
      */
     val wordFocus: Boolean = false,
 ) {

@@ -6,6 +6,7 @@
 // (VP9 + Opus), which YouTube and most players also take.
 
 import { surahAyahToGlobal, surahName, verseCount } from '../core/quran.js';
+import { frameLevels, estimateWordTimings, letterWeight } from './introTimings.js';
 import { audioUrls } from '../core/reciters.js';
 import { loadText, loadTimings, loadTranslations, segmentsSync, wordsSync } from '../services/quranData.js';
 import { ayahEndMs } from '../core/wordSync.js';
@@ -104,13 +105,15 @@ export class VideoExporter {
     await fontReady(request.arabicFont);
   }
 
-  async textFor(request, clip) {
+  /** [estimated]: word timings measured from this clip's sound (introTimings.js), if any. */
+  async textFor(request, clip, estimated = null) {
     if (clip.kind === 'AUDHU') {
-      return { words: AUDHU_WORDS.map(([arabic, gloss], i) => ({ arabic, gloss, contentIndex: i })), segments: null, translation: AUDHU_TRANSLATION, reference: referenceOf(clip, surahName) };
+      return { words: AUDHU_WORDS.map(([arabic, gloss], i) => ({ arabic, gloss, contentIndex: i })), segments: estimated, translation: AUDHU_TRANSLATION, reference: referenceOf(clip, surahName) };
     }
     if (clip.kind === 'BISMILLAH') {
       const words = layoutWords(1, 1).filter((w) => w.contentIndex >= 0);
-      return { words, segments: null, translation: await translation(1, 1), reference: referenceOf(clip, surahName) };
+      const segments = bismillahFromReciter(request) ? segmentsSync(request.reciter, 1, 1) : estimated;
+      return { words, segments, translation: await translation(1, 1), reference: referenceOf(clip, surahName) };
     }
     return {
       words: layoutWords(clip.surah, clip.ayah),
@@ -195,10 +198,14 @@ export class VideoExporter {
     // 1. The recitation, decoded and laid on the timeline.
     const plan = clipsOf(request);
     const decoded = [];
+    const estimates = [];
     for (let i = 0; i < plan.length; i++) {
       check();
       onProgress({ stage: 'DOWNLOADING', fraction: (0.15 * i) / plan.length });
-      decoded.push(trimToAyah(await this.decode(this.urlOf(request, plan[i])), plan[i], request.reciter));
+      const d = trimToAyah(await this.decode(this.urlOf(request, plan[i])), plan[i], request);
+      decoded.push(d);
+      const weights = estimateWeights(request, plan[i].kind);
+      estimates.push(weights ? estimateWordTimings(frameLevels(d.left, d.right, d.length, SAMPLE_RATE), weights) : null);
     }
     const endCardMs = request.endCard === false ? 0 : END_CARD_MS;
     const timeline = buildTimeline(plan.map((c, i) => ({ ...c, durationMs: Math.round((decoded[i].length / SAMPLE_RATE) * 1000) })), endCardMs);
@@ -209,7 +216,7 @@ export class VideoExporter {
     // 2. The pictures.
     const bg = await this.backgrounds(request, timeline);
     const texts = new Map();
-    for (const clip of timeline.clips) texts.set(clip, await this.textFor(request, clip));
+    for (const [i, clip] of timeline.clips.entries()) texts.set(clip, await this.textFor(request, clip, estimates[i]));
     const canvas = makeCanvas(width, height);
     const ctx = canvas.getContext('2d', { alpha: false });
     const renderer = new FrameRenderer({ width, height, request, timeline, slots: bg.slots, textFor: (c) => texts.get(c), sceneFor: bg.sceneFor, creditFor: bg.creditFor });
@@ -257,7 +264,7 @@ export class VideoExporter {
 
   urlOf(request, clip) {
     if (clip.kind === 'AUDHU') return this.urls.audhu();
-    if (clip.kind === 'BISMILLAH') return this.urls.bismillah();
+    if (clip.kind === 'BISMILLAH') return bismillahFromReciter(request) ? this.urls.ayah(request.reciter, 1, 1) : this.urls.bismillah();
     return this.urls.ayah(request.reciter, clip.surah, clip.ayah);
   }
 
@@ -279,6 +286,28 @@ export class VideoExporter {
   }
 }
 
+/**
+ * One word at a time needs to know which word of the Bismillah is being said. The generic clip has
+ * no timings, but the reciter's own Al-Fatihah 1:1 is the Bismillah with validated ones, in the
+ * same voice as the ayahs, so that recording is used instead. Only in that layout.
+ */
+function bismillahFromReciter(request) {
+  return Boolean(request.wordFocus) && Boolean(segmentsSync(request.reciter, 1, 1)?.length);
+}
+
+/**
+ * Clips whose word timings are estimated from their sound, as letter weights: A'udhu always,
+ * Bismillah when the reciter has no 1:1 timings. Only for one word at a time.
+ */
+function estimateWeights(request, kind) {
+  if (!request.wordFocus) return null;
+  if (kind === 'AUDHU') return AUDHU_WORDS.map(([arabic]) => letterWeight(arabic));
+  if (kind === 'BISMILLAH' && !bismillahFromReciter(request)) {
+    return layoutWords(1, 1).filter((w) => w.contentIndex >= 0).map((w) => letterWeight(w.arabic));
+  }
+  return null;
+}
+
 function layoutWords(surah, ayah) {
   let index = 0;
   return wordsSync(surah, ayah).map((w) => (w.isEnd ? { arabic: w.text, gloss: null, contentIndex: -1 } : { arabic: w.text, gloss: w.translation, contentIndex: index++ }));
@@ -288,9 +317,11 @@ function layoutWords(surah, ayah) {
  * An ayah file that runs on past its word timings (EveryAyah's Maher Al Muaiqly 2:258 holds 2:259
  * as well) is cut where the ayah ends, so the video does not recite the next ayah under this one.
  */
-function trimToAyah(decoded, clip, reciter) {
-  if (clip.kind === 'AUDHU' || clip.kind === 'BISMILLAH') return decoded;
-  const end = ayahEndMs(segmentsSync(reciter, clip.surah, clip.ayah), (decoded.length / SAMPLE_RATE) * 1000);
+function trimToAyah(decoded, clip, request) {
+  if (clip.kind === 'AUDHU') return decoded;
+  if (clip.kind === 'BISMILLAH' && !bismillahFromReciter(request)) return decoded;
+  const [s, a] = clip.kind === 'BISMILLAH' ? [1, 1] : [clip.surah, clip.ayah];
+  const end = ayahEndMs(segmentsSync(request.reciter, s, a), (decoded.length / SAMPLE_RATE) * 1000);
   if (end == null) return decoded;
   const length = Math.min(decoded.length, Math.round((end / 1000) * SAMPLE_RATE));
   return { left: decoded.left.subarray(0, length), right: decoded.right.subarray(0, length), length };

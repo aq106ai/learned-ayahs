@@ -24,7 +24,7 @@ const INTRO = 'Learned Ayahs is a free tool that makes it easier to revise what 
 
 const POINTS = [
   'If you notice a mistake in the text, a meaning or a recitation, please report it to the source it comes from, listed above. Problems with the app itself can be reported at github.com/aq106ai/learned-ayahs/issues.',
-  tx('Word meanings are a study aid, not a translation of the Qur\'an. Word highlighting and Recite & review are approximate.'),
+  tx('Word meanings are a study aid, not a translation of the Qur\'an. Word highlighting is approximate.'),
   tx('Always confirm your memorisation and recitation with a qualified teacher.'),
   tx('The app is provided free and "as is", without warranty of any kind. To the extent the law allows, its developers are not responsible for the content of these sources or for any loss arising from using the app.'),
 ];

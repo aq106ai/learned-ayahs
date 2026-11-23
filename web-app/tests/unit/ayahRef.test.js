@@ -92,3 +92,9 @@ test('JSON from an LLM can be pasted whole', () => {
 }`;
   assert.equal(parseRefs(reply).ids.size, 1 + 3 + 4);
 });
+
+test('a full surah, a run and a single in one set each keep their own form', () => {
+  // The section walker decides where runs break; only the formatter collapses a whole surah.
+  const ids = set([...range(2, 1, 5), g(2, 20), ...range(112, 1, 4)]);
+  assert.deepEqual(formatRefs(ids), ['2:1-5', '2:20', '112']);
+});

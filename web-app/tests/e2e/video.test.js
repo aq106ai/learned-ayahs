@@ -63,6 +63,33 @@ test('the video maker previews the ayah and makes a video with sound and picture
   await context.close();
 });
 
+test('one word at a time recites the Bismillah in the reciter\'s voice and times A\'udhu from its sound', async () => {
+  const { page, context, errors } = await openApp(browser, server, { path: 'video/112/1' });
+  await page.waitForSelector('[data-testid=video-preview] canvas', { timeout: 20000 });
+  const made = await page.evaluate(async () => {
+    const { VideoExporter } = await import('./js/video/exporter.js');
+    const { reciterFromKey } = await import('./js/core/reciters.js');
+    const { frameLevels, estimateWordTimings } = await import('./js/video/introTimings.js');
+    const exporter = new VideoExporter({ proxy: true });
+    const request = {
+      surah: 112, fromAyah: 1, toAyah: 1, reciter: reciterFromKey('MAHER_AL_MUAIQLY'), aspect: 'PORTRAIT',
+      wordByWord: true, wordFocus: true, fullTranslation: false, opening: true, bismillah: true, endCard: false,
+      themeKey: null, photos: false, credits: false,
+    };
+    const { durationMs } = await exporter.export(request, { scale: 0.25, fps: 10 });
+    const audhu = await exporter.decode(exporter.urlOf(request, { kind: 'AUDHU' }));
+    const timed = estimateWordTimings(frameLevels(audhu.left, audhu.right, audhu.length, 48000), [4, 5, 2, 7, 6]);
+    return { durationMs, audhuWords: timed?.length ?? 0, ordered: Boolean(timed?.every((s, i) => i === 0 || s[0] > timed[i - 1][0])) };
+  });
+  // A'udhu (0.6 s), then the reciter's own 1:1 (1.2 s) where the generic Bismillah was (0.6 s),
+  // then 112:1, with the lead-in and tail.
+  assert.equal(made.durationMs, 500 + 600 + 1200 + 1200 + 1800);
+  assert.equal(made.audhuWords, 5, "A'udhu's five words each get a time");
+  assert.ok(made.ordered);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
 test('a background turns the player into the video look, with the translation', async () => {
   const { page, context, errors } = await openApp(browser, server, { path: 'player', query: '?test' });
   await page.evaluate((l) => window.__app.store.setLearnedIds(l), await ids(page, [[112, 1], [112, 2]]));

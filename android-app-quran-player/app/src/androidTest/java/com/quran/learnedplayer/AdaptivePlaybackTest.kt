@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.quran.learnedplayer.data.*
 import com.quran.learnedplayer.player.*
+import com.quran.learnedplayer.ui.player.TAG_AYAH_TRANSLATION_TOGGLE
 import com.quran.learnedplayer.ui.*
 import com.quran.learnedplayer.ui.settings.*
 import org.junit.Assert.*
@@ -124,11 +125,14 @@ class AdaptivePlaybackTest : BaseAppTest() {
         composeRule.onNodeWithTag(playbackModeTag(PlaybackMode.FULL_SURAH)).assertIsDisplayed().performClick()
         composeRule.onNodeWithTag("repeat_word_toggle").performScrollTo().assertIsDisplayed().performClick()
         capture("player")
-        composeRule.onNodeWithTag("open_actions_menu").performScrollTo().performClick()
-        composeRule.onNodeWithTag(TAG_OPEN_SETTINGS).performClick()
-        composeRule.onNodeWithTag(TAG_WORD_TRANSLATIONS_TOGGLE).performScrollTo().assertIsDisplayed().performClick()
+        // Both switches are in the player's three-dot menu; Settings no longer repeats them.
+        tapMenuItem(TAG_WORD_MEANINGS_MENU)
         assertFalse(PlayerSettings.showWordTranslations)
-        composeRule.onNodeWithTag(TAG_SETTINGS_AYAH_TRANSLATION).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithTag("open_actions_menu").performScrollTo().performClick()
+        composeRule.onNodeWithTag(TAG_AYAH_TRANSLATION_TOGGLE).assertIsDisplayed()
+        composeRule.onNodeWithTag(TAG_OPEN_SETTINGS).performClick()
+        composeRule.onNodeWithTag(TAG_WORD_TRANSLATIONS_TOGGLE).assertDoesNotExist()
+        composeRule.onNodeWithTag(TAG_SETTINGS_AYAH_TRANSLATION).assertDoesNotExist()
         composeRule.onNodeWithTag(TAG_CONTENT_WORD_LANGUAGE).assertDoesNotExist()
         capture("settings")
     }

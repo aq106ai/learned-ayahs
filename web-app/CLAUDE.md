@@ -49,6 +49,28 @@ npm run test:e2e         # Playwright, against server.py with seeded audio; no n
 - `views/contentChoices.js` is the picker the intro and Settings share (Android:
   `ui/settings/ContentChoices.kt`).
 
+## Recite & review: removed from both apps
+
+The practice coach (listen to the student recite, correct the word they got wrong) is **gone from
+this app as well as Android**, and so is the `#/lab` instrument that was rebuilding it. Removed
+here: `views/recite.js`, `views/reciteLab.js`, the `recite` and `lab` routes and the Recite tab,
+the player's Recite button, `services/speech.js`, `player/wordPlayer.js`, all of `core/recite/`
+and `core/recite2/`, the three settings behind the beta (`reciteBetaEnabled`,
+`autoPlayMistakeAudio`, `autoAdvanceSuccess`) and their tests.
+
+**Why, and read this before rebuilding any of it.** Nothing downstream of the speech engine can
+fix an engine that will not return the word. Reciting Al-Ikhlas 112:1 one word at a time, Google's
+Arabic model answers `والله` for قُلْ هُوَ ٱللَّهُ and never returns قُلْ, so a word recited correctly
+could be marked wrong indefinitely. The Android coach and its design notes are on the
+`archive/recite-review-word-by-word` branch; this app's own attempt — the `recite2` word flow,
+with the three load-bearing decisions it had reached (one utterance at a time with no running
+transcript, utterance ids because partials repeat themselves, and never deciding a word was
+skipped) — is in this repository's history.
+
+**Word clips are a different feature and still work.** They serve word-by-word *playback*
+(`engine.wordPlayback`, `core/wordSync.js`); their Settings download sits in a **Word audio**
+section, named for playback, as it does on Android.
+
 ## Player: views, word playback and colours
 
 - What is on screen and what plays are separate. `settings.wordView` picks the word reader or the

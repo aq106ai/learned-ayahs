@@ -31,6 +31,10 @@
   "ur": "1 یاد کی ہوئی آیت",
   "ar": "آية محفوظة واحدة"
  },
+ "1 section": {
+  "ur": "1 حصّہ",
+  "ar": "مقطع واحد"
+ },
  "1 word": {
   "ur": "1 لفظ",
   "ar": "كلمة واحدة"
@@ -94,10 +98,6 @@
  "Adding a lot at once? “Add by description” takes refs like 2:255, 36:1-83, or whole surahs like 112.": {
   "ur": "ایک ساتھ بہت سی شامل کرنی ہیں؟ ”تفصیل لکھ کر شامل کریں“ میں 2:255، 36:1-83 جیسے حوالے یا 112 جیسی پوری سورتیں لکھ سکتے ہیں۔",
   "ar": "تريد إضافة الكثير دفعة واحدة؟ «الإضافة بالوصف» تقبل مراجع مثل 2:255 و36:1-83 أو سورًا كاملة مثل 112."
- },
- "Adds a Recite button to the player and a Recite tab.": {
-  "ur": "پلیئر میں تلاوت کا بٹن اور تلاوت کا ٹیب شامل کرتا ہے۔",
-  "ar": "يضيف زر التلاوة إلى المشغل وتبويب التلاوة."
  },
  "Admin": {
   "ur": "منتظم",
@@ -183,14 +183,6 @@
   "ur": "خودکار اسکرول",
   "ar": "تمرير تلقائي"
  },
- "Auto-advance on success": {
-  "ur": "درست پڑھنے پر خود آگے بڑھیں",
-  "ar": "التقدم تلقائيًا عند النجاح"
- },
- "Auto-play audio on mistake": {
-  "ur": "غلطی پر آڈیو خود چلائیں",
-  "ar": "تشغيل الصوت تلقائيًا عند الخطأ"
- },
  "Ayah": {
   "ur": "آیت",
   "ar": "آية"
@@ -223,10 +215,6 @@
   "ur": "آیت کا متن دستیاب نہیں۔",
   "ar": "نص الآية غير متاح."
  },
- "Ayah to recite": {
-  "ur": "پڑھنے کے لیے آیت",
-  "ar": "الآية المراد تلاوتها"
- },
  "Ayah translation": {
   "ur": "آیت کا ترجمہ",
   "ar": "ترجمة الآية"
@@ -242,6 +230,38 @@
  "Ayahs": {
   "ur": "آیات",
   "ar": "الآيات"
+ },
+ "Ayahs {0}–{1}": {
+  "ur": "آیات {0}–{1}",
+  "ar": "الآيات {0}–{1}"
+ },
+ "Ayahs {from}–{to}": {
+  "ur": "آیات {from}–{to}",
+  "ar": "الآيات {from}–{to}"
+ },
+ "Go to": {
+  "ur": "جائیں",
+  "ar": "انتقل"
+ },
+ "Hide the first word": {
+  "ur": "پہلا لفظ چھپائیں",
+  "ar": "إخفاء الكلمة الأولى"
+ },
+ "Revise by Section": {
+  "ur": "حصّے کے حساب سے دہرائیں",
+  "ar": "المراجعة بالمقاطع"
+ },
+ "Save word clips": {
+  "ur": "لفظی کلپ محفوظ کریں",
+  "ar": "حفظ مقاطع الكلمات"
+ },
+ "Sections": {
+  "ur": "حصّے",
+  "ar": "المقاطع"
+ },
+ "Show the first word": {
+  "ur": "پہلا لفظ دکھائیں",
+  "ar": "إظهار الكلمة الأولى"
  },
  "ayahs marked learned, in 1 surah": {
   "ur": "آیات یاد کے طور پر نشان زد، 1 سورت میں",
@@ -559,10 +579,6 @@
   "ur": "فعال کریں",
   "ar": "تفعيل"
  },
- "Enable Recite & review": {
-  "ur": "تلاوت اور جائزہ فعال کریں",
-  "ar": "تفعيل التلاوة والمراجعة"
- },
  "End card": {
   "ur": "اختتامی صفحہ",
   "ar": "بطاقة الختام"
@@ -650,10 +666,6 @@
  "Go to surah": {
   "ur": "سورت پر جائیں",
   "ar": "الذهاب إلى السورة"
- },
- "Hide words until I recite them": {
-  "ur": "پڑھنے تک الفاظ چھپائیں",
-  "ar": "إخفاء الكلمات حتى أتلوها"
  },
  "If you notice a mistake in the text, a meaning or a recitation, please report it to the source it comes from, listed above. Problems with the app itself can be reported at github.com/aq106ai/learned-ayahs/issues.": {
   "ur": "اگر آپ کو متن، معنی یا تلاوت میں کوئی غلطی نظر آئے تو براہِ کرم اوپر درج اس کے ماخذ کو اطلاع دیں۔ خود ایپ کے مسائل github.com/aq106ai/learned-ayahs/issues پر بتائے جا سکتے ہیں۔",
@@ -767,14 +779,6 @@
   "ur": "اس آیت سے سنیں",
   "ar": "استمع من هذه الآية"
  },
- "Listen to the reciter": {
-  "ur": "قاری کو سنیں",
-  "ar": "استمع إلى القارئ"
- },
- "Listens while you recite a learned ayah and plays the correct word back when you say a wrong one.": {
-  "ur": "یاد کی ہوئی آیت پڑھتے وقت سنتا ہے اور غلط لفظ پر درست لفظ سناتا ہے۔",
-  "ar": "يستمع أثناء تلاوتك لآية محفوظة ويُسمعك الكلمة الصحيحة حين تخطئ."
- },
  "Loading ayah text…": {
   "ur": "آیت کا متن لوڈ ہو رہا ہے…",
   "ar": "جارٍ تحميل نص الآية…"
@@ -859,10 +863,6 @@
   "ur": "پہلے کچھ آیات نشان زد کریں۔",
   "ar": "علِّم بعض الآيات أولًا."
  },
- "Mark the ayahs you have memorised first; Recite & review walks through them.": {
-  "ur": "پہلے اپنی حفظ کی ہوئی آیات نشان زد کریں؛ تلاوت اور جائزہ انہی سے گزرتا ہے۔",
-  "ar": "علِّم الآيات التي حفظتها أولًا؛ وستمرّ عليها التلاوة والمراجعة."
- },
  "Mark the ayahs you have memorised, and this app will help you revise them.": {
   "ur": "اپنی حفظ کی ہوئی آیات نشان زد کریں، اور یہ ایپ ان کی دہرائی میں آپ کی مدد کرے گی۔",
   "ar": "علِّم الآيات التي حفظتها، وسيعينك هذا التطبيق على مراجعتها."
@@ -907,21 +907,9 @@
   "ur": "ہر آیت کے مطابق",
   "ar": "مطابِقة لكل آية"
  },
- "Microphone access was blocked. Allow it in your browser to use Recite & review.": {
-  "ur": "مائیکروفون تک رسائی روک دی گئی۔ تلاوت اور جائزہ استعمال کرنے کے لیے براؤزر میں اجازت دیں۔",
-  "ar": "حُجب الوصول إلى الميكروفون. اسمح به في المتصفح لاستخدام التلاوة والمراجعة."
- },
- "Mistake detected": {
-  "ur": "غلطی ملی",
-  "ar": "تم اكتشاف خطأ"
- },
  "More controls": {
   "ur": "مزید کنٹرول",
   "ar": "المزيد من عناصر التحكم"
- },
- "Move to the next ayah once every word has been recited correctly.": {
-  "ur": "ہر لفظ درست پڑھے جانے کے بعد اگلی آیت پر جائیں۔",
-  "ar": "الانتقال إلى الآية التالية بعد تلاوة كل كلمة تلاوة صحيحة."
  },
  "Mushaf style": {
   "ur": "مصحف کا انداز",
@@ -998,10 +986,6 @@
  "Nothing is downloaded. The bundled translation and meanings always stay.": {
   "ur": "کچھ ڈاؤن لوڈ نہیں ہوا۔ ایپ کے ساتھ شامل ترجمہ اور معانی ہمیشہ رہتے ہیں۔",
   "ar": "لا شيء منزَّل. تبقى الترجمة والمعاني المضمَّنة دائمًا."
- },
- "Nothing to recite yet": {
-  "ur": "ابھی پڑھنے کو کچھ نہیں",
-  "ar": "لا شيء للتلاوة بعد"
  },
  "Off": {
   "ur": "بند",
@@ -1083,14 +1067,6 @@
   "ur": "دہرانے سے پہلے وقفہ — دہرائیں یا ”اگلا“ دبائیں",
   "ar": "توقف قبل التكرار — وقت للمراجعة أو اضغط «التالي»"
  },
- "Perfect": {
-  "ur": "بہترین",
-  "ar": "ممتاز"
- },
- "Perfect recitation!": {
-  "ur": "بہترین تلاوت!",
-  "ar": "تلاوة ممتازة!"
- },
  "Phone's language": {
   "ur": "فون کی زبان",
   "ar": "لغة الهاتف"
@@ -1111,10 +1087,6 @@
   "ur": "چلائیں",
   "ar": "تشغيل"
  },
- "Play the reciter’s word when a mistake is detected, then let you re-recite.": {
-  "ur": "غلطی ملنے پر قاری کا لفظ چلائیں، پھر آپ کو دوبارہ پڑھنے دیں۔",
-  "ar": "شغِّل كلمة القارئ عند اكتشاف خطأ، ثم دعك تعيد التلاوة."
- },
  "Playback": {
   "ur": "تلاوت چلانا",
   "ar": "التشغيل"
@@ -1122,10 +1094,6 @@
  "Player": {
   "ur": "پلیئر",
   "ar": "المشغل"
- },
- "Playing the correct word… keep going after": {
-  "ur": "درست لفظ چل رہا ہے… اس کے بعد جاری رکھیں",
-  "ar": "تشغيل الكلمة الصحيحة… تابع بعدها"
  },
  "Playlist": {
   "ur": "پلے لسٹ",
@@ -1211,10 +1179,6 @@
   "ur": "تیار — چلائیں دبائیں",
   "ar": "جاهز — اضغط تشغيل"
  },
- "Recitation & AI review": {
-  "ur": "تلاوت اور AI جائزہ",
-  "ar": "التلاوة والمراجعة بالذكاء الاصطناعي"
- },
  "Recitation: everyayah.com · Word audio, text and meanings: Quran.com · Word timings: QUL by Tarteel · Arabic: Scheherazade New (SIL OFL).": {
   "ur": "تلاوت: everyayah.com · الفاظ کی آواز، متن اور معانی: Quran.com · الفاظ کے اوقات: ترتیل کی QUL · عربی: Scheherazade New (SIL OFL)۔",
   "ar": "التلاوة: everyayah.com · صوت الكلمات والنص والمعاني: Quran.com · توقيتات الكلمات: QUL من ترتيل · الخط العربي: Scheherazade New (SIL OFL)."
@@ -1222,26 +1186,6 @@
  "Recitation: {0} (everyayah.com)\nArabic: Scheherazade New (SIL OFL)": {
   "ur": "تلاوت: {0} (everyayah.com)\nعربی: Scheherazade New (SIL OFL)",
   "ar": "التلاوة: {0} (everyayah.com)\nالخط العربي: Scheherazade New (SIL OFL)"
- },
- "Recite": {
-  "ur": "تلاوت",
-  "ar": "التلاوة"
- },
- "Recite & review": {
-  "ur": "تلاوت اور جائزہ",
-  "ar": "التلاوة والمراجعة"
- },
- "Recite & review is a beta": {
-  "ur": "تلاوت اور جائزہ ابھی بیٹا ہے",
-  "ar": "التلاوة والمراجعة ميزة تجريبية"
- },
- "Recite again": {
-  "ur": "دوبارہ پڑھیں",
-  "ar": "أعد التلاوة"
- },
- "Recite from memory. You are only interrupted for a word you really got wrong.": {
-  "ur": "زبانی پڑھیں۔ آپ کو صرف اس لفظ پر روکا جائے گا جو واقعی غلط پڑھا ہو۔",
-  "ar": "اتلُ من حفظك. لن يُقاطعك إلا لكلمة أخطأت فيها حقًّا."
  },
  "Recited before the ayahs": {
   "ur": "آیات سے پہلے پڑھی جاتی ہے",
@@ -1334,10 +1278,6 @@
  "Save word audio for offline": {
   "ur": "الفاظ کی آواز آف لائن کے لیے محفوظ کریں",
   "ar": "حفظ صوت الكلمات للاستخدام دون اتصال"
- },
- "Save word clips for Recite & review": {
-  "ur": "تلاوت اور جائزہ کے لیے الفاظ کی آوازیں محفوظ کریں",
-  "ar": "حفظ مقاطع الكلمات للتلاوة والمراجعة"
  },
  "Saved for offline use.": {
   "ur": "آف لائن استعمال کے لیے محفوظ ہو گیا۔",
@@ -1539,18 +1479,6 @@
   "ur": "متن کے نیچے باریک حروف میں ماخذ",
   "ar": "المصادر بخط صغير تحت النص"
  },
- "Speech recognition is not available in this browser. Try Chrome, Edge or Safari.": {
-  "ur": "اس براؤزر میں آواز کی شناخت دستیاب نہیں۔ Chrome، Edge یا Safari آزمائیں۔",
-  "ar": "التعرّف على الكلام غير متاح في هذا المتصفح. جرّب Chrome أو Edge أو Safari."
- },
- "Speech recognition needs an internet connection in this browser.": {
-  "ur": "اس براؤزر میں آواز کی شناخت کے لیے انٹرنیٹ درکار ہے۔",
-  "ar": "يحتاج التعرّف على الكلام إلى اتصال بالإنترنت في هذا المتصفح."
- },
- "Speech recognition stopped ({error}).": {
-  "ur": "آواز کی شناخت رک گئی ({error})۔",
-  "ar": "توقف التعرّف على الكلام ({error})."
- },
  "Square": {
   "ur": "مربع",
   "ar": "مربع"
@@ -1598,10 +1526,6 @@
  "Swipe to navigate": {
   "ur": "سوائپ سے آگے پیچھے",
   "ar": "التنقل بالسحب"
- },
- "Switch to {ref}": {
-  "ur": "{ref} پر جائیں",
-  "ar": "الانتقال إلى {ref}"
  },
  "Sync your learned ayahs, bookmarks and settings across your devices. Without an account everything stays in this browser.": {
   "ur": "اپنی یاد کی ہوئی آیات، بک مارکس اور سیٹنگز اپنی ڈیوائسز کے درمیان ہم آہنگ رکھیں۔ اکاؤنٹ کے بغیر سب کچھ اسی براؤزر میں رہتا ہے۔",
@@ -1747,10 +1671,6 @@
   "ur": "یہ براؤزر ویڈیوز نہیں بنا سکتا۔ Chrome، Edge یا Safari کا نیا ورژن استعمال کریں۔",
   "ar": "لا يستطيع هذا المتصفح إنشاء الفيديو. استخدم إصدارًا حديثًا من Chrome أو Edge أو Safari."
  },
- "This browser has no speech recognition. Recite & review works in Chrome, Edge and Safari.": {
-  "ur": "اس براؤزر میں آواز کی شناخت نہیں۔ تلاوت اور جائزہ Chrome، Edge اور Safari میں کام کرتا ہے۔",
-  "ar": "لا يدعم هذا المتصفح التعرّف على الكلام. تعمل التلاوة والمراجعة في Chrome وEdge وSafari."
- },
  "This browser only": {
   "ur": "صرف یہ براؤزر",
   "ar": "هذا المتصفح فقط"
@@ -1819,17 +1739,9 @@
   "ur": "”لفظ بہ لفظ“ آزمائیں: ایک وقت میں ایک لفظ اس کے معنی کے ساتھ۔ اگلا اور پچھلا — ہیڈفون پر بھی — لفظ بہ لفظ چلتے ہیں۔",
   "ar": "جرّب «كلمة بكلمة»: كلمة واحدة في كل مرة مع معناها. ويتنقل «التالي» و«السابق» — حتى من السماعات — كلمةً كلمة."
  },
- "Turn it on in Settings to practise reciting your learned ayahs from memory while the app listens.": {
-  "ur": "سیٹنگز میں اسے آن کریں تاکہ ایپ کے سننے کے دوران آپ یاد کی ہوئی آیات زبانی پڑھنے کی مشق کر سکیں۔",
-  "ar": "فعِّلها من الإعدادات لتتدرّب على تلاوة آياتك المحفوظة من حفظك والتطبيق يستمع."
- },
  "Turn on": {
   "ur": "آن کریں",
   "ar": "تفعيل"
- },
- "Turn on Recite & review?": {
-  "ur": "تلاوت اور جائزہ آن کریں؟",
-  "ar": "تفعيل التلاوة والمراجعة؟"
  },
  "Type a surah number or pick from your learned surahs below.": {
   "ur": "سورت کا نمبر لکھیں یا نیچے اپنی یاد کی ہوئی سورتوں میں سے چنیں۔",
@@ -1903,14 +1815,6 @@
   "ur": "عربی کے ساتھ کیا پڑھنا ہے، اور تلاوت کون کرے۔ یہ سب بعد میں سیٹنگز میں تبدیل کیا جا سکتا ہے۔",
   "ar": "ماذا تقرأ بجانب العربية، ومن يتلو. ويمكن تغيير ذلك كله لاحقًا من الإعدادات."
  },
- "When a whole ayah is too long to fit on screen while playing:": {
-  "ur": "جب تلاوت کے دوران پوری آیت اسکرین میں نہ سمائے:",
-  "ar": "عندما تكون الآية أطول من أن تتسع لها الشاشة أثناء التشغيل:"
- },
- "When whole ayah is too long to fit on screen while playing:": {
-  "ur": "جب تلاوت کے دوران پوری آیت اسکرین میں نہ سمائے:",
-  "ar": "عندما تكون الآية أطول من أن تتسع لها الشاشة أثناء التشغيل:"
- },
  "When you move through words in the word-by-word reader, jump the ayah audio to that word.": {
   "ur": "لفظ بہ لفظ ریڈر میں الفاظ پر چلتے وقت، آیت کی آڈیو اسی لفظ پر لے جائیں۔",
   "ar": "عند التنقل بين الكلمات في قارئ كلمة بكلمة، انقل صوت الآية إلى تلك الكلمة."
@@ -1975,10 +1879,6 @@
   "ur": "الفاظ کے معانی اور پوری آیت",
   "ar": "معاني الكلمات والآية كاملة"
  },
- "Word meanings are a study aid, not a translation of the Qur'an. Word highlighting and Recite & review are approximate.": {
-  "ur": "الفاظ کے معانی مطالعے میں مدد ہیں، قرآن کا ترجمہ نہیں۔ الفاظ کا نمایاں ہونا اور تلاوت اور جائزہ تخمینی ہیں۔",
-  "ar": "معاني الكلمات عون على الدراسة وليست ترجمة للقرآن. وإبراز الكلمات والتلاوة والمراجعة تقريبية."
- },
  "Word meanings in": {
   "ur": "الفاظ کے معانی کی زبان",
   "ar": "معاني الكلمات بلغة"
@@ -1994,10 +1894,6 @@
  "Word-by-word translation": {
   "ur": "لفظ بہ لفظ ترجمہ",
   "ar": "ترجمة كلمة بكلمة"
- },
- "Wrong ayah": {
-  "ur": "غلط آیت",
-  "ar": "آية خاطئة"
  },
  "You can change these any time in Settings, or from the background button in the player.": {
   "ur": "آپ انہیں کسی بھی وقت سیٹنگز میں، یا پلیئر کے پس منظر بٹن سے تبدیل کر سکتے ہیں۔",
@@ -2075,6 +1971,10 @@
   "ur": "{1} میں سے {0}",
   "ar": "{0} من {1}"
  },
+ "{0} of {1} learned": {
+  "ur": "{1} میں سے {0} یاد",
+  "ar": "{0} من {1} محفوظة"
+ },
  "{0} saved · {1} failed · intro clips need connection": {
   "ur": "{0} محفوظ · {1} ناکام · ابتدائی آوازوں کو انٹرنیٹ درکار",
   "ar": "{0} محفوظة · {1} فشلت · مقاطع الافتتاح تحتاج إلى اتصال"
@@ -2083,9 +1983,17 @@
   "ur": "{0} محفوظ · {1} ناکام · ابتدائی آوازیں محفوظ",
   "ar": "{0} محفوظة · {1} فشلت · مقاطع الافتتاح محفوظة"
  },
+ "{0} sections": {
+  "ur": "{0} حصّے",
+  "ar": "{0} مقطع"
+ },
  "{0} surahs · {1} ayahs · {2}": {
   "ur": "{0} سورتیں · {1} آیات · {2}",
   "ar": "{0} سورة · {1} آية · {2}"
+ },
+ "{0} surahs · {1} sections": {
+  "ur": "{0} سورتیں · {1} حصّے",
+  "ar": "{0} سورة · {1} مقطع"
  },
  "{0} up": {
   "ur": "{0} اوپر",
@@ -2155,9 +2063,13 @@
   "ur": "{total} میں سے {n}",
   "ar": "{n} من {total}"
  },
- "{n} of {total} words recited": {
-  "ur": "{total} میں سے {n} الفاظ پڑھے گئے",
-  "ar": "تُليت {n} من {total} كلمة"
+ "{n} of {total} learned": {
+  "ur": "{total} میں سے {n} یاد",
+  "ar": "{n} من {total} محفوظة"
+ },
+ "{n} sections": {
+  "ur": "{n} حصّے",
+  "ar": "{n} مقطع"
  },
  "{n} words": {
   "ur": "{n} الفاظ",
@@ -2170,6 +2082,10 @@
  "{surahs} surahs · {n} ayahs · {mode}": {
   "ur": "{surahs} سورتیں · {n} آیات · {mode}",
   "ar": "{surahs} سورة · {n} آية · {mode}"
+ },
+ "{surahs} surahs · {n} sections": {
+  "ur": "{surahs} سورتیں · {n} حصّے",
+  "ar": "{surahs} سورة · {n} مقطع"
  },
  "‹ Previous surah": {
   "ur": "‹ پچھلی سورت",

@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.quran.learnedplayer.data.AyahMapping
 import com.quran.learnedplayer.data.PlaylistStore
 import com.quran.learnedplayer.data.SurahNames
+import com.quran.learnedplayer.player.PlaybackMode
 import com.quran.learnedplayer.player.PlayerUiState
 import com.quran.learnedplayer.player.PlayerViewModel
 import com.quran.learnedplayer.ui.theme.AccentGreen
@@ -66,6 +68,10 @@ fun PlaylistScreen(
     val currentSurah = state.currentTrack?.surah
     val activeGlobalId = state.currentTrack?.globalId
     val fullSurahMode = state.isSingleSurahQueue
+    // Full surah streams any surah, so the playlist heads all 114 and the jump sheet takes any
+    // of them. Repeat: Surah also scopes the queue to one surah, but only its learned ayahs
+    // play, so that list stays the learned one.
+    val allSurahs = state.mode == PlaybackMode.FULL_SURAH
     val bookmarkedIds by viewModel.bookmarkedIds.collectAsState()
     val topItemCount = PLAYLIST_LIST_TOP_ITEMS_BASE + if (bookmarkedIds.isEmpty()) 0 else 1
 
@@ -76,12 +82,13 @@ fun PlaylistScreen(
     // Scroll target: set on open, when playback crosses into a new surah, and on picker jumps.
     var pendingScrollSurah by remember { mutableStateOf(currentSurah) }
 
-    val entries = remember(masterTracks, expandedSurahs, state.tracks, currentSurah, fullSurahMode) {
+    val entries = remember(masterTracks, expandedSurahs, state.tracks, currentSurah, fullSurahMode, allSurahs) {
         buildExpandablePlaylistEntries(
             master = masterTracks,
             expandedSurahs = expandedSurahs,
             queue = if (fullSurahMode) state.tracks else emptyList(),
             queueSurah = if (fullSurahMode) currentSurah else null,
+            allSurahs = allSurahs,
         )
     }
     val listState = rememberLazyListState()
@@ -109,11 +116,18 @@ fun PlaylistScreen(
             availableSurahs = surahs,
             tracks = masterTracks,
             currentSurah = currentSurah,
+            allowAnySurah = allSurahs,
             onDismiss = { showSurahPicker = false },
             onSurahSelected = { surah ->
                 expandedSurahs = expandedSurahs + surah
                 pendingScrollSurah = surah
-                viewModel.jumpToSurah(surah)
+                // Full surah: stream whichever surah was picked from its first ayah —
+                // jumpToSurah only knows the learned ones. See onTrackClick for persistMode.
+                if (allSurahs) {
+                    viewModel.playSurahFrom(surah, 1, persistMode = false, startPlayback = false)
+                } else {
+                    viewModel.jumpToSurah(surah)
+                }
             },
         )
     }
@@ -135,8 +149,8 @@ fun PlaylistScreen(
                 color = TextPrimary,
                 modifier = Modifier.weight(1f),
             )
-            OutlinedButton(onClick = onDismiss) {
-                Text(tx("Back"))
+            IconButton(onClick = onDismiss) {
+                Icon(Icons.Filled.Close, contentDescription = tx("Close"), tint = TextMuted)
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -166,7 +180,13 @@ fun PlaylistScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        text = tx("{0} surahs · {1} ayahs · {2}", surahs.size, masterTracks.size, state.modeLabel),
+                        // Full surah plays one surah, and the list below is all 114: counting the
+                        // learned surahs here would describe neither.
+                        text = if (allSurahs) {
+                            "${tx("{0} ayahs", state.tracks.size)} · ${state.modeLabel}"
+                        } else {
+                            tx("{0} surahs · {1} ayahs · {2}", surahs.size, masterTracks.size, state.modeLabel)
+                        },
                         color = TextMuted,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -186,7 +206,18 @@ fun PlaylistScreen(
                 activeGlobalId = activeGlobalId,
                 activeSurah = currentSurah,
                 expandedSurahs = expandedSurahs,
-                onTrackClick = viewModel::selectTrack,
+                // selectTrack queues by the *saved* mode, which is not always the one playing:
+                // a bookmark in an unlearned surah streams full surah for the session only. In
+                // this mode the row may be an ayah that mode cannot reach, so say the surah.
+                // persistMode = false for the same reason — the session's mode is not a choice
+                // the user made here, and must not become the saved one.
+                onTrackClick = { track ->
+                    if (allSurahs) {
+                        viewModel.playSurahFrom(track.surah, track.ayah, persistMode = false, startPlayback = false)
+                    } else {
+                        viewModel.selectTrack(track)
+                    }
+                },
                 onHeaderClick = { surah ->
                     expandedSurahs = if (surah in expandedSurahs) {
                         expandedSurahs - surah

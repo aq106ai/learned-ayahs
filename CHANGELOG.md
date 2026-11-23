@@ -4,11 +4,30 @@ Notable changes to the Learned Ayahs Android app and web app. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the Android app uses
 `versionName` from `android-app-quran-player/app/build.gradle.kts`.
 
-## [Unreleased]
+## [1.5.1] - 2026-11-23
+
+### Added (both apps)
+- **Revise by Section**, from the player's surahs panel while revising learned ayahs: a full screen of every unbroken run of ayahs you have marked, surah by surah, numbered 1, 2, 3… within each surah and named by its ayah numbers alone — "Ayahs 255–257" — so you can recite each one from memory. It opens at the surah you are revising. Where the numbers are not prompt enough, a section peeks at its first word; Go to sends the player to that section's first ayah. The counts are the sections, not the ayahs: Al-Baqarah marked in eighteen separate places reads "18 sections", and a surah learned in full is one section. It is offered only when there is more than one section to pick between, and changes nothing else — the reader, the queue, Next and the repeat choices all work exactly as before.
 
 ### Changed (both apps)
+- The player's surahs panel says how much of each surah you have marked — "9 of 286 learned" — instead of the bare count.
+- **Long ayahs** (auto scroll, or shrink to fit the screen) moved out of Settings into the player's three-dot menu, beside the other switches for what is on screen. It is offered while the whole ayah is shown; the word reader pages a word at a time and never overflows.
+- **Word meanings and the whole-ayah translation are switched on in the player's three-dot menu only.** Settings used to carry the same switches a second time (on the web, the "Show" choice), which left two places setting one thing. The welcome still asks, since there is no player open yet. Settings keeps the choices that are about *which* translation, word meanings and tafsir to use.
+- **The playlist lists every surah in Full Surah Mode**, searchable, so the surah being recited can be changed without leaving it; a surah opens to all of its ayahs, learned or not, and tapping one streams that surah from there. Outside that mode the playlist still lists the surahs the queue covers. On Android "Go to surah" accepts any of the 114 in that mode instead of refusing a surah with nothing marked in it.
+- Web: the playlist marks the ayah playing and its surah, and keeps up with playback while it is open — it opens at the ayah being recited and follows it into the next surah, unless you have scrolled off to read somewhere else. The Android playlist already did this.
 - Videos made **one word at a time** now show A'udhu and Bismillah word by word too. The Bismillah is recited by the chosen reciter (their Al-Fatihah 1:1, with its word timings). A'udhu's words are timed from the recording itself, so they can be a little early or late.
 - A'udhu and Bismillah in videos no longer carry the "Isti'adhah" / "Basmalah" label above the card.
+
+### Fixed (Android)
+- **Previous word and Next word really step words** while the whole ayah is on screen and words play one at a time. They used to move a whole ayah: only the word-by-word reader claimed the step, so in the other view the two inner buttons did the same as the outer pair.
+- **The arrow that collapses the player's controls no longer scrolls out of reach** when the panel is open with the repeat row, the pause chips and the reciter in it. The expanded part scrolls on its own; the title row and the transport buttons stay put.
+- The playlist closes with a cross, like the surahs panel, instead of a Back button.
+
+### Removed (web)
+- **Recite & review has been withdrawn from the web app too**, as it was from Android, and with it the developer lab that was rebuilding it: the Recite tab, the Recite button in the player, the beta switch and its two options, the `#/lab` page and all the speech recognition behind them. The browser's Arabic recognition does not reliably return short isolated words of Qur'anic recitation, which is the same wall the Android coach hit. The word-clip download stayed — word clips serve word-by-word *playback* — and now sits in a "Word audio" section, named for that.
+
+### Fixed (web)
+- Settings no longer prints a stray "null" above the word-meaning language, and neither do the Theme sheet (with no nature photos downloaded) nor a tafsir that covers a single ayah. A conditional row that was left out was being written as the text "null".
 
 ### Removed (Android)
 - **Recite & review has been withdrawn from the Android app**, and with it the microphone permission — the app no longer asks for the microphone at all. The coach listened through the phone's general-purpose Arabic speech recognition, which does not reliably return short isolated words of Qur'anic recitation: reciting Al-Ikhlas 112:1 one word at a time, Google's Arabic model answers `والله` for قُل支 هُوَ ٱللَّهُ and never returns قُل支 at all, so a word recited correctly could be marked wrong indefinitely. The settings that belonged to it are gone too (Recite word by word, Auto-play audio on mistake, Auto-advance on success, offline Arabic). The code is kept on the `archive/recite-review-word-by-word` branch, and the feature is being rebuilt in the web app first, where recognition can be observed and measured. Word clips and word-by-word *playback* are unaffected; the Settings download for them moved to a "Word audio" section.

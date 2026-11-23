@@ -440,3 +440,37 @@ test('Repeat: Ayah and Repeat: Word stop where an overlong file\'s ayah ends', a
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+// The playlist panel: the surahs the queue covers, where playback is (the mark follows the engine
+// while the panel stays open), and in Full surah mode every surah, to change the one being recited.
+test('the playlist marks the ayah playing, and lists all 114 surahs in Full surah mode', async () => {
+  const { page, context, errors } = await playerWith([[112, 1], [112, 2], [112, 3], [1, 1]]);
+  await page.click('[data-testid=open-playlist]');
+  await page.waitForSelector('[data-testid=playlist]');
+  const surahs = () => page.$$eval('[data-testid=playlist-surahs] details.group', (gs) => gs.map((g) => g.dataset.surah));
+  const current = () => page.$eval('[data-testid=playlist]', (b) => ({
+    row: b.querySelector('.list-row.current')?.textContent.trim() ?? null,
+    surah: b.querySelector('details.group.current')?.dataset.surah ?? null,
+  }));
+  assert.deepEqual(await surahs(), ['1', '112'], 'revision lists the surahs of the queue');
+  assert.deepEqual(await current(), { row: 'Ayah 1', surah: '1' });
+  // The panel can be left open while the queue runs on: the mark moves with it, surah and all.
+  await page.evaluate(() => window.__app.engine.next());
+  await page.waitForFunction(() => window.__app.engine.track.surah === 112);
+  assert.deepEqual(await current(), { row: 'Ayah 1', surah: '112' });
+  // Full surah: all 114, searchable, and picking an ayah of another surah loads that surah.
+  await page.evaluate(() => window.__app.engine.setMode('FULL_SURAH'));
+  await page.waitForFunction(() => document.querySelectorAll('[data-testid=playlist-surahs] details.group').length === 114);
+  assert.deepEqual(await current(), { row: 'Ayah 1', surah: '112' });
+  await page.fill('[data-testid=playlist-search]', 'falaq');
+  assert.deepEqual(await surahs(), ['113']);
+  await page.click('[data-testid=playlist-surahs] details.group summary');
+  const [id] = await ids(page, [[113, 2]]);
+  await page.click(`[data-testid=playlist-surahs] .list-row[data-ayah="${id}"]`);
+  await page.waitForFunction(() => window.__app.engine.track.surah === 113 && window.__app.engine.track.ayah === 2);
+  const s = await state(page);
+  assert.deepEqual([s.mode, s.queue], ['FULL_SURAH', 5], 'the whole of Al-Falaq is queued');
+  await page.evaluate(() => window.__app.engine.pause());
+  assert.deepEqual(errors, []);
+  await context.close();
+});

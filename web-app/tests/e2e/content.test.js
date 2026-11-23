@@ -164,27 +164,26 @@ test('an edition that cannot download says so and shows Saheeh International mea
   await context.close();
 });
 
-test('Settings changes the style and the edition; the choice is saved as an id; old saved ids fall back', async () => {
+test('Settings changes the edition; the choice is saved as an id; old saved ids fall back', async () => {
   const stub = quranComStub();
   const { page, context, errors } = await openApp(browser, server, { path: 'settings', query: '?test', setup: stub.setup, settings: { translationEdition: 'qc-0' } });
   await page.waitForSelector('[data-testid=content-translation]');
   // An id the catalog no longer has shows as the default.
   assert.equal(await page.inputValue('[data-testid=content-translation]'), 'en-saheeh');
-  await page.click('[data-testid=content-style-ayah]');
-  assert.equal(await page.locator('[data-testid=content-word-language]').count(), 0, 'no word-meaning language without word meanings');
-  let s = await page.evaluate(() => window.__app.store.settings);
-  assert.deepEqual([s.showWordTranslations, s.showAyahTranslation], [false, true]);
-  await page.click('[data-testid=content-style-words]');
-  s = await page.evaluate(() => window.__app.store.settings);
-  assert.deepEqual([s.showWordTranslations, s.showAyahTranslation], [true, false]);
+  // What is shown under the Arabic is the player's switch: Settings does not repeat it.
+  assert.equal(await page.locator('[data-testid=content-style-ayah]').count(), 0);
   await page.selectOption('[data-testid=content-translation-language]', 'en');
   await page.selectOption('[data-testid=content-translation]', 'qc-85');
   assert.equal(await page.evaluate(() => window.__app.store.settings.translationEdition), 'qc-85');
-  // The player's labels name the chosen edition.
-  await page.click('[data-testid=content-style-both]');
+  // The player's labels name the chosen edition, once its translation is switched on there.
   await learn(page, [[112, 1]]);
   await page.click('[data-testid=nav-player]');
+  await page.waitForSelector('[data-testid=open-actions-menu]');
+  await page.click('[data-testid=open-actions-menu]');
+  await page.click('[data-testid=toggle-translation]');
   await page.waitForFunction(() => document.querySelector('[data-testid=ayah-translation]')?.textContent === 'UR(85) 112:1');
+  const s = await page.evaluate(() => window.__app.store.settings);
+  assert.deepEqual([s.showWordTranslations, s.showAyahTranslation], [true, true]);
   assert.deepEqual(errors, []);
   await context.close();
 });

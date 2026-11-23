@@ -130,6 +130,11 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         PlayerSettings.wordView = enabled
     }
 
+    /** The first word of an ayah, the prompt a section peeks at. Bundled, so no network. */
+    suspend fun firstWordOf(surah: Int, ayah: Int): String? = withContext(Dispatchers.IO) {
+        quranData.wordsFor(surah, ayah).firstOrNull { !it.isEnd }?.text
+    }
+
     /**
      * Every ayah of [surah] with its words, for the surah browse/mark screen. Served from the
      * bundled asset (all 6236 ayahs), so it works offline; the first call also warms the cache.
@@ -595,6 +600,30 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
         if (forward) next() else previous()
+    }
+
+    /**
+     * One word forward or back while words play one at a time, whichever view is on screen.
+     *
+     * The word reader registers its own hook ([PlayerStateHolder.stepWord]) and owns the step
+     * there. The whole-ayah view registers nothing — it only lights the word being recited — so
+     * without this its "Previous word"/"Next word" buttons fell through to a plain ayah skip and
+     * moved a whole ayah. Running off either end of the ayah moves to the next one, as the
+     * reader's edge pages do.
+     */
+    fun stepWordOrAyah(forward: Boolean) {
+        val delta = if (forward) 1 else -1
+        if (PlayerStateHolder.stepWord(delta)) return
+        val state = PlayerStateHolder.uiState.value
+        val words = state.ayahWords.count { !it.isEnd }
+        val next = state.currentWordIndex + delta
+        if (words > 0 && next in 0 until words) {
+            PlayerStateHolder.seekToWord(next)
+            // Only carry on playing if it already was: a tap while paused moves, it doesn't start.
+            if (state.isPlaying) PlayerStateHolder.play()
+            return
+        }
+        skipAyah(forward)
     }
 
     fun playWord(wordIndex: Int) {

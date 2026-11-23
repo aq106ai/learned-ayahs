@@ -14,8 +14,6 @@ import { surahsView } from './views/surahs.js';
 import { surahView } from './views/surah.js';
 import { addByDescriptionView } from './views/addByDescription.js';
 import { settingsView } from './views/settings.js';
-import { reciteView } from './views/recite.js';
-import { reciteLabView } from './views/reciteLab.js';
 import { accountView } from './views/account.js';
 import { adminView } from './views/admin.js';
 import { videoView } from './views/video.js';
@@ -28,8 +26,6 @@ const ROUTES = {
   surahs: surahsView,
   surah: surahView,
   add: addByDescriptionView,
-  recite: reciteView,
-  lab: reciteLabView,
   settings: settingsView,
   account: accountView,
   admin: adminView,
@@ -60,7 +56,6 @@ function navItems() {
     { route: 'player', label: tx('Revise'), icon: 'book' },
     { route: 'surahs', label: tx('Manage'), icon: 'edit' },
   ];
-  if (store.settings.reciteBetaEnabled) items.push({ route: 'recite', label: tx('Recite'), icon: 'mic' });
   items.push({ route: 'settings', label: tx('Settings'), icon: 'settings' });
   if (server.available) {
     items.push({ route: 'account', label: store.user ? tx('Account') : tx('Sign in'), icon: 'user' });
@@ -135,7 +130,7 @@ function remount() {
 
 function renderMini() {
   const t = engine?.track;
-  const show = Boolean(t) && current?.name !== 'player' && current?.name !== 'recite' && (engine.isActive || engine.intro);
+  const show = Boolean(t) && current?.name !== 'player' && (engine.isActive || engine.intro);
   mini.hidden = !show;
   if (!show) return;
   mini.replaceChildren(

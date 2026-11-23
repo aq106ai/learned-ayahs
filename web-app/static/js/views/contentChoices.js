@@ -3,7 +3,7 @@
 // word-meaning language, an optional tafsir, and (in the intro) the reciter.
 // Port of ui/settings/ContentChoices.kt. Every choice is saved as a catalog id.
 
-import { h } from '../lib/dom.js';
+import { append, h } from '../lib/dom.js';
 import {
   TRANSLATION_STYLES, isRtl, languageName, styleOf, switchesFor, tafsirById, tafsirsFor,
   translationById, translationLanguages, translationsIn, wordMeaningsById,
@@ -30,7 +30,7 @@ function select(testid, label, options, value, onChange, { dir } = {}) {
  * The choices as one block. [reciter] adds the reciter picker (the intro has no other place for
  * it; Settings keeps its own card). Re-renders itself as choices change.
  */
-export function contentChoices(store, { reciter = false } = {}) {
+export function contentChoices(store, { reciter = false, style: offerStyle = true } = {}) {
   const el = h('div', { class: 'stack content-choices', 'data-testid': 'content-choices' }, h('p', { class: 'small muted' }, tx('Loading…')));
   const status = h('p', { class: 'tiny muted', 'data-testid': 'content-status', 'aria-live': 'polite' });
   let catalog = null;
@@ -73,7 +73,8 @@ export function contentChoices(store, { reciter = false } = {}) {
 
     const styles = catalog.mushafStyles ?? [];
     const chosenStyle = (styles.find((m) => m.id === s.mushafStyle) ?? styles[0])?.id;
-    el.replaceChildren(
+    el.replaceChildren();
+    append(el, [
       styles.length > 1 ? h('div', { class: 'small muted' }, tx('Mushaf style')) : null,
       styles.length > 1 ? h('div', { class: 'theme-row', role: 'radiogroup', 'aria-label': tx('Mushaf style') }, styles.map((m) => h('button', {
         class: `theme-tile mushaf-tile${m.id === chosenStyle ? ' selected' : ''}`, type: 'button', role: 'radio',
@@ -90,8 +91,10 @@ export function contentChoices(store, { reciter = false } = {}) {
       }),
       select('content-translation', 'Translation', editionOptions, edition.id, (id) => set('translationEdition', id), { dir: isRtl(catalog, lang) ? 'rtl' : 'auto' }),
       status,
-      h('div', { class: 'small muted' }, tx('Show')),
-      h('div', { class: 'chips', role: 'radiogroup', 'aria-label': tx('Translation style') }, STYLES.map(([value, label, sub]) => h('button', {
+      // What is shown under the Arabic is a player switch, in its three-dot menu: Settings
+      // would be a second place to set the same thing. The intro has no player to open yet.
+      offerStyle ? h('div', { class: 'small muted' }, tx('Show')) : null,
+      offerStyle ? h('div', { class: 'chips', role: 'radiogroup', 'aria-label': tx('Translation style') }, STYLES.map(([value, label, sub]) => h('button', {
         class: 'chip', type: 'button', role: 'radio', title: sub,
         'aria-checked': String(style === value), 'aria-pressed': String(style === value),
         'data-testid': `content-style-${value}`,
@@ -100,7 +103,7 @@ export function contentChoices(store, { reciter = false } = {}) {
           store.setSetting('showWordTranslations', sw.showWordTranslations);
           set('showAyahTranslation', sw.showAyahTranslation);
         },
-      }, label))),
+      }, label))) : null,
       style !== TRANSLATION_STYLES.AYAH
         ? select('content-word-language', 'Word meanings in', wordOptions, words.id, (id) => set('wordMeaningLanguage', id))
         : null,
@@ -118,7 +121,7 @@ export function contentChoices(store, { reciter = false } = {}) {
           }, r.displayName))),
           h('p', { class: 'tiny muted', style: { margin: 0 } }, tx('Every reciter here has checked word timings, so each word lights up as it is recited.')))
         : null,
-    );
+    ]);
     prepare(edition);
   }
 

@@ -943,6 +943,83 @@ textarea.input:focus {
   font-weight: 600;
 }
 
+/* -- revise by section (views/player.js openSectionsScreen) ------------------------------------- */
+/* A run of marked ayahs: its number in the surah, its ayah numbers, a peek at its first word,
+   and Go to. Logical properties only: a physical left/right breaks right to left. */
+.section-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--border);
+}
+.section-row:last-child {
+  border-bottom: 0;
+}
+.section-row.current .section-range {
+  color: var(--accent-2);
+}
+/* Its place in the surah: section 1, 2, 3… */
+.section-num {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--panel-3);
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.section-row.current .section-num {
+  background: var(--accent);
+  color: var(--panel);
+}
+.section-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.section-row .section-range {
+  font-weight: 600;
+  color: var(--text);
+}
+/* The prompt, when the numbers alone are not enough to start the ayah off. */
+.section-row .section-word {
+  font-family: var(--quran-font), 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: var(--accent-2);
+}
+.section-row [aria-pressed='true'] {
+  color: var(--accent-2);
+}
+/* The sections screen fills the window rather than sliding in at one edge. */
+@keyframes panel-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.panel.full {
+  inset-inline: 0;
+  width: 100%;
+  border-inline: 0;
+  animation: panel-fade-in 0.15s ease-out;
+}
+.panel.full .panel-body {
+  max-width: 780px;
+  margin-inline: auto;
+  width: 100%;
+}
+.panel.full .panel-head {
+  max-width: 780px;
+  margin-inline: auto;
+  width: 100%;
+}
+
 .word-reader {
   overflow: hidden;
   width: 100%;
@@ -1183,6 +1260,10 @@ details.group summary {
 }
 details.group summary::-webkit-details-marker {
   display: none;
+}
+/* The surah being recited, so a collapsed playlist still says where playback is. */
+details.group.current > summary {
+  color: var(--accent-2);
 }
 
 .dialog-wrap {

@@ -51,7 +51,6 @@ import com.quran.learnedplayer.data.AppTheme
 import com.quran.learnedplayer.data.Reciter
 import com.quran.learnedplayer.data.WordAudioDownloader
 import com.quran.learnedplayer.data.WordReciter
-import com.quran.learnedplayer.player.AyahOverflowMode
 import com.quran.learnedplayer.player.PlaybackMode
 import com.quran.learnedplayer.player.PlayerSettings
 import com.quran.learnedplayer.player.PlayerViewModel
@@ -84,7 +83,6 @@ const val TAG_SEEK_INSIDE_AYAH = "seek_inside_ayah_audio"
 const val TAG_USE_WORD_CLIPS = "use_word_clips"
 /** The Dark and Light chips, which live in the player's Background and theme sheet. */
 fun appThemeTag(theme: AppTheme) = "app_theme_${theme.name}"
-fun ayahOverflowModeTag(mode: AyahOverflowMode) = "ayah_overflow_mode_${mode.name}"
 
 @Composable
 fun SettingsScreen(
@@ -94,11 +92,8 @@ fun SettingsScreen(
     BackHandler(onBack = onBack)
     val state by viewModel.uiState.collectAsState()
     val reciter by viewModel.reciter.collectAsState()
-    val showTranslations by viewModel.showWordTranslations.collectAsState()
-    val showAyahTranslation by PlayerSettings.showAyahTranslationFlow.collectAsState()
     val swipeToNavigate by viewModel.swipeToNavigate.collectAsState()
     val tapToAdvance by viewModel.tapToAdvance.collectAsState()
-    val ayahOverflowMode by PlayerSettings.ayahOverflowModeFlow.collectAsState()
     val context = LocalContext.current
     val mainExecutor = remember(context) { ContextCompat.getMainExecutor(context) }
 
@@ -162,27 +157,6 @@ fun SettingsScreen(
                 modifier = Modifier.testTag(TAG_SETTINGS_CLEAR_CONTENT),
             ) { Text(tx("Remove downloaded translations"), color = AccentGreen) }
             cleared?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = TextMuted) }
-        }
-
-        Section(tx("Reading")) {
-            Text(
-                text = tx("When whole ayah is too long to fit on screen while playing:"),
-                style = MaterialTheme.typography.bodySmall,
-                color = TextMuted,
-                modifier = Modifier.padding(top = 16.dp),
-            )
-            Row(
-                modifier = Modifier.padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                AyahOverflowMode.entries.forEach { option ->
-                    Choice(
-                        label = tx(option.label),
-                        selected = ayahOverflowMode == option,
-                        tag = ayahOverflowModeTag(option),
-                    ) { PlayerSettings.ayahOverflowMode = option }
-                }
-            }
         }
 
         Section(tx("Gestures")) {

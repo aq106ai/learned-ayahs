@@ -49,43 +49,27 @@ npm run test:e2e         # Playwright, against server.py with seeded audio; no n
 - `views/contentChoices.js` is the picker the intro and Settings share (Android:
   `ui/settings/ContentChoices.kt`).
 
-## Recite: the lab, and what the Android app taught us
+## Recite & review: removed from both apps
 
-Recite & review was **removed from the Android app** (see its CLAUDE.md, and the
-`archive/recite-review-word-by-word` branch). The coach there was sound and well tested; what
-beat it was that nothing downstream of the speech engine can fix an engine that will not return
-the word. Reciting Al-Ikhlas 112:1 one word at a time, Google's Arabic model answers `والله` for
-قُلْ هُوَ ٱللَّهُ and never returns قُلْ. The rebuild starts here because a browser can be watched.
+The practice coach (listen to the student recite, correct the word they got wrong) is **gone from
+this app as well as Android**, and so is the `#/lab` instrument that was rebuilding it. Removed
+here: `views/recite.js`, `views/reciteLab.js`, the `recite` and `lab` routes and the Recite tab,
+the player's Recite button, `services/speech.js`, `player/wordPlayer.js`, all of `core/recite/`
+and `core/recite2/`, the three settings behind the beta (`reciteBetaEnabled`,
+`autoPlayMistakeAudio`, `autoAdvanceSuccess`) and their tests.
 
-`views/reciteLab.js` at **`#/lab`** (or `#/lab/<globalAyahId>`) is the instrument that was
-missing: it shows, per word, exactly what the engine answered — including the readings it ranked
-below the one it chose — and lets you export the session as JSON. It is a developer page: no nav
-entry, **not translated** (plain English, so it adds no keys to `ui_strings.json`).
+**Why, and read this before rebuilding any of it.** Nothing downstream of the speech engine can
+fix an engine that will not return the word. Reciting Al-Ikhlas 112:1 one word at a time, Google's
+Arabic model answers `والله` for قُلْ هُوَ ٱللَّهُ and never returns قُلْ, so a word recited correctly
+could be marked wrong indefinitely. The Android coach and its design notes are on the
+`archive/recite-review-word-by-word` branch; this app's own attempt — the `recite2` word flow,
+with the three load-bearing decisions it had reached (one utterance at a time with no running
+transcript, utterance ids because partials repeat themselves, and never deciding a word was
+skipped) — is in this repository's history.
 
-Three decisions in `core/recite2/` are load-bearing; changing any of them brings back a bug that
-has already cost a feature.
-
-- **One utterance at a time, never a running transcript.** `core/recite2/listener.js` reports
-  each result the engine produces on its own and remembers nothing between them — the opposite
-  of `services/speech.js`, which carries a prefix. The Android coach scored a *cumulative*
-  transcript against the whole ayah, so a misheard opening stayed at its head for the rest of the
-  ayah; on 112:3 that stale head (`ولم تولد`) was itself a clean match for the ayah's **last
-  two** words, beat every other reading, and the correct recitation behind it was never looked
-  at. With no transcript there is no head to go stale.
-- **Utterance ids, because partials repeat themselves.** `wordFlow.offer(text, {final, id})`
-  reads only what is new *within one utterance*. Without the id, two partials of different
-  utterances read as one and the first utterance's words are scored again against the words after
-  them — a miss on a correct recitation. `tests/unit/recite2.wordFlow.test.js` pins this.
-- **The flow never decides a word was skipped.** A word the engine cannot return looks exactly
-  like a word the student skipped, and the archived coach guessed. Here the only question asked
-  is "is this the word we are waiting for?", everything else said while waiting is kept against
-  that word as evidence (`outcomes[i].misheard`), and the student moves on with a button. A skip
-  is recorded as `skipped`, never as correct.
-
-The old whole-ayah coach (`core/recite/`, `views/recite.js`, still behind
-`settings.reciteBetaEnabled`) is untouched and still shipping. `recite2` reuses its
-**normalizer and aligner** — the Uthmani/plain spelling rules are the one part that demonstrably
-works — and nothing else.
+**Word clips are a different feature and still work.** They serve word-by-word *playback*
+(`engine.wordPlayback`, `core/wordSync.js`); their Settings download sits in a **Word audio**
+section, named for playback, as it does on Android.
 
 ## Player: views, word playback and colours
 

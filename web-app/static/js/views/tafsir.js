@@ -5,7 +5,7 @@
 // author and source, and which ayahs the entry covers: a tafsir often explains a group together.
 // Commentary is kept apart from the translation — it never appears in the reader itself.
 
-import { dialog, h } from '../lib/dom.js';
+import { append, dialog, h } from '../lib/dom.js';
 import { isRtl, languageName, tafsirById, tafsirsFor, translationById } from '../core/catalog.js';
 import { coveredRange } from '../core/tafsirText.js';
 import { surahName } from '../core/quran.js';
@@ -66,12 +66,14 @@ export async function showTafsir(store, surah, ayah) {
       const text = h('div', {
         class: 'tafsir-text', lang: edition.language, dir: isRtl(catalog, edition.language) ? 'rtl' : 'ltr', 'data-testid': 'tafsir-text',
       }, t.blocks.length ? renderBlocks(t.blocks) : h('p', { class: 'muted' }, tx('This tafsir has no commentary on this ayah.')));
-      body.replaceChildren(
+      // append() skips a null child; the native replaceChildren would print it as "null".
+      body.replaceChildren();
+      append(body, [
         picker(edition.id),
         h('p', { class: 'small muted', 'data-testid': 'tafsir-source' }, `${edition.name} by ${edition.author}, from ${edition.source}.`),
         range && range !== `${surah}:${ayah}` ? h('p', { class: 'small', 'data-testid': 'tafsir-range' }, tx('This commentary covers {range} together.', { range })) : null,
         text,
-      );
+      ]);
     } catch (err) {
       if (mine !== token) return;
       body.replaceChildren(

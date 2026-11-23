@@ -114,7 +114,6 @@ fun ContentChoices(
     val wordsId by PlayerSettings.wordMeaningLanguageFlow.collectAsState()
     val tafsirId by PlayerSettings.tafsirEditionFlow.collectAsState()
     val showWords by PlayerSettings.showWordTranslationsFlow.collectAsState()
-    val showAyah by PlayerSettings.showAyahTranslationFlow.collectAsState()
     val reciter by PlayerSettings.reciterFlow.collectAsState()
     val mushaf by PlayerSettings.mushafStyleFlow.collectAsState()
     val edition = catalog.translation(editionId)
@@ -151,7 +150,10 @@ fun ContentChoices(
         ChoiceRow(tx("Translation language"), catalog.languageName(edition.language, native = true), TAG_CONTENT_LANGUAGE) { picking = Picking.LANGUAGE }
         ChoiceRow(tx("Translation"), edition.label, TAG_CONTENT_EDITION) { picking = Picking.EDITION }
         Text(status, style = MaterialTheme.typography.bodySmall, color = TextMuted, modifier = Modifier.testTag(TAG_CONTENT_STATUS))
-        TranslationVisibilitySwitches()
+        // What is shown under the Arabic is a player switch, in its three-dot menu: Settings
+        // would be a second place to set the same thing. The intro has no player to open yet,
+        // so it still asks here ([includeStyle]).
+        if (includeStyle) TranslationVisibilitySwitches()
         if (showWords) {
             ChoiceRow(tx("Word meanings in"), catalog.languageName(words.language, native = true), TAG_CONTENT_WORD_LANGUAGE) { picking = Picking.WORDS }
             WordMeaningsStatus(wordsId)

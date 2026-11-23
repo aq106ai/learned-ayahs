@@ -6,7 +6,6 @@ import { reciterFromKey } from '../core/reciters.js';
 import { buildMaster } from '../core/quran.js';
 import * as quran from '../services/quranData.js';
 import { clearOfflineAudio, countCached, saveForOffline } from '../services/offline.js';
-import { speechSupported } from '../services/speech.js';
 import { exportFlow, importFlow } from './common.js';
 import { sourcesAndDisclaimer } from './terms.js';
 import { contentChoices } from './contentChoices.js';
@@ -14,7 +13,7 @@ import { uiLanguagePicker } from './uiLanguage.js';
 import { clearDownloaded, downloadedCount } from '../services/content.js';
 
 import { tx } from '../core/i18n.js';
-const VERSION = '1.0.0';
+const VERSION = '1.5.1';
 
 export function settingsView({ store, engine, server }) {
   const s = () => store.settings;
@@ -37,28 +36,6 @@ export function settingsView({ store, engine, server }) {
       },
     });
     return h('label', { class: 'toggle-row' }, h('span', { class: 'text' }, h('strong', {}, title), h('span', {}, description)), input);
-  }
-
-  function radios(name, options, current, onChange) {
-    const group = h('div', { class: 'chips', role: 'radiogroup' });
-    group.append(...options.map(([value, label]) =>
-      h('button', {
-        class: 'chip',
-        type: 'button',
-        role: 'radio',
-        'aria-checked': String(value === current),
-        'aria-pressed': String(value === current),
-        'data-testid': `${name}-${value}`,
-        onClick: (e) => {
-          for (const b of group.children) {
-            const on = b === e.currentTarget;
-            b.setAttribute('aria-checked', String(on));
-            b.setAttribute('aria-pressed', String(on));
-          }
-          onChange(value);
-        },
-      }, label)));
-    return group;
   }
 
   const card = (title, sub, ...children) =>
@@ -114,15 +91,6 @@ export function settingsView({ store, engine, server }) {
     refreshOffline();
   }
 
-  // -- Recite beta -------------------------------------------------------------------------
-
-  const confirmRecite = () =>
-    confirmDialog(
-      tx('Turn on Recite & review?'),
-      tx("This is a beta feature. It listens through your browser's Arabic speech recognition, which is built for everyday speech rather than Qur'anic recitation. It will sometimes miss a real mistake, and it can occasionally flag a word you recited correctly. Treat it as practice help, never as a check on whether your recitation is correct. Your microphone is only used while you are on the Recite screen."),
-      { confirm: tx('Turn on') },
-    );
-
   const el = h(
     'div',
     { class: 'page page-narrow' },
@@ -131,7 +99,7 @@ export function settingsView({ store, engine, server }) {
     card(
       tx('Translation and tafsir'),
       tx('Shown beside the Arabic in the player, the surah pages, shared text and videos. Saheeh International and the English word meanings come with the app; other editions download from Quran.com when chosen and are kept for offline use.'),
-      contentChoices(store),
+      contentChoices(store, { style: false }),
       h('div', { class: 'row', style: { marginTop: '10px' } },
         h('button', {
           class: 'btn small ghost', type: 'button', 'data-testid': 'content-clear',
@@ -149,14 +117,6 @@ export function settingsView({ store, engine, server }) {
         }, icon('trash'), tx('Remove downloaded translations'))),
     ),
     card(
-      tx('Reading'),
-      null,
-      h('div', { class: 'toggle-row' }, h('span', { class: 'text' }, h('strong', {}, tx('Long ayahs')), h('span', {}, tx('When a whole ayah is too long to fit on screen while playing:')))),
-      radios('overflow', [['AUTO_SCROLL', tx('Auto scroll')], ['FIT_TO_SCREEN', tx('Fit to screen')]], s().ayahOverflowMode, (v) => {
-        store.setSetting('ayahOverflowMode', v);
-      }),
-    ),
-    card(
       tx('Gestures'),
       tx('Swipe or tap on the player to move between ayahs.'),
       toggle('swipeToNavigate', tx('Swipe to navigate'), tx('Swipe left/right on the player to move between ayahs (or words).')),
@@ -171,17 +131,10 @@ export function settingsView({ store, engine, server }) {
         : null,
     ),
     card(
-      tx('Recitation & AI review'),
-      null,
-      h('div', { class: 'row' }, h('strong', {}, tx('Recite & review')), h('span', { class: 'badge warn' }, tx('Beta'))),
-      h('p', { class: 'small muted' }, speechSupported()
-        ? tx('Listens while you recite a learned ayah and plays the correct word back when you say a wrong one.')
-        : tx('This browser has no speech recognition. Recite & review works in Chrome, Edge and Safari.')),
-      toggle('reciteBetaEnabled', tx('Enable Recite & review'), tx('Adds a Recite button to the player and a Recite tab.'), { onTurnOn: confirmRecite }),
-      toggle('autoPlayMistakeAudio', tx('Auto-play audio on mistake'), tx('Play the reciter’s word when a mistake is detected, then let you re-recite.')),
-      toggle('autoAdvanceSuccess', tx('Auto-advance on success'), tx('Move to the next ayah once every word has been recited correctly.')),
-      h('div', { class: 'row', style: { marginTop: '8px' } },
-        h('button', { class: 'btn small', type: 'button', onClick: () => runSave(wordClipUrls, 'Word clips') }, icon('download'), tx('Save word clips for Recite & review'))),
+      tx('Word audio'),
+      tx('Word-by-word playback uses one clip per word. Saving them lets it run without a connection.'),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn small', type: 'button', onClick: () => runSave(wordClipUrls, 'Word clips') }, icon('download'), tx('Save word clips'))),
     ),
     card(
       tx('Offline'),

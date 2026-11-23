@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.quran.learnedplayer.data.AyahTrack
+import com.quran.learnedplayer.data.QuranConstants
 import com.quran.learnedplayer.data.SurahNames
 import com.quran.learnedplayer.ui.theme.AccentGreen
 import com.quran.learnedplayer.ui.theme.TextMuted
@@ -43,17 +44,24 @@ fun SurahJumpSheet(
     currentSurah: Int?,
     onDismiss: () -> Unit,
     onSurahSelected: (Int) -> Unit,
+    allowAnySurah: Boolean = false,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var numberText by remember(currentSurah) { mutableStateOf(currentSurah?.toString() ?: "") }
     var errorText by remember { mutableStateOf<String?>(null) }
+    var query by remember { mutableStateOf("") }
+    // Full surah can stream any surah, so there is nothing to refuse and nothing to leave out.
+    val listed = remember(availableSurahs, allowAnySurah, query) {
+        if (allowAnySurah) (1..114).filter { matchesJumpQuery(it, query) } else availableSurahs
+    }
 
     fun tryGoToNumber() {
         val n = numberText.trim().toIntOrNull()
         when {
             n == null -> errorText = tx("Enter a surah number")
             n !in 1..114 -> errorText = tx("Use a number from 1 to 114")
-            n !in availableSurahs -> errorText = tx("Surah {0} is not in your learned playlist", n)
+            !allowAnySurah && n !in availableSurahs ->
+                errorText = tx("Surah {0} is not in your learned playlist", n)
             else -> {
                 onSurahSelected(n)
                 onDismiss()
@@ -79,48 +87,78 @@ fun SurahJumpSheet(
                 color = TextPrimary,
             )
             Text(
-                text = tx("Type a surah number or pick from your learned surahs below."),
+                text = if (allowAnySurah) {
+                    tx("Search surah by name or number")
+                } else {
+                    tx("Type a surah number or pick from your learned surahs below.")
+                },
                 color = TextMuted,
                 style = MaterialTheme.typography.bodySmall,
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            // Every surah is listed and the search takes a number too, so the number field —
+            // which exists to reach a surah the list leaves out — would only be a second box.
+            if (allowAnySurah) {
                 OutlinedTextField(
-                    value = numberText,
-                    onValueChange = {
-                        numberText = it.filter { ch -> ch.isDigit() }.take(3)
-                        errorText = null
-                    },
-                    label = { Text(tx("Surah #")) },
-                    placeholder = { Text(tx("e.g. 114")) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text(tx("Search surah")) },
                     singleLine = true,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                 )
-                Button(onClick = { tryGoToNumber() }) {
-                    Text(tx("Go"))
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    OutlinedTextField(
+                        value = numberText,
+                        onValueChange = {
+                            numberText = it.filter { ch -> ch.isDigit() }.take(3)
+                            errorText = null
+                        },
+                        label = { Text(tx("Surah #")) },
+                        placeholder = { Text(tx("e.g. 114")) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Button(onClick = { tryGoToNumber() }) {
+                        Text(tx("Go"))
+                    }
+                }
+                errorText?.let {
+                    Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
             }
-            errorText?.let {
-                Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
             Text(
-                text = tx("Learned surahs ({0})", availableSurahs.size),
+                text = if (allowAnySurah) tx("All surahs") else tx("Learned surahs ({0})", availableSurahs.size),
                 fontWeight = FontWeight.SemiBold,
                 color = TextPrimary,
             )
+            if (listed.isEmpty() && allowAnySurah) {
+                Text(
+                    text = tx("No surah matches that search."),
+                    color = TextMuted,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 360.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                items(availableSurahs, key = { it }) { surah ->
+                items(listed, key = { it }) { surah ->
                     val active = surah == currentSurah
-                    val ayahCount = tracks.count { it.surah == surah }
+                    val learned = tracks.count { it.surah == surah }
+                    // Among all 114, say what is marked; a surah with nothing marked is listed
+                    // by its length rather than as "0 ayahs".
+                    val countLabel = when {
+                        !allowAnySurah -> tx("{0} ayahs", learned)
+                        learned > 0 -> tx("{0} learned", learned)
+                        else -> tx("{0} ayahs", QuranConstants.VERSE_COUNTS[surah - 1])
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -138,8 +176,8 @@ fun SurahJumpSheet(
                             fontWeight = if (active) FontWeight.SemiBold else FontWeight.Normal,
                         )
                         Text(
-                            text = tx("{0} ayahs", ayahCount),
-                            color = TextMuted,
+                            text = countLabel,
+                            color = if (allowAnySurah && learned > 0) AccentGreen else TextMuted,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -147,6 +185,15 @@ fun SurahJumpSheet(
             }
         }
     }
+}
+
+/** The same test as the player's surah panel: the number, or part of either name. */
+private fun matchesJumpQuery(surah: Int, query: String): Boolean {
+    if (query.isBlank()) return true
+    val q = query.trim()
+    return surah.toString() == q ||
+        SurahNames.name(surah).contains(q, ignoreCase = true) ||
+        SurahNames.latin(surah).contains(q, ignoreCase = true)
 }
 
 @Composable
